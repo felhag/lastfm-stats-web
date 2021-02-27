@@ -5,9 +5,8 @@
   <mat-card-content>
     <ng-container *ngIf="progress | async as p">
       <app-progress [progress]="p"></app-progress>
-      <!--      <div>First scrobble: {{first.datetime | date}} ({{first.artist}} - {{first.track}})</div>-->
-      <!--      <div>Last scrobble: {{last.datetime | date}} ({{last.artist}} - {{last.track}})</div>-->
-      <div>Total artists: ∞</div>
+      <div *ngIf="p.first | async as f">First scrobble: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
+      <div *ngIf="p.last | async as l">Last scrobble: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
     </ng-container>
   </mat-card-content>
 </mat-card>

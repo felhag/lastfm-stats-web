@@ -13,8 +13,6 @@ export interface Top10Item {
 }
 
 export interface Stats {
-  // username: string;
-  // progress: Progress;
   scrobbleStreak: Top10Item[];
   notListenedStreak: Top10Item[];
   betweenArtists: Top10Item[];
@@ -69,7 +67,6 @@ export class StatsComponent implements OnInit {
     );
     this.progress.pipe(
       switchMap(p => p.loader),
-      map(s => s.reverse()),
       map(s => this.builder.update(this.stats.value, s))
     ).subscribe(s => this.stats.next(s));
   }

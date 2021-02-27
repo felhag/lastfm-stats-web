@@ -23,9 +23,6 @@ interface Track {
   date?: {
     '#text': string;
   };
-  //
-  // public void setArtist(Map<String, String> artist) {
-  // this.artist = artist.get("#text");
 }
 
 export interface Scrobble {
@@ -35,6 +32,8 @@ export interface Scrobble {
 }
 
 export interface Progress {
+  first: Subject<Scrobble>;
+  last: Subject<Scrobble>;
   totalPages: number;
   total: number;
   currentPage: number;
@@ -57,6 +56,8 @@ export class ScrobbleRetrieverService {
     const to = new Date().toDateString();
     const progress: Progress = {
       loader: new Subject<Scrobble[]>(),
+      first: new Subject<Scrobble>(),
+      last: new Subject<Scrobble>(),
       completed: false,
       totalPages: -1,
       currentPage: -1,
@@ -67,24 +68,29 @@ export class ScrobbleRetrieverService {
       progress.totalPages = page;
       progress.currentPage = page;
       progress.total = r.recenttracks['@attr'].total;
-      this.iterate(progress, username, to);
+      this.iterate(progress, username, to, true);
     });
     return progress;
   }
 
-  private iterate(progress: Progress, username: string, to: string): void {
+  private iterate(progress: Progress, username: string, to: string, retry: boolean): void {
     this.get(username, to, progress.currentPage).subscribe(r => {
       const tracks: Scrobble[] = r.recenttracks.track.filter(t => t.date).map(t => ({
         track: t.name,
         artist: t.artist['#text'],
         date: this.parseDate(t.date!['#text'])
-      }));
+      })).reverse();
+      if (progress.currentPage === progress.totalPages) {
+        progress.first.next(tracks[0]);
+      }
+      progress.last.next(tracks[tracks.length - 1]);
       progress.loader.next(tracks);
       progress.currentPage--;
       if (progress.currentPage > 0) {
-        this.iterate(progress, username, to);
+        this.iterate(progress, username, to, true);
       }
-    });
+      // sometimes lastfm returns a 500, retry once.
+    }, () => this.iterate(progress, username, to, false));
   }
 
   private get(username: string, to: string, page: number): Observable<Response> {

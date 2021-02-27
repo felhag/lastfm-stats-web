@@ -102,10 +102,12 @@ export class StatsBuilderService {
   }
 
   update(stats: Stats, scrobbles: Scrobble[]): Stats {
+    let changed = false;
     for (const scrobble of scrobbles) {
       if (scrobble.date.getFullYear() === 1970) {
         continue;
       }
+      changed = true;
       this.tempStats.hours[scrobble.date.getHours()]++;
       this.tempStats.months[scrobble.date.getMonth()]++;
       this.tempStats.days[scrobble.date.getDay()]++;
@@ -151,7 +153,12 @@ export class StatsBuilderService {
 
       this.tempStats.last = scrobble;
     }
-    return this.updateStats(stats);
+
+    if (changed) {
+      return this.updateStats(stats);
+    } else {
+      return stats;
+    }
   }
 
   private updateStats(stats: Stats): Stats {
