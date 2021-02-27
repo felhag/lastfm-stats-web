@@ -1,0 +1,25 @@
+.spinner-wrapper {
+  height: 80%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+}
+
+.mat-card {
+  margin: 16px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.scrobble-header {
+  flex: 1 1 100%;
+}
+
+.item-description {
+  color: #999;
+}

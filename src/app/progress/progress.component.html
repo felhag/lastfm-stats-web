@@ -1,0 +1,5 @@
+<div *ngIf="!progress.completed">
+  <div>Loading: {{currentPage}}/{{totalPages}} pages ({{this.percentage | number:'1.2-2'}}%)</div>
+  <mat-progress-bar mode="determinate" [value]="percentage"></mat-progress-bar>
+</div>
+<div>Total scrobbles: {{progress.total}}</div>

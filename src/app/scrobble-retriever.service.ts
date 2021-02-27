@@ -34,6 +34,14 @@ export interface Scrobble {
   date: Date;
 }
 
+export interface Progress {
+  totalPages: number;
+  total: number;
+  currentPage: number;
+  completed: boolean;
+  loader: Subject<Scrobble[]>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,29 +53,36 @@ export class ScrobbleRetrieverService {
   constructor(private http: HttpClient) {
   }
 
-  retrieveFor(username: string): Observable<Scrobble[]> {
-    const result = new Subject<Scrobble[]>();
+  retrieveFor(username: string): Progress {
     const to = new Date().toDateString();
+    const progress: Progress = {
+      loader: new Subject<Scrobble[]>(),
+      completed: false,
+      totalPages: -1,
+      currentPage: -1,
+      total: -1,
+    };
     this.get(username, to, 1).subscribe(r => {
       const page = r.recenttracks['@attr'].totalPages;
-      this.iterate(result, username, to, page);
+      progress.totalPages = page;
+      progress.currentPage = page;
+      progress.total = r.recenttracks['@attr'].total;
+      this.iterate(progress, username, to);
     });
-    return result;
+    return progress;
   }
 
-  private iterate(subject: Subject<Scrobble[]>, username: string, to: string, page: number): void {
-    this.get(username, to, page).subscribe(r => {
-      console.log('retrieved');
-      const tracks: Scrobble[] = r.recenttracks.track.map(t => ({
+  private iterate(progress: Progress, username: string, to: string): void {
+    this.get(username, to, progress.currentPage).subscribe(r => {
+      const tracks: Scrobble[] = r.recenttracks.track.filter(t => t.date).map(t => ({
         track: t.name,
         artist: t.artist['#text'],
-        date: t.date ? this.parseDate(t.date['#text']) : new Date()
+        date: this.parseDate(t.date!['#text'])
       }));
-      subject.next(tracks);
-
-      const next = page - 1;
-      if (next > 0) {
-        this.iterate(subject, username, to, next);
+      progress.loader.next(tracks);
+      progress.currentPage--;
+      if (progress.currentPage > 0) {
+        this.iterate(progress, username, to);
       }
     });
   }

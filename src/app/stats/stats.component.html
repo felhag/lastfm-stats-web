@@ -1,0 +1,65 @@
+<mat-card class="scrobble-header">
+  <mat-card-header>
+    <mat-card-title>Statistics for {{username | async}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <ng-container *ngIf="progress | async as p">
+      <app-progress [progress]="p"></app-progress>
+      <!--      <div>First scrobble: {{first.datetime | date}} ({{first.artist}} - {{first.track}})</div>-->
+      <!--      <div>Last scrobble: {{last.datetime | date}} ({{last.artist}} - {{last.track}})</div>-->
+      <div>Total artists: ∞</div>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+
+
+<mat-spinner *ngIf="!stats"></mat-spinner>
+
+<div *ngIf="stats | async as s" class="container">
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Listened streaks', list:s.scrobbleStreak}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Not listened streaks', list:s.notListenedStreak}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Gaps between artists', list:s.betweenArtists}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Ongoing gaps between artists', list:s.ongoingBetweenArtists}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weeks per artists', list:s.weeksPerArtist}"></ng-container>
+<!--    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weekstreak per artist', list:s.weekStreakPerArtist}"></ng-container>-->
+  </div>
+<!--  <ng-container *ngIf="!start.value && !end.value">-->
+    <div class="row">
+      <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 new artists in a single month', list:s.newArtistsPerMonth}"></ng-container>
+      <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 most listened new artist in a single month', list:s.mostListenedNewArtist}"></ng-container>
+    </div>
+<!--  </ng-container>-->
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 unique artists in a single month', list:s.uniqueArtists}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist ascending', list:s.avgTrackPerArtistAsc}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist descending', list:s.avgTrackPerArtistDesc}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled hours', list:s.scrobbledHours}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled days', list:s.scrobbledDays}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled months', list:s.scrobbledMonths}"></ng-container>
+  </div>
+
+  <ng-template #top10list let-title="title" let-list="list">
+    <mat-card class="top10list">
+      <mat-card-header>
+        <mat-card-title>{{title}}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list role="list">
+<!--          [style.backgroundColor]="calcColor(top10item)"-->
+          <mat-list-item role="listitem" *ngFor="let top10item of list">
+            <div mat-line>{{top10item.name}}</div>
+            <div mat-line class="item-description">{{top10item.description}}</div>
+          </mat-list-item>
+          <mat-list-item *ngIf="!list.length">No results</mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+</div>

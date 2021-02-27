@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 75%;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  max-width: 1200px;
+  width: 100%;
+}
