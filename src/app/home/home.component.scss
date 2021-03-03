@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
   font-size: 48px;
+  line-height: 48px;
 
   label {
     display: flex;
@@ -29,7 +30,14 @@
       border: 0;
       background: transparent;
       font-size: 48px;
+      font-family: 'Roboto';
     }
   }
 }
 
+:host ::ng-deep .home .mat-icon {
+  width: 3rem;
+  height: 3rem;
+  font-size: 3rem;
+  line-height: 3rem;
+}

@@ -5,12 +5,12 @@
   <mat-card-content>
     <ng-container *ngIf="progress | async as p">
       <app-progress [progress]="p"></app-progress>
-      <div *ngIf="p.first | async as f">First scrobble: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
-      <div *ngIf="p.last | async as l">Last scrobble: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
+      <button mat-icon-button (click)="export()" matTooltip="Export stats as json"><mat-icon>file_download</mat-icon></button>
+      <button mat-icon-button (click)="uploadFile.click()" matTooltip="Import stats from json"><mat-icon>file_upload</mat-icon></button>
+      <input #uploadFile (change)="import($event)" type='file' style="display:none"/>
     </ng-container>
   </mat-card-content>
 </mat-card>
-
 
 <mat-spinner *ngIf="!stats"></mat-spinner>
 

@@ -1,7 +1,8 @@
+import {FileChangeEvent} from '@angular/compiler-cli/src/perform_watch';
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable, BehaviorSubject} from 'rxjs';
-import {map, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {map, shareReplay, switchMap, tap, take} from 'rxjs/operators';
 import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
 
@@ -36,26 +37,9 @@ export interface Stats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsComponent implements OnInit {
-  private readonly COLORS = ['rgba(252, 108, 133, .1)', 'rgba(252, 148, 161, .1)', 'rgba(255, 204, 203, .1)', 'rgba(205, 255, 204, .1)', 'rgba(176, 245, 171, .1)', 'rgba(144, 239, 144, .1)'];
-  stats = new BehaviorSubject<Stats>({
-    scrobbleStreak: [],
-    notListenedStreak: [],
-    betweenArtists: [],
-    ongoingBetweenArtists: [],
-    weeksPerArtist: [],
-    weekStreakPerArtist: [],
-    newArtistsPerMonth: [],
-    mostListenedNewArtist: [],
-    uniqueArtists: [],
-    avgTrackPerArtistAsc: [],
-    avgTrackPerArtistDesc: [],
-    scrobbledHours: [],
-    scrobbledDays: [],
-    scrobbledMonths: [],
-  });
-
-  dateColors: { [key: number]: string } = [];
+  stats = new BehaviorSubject<Stats>(this.emptyStats());
   progress!: Observable<Progress>;
+  scrobbles: Scrobble[] = [];
 
   constructor(private retriever: ScrobbleRetrieverService, private builder: StatsBuilderService, private route: ActivatedRoute) {
   }
@@ -67,11 +51,63 @@ export class StatsComponent implements OnInit {
     );
     this.progress.pipe(
       switchMap(p => p.loader),
+      tap(s => this.scrobbles.push(...s)),
       map(s => this.builder.update(this.stats.value, s))
     ).subscribe(s => this.stats.next(s));
   }
 
   get username(): Observable<string | null> {
     return this.route.paramMap.pipe(map(params => params.get('username')));
+  }
+
+  export(): void {
+    const data = JSON.stringify(this.scrobbles);
+    const blob = new Blob(['\ufeff' + data], { type: 'application/json;charset=utf-8;' });
+    const dwldLink = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    dwldLink.setAttribute('href', url);
+    dwldLink.setAttribute('download', 'stats.json');
+    document.body.appendChild(dwldLink);
+    dwldLink.click();
+    document.body.removeChild(dwldLink);
+  }
+
+  import(ev: Event): void {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const parsed = JSON.parse(reader.result as string) as any[];
+      this.scrobbles = parsed.map(s => ({track: s.track, artist: s.artist, date: new Date(s.date)}));
+      this.progress.pipe(take(1)).subscribe(p => {
+        p.state = 'INTERRUPTED';
+        p.totalPages = Math.ceil(this.scrobbles.length / 200);
+        p.currentPage = p.totalPages;
+        p.total = this.scrobbles.length;
+        p.first.next(this.scrobbles[0]);
+        p.last.next(this.scrobbles[this.scrobbles.length - 1]);
+      });
+      this.stats.next(this.emptyStats());
+      this.builder.update(this.stats.value, this.scrobbles);
+    };
+    const files = (ev.target! as any).files as FileList;
+    reader.readAsText(files.item(0)!);
+  }
+
+  private emptyStats(): Stats {
+    return {
+      scrobbleStreak: [],
+      notListenedStreak: [],
+      betweenArtists: [],
+      ongoingBetweenArtists: [],
+      weeksPerArtist: [],
+      weekStreakPerArtist: [],
+      newArtistsPerMonth: [],
+      mostListenedNewArtist: [],
+      uniqueArtists: [],
+      avgTrackPerArtistAsc: [],
+      avgTrackPerArtistDesc: [],
+      scrobbledHours: [],
+      scrobbledDays: [],
+      scrobbledMonths: [],
+    };
   }
 }

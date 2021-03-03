@@ -1,6 +1,7 @@
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -42,6 +43,7 @@ import {StatsComponent} from './stats/stats.component';
     MatListModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     ScrollingModule,
   ],

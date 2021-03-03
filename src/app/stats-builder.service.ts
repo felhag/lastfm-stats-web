@@ -164,7 +164,10 @@ export class StatsBuilderService {
   private updateStats(stats: Stats): Stats {
     const endDate = this.tempStats.last!.date;
     const seen = Object.values(this.tempStats.seenArtists);
-    stats.scrobbleStreak = this.getStreakTop10(this.tempStats.scrobbleStreak.streaks);
+    const current = this.tempStats.scrobbleStreak.current;
+    const currentStreak: Streak | undefined = current ? {start: current.start, end: {artist: '?', track: '?', date: endDate}} : undefined;
+    const streak = currentStreak ? [...this.tempStats.scrobbleStreak.streaks, currentStreak] : this.tempStats.scrobbleStreak.streaks;
+    stats.scrobbleStreak = this.getStreakTop10(streak);
     stats.notListenedStreak = this.getStreakTop10(this.tempStats.notListenedStreak.streaks);
     stats.betweenArtists = this.getStreakTop10(this.tempStats.betweenArtists.streaks, s => `${s.start.artist} (${s.length} days)`);
     stats.ongoingBetweenArtists = this.getStreakTop10(
@@ -187,11 +190,13 @@ export class StatsBuilderService {
     stats.uniqueArtists = this.getTop10(months, m => Object.keys(m.scrobblesPerArtist).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, m => this.including(m));
 
     const arr = Object.values(months)
-      .map(m => Object.keys(m.scrobblesPerArtist).filter(k => m.newArtists.indexOf(k) >= 0).map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
+      .map(m => Object.keys(m.scrobblesPerArtist)
+        .filter(k => m.newArtists.indexOf(k) >= 0)
+        .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
       .flat();
 
-    stats.avgTrackPerArtistAsc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)` , v => this.including(v));
-    stats.avgTrackPerArtistDesc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)` , v => this.including(v)); // reverse
+    stats.avgTrackPerArtistAsc = this.getTop10(months, m => -m.avg!, k => months[k], m => `${m.alias} (${Math.round(Math.abs(m.avg))} scrobbles per artist)` , v => this.including(v));
+    stats.avgTrackPerArtistDesc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)` , v => this.including(v));
     stats.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, a => `${a.amount} times`);
 
     stats.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);

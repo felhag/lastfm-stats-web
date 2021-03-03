@@ -37,7 +37,7 @@ export interface Progress {
   totalPages: number;
   total: number;
   currentPage: number;
-  completed: boolean;
+  state: 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED';
   loader: Subject<Scrobble[]>;
 }
 
@@ -58,7 +58,7 @@ export class ScrobbleRetrieverService {
       loader: new Subject<Scrobble[]>(),
       first: new Subject<Scrobble>(),
       last: new Subject<Scrobble>(),
-      completed: false,
+      state: 'RETRIEVING',
       totalPages: -1,
       currentPage: -1,
       total: -1,
@@ -68,12 +68,16 @@ export class ScrobbleRetrieverService {
       progress.totalPages = page;
       progress.currentPage = page;
       progress.total = r.recenttracks['@attr'].total;
-      this.iterate(progress, username, to, true);
+      this.iterate(progress, username, to, 3);
     });
     return progress;
   }
 
-  private iterate(progress: Progress, username: string, to: string, retry: boolean): void {
+  private iterate(progress: Progress, username: string, to: string, retry: number): void {
+    if (progress.state === 'INTERRUPTED') {
+      return;
+    }
+
     this.get(username, to, progress.currentPage).subscribe(r => {
       const tracks: Scrobble[] = r.recenttracks.track.filter(t => t.date).map(t => ({
         track: t.name,
@@ -87,10 +91,12 @@ export class ScrobbleRetrieverService {
       progress.loader.next(tracks);
       progress.currentPage--;
       if (progress.currentPage > 0) {
-        this.iterate(progress, username, to, true);
+        this.iterate(progress, username, to, 3);
+      } else {
+        progress.state = 'COMPLETED';
       }
-      // sometimes lastfm returns a 500, retry once.
-    }, () => this.iterate(progress, username, to, false));
+      // sometimes lastfm returns a 500, retry a few times.
+    }, () => retry > 0 ? this.iterate(progress, username, to, retry--) : undefined);
   }
 
   private get(username: string, to: string, page: number): Observable<Response> {
