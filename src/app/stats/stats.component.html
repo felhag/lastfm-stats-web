@@ -8,6 +8,7 @@
       <button mat-icon-button (click)="export()" matTooltip="Export stats as json"><mat-icon>file_download</mat-icon></button>
       <button mat-icon-button (click)="uploadFile.click()" matTooltip="Import stats from json"><mat-icon>file_upload</mat-icon></button>
       <input #uploadFile (change)="import($event)" type='file' style="display:none"/>
+      <app-date-range *ngIf="p.first | async as f" [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
     </ng-container>
   </mat-card-content>
 </mat-card>
@@ -27,12 +28,10 @@
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weeks per artists', list:s.weeksPerArtist}"></ng-container>
 <!--    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weekstreak per artist', list:s.weekStreakPerArtist}"></ng-container>-->
   </div>
-<!--  <ng-container *ngIf="!start.value && !end.value">-->
-    <div class="row">
-      <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 new artists in a single month', list:s.newArtistsPerMonth}"></ng-container>
-      <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 most listened new artist in a single month', list:s.mostListenedNewArtist}"></ng-container>
-    </div>
-<!--  </ng-container>-->
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 new artists in a single month', list:s.newArtistsPerMonth}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 most listened new artist in a single month', list:s.mostListenedNewArtist}"></ng-container>
+  </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 unique artists in a single month', list:s.uniqueArtists}"></ng-container>
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist ascending', list:s.avgTrackPerArtistAsc}"></ng-container>

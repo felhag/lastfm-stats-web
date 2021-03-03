@@ -20,6 +20,7 @@ import {NgModule} from '@angular/core';
 import {ProgressComponent} from './progress/progress.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {StatsComponent} from './stats/stats.component';
+import { DateRangeComponent } from './date-range/date-range.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import {StatsComponent} from './stats/stats.component';
     HomeComponent,
     StatsComponent,
     ProgressComponent,
+    DateRangeComponent,
   ],
   imports: [
     AppRoutingModule,

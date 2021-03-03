@@ -1,7 +1,6 @@
-import {FileChangeEvent} from '@angular/compiler-cli/src/perform_watch';
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable, BehaviorSubject, Subject} from 'rxjs';
 import {map, shareReplay, switchMap, tap, take} from 'rxjs/operators';
 import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
@@ -40,6 +39,7 @@ export class StatsComponent implements OnInit {
   stats = new BehaviorSubject<Stats>(this.emptyStats());
   progress!: Observable<Progress>;
   scrobbles: Scrobble[] = [];
+  dateRange?: [Date, Date];
 
   constructor(private retriever: ScrobbleRetrieverService, private builder: StatsBuilderService, private route: ActivatedRoute) {
   }
@@ -52,7 +52,8 @@ export class StatsComponent implements OnInit {
     this.progress.pipe(
       switchMap(p => p.loader),
       tap(s => this.scrobbles.push(...s)),
-      map(s => this.builder.update(this.stats.value, s))
+      map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
+      map(s => this.builder.update(this.stats.value, s, true))
     ).subscribe(s => this.stats.next(s));
   }
 
@@ -85,11 +86,20 @@ export class StatsComponent implements OnInit {
         p.first.next(this.scrobbles[0]);
         p.last.next(this.scrobbles[this.scrobbles.length - 1]);
       });
-      this.stats.next(this.emptyStats());
-      this.builder.update(this.stats.value, this.scrobbles);
+      this.rebuild(this.scrobbles);
     };
     const files = (ev.target! as any).files as FileList;
     reader.readAsText(files.item(0)!);
+  }
+
+  rebuild(scrobbles: Scrobble[]): void {
+    this.stats.next(this.emptyStats());
+    this.builder.update(this.stats.value, scrobbles, false);
+  }
+
+  updateDateRange(range?: [Date, Date]): void {
+    this.dateRange = range;
+    this.rebuild(this.scrobbles.filter(s => !range || (s.date >= range[0] && s.date <= range[1])));
   }
 
   private emptyStats(): Stats {

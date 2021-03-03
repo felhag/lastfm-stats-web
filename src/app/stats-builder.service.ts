@@ -84,24 +84,15 @@ class ScrobbleStreakStack extends StreakStack {
 export class StatsBuilderService {
   readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  tempStats: TempStats = {
-    monthList: {},
-    days: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
-    hours: {
-      0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0,
-      13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0
-    },
-    months: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0},
-    scrobbleStreak: new ScrobbleStreakStack(),
-    notListenedStreak: new StreakStack(),
-    betweenArtists: new StreakStack(),
-    seenArtists: {},
-  };
+  tempStats: TempStats = this.emptyStats();
 
   constructor() {
   }
 
-  update(stats: Stats, scrobbles: Scrobble[]): Stats {
+  update(stats: Stats, scrobbles: Scrobble[], cumulative: boolean): Stats {
+    if (!cumulative) {
+      this.tempStats = this.emptyStats();
+    }
     let changed = false;
     for (const scrobble of scrobbles) {
       if (scrobble.date.getFullYear() === 1970) {
@@ -257,5 +248,21 @@ export class StatsBuilderService {
 
   private monthYearDisplay(date: Date): string {
     return this.MONTHS[date.getMonth()] + ' ' + date.getFullYear();
+  }
+
+  private emptyStats(): TempStats {
+    return {
+      monthList: {},
+      days: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+      hours: {
+        0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0,
+        13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0
+      },
+      months: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0},
+      scrobbleStreak: new ScrobbleStreakStack(),
+      notListenedStreak: new StreakStack(),
+      betweenArtists: new StreakStack(),
+      seenArtists: {},
+    };
   }
 }
