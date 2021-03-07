@@ -36,7 +36,6 @@ export interface Stats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsComponent implements OnInit {
-  stats = new BehaviorSubject<Stats>(this.emptyStats());
   progress!: Observable<Progress>;
   scrobbles: Scrobble[] = [];
   dateRange?: [Date, Date];
@@ -53,8 +52,7 @@ export class StatsComponent implements OnInit {
       switchMap(p => p.loader),
       tap(s => this.scrobbles.push(...s)),
       map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
-      map(s => this.builder.update(this.stats.value, s, true))
-    ).subscribe(s => this.stats.next(s));
+    ).subscribe(s => this.builder.update(s, true));
   }
 
   get username(): Observable<string | null> {
@@ -93,31 +91,11 @@ export class StatsComponent implements OnInit {
   }
 
   rebuild(scrobbles: Scrobble[]): void {
-    this.stats.next(this.emptyStats());
-    this.builder.update(this.stats.value, scrobbles, false);
+    this.builder.update(scrobbles, false);
   }
 
   updateDateRange(range?: [Date, Date]): void {
     this.dateRange = range;
     this.rebuild(this.scrobbles.filter(s => !range || (s.date >= range[0] && s.date <= range[1])));
-  }
-
-  private emptyStats(): Stats {
-    return {
-      scrobbleStreak: [],
-      notListenedStreak: [],
-      betweenArtists: [],
-      ongoingBetweenArtists: [],
-      weeksPerArtist: [],
-      weekStreakPerArtist: [],
-      newArtistsPerMonth: [],
-      mostListenedNewArtist: [],
-      uniqueArtists: [],
-      avgTrackPerArtistAsc: [],
-      avgTrackPerArtistDesc: [],
-      scrobbledHours: [],
-      scrobbledDays: [],
-      scrobbledMonths: [],
-    };
   }
 }

@@ -1,4 +1,5 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, AfterViewInit} from '@angular/core';
+import {MDCSlider} from '@material/slider/component';
 import {Progress} from '../scrobble-retriever.service';
 
 @Component({
@@ -6,13 +7,10 @@ import {Progress} from '../scrobble-retriever.service';
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.scss']
 })
-export class ProgressComponent implements OnInit {
+export class ProgressComponent {
   @Input() progress!: Progress;
 
   constructor() {
-  }
-
-  ngOnInit(): void {
   }
 
   get percentage(): number {

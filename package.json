@@ -22,6 +22,8 @@
     "@angular/platform-browser-dynamic": "~11.2.1",
     "@angular/router": "~11.2.1",
     "@material/slider": "^10.0.0",
+    "highcharts": "^9.0.1",
+    "highcharts-angular": "^2.10.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"

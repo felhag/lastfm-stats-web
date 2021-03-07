@@ -107,7 +107,7 @@ export class ScrobbleRetrieverService {
       .append('format', 'json')
       .append('limit', '200')
       .append('to', to)
-      // .append('from', from)
+      .append('from', '36875258')
       .append('page', String(page));
 
     return this.http.get<Response>(this.API, {params});

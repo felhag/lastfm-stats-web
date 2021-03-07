@@ -1,0 +1,13 @@
+.row {
+  display: flex;
+}
+
+.mat-card {
+  margin: 16px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.item-description {
+  color: #999;
+}
