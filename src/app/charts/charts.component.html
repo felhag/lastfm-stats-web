@@ -1,6 +1,12 @@
-<highcharts-chart
-  [Highcharts]="Highcharts"
-  [options]="chartOptions"
-  [(update)]="updateFlag"
-  style="width: 100%; height: 400px; display: block;"
-></highcharts-chart>
+<div class="chart" *ngFor="let c of charts">
+  <mat-card>
+    <mat-card-content>
+      <highcharts-chart [Highcharts]="Highcharts"
+                        [options]="c.options"
+                        (chartInstance)="c.chart = $event"
+                        [(update)]="c.updateFlag"
+                        style="width: 100%; display: block;"
+      ></highcharts-chart>
+    </mat-card-content>
+  </mat-card>
+</div>
