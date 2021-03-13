@@ -48,7 +48,7 @@ export class ListsComponent implements OnInit {
 
     const arr = Object.values(months)
       .map(m => Object.keys(m.scrobblesPerArtist)
-        .filter(k => m.newArtists.indexOf(k) >= 0)
+        .filter(k => m.newArtists.map(a => a.artist).indexOf(k) >= 0)
         .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
       .flat();
 

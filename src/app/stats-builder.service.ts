@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {Scrobble} from './scrobble-retriever.service';
-import {Top10Item, Stats} from './stats/stats.component';
 
 export interface Artist {
   weeks: string[];
@@ -12,7 +11,7 @@ export interface Artist {
 
 export interface Month {
   alias: string;
-  newArtists: string[];
+  newArtists: Scrobble[];
   scrobblesPerArtist: { [key: string]: number };
   avg?: number;
 }
@@ -27,6 +26,7 @@ export interface TempStats {
   scrobbleStreak: ScrobbleStreakStack;
   notListenedStreak: StreakStack;
   betweenArtists: StreakStack;
+  scrobbleMilestones: Scrobble[];
 }
 
 export interface Streak {
@@ -93,10 +93,12 @@ export class StatsBuilderService {
   update(scrobbles: Scrobble[], cumulative: boolean): void {
     const next = cumulative ? this.tempStats.value : this.emptyStats();
     let changed = false;
+    let count = 0;
     for (const scrobble of scrobbles) {
       if (scrobble.date.getFullYear() === 1970) {
         continue;
       }
+      count++;
       changed = true;
       next.hours[scrobble.date.getHours()]++;
       next.months[scrobble.date.getMonth()]++;
@@ -125,7 +127,7 @@ export class StatsBuilderService {
           betweenStreak: {start: scrobble, end: scrobble},
         };
 
-        month.newArtists.push(scrobble.artist);
+        month.newArtists.push(scrobble);
       }
 
       if (!month.scrobblesPerArtist[scrobble.artist]) {
@@ -139,6 +141,10 @@ export class StatsBuilderService {
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
       if (lastDate && sod.getTime() - lastDate.getTime() > StreakStack.DAY) {
         next.notListenedStreak.add({start: next.last!, end: scrobble});
+      }
+
+      if (count % 1000 === 0) {
+        next.scrobbleMilestones.push(scrobble);
       }
 
       next.last = scrobble;
@@ -174,6 +180,7 @@ export class StatsBuilderService {
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
       seenArtists: {},
+      scrobbleMilestones: []
     };
   }
 }
