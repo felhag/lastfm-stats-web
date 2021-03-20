@@ -1,5 +1,5 @@
 import {PointOptionsType} from 'highcharts';
-import {TempStats} from '../stats-builder.service';
+import {TempStats} from '../model';
 import {AbstractChart} from './abstract-chart';
 import * as Highcharts from 'highcharts';
 

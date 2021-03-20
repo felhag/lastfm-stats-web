@@ -9,7 +9,7 @@
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weeks per artists', list: s.weeksPerArtist}"></ng-container>
-    <!--    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weekstreak per artist', list: s.weekStreakPerArtist}"></ng-container>-->
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 tracks per artists', list: s.tracksPerArtist}"></ng-container>
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 new artists in a single month', list: s.newArtistsPerMonth}"></ng-container>
@@ -17,8 +17,7 @@
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 unique artists in a single month', list: s.uniqueArtists}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist ascending', list: s.avgTrackPerArtistAsc}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist descending', list: s.avgTrackPerArtistDesc}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist descending', list: s.avgTrackPerArtist}"></ng-container>
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled hours', list: s.scrobbledHours}"></ng-container>

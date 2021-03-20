@@ -1,33 +1,9 @@
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable, BehaviorSubject, Subject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {map, shareReplay, switchMap, tap, take} from 'rxjs/operators';
 import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
-
-export interface Top10Item {
-  name: string;
-  amount: number;
-  description?: string;
-  date?: string;
-}
-
-export interface Stats {
-  scrobbleStreak: Top10Item[];
-  notListenedStreak: Top10Item[];
-  betweenArtists: Top10Item[];
-  ongoingBetweenArtists: Top10Item[];
-  weeksPerArtist: Top10Item[];
-  weekStreakPerArtist: Top10Item[];
-  newArtistsPerMonth: Top10Item[];
-  mostListenedNewArtist: Top10Item[];
-  uniqueArtists: Top10Item[];
-  avgTrackPerArtistAsc: Top10Item[];
-  avgTrackPerArtistDesc: Top10Item[];
-  scrobbledHours: Top10Item[];
-  scrobbledDays: Top10Item[];
-  scrobbledMonths: Top10Item[];
-}
 
 @Component({
   selector: 'app-stats',
@@ -61,7 +37,7 @@ export class StatsComponent implements OnInit {
 
   export(): void {
     const data = JSON.stringify(this.scrobbles);
-    const blob = new Blob(['\ufeff' + data], { type: 'application/json;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + data], {type: 'application/json;charset=utf-8;'});
     const dwldLink = document.createElement('a');
     const url = URL.createObjectURL(blob);
     dwldLink.setAttribute('href', url);

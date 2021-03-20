@@ -1,4 +1,4 @@
-import {TempStats} from '../stats-builder.service';
+import {TempStats} from '../model';
 
 export abstract class AbstractChart {
   abstract options: Highcharts.Options;

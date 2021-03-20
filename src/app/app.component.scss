@@ -8,6 +8,11 @@
 .container {
   display: flex;
   justify-content: center;
-  max-width: 1200px;
   width: 100%;
+}
+
+@media screen and (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
 }

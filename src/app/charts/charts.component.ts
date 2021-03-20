@@ -1,11 +1,12 @@
-import {Component, OnInit, AfterViewInit} from '@angular/core';
+import {Component, AfterViewInit} from '@angular/core';
 import * as Highcharts from 'highcharts';
 import {filter, startWith} from 'rxjs/operators';
-import {StatsBuilderService, TempStats} from '../stats-builder.service';
+import {TempStats} from '../model';
+import {StatsBuilderService} from '../stats-builder.service';
 import {AbstractChart} from './abstract-chart';
+import {ArtistScrobbleChart} from './artist-scrobble-chart';
 import {ArtistTimelineChart} from './artist-timeline-chart';
 import {TimelineChart} from './timeline-chart';
-import {ArtistScrobbleChart} from './artist-scrobble-chart';
 
 @Component({
   selector: 'app-charts',

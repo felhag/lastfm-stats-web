@@ -4,10 +4,13 @@
   </mat-card-header>
   <mat-card-content>
     <ng-container *ngIf="progress | async as p">
+      <mat-card-subtitle>Progress</mat-card-subtitle>
       <app-progress [progress]="p"></app-progress>
-      <button mat-icon-button (click)="export()" matTooltip="Export stats as json"><mat-icon>file_download</mat-icon></button>
-      <button mat-icon-button (click)="uploadFile.click()" matTooltip="Import stats from json"><mat-icon>file_upload</mat-icon></button>
+      <mat-card-subtitle>Import/export json</mat-card-subtitle>
+      <button mat-flat-button (click)="export()" matTooltip="Export stats as json"><mat-icon>file_download</mat-icon>Export</button>
+      <button mat-flat-button (click)="uploadFile.click()" matTooltip="Import stats from json"><mat-icon>file_upload</mat-icon>Import</button>
       <input #uploadFile (change)="import($event)" type='file' style="display:none"/>
+      <mat-card-subtitle>Date range</mat-card-subtitle>
       <app-date-range *ngIf="p.first | async as f" [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
     </ng-container>
   </mat-card-content>

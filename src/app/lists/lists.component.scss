@@ -1,11 +1,11 @@
 .row {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .mat-card {
   margin: 16px;
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 1;
 }
 
 .item-description {

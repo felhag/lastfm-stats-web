@@ -1,8 +1,31 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {filter} from 'rxjs/operators';
-import {Month, Streak, StreakStack, StatsBuilderService, TempStats, ScrobbleStreakStack} from '../stats-builder.service';
-import {Stats, Top10Item} from '../stats/stats.component';
+import {StatsBuilderService} from '../stats-builder.service';
+import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Constants} from '../model';
+
+export interface Top10Item {
+  name: string;
+  amount: number;
+  description?: string;
+  date?: string;
+}
+
+export interface Stats {
+  scrobbleStreak: Top10Item[];
+  notListenedStreak: Top10Item[];
+  betweenArtists: Top10Item[];
+  ongoingBetweenArtists: Top10Item[];
+  weeksPerArtist: Top10Item[];
+  tracksPerArtist: Top10Item[];
+  newArtistsPerMonth: Top10Item[];
+  mostListenedNewArtist: Top10Item[];
+  uniqueArtists: Top10Item[];
+  avgTrackPerArtist: Top10Item[];
+  scrobbledHours: Top10Item[];
+  scrobbledDays: Top10Item[];
+  scrobbledMonths: Top10Item[];
+}
 
 @Component({
   selector: 'app-lists',
@@ -60,16 +83,16 @@ export class ListsComponent implements OnInit {
         .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
       .flat();
 
-    next.avgTrackPerArtistAsc = this.getTop10(months, m => -m.avg!, k => months[k], m => `${m.alias} (${Math.round(Math.abs(m.avg))} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
-    next.avgTrackPerArtistDesc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
+    next.avgTrackPerArtist = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
     next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, a => `${a.amount} times`);
 
     next.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
+    next.tracksPerArtist = this.getTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
 
     const xTimes = (item: any, v: number) => `${v} times`;
     next.scrobbledHours = this.getTop10(tempStats.hours, k => tempStats.hours[k], k => k, k => `${k}:00-${k}:59`, xTimes);
-    next.scrobbledDays = this.getTop10(tempStats.days, k => tempStats.days[k], k => k, k => StatsBuilderService.DAYS[k], xTimes);
-    next.scrobbledMonths = this.getTop10(tempStats.months, k => tempStats.months[k], k => k, k => StatsBuilderService.MONTHS[k], xTimes);
+    next.scrobbledDays = this.getTop10(tempStats.days, k => tempStats.days[k], k => k, k => Constants.DAYS[k], xTimes);
+    next.scrobbledMonths = this.getTop10(tempStats.months, k => tempStats.months[k], k => k, k => Constants.MONTHS[k], xTimes);
 
     this.stats.next(next);
   }
@@ -130,12 +153,11 @@ export class ListsComponent implements OnInit {
       betweenArtists: [],
       ongoingBetweenArtists: [],
       weeksPerArtist: [],
-      weekStreakPerArtist: [],
+      tracksPerArtist: [],
       newArtistsPerMonth: [],
       mostListenedNewArtist: [],
       uniqueArtists: [],
-      avgTrackPerArtistAsc: [],
-      avgTrackPerArtistDesc: [],
+      avgTrackPerArtist: [],
       scrobbledHours: [],
       scrobbledDays: [],
       scrobbledMonths: [],
