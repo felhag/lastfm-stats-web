@@ -43,8 +43,16 @@ export class ListsComponent implements OnInit {
       m.avg = (sum / values.length) || 0;
     });
 
-    next.newArtistsPerMonth = this.getTop10(months, m => m.newArtists.length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, m => this.including(m));
-    next.uniqueArtists = this.getTop10(months, m => Object.keys(m.scrobblesPerArtist).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, m => this.including(m));
+    next.newArtistsPerMonth = this.getTop10(months, m => m.newArtists.length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
+      // only show new artists in Including... text
+      const newArtists = m.newArtists.map(s => s.artist);
+      const result = Object.keys(m.scrobblesPerArtist).filter(spa => newArtists.indexOf(spa) >= 0).reduce((r: any, e) => {
+        r[e] = m.scrobblesPerArtist[e];
+        return r;
+      }, {});
+      return this.including(result);
+    });
+    next.uniqueArtists = this.getTop10(months, m => Object.keys(m.scrobblesPerArtist).length, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, m => this.including(m.scrobblesPerArtist));
 
     const arr = Object.values(months)
       .map(m => Object.keys(m.scrobblesPerArtist)
@@ -52,8 +60,8 @@ export class ListsComponent implements OnInit {
         .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
       .flat();
 
-    next.avgTrackPerArtistAsc = this.getTop10(months, m => -m.avg!, k => months[k], m => `${m.alias} (${Math.round(Math.abs(m.avg))} scrobbles per artist)`, v => this.including(v));
-    next.avgTrackPerArtistDesc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)`, v => this.including(v));
+    next.avgTrackPerArtistAsc = this.getTop10(months, m => -m.avg!, k => months[k], m => `${m.alias} (${Math.round(Math.abs(m.avg))} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
+    next.avgTrackPerArtistDesc = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
     next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, a => `${a.amount} times`);
 
     next.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
@@ -109,10 +117,10 @@ export class ListsComponent implements OnInit {
     });
   }
 
-  private including(m: Month): string {
-    const keys = Object.keys(m.scrobblesPerArtist);
-    keys.sort((a, b) => m.scrobblesPerArtist[b] - m.scrobblesPerArtist[a]);
-    return keys.splice(0, 3).join(', ');
+  private including(scrobblesPerArtist: { [key: string]: number }): string {
+    const keys = Object.keys(scrobblesPerArtist);
+    keys.sort((a, b) => scrobblesPerArtist[b] - scrobblesPerArtist[a]);
+    return 'Including ' + keys.splice(0, 3).join(', ');
   }
 
   private emptyStats(): Stats {

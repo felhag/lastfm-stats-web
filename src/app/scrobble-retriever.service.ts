@@ -79,6 +79,10 @@ export class ScrobbleRetrieverService {
     }
 
     this.get(username, to, progress.currentPage).subscribe(r => {
+      if (progress.state === 'INTERRUPTED') {
+        return;
+      }
+
       const tracks: Scrobble[] = r.recenttracks.track.filter(t => t.date).map(t => ({
         track: t.name,
         artist: t.artist['#text'],
