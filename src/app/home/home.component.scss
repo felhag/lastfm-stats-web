@@ -35,9 +35,34 @@
   }
 }
 
-:host ::ng-deep .home .mat-icon {
-  width: 3rem;
-  height: 3rem;
-  font-size: 3rem;
-  line-height: 3rem;
+@media (min-width: 768px) {
+  .text-button {
+    display: none;
+  }
+
+  .arrow-button {
+    display: block;
+  }
+
+  :host ::ng-deep .home .mat-icon {
+    width: 3rem;
+    height: 3rem;
+    font-size: 3rem;
+    line-height: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  label {
+    flex-direction: column;
+  }
+
+  .text-button {
+    display: block;
+    margin-top: 12px;
+  }
+
+  .arrow-button {
+    display: none;
+  }
 }

@@ -1,4 +1,5 @@
 import {Component, AfterViewInit} from '@angular/core';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
 import {filter, startWith} from 'rxjs/operators';
 import {TempStats} from '../model';
@@ -8,10 +9,10 @@ import {ArtistScrobbleChart} from './artist-scrobble-chart';
 import {ArtistTimelineChart} from './artist-timeline-chart';
 import {TimelineChart} from './timeline-chart';
 
+@UntilDestroy()
 @Component({
   selector: 'app-charts',
-  templateUrl: './charts.component.html',
-  styleUrls: ['./charts.component.scss']
+  templateUrl: './charts.component.html',  styleUrls: ['./charts.component.scss']
 })
 export class ChartsComponent implements AfterViewInit {
   Highcharts: typeof Highcharts = Highcharts;
@@ -22,6 +23,7 @@ export class ChartsComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.builder.tempStats.pipe(
+      untilDestroyed(this),
       startWith(this.builder.tempStats.value),
       filter(s => !!s.last),
     ).subscribe(stats => this.updateStats(stats));

@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {StatsBuilderService} from '../stats-builder.service';
@@ -27,6 +28,7 @@ export interface Stats {
   scrobbledMonths: Top10Item[];
 }
 
+@UntilDestroy()
 @Component({
   selector: 'app-lists',
   templateUrl: './lists.component.html',
@@ -39,7 +41,10 @@ export class ListsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.builder.tempStats.pipe(filter(s => !!s.last)).subscribe(stats => this.updateStats(stats));
+    this.builder.tempStats.pipe(
+      untilDestroyed(this),
+      filter(s => !!s.last)
+    ).subscribe(stats => this.updateStats(stats));
   }
 
   private updateStats(tempStats: TempStats): void {

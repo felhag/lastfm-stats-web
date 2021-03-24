@@ -10,13 +10,15 @@
       <button mat-flat-button (click)="export()" matTooltip="Export stats as json"><mat-icon>file_download</mat-icon>Export</button>
       <button mat-flat-button (click)="uploadFile.click()" matTooltip="Import stats from json"><mat-icon>file_upload</mat-icon>Import</button>
       <input #uploadFile (change)="import($event)" type='file' style="display:none"/>
-      <mat-card-subtitle>Date range</mat-card-subtitle>
-      <app-date-range *ngIf="p.first | async as f" [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
+      <ng-container *ngIf="p.first | async as f">
+        <mat-card-subtitle>Date range</mat-card-subtitle>
+        <app-date-range [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
+      </ng-container>
     </ng-container>
   </mat-card-content>
 </mat-card>
 
-<mat-tab-group>
+<mat-tab-group mat-stretch-tabs>
   <mat-tab label="Lists">
     <ng-template matTabContent>
       <app-lists></app-lists>

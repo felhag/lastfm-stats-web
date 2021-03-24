@@ -37,7 +37,7 @@ export interface Progress {
   totalPages: number;
   total: number;
   currentPage: number;
-  state: 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED';
+  state: 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
   loader: Subject<Scrobble[]>;
 }
 
@@ -45,7 +45,7 @@ export interface Progress {
   providedIn: 'root'
 })
 export class ScrobbleRetrieverService {
-  private readonly API = 'http://ws.audioscrobbler.com/2.0/';
+  private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   private readonly MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -69,7 +69,7 @@ export class ScrobbleRetrieverService {
       progress.currentPage = page;
       progress.total = r.recenttracks['@attr'].total;
       this.iterate(progress, username, to, 3);
-    });
+    }, () => progress.state = 'USERNOTFOUND');
     return progress;
   }
 
@@ -111,7 +111,7 @@ export class ScrobbleRetrieverService {
       .append('format', 'json')
       .append('limit', '200')
       .append('to', to)
-      .append('from', '36875258')
+      .append('from', '31532400') // 01-01-1971; exclude scrobbles without correct date
       .append('page', String(page));
 
     return this.http.get<Response>(this.API, {params});

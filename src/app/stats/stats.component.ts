@@ -1,10 +1,12 @@
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {Observable} from 'rxjs';
 import {map, shareReplay, switchMap, tap, take} from 'rxjs/operators';
 import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
 
+@UntilDestroy()
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
@@ -25,6 +27,7 @@ export class StatsComponent implements OnInit {
       shareReplay()
     );
     this.progress.pipe(
+      untilDestroyed(this),
       switchMap(p => p.loader),
       tap(s => this.scrobbles.push(...s)),
       map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),

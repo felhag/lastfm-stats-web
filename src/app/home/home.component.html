@@ -5,8 +5,11 @@
       <span class="width-machine" aria-hidden="true" [innerHTML]="username">username</span>
       <input type="text" placeholder="username" class="input" autofocus (input)="update($event)" (keydown.enter)="go()">
     </span>
-    <button mat-icon-button (click)="go()">
+    <button class="arrow-button" mat-icon-button (click)="go()">
       <mat-icon>arrow_forward</mat-icon>
+    </button>
+    <button class="text-button" mat-stroked-button (click)="go()">
+      Go!
     </button>
   </label>
 </div>
