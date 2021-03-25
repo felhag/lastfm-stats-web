@@ -17,12 +17,11 @@
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 unique artists in a single month', list: s.uniqueArtists}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist descending', list: s.avgTrackPerArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist', list: s.avgTrackPerArtist}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled hours', list: s.scrobbledHours}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled days', list: s.scrobbledDays}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 scrobbled months', list: s.scrobbledMonths}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 one hit wonders', list: s.oneHitWonders}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per track', list: s.scrobblesPerTrack}"></ng-container>
   </div>
 
   <ng-template #top10list let-title="title" let-list="list">

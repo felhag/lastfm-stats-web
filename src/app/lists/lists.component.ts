@@ -3,7 +3,7 @@ import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {StatsBuilderService} from '../stats-builder.service';
-import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Constants} from '../model';
+import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Constants, Artist} from '../model';
 
 export interface Top10Item {
   name: string;
@@ -23,9 +23,8 @@ export interface Stats {
   mostListenedNewArtist: Top10Item[];
   uniqueArtists: Top10Item[];
   avgTrackPerArtist: Top10Item[];
-  scrobbledHours: Top10Item[];
-  scrobbledDays: Top10Item[];
-  scrobbledMonths: Top10Item[];
+  oneHitWonders: Top10Item[];
+  scrobblesPerTrack: Top10Item[];
 }
 
 @UntilDestroy()
@@ -87,17 +86,18 @@ export class ListsComponent implements OnInit {
         .filter(k => m.newArtists.map(a => a.artist).indexOf(k) >= 0)
         .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
       .flat();
+    const xTimes = (item: any, v: number) => `${v} times`;
 
-    next.avgTrackPerArtist = this.getTop10(months, m => m.avg!, k => months[k], m => `${m.alias} (${Math.round(m.avg)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
-    next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, a => `${a.amount} times`);
+    next.avgTrackPerArtist = this.getTop10(months, m => m.avg, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist));
+    next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes);
 
     next.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
     next.tracksPerArtist = this.getTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
 
-    const xTimes = (item: any, v: number) => `${v} times`;
-    next.scrobbledHours = this.getTop10(tempStats.hours, k => tempStats.hours[k], k => k, k => `${k}:00-${k}:59`, xTimes);
-    next.scrobbledDays = this.getTop10(tempStats.days, k => tempStats.days[k], k => k, k => Constants.DAYS[k], xTimes);
-    next.scrobbledMonths = this.getTop10(tempStats.months, k => tempStats.months[k], k => k, k => Constants.MONTHS[k], xTimes);
+    const ohw = seen.filter(a => a.tracks.length === 1);
+    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : '' })`;
+    next.oneHitWonders = this.getTop10(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes);
+    next.scrobblesPerTrack = this.getTop10(seen, s => s.scrobbleCount / s.tracks.length, k => seen[+k], a => a.name, sptDescription);
 
     this.stats.next(next);
   }
@@ -163,9 +163,8 @@ export class ListsComponent implements OnInit {
       mostListenedNewArtist: [],
       uniqueArtists: [],
       avgTrackPerArtist: [],
-      scrobbledHours: [],
-      scrobbledDays: [],
-      scrobbledMonths: [],
+      oneHitWonders: [],
+      scrobblesPerTrack: [],
     };
   }
 }

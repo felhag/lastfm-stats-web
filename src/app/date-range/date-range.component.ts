@@ -1,4 +1,4 @@
-import {Component, OnInit, AfterViewInit, Input, Output} from '@angular/core';
+import {Component, OnInit, AfterViewInit, Input, Output, ChangeDetectionStrategy} from '@angular/core';
 import {MDCSlider} from '@material/slider/component';
 import {cssClasses} from '@material/slider/constants';
 import {Subject} from 'rxjs';
@@ -11,7 +11,8 @@ interface Step {
 @Component({
   selector: 'app-date-range',
   templateUrl: './date-range.component.html',
-  styleUrls: ['./date-range.component.scss']
+  styleUrls: ['./date-range.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateRangeComponent implements OnInit, AfterViewInit {
   @Input() start: Date = new Date(0);

@@ -1,11 +1,12 @@
-import {Component, OnInit, Input, AfterViewInit} from '@angular/core';
+import {Component, OnInit, Input, AfterViewInit, ChangeDetectionStrategy} from '@angular/core';
 import {MDCSlider} from '@material/slider/component';
 import {Progress} from '../scrobble-retriever.service';
 
 @Component({
   selector: 'app-progress',
   templateUrl: './progress.component.html',
-  styleUrls: ['./progress.component.scss']
+  styleUrls: ['./progress.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressComponent {
   @Input() progress!: Progress;

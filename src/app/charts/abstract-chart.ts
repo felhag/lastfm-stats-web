@@ -6,5 +6,9 @@ export abstract class AbstractChart {
   chart?: Highcharts.Chart;
 
   abstract update(stats: TempStats): void;
+
+  get fullWidth(): boolean {
+    return true;
+  }
 }
 
