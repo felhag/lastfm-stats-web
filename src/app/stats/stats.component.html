@@ -18,16 +18,8 @@
   </mat-card-content>
 </mat-card>
 
-<mat-tab-group mat-stretch-tabs>
-  <mat-tab label="Lists">
-    <ng-template matTabContent>
-      <app-lists></app-lists>
-    </ng-template>
-  </mat-tab>
-  <mat-tab label="Charts">
-    <ng-template matTabContent>
-      <app-charts></app-charts>
-    </ng-template>
-  </mat-tab>
-</mat-tab-group>
-
+<nav mat-tab-nav-bar mat-stretch-tabs>
+  <a mat-tab-link [routerLink]="'/user/' + (username | async) + '/lists'" routerLinkActive #listsLink="routerLinkActive" [active]="listsLink.isActive">Lists</a>
+  <a mat-tab-link [routerLink]="'/user/' + (username | async) + '/charts'" routerLinkActive #chartLink="routerLinkActive" [active]="chartLink.isActive">Charts</a>
+</nav>
+<router-outlet></router-outlet>
