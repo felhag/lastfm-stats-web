@@ -1,8 +1,8 @@
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Observable} from 'rxjs';
-import {map, shareReplay, switchMap, tap, take} from 'rxjs/operators';
+import {Observable, BehaviorSubject} from 'rxjs';
+import {map, shareReplay, switchMap, tap, take, filter} from 'rxjs/operators';
 import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
 
@@ -17,12 +17,14 @@ export class StatsComponent implements OnInit {
   progress!: Observable<Progress>;
   scrobbles: Scrobble[] = [];
   dateRange?: [Date, Date];
+  autoUpdate = new BehaviorSubject<boolean>(true);
 
   constructor(private retriever: ScrobbleRetrieverService, private builder: StatsBuilderService, private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
     this.progress = this.username.pipe(
+      untilDestroyed(this),
       map(name => this.retriever.retrieveFor(name!)),
       shareReplay()
     );
@@ -30,6 +32,7 @@ export class StatsComponent implements OnInit {
       untilDestroyed(this),
       switchMap(p => p.loader),
       tap(s => this.scrobbles.push(...s)),
+      filter(() => this.autoUpdate.value),
       map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
     ).subscribe(s => this.builder.update(s, true));
   }
@@ -63,18 +66,24 @@ export class StatsComponent implements OnInit {
         p.first.next(this.scrobbles[0]);
         p.last.next(this.scrobbles[this.scrobbles.length - 1]);
       });
-      this.rebuild(this.scrobbles);
+      this.rebuild();
     };
     const files = (ev.target! as any).files as FileList;
     reader.readAsText(files.item(0)!);
   }
 
-  rebuild(scrobbles: Scrobble[]): void {
-    this.builder.update(scrobbles, false);
+  rebuild(): void {
+    const filtered = this.scrobbles.filter(s => !this.dateRange || (s.date >= this.dateRange[0] && s.date <= this.dateRange[1]));
+    this.builder.update(filtered, false);
   }
 
   updateDateRange(range?: [Date, Date]): void {
     this.dateRange = range;
-    this.rebuild(this.scrobbles.filter(s => !range || (s.date >= range[0] && s.date <= range[1])));
+    this.rebuild();
+  }
+
+  updateListSize(size: number): void {
+    this.builder.listSize = size;
+    this.rebuild();
   }
 }

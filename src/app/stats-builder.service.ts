@@ -8,13 +8,14 @@ import {Scrobble} from './scrobble-retriever.service';
 })
 export class StatsBuilderService {
   tempStats = new BehaviorSubject<TempStats>(this.emptyStats());
+  listSize = 10;
 
   constructor() {
   }
 
   update(scrobbles: Scrobble[], cumulative: boolean): void {
     const next = cumulative ? this.tempStats.value : this.emptyStats();
-    let changed = false;
+    let changed = !cumulative;
     for (const scrobble of scrobbles) {
       if (scrobble.date.getFullYear() === 1970) {
         continue;

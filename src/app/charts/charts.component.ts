@@ -35,7 +35,6 @@ export class ChartsComponent implements AfterViewInit {
     this.builder.tempStats.pipe(
       untilDestroyed(this),
       startWith(this.builder.tempStats.value),
-      filter(s => !!s.last),
     ).subscribe(stats => this.updateStats(stats));
   }
 

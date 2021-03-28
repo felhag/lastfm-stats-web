@@ -1,27 +1,27 @@
 <div *ngIf="stats | async as s" class="container">
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Listened streaks', list: s.scrobbleStreak}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Not listened streaks', list: s.notListenedStreak}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Listened streaks', list: s.scrobbleStreak}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Not listened streaks', list: s.notListenedStreak}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Gaps between artists', list: s.betweenArtists}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 Ongoing gaps between artists', list: s.ongoingBetweenArtists}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Gaps between artists', list: s.betweenArtists}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between artists', list: s.ongoingBetweenArtists}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 weeks per artists', list: s.weeksPerArtist}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 tracks per artists', list: s.tracksPerArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Weeks per artists', list: s.weeksPerArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Tracks per artists', list: s.tracksPerArtist}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 new artists in a single month', list: s.newArtistsPerMonth}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 most listened new artist in a single month', list: s.mostListenedNewArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'New artists in a single month', list: s.newArtistsPerMonth}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Most listened new artist in a single month', list: s.mostListenedNewArtist}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 unique artists in a single month', list: s.uniqueArtists}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per artist', list: s.avgTrackPerArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Unique artists in a single month', list: s.uniqueArtists}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Avg scrobbles per artist', list: s.avgTrackPerArtist}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 one hit wonders', list: s.oneHitWonders}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Top 10 avg scrobbles per track', list: s.scrobblesPerTrack}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'One hit wonders', list: s.oneHitWonders}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Avg scrobbles per track', list: s.scrobblesPerTrack}"></ng-container>
   </div>
 
   <ng-template #top10list let-title="title" let-list="list">

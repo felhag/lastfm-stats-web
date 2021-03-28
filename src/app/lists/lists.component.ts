@@ -40,20 +40,17 @@ export class ListsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.builder.tempStats.pipe(
-      untilDestroyed(this),
-      filter(s => !!s.last)
-    ).subscribe(stats => this.updateStats(stats));
+    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.updateStats(stats));
   }
 
   private updateStats(tempStats: TempStats): void {
     const next = this.emptyStats();
-    const endDate = tempStats.last!.date;
+    const endDate = tempStats.last?.date || new Date();
     const seen = Object.values(tempStats.seenArtists);
     const streak = this.currentScrobbleStreak(tempStats, endDate);
-    next.scrobbleStreak = this.getStreakTop10(streak);
-    next.notListenedStreak = this.getStreakTop10(tempStats.notListenedStreak.streaks);
-    next.betweenArtists = this.getStreakTop10(tempStats.betweenArtists.streaks, s => `${s.start.artist} (${s.length} days)`);
+    next.scrobbleStreak = this.getStreakTop10(streak, (s: Streak) => `${s.length! + 1} days`);
+    next.notListenedStreak = this.getStreakTop10(tempStats.notListenedStreak.streaks, (s: Streak) => `${s.length! - 1} days`);
+    next.betweenArtists = this.getStreakTop10(tempStats.betweenArtists.streaks, s => `${s.start.artist} (${s.length! - 1} days)`);
     next.ongoingBetweenArtists = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
@@ -121,7 +118,7 @@ export class ListsComponent implements OnInit {
   ): Top10Item[] {
     const keys = Object.keys(countMap);
     keys.sort((a, b) => getValue(getItem(b)) - getValue(getItem(a)));
-    return keys.splice(0, 10).map(k => {
+    return keys.splice(0, this.listSize).map(k => {
       const item = getItem(k);
       const val = getValue(item);
       return {
@@ -132,10 +129,10 @@ export class ListsComponent implements OnInit {
     });
   }
 
-  getStreakTop10(streaks: Streak[], buildName = (s: Streak) => `${s.length} days`): Top10Item[] {
+  getStreakTop10(streaks: Streak[], buildName: (s: Streak) => string): Top10Item[] {
     const keys = Object.keys(streaks);
     keys.sort((a, b) => streaks[+b].length! - streaks[+a].length!);
-    return keys.splice(0, 10).map(k => {
+    return keys.splice(0, this.listSize).map(k => {
       const streak = streaks[+k];
       return {
         amount: streak.length!,
@@ -143,6 +140,10 @@ export class ListsComponent implements OnInit {
         description: streak.start.date.toLocaleDateString() + ' - ' + streak.end.date.toLocaleDateString()
       };
     });
+  }
+
+  private get listSize(): number {
+    return this.builder.listSize;
   }
 
   private including(scrobblesPerArtist: { [key: string]: number }): string {

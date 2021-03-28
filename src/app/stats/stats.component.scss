@@ -16,13 +16,34 @@
   min-width: 0;
 }
 
-.mat-card-subtitle {
-  margin: 16px 16px 0 16px !important;
+.scrobble-header {
+  margin: 16px;
 }
 
-app-progress {
-  display: block;
-  margin-left: 16px;
+.mat-card-subtitle {
+  margin: 16px 0 0 0 !important;
+}
+
+.import-export {
+  margin-left: -20px;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+
+  app-date-range {
+    flex-grow: 1;
+  }
+}
+
+.auto-update {
+  display: flex;
+  align-items: center;
+
+  .hide {
+    visibility: hidden;
+  }
 }
 
 .mat-tab-group {

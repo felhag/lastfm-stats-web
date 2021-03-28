@@ -1,3 +1,6 @@
+import {MatSelectModule} from '@angular/material/select';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatSliderModule} from '@angular/material/slider';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
@@ -52,6 +55,8 @@ import {StatsComponent} from './stats/stats.component';
     MatListModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatSliderModule,
+    MatSlideToggleModule,
     MatTabsModule,
     MatTooltipModule,
     ReactiveFormsModule,
