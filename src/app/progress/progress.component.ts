@@ -1,5 +1,6 @@
 import {Component, OnInit, Input, AfterViewInit, ChangeDetectionStrategy} from '@angular/core';
 import {MDCSlider} from '@material/slider/component';
+import {Constants} from '../model';
 import {Progress} from '../scrobble-retriever.service';
 
 @Component({
@@ -23,6 +24,6 @@ export class ProgressComponent {
   }
 
   get totalPages(): number {
-    return Math.ceil(this.progress.total / 200);
+    return Math.ceil(this.progress.total / Constants.API_PAGE_SIZE);
   }
 }

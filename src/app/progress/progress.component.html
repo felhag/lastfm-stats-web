@@ -5,4 +5,3 @@
 </div>
 <div *ngIf="progress.first | async as f">First scrobble: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
 <div *ngIf="progress.last | async as l">Last scrobble: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
-<div *ngIf="progress.state === 'USERNOTFOUND'">Username not found</div>
