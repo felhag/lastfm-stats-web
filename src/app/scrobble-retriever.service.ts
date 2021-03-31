@@ -40,6 +40,7 @@ export interface Progress {
   totalPages: number;
   total: number;
   currentPage: number;
+  pageLoadTime?: number;
   state: 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
   loader: Subject<Scrobble[]>;
 }
@@ -68,7 +69,7 @@ export class ScrobbleRetrieverService {
     };
 
     return this.retrieveUser(username).pipe(
-      catchError(e => of(undefined)),
+      catchError(() => of(undefined)),
       map(user => {
       progress.user = user;
 
@@ -102,6 +103,7 @@ export class ScrobbleRetrieverService {
       return;
     }
 
+    const start = new Date().getTime();
     this.get(username, to, progress.currentPage).subscribe(r => {
       if (progress.state === 'INTERRUPTED') {
         return;
@@ -119,6 +121,10 @@ export class ScrobbleRetrieverService {
       progress.loader.next(tracks);
       progress.currentPage--;
       if (progress.currentPage > 0) {
+        const ms = new Date().getTime() - start;
+        const handled = progress.totalPages - progress.currentPage - 1;
+        const avgLoadTime = progress.pageLoadTime ? progress.pageLoadTime * handled : 0;
+        progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
         this.iterate(progress, username, to, 3);
       } else {
         progress.state = 'COMPLETED';

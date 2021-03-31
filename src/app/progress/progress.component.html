@@ -1,5 +1,5 @@
 <div *ngIf="progress.state === 'RETRIEVING'">
-  <div class="loading">Loading: {{currentPage}}/{{totalPages}} pages ({{this.percentage | number:'1.2-2'}}%) <mat-spinner [diameter]="24"></mat-spinner></div>
+  <div class="loading">Loading: {{currentPage}}/{{totalPages}} pages ({{this.percentage | number:'1.2-2'}}%, {{eta}}) <mat-spinner [diameter]="24"></mat-spinner></div>
   <mat-progress-bar mode="determinate" [value]="percentage"></mat-progress-bar>
   <div>Total scrobbles: {{progress.total}}</div>
 </div>
