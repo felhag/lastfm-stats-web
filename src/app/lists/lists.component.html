@@ -32,7 +32,8 @@
       <mat-card-content>
         <mat-list role="list">
           <mat-list-item role="listitem" *ngFor="let top10item of list">
-            <div mat-line>{{top10item.name}}</div>
+            <a *ngIf="top10item.url" mat-line [href]="top10item.url" target="_blank" >{{top10item.name}}</a>
+            <div *ngIf="!top10item.url" mat-line>{{top10item.name}}</div>
             <div mat-line class="item-description">{{top10item.description}}</div>
           </mat-list-item>
           <mat-list-item *ngIf="!list.length">No results</mat-list-item>

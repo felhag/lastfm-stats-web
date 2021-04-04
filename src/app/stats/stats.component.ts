@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {Observable, BehaviorSubject} from 'rxjs';
@@ -13,7 +13,7 @@ import {StatsBuilderService} from '../stats-builder.service';
   styleUrls: ['./stats.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StatsComponent implements OnInit {
+export class StatsComponent implements OnInit, OnDestroy {
   progress!: Observable<Progress>;
   scrobbles: Scrobble[] = [];
   dateRange?: [Date, Date];
@@ -25,7 +25,7 @@ export class StatsComponent implements OnInit {
   ngOnInit(): void {
     this.progress = this.username.pipe(
       untilDestroyed(this),
-      map(name => this.retriever.retrieveFor(name!)),
+      switchMap(name => this.retriever.retrieveFor(name!)),
       shareReplay()
     );
     this.progress.pipe(
@@ -35,6 +35,10 @@ export class StatsComponent implements OnInit {
       filter(() => this.autoUpdate.value),
       map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
     ).subscribe(s => this.builder.update(s, true));
+  }
+
+  ngOnDestroy(): void {
+    this.progress.pipe(take(1)).subscribe(p => p.state = 'INTERRUPTED');
   }
 
   get username(): Observable<string | null> {

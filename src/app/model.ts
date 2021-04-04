@@ -1,5 +1,17 @@
 import {Scrobble} from './scrobble-retriever.service';
 
+export interface User {
+  name: string;
+  url: string;
+  playcount: string;
+  registered: {
+    unixtime: string
+  };
+  image: {
+    '#text': string;
+  }[];
+}
+
 export interface Artist {
   weeks: string[];
   name: string;
@@ -83,6 +95,7 @@ export class ScrobbleStreakStack extends StreakStack {
 }
 
 export class Constants {
+  static readonly API_PAGE_SIZE = 1000;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 }

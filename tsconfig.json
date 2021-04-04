@@ -17,8 +17,9 @@
     "target": "es2015",
     "module": "es2020",
     "lib": [
+      "esnext",
       "es2019",
-      "dom"
+      "dom",
     ]
   },
   "angularCompilerOptions": {

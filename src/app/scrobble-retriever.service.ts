@@ -1,6 +1,8 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
+import {Observable, Subject, of} from 'rxjs';
+import {map, catchError} from 'rxjs/operators';
+import {Constants, User} from './model';
 
 interface Response {
   recenttracks: RecentTracks;
@@ -32,11 +34,13 @@ export interface Scrobble {
 }
 
 export interface Progress {
+  user?: User;
   first: Subject<Scrobble>;
   last: Subject<Scrobble>;
   totalPages: number;
   total: number;
   currentPage: number;
+  pageLoadTime?: number;
   state: 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
   loader: Subject<Scrobble[]>;
 }
@@ -52,7 +56,7 @@ export class ScrobbleRetrieverService {
   constructor(private http: HttpClient) {
   }
 
-  retrieveFor(username: string): Progress {
+  retrieveFor(username: string): Observable<Progress> {
     const to = new Date().toDateString();
     const progress: Progress = {
       loader: new Subject<Scrobble[]>(),
@@ -63,21 +67,43 @@ export class ScrobbleRetrieverService {
       currentPage: -1,
       total: -1,
     };
-    this.get(username, to, 1).subscribe(r => {
-      const page = r.recenttracks['@attr'].totalPages;
-      progress.totalPages = page;
-      progress.currentPage = page;
-      progress.total = r.recenttracks['@attr'].total;
-      this.iterate(progress, username, to, 3);
-    }, () => progress.state = 'USERNOTFOUND');
-    return progress;
+
+    return this.retrieveUser(username).pipe(
+      catchError(() => of(undefined)),
+      map(user => {
+      progress.user = user;
+
+      if (user) {
+        this.get(user, to, 1).subscribe(r => {
+          const page = r.recenttracks['@attr'].totalPages;
+          progress.totalPages = page;
+          progress.currentPage = page;
+          progress.total = r.recenttracks['@attr'].total;
+          this.iterate(progress, user, to, 3);
+        });
+      } else {
+        progress.state = 'USERNOTFOUND';
+      }
+      return progress;
+    }));
   }
 
-  private iterate(progress: Progress, username: string, to: string, retry: number): void {
+  private retrieveUser(username: string): Observable<User> {
+    const params = new HttpParams()
+      .append('method', 'user.getinfo')
+      .append('api_key', this.KEY)
+      .append('user', username)
+      .append('format', 'json');
+
+    return this.http.get<{user: User}>(this.API, {params}).pipe(map(u => u.user));
+  }
+
+  private iterate(progress: Progress, username: User, to: string, retry: number): void {
     if (progress.state === 'INTERRUPTED') {
       return;
     }
 
+    const start = new Date().getTime();
     this.get(username, to, progress.currentPage).subscribe(r => {
       if (progress.state === 'INTERRUPTED') {
         return;
@@ -95,6 +121,10 @@ export class ScrobbleRetrieverService {
       progress.loader.next(tracks);
       progress.currentPage--;
       if (progress.currentPage > 0) {
+        const ms = new Date().getTime() - start;
+        const handled = progress.totalPages - progress.currentPage - 1;
+        const avgLoadTime = progress.pageLoadTime ? progress.pageLoadTime * handled : 0;
+        progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
         this.iterate(progress, username, to, 3);
       } else {
         progress.state = 'COMPLETED';
@@ -103,15 +133,15 @@ export class ScrobbleRetrieverService {
     }, () => retry > 0 ? this.iterate(progress, username, to, retry--) : undefined);
   }
 
-  private get(username: string, to: string, page: number): Observable<Response> {
+  private get(user: User, to: string, page: number): Observable<Response> {
     const params = new HttpParams()
       .append('method', 'user.getrecenttracks')
       .append('api_key', this.KEY)
-      .append('user', username)
+      .append('user', user.name)
       .append('format', 'json')
-      .append('limit', '200')
       .append('to', to)
-      .append('from', '31532400') // 01-01-1971; exclude scrobbles without correct date
+      .append('from', user.registered.unixtime)
+      .append('limit', String(Constants.API_PAGE_SIZE))
       .append('page', String(page));
 
     return this.http.get<Response>(this.API, {params});
@@ -123,6 +153,6 @@ export class ScrobbleRetrieverService {
     const y = parseInt(input.substr(7, 4), 0);
     const hh = parseInt(input.substr(13, 2), 0);
     const mm = parseInt(input.substr(16, 2), 0);
-    return new Date(y, m, d, hh, mm);
+    return new Date(Date.UTC(y, m, d, hh, mm));
   }
 }

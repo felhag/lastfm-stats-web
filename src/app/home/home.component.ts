@@ -19,7 +19,7 @@ export class HomeComponent {
 
   go(): void {
     if (this.username) {
-      this.router.navigateByUrl(`/user/${this.username}`);
+      this.router.navigateByUrl(`/user/${this.username.toLowerCase()}`);
     }
   }
 }
