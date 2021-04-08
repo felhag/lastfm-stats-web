@@ -28,6 +28,11 @@ export interface Month {
   avg?: number;
 }
 
+export interface Export {
+  username: string;
+  scrobbles: {artist: string, track: string, date: number}[];
+}
+
 export interface TempStats {
   last?: Scrobble;
   monthList: { [key: string]: Month };

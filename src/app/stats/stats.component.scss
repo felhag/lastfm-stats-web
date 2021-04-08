@@ -16,6 +16,12 @@
     margin-right: 16px;
   }
 }
+
+.change-username {
+  margin-left: auto;
+  margin-right: 24px;
+}
+
 .mat-card {
   margin: 16px;
   flex: 1 1 0;
@@ -28,10 +34,6 @@
 
 .mat-card-subtitle {
   margin: 16px 0 0 0 !important;
-}
-
-.import-export {
-  margin-left: -20px;
 }
 
 .date-range {

@@ -1,30 +1,22 @@
-<ng-container *ngIf="(progress | async) as p; else loading">
-  <ng-container *ngIf="p.state !== 'USERNOTFOUND'">
+<ng-container *ngIf="(progress.state | async) as state">
+  <mat-card class="spinner-wrapper" *ngIf="state === 'LOADINGUSER'">🔎 Looking for {{username}}...</mat-card>
+  <mat-card class="spinner-wrapper" *ngIf="state === 'CALCULATINGPAGES'">👨‍🔬 {{username}} found, calculating pages...</mat-card>
+  <mat-card class="spinner-wrapper" *ngIf="state === 'USERNOTFOUND'">Username {{username}} not found 😥</mat-card>
+  <ng-container *ngIf="showContent(state)">
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          <a [href]="p.user!.url" class="user-link">
-            <img [src]="p.user!.image[0]['#text']">Statistics for {{username | async}}
+          <a [href]="progress.user!.url" class="user-link">
+            <img [src]="progress.user!.image[0]['#text']">Statistics for {{username}}
           </a>
         </mat-card-title>
+        <a mat-flat-button [routerLink]="'/'" class="change-username">Change username</a>
       </mat-card-header>
       <mat-card-content class="scrobble-header">
         <mat-card-subtitle>Progress</mat-card-subtitle>
-        <app-progress [progress]="p"></app-progress>
-        <mat-card-subtitle>Import/export json</mat-card-subtitle>
-        <div class="import-export">
-          <button mat-flat-button (click)="export()" matTooltip="Export stats as json">
-            <mat-icon>file_download</mat-icon>
-            Export
-          </button>
-          <button mat-flat-button (click)="uploadFile.click()" matTooltip="Import stats from json">
-            <mat-icon>file_upload</mat-icon>
-            Import
-          </button>
-          <input #uploadFile (change)="import($event)" type='file' style="display:none"/>
-        </div>
+        <app-progress [progress]="progress"></app-progress>
         <mat-card-subtitle>Settings</mat-card-subtitle>
-        <div *ngIf="p.first | async as f" class="date-range">
+        <div *ngIf="progress.first | async as f" class="date-range">
           Date range:
           <app-date-range [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
         </div>
@@ -42,17 +34,9 @@
     </mat-card>
 
     <nav mat-tab-nav-bar mat-stretch-tabs>
-      <a mat-tab-link [routerLink]="'/user/' + (username | async) + '/lists'" routerLinkActive #listsLink="routerLinkActive" [active]="listsLink.isActive">Lists</a>
-      <a mat-tab-link [routerLink]="'/user/' + (username | async) + '/charts'" routerLinkActive #chartLink="routerLinkActive" [active]="chartLink.isActive">Charts</a>
+      <a mat-tab-link [routerLink]="'/user/' + username + '/lists'" routerLinkActive #listsLink="routerLinkActive" [active]="listsLink.isActive">Lists</a>
+      <a mat-tab-link [routerLink]="'/user/' + username + '/charts'" routerLinkActive #chartLink="routerLinkActive" [active]="chartLink.isActive">Charts</a>
     </nav>
     <router-outlet></router-outlet>
   </ng-container>
-
-  <mat-card class="spinner-wrapper" *ngIf="p.state === 'USERNOTFOUND'">Username {{username | async}} not found</mat-card>
 </ng-container>
-
-<ng-template #loading>
-  <div class="spinner-wrapper">
-    <mat-spinner></mat-spinner>
-  </div>
-</ng-template>

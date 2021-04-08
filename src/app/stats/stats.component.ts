@@ -1,9 +1,9 @@
 import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Observable, BehaviorSubject} from 'rxjs';
-import {map, shareReplay, switchMap, tap, take, filter} from 'rxjs/operators';
-import {ScrobbleRetrieverService, Progress, Scrobble} from '../scrobble-retriever.service';
+import {BehaviorSubject} from 'rxjs';
+import {map, tap, take, filter} from 'rxjs/operators';
+import {ScrobbleRetrieverService, Progress, Scrobble, State} from '../scrobble-retriever.service';
 import {StatsBuilderService} from '../stats-builder.service';
 
 @UntilDestroy()
@@ -14,70 +14,42 @@ import {StatsBuilderService} from '../stats-builder.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsComponent implements OnInit, OnDestroy {
-  progress!: Observable<Progress>;
-  scrobbles: Scrobble[] = [];
+  progress!: Progress;
+  username?: string;
+  imported: Scrobble[];
   dateRange?: [Date, Date];
   autoUpdate = new BehaviorSubject<boolean>(true);
 
-  constructor(private retriever: ScrobbleRetrieverService, private builder: StatsBuilderService, private route: ActivatedRoute) {
+  constructor(private retriever: ScrobbleRetrieverService,
+              private builder: StatsBuilderService,
+              private router: Router,
+              private route: ActivatedRoute) {
+
+    this.imported = this.router.getCurrentNavigation()?.extras.state?.scrobbles || [];
   }
 
   ngOnInit(): void {
-    this.progress = this.username.pipe(
+    this.route.paramMap.pipe(
+      map(params => params.get('username')),
+      take(1)
+    ).subscribe(s => this.username = s || undefined);
+
+    this.progress = this.retriever.retrieveFor(this.username!, this.imported);
+    this.rebuild();
+
+    this.progress.loader.pipe(
       untilDestroyed(this),
-      switchMap(name => this.retriever.retrieveFor(name!)),
-      shareReplay()
-    );
-    this.progress.pipe(
-      untilDestroyed(this),
-      switchMap(p => p.loader),
-      tap(s => this.scrobbles.push(...s)),
       filter(() => this.autoUpdate.value),
       map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
     ).subscribe(s => this.builder.update(s, true));
   }
 
   ngOnDestroy(): void {
-    this.progress.pipe(take(1)).subscribe(p => p.state = 'INTERRUPTED');
-  }
-
-  get username(): Observable<string | null> {
-    return this.route.paramMap.pipe(map(params => params.get('username')));
-  }
-
-  export(): void {
-    const data = JSON.stringify(this.scrobbles);
-    const blob = new Blob(['\ufeff' + data], {type: 'application/json;charset=utf-8;'});
-    const dwldLink = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    dwldLink.setAttribute('href', url);
-    dwldLink.setAttribute('download', 'stats.json');
-    document.body.appendChild(dwldLink);
-    dwldLink.click();
-    document.body.removeChild(dwldLink);
-  }
-
-  import(ev: Event): void {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const parsed = JSON.parse(reader.result as string) as any[];
-      this.scrobbles = parsed.map(s => ({track: s.track, artist: s.artist, date: new Date(s.date)}));
-      this.progress.pipe(take(1)).subscribe(p => {
-        p.state = 'INTERRUPTED';
-        p.totalPages = Math.ceil(this.scrobbles.length / 200);
-        p.currentPage = p.totalPages;
-        p.total = this.scrobbles.length;
-        p.first.next(this.scrobbles[0]);
-        p.last.next(this.scrobbles[this.scrobbles.length - 1]);
-      });
-      this.rebuild();
-    };
-    const files = (ev.target! as any).files as FileList;
-    reader.readAsText(files.item(0)!);
+    this.progress.state.next('INTERRUPTED');
   }
 
   rebuild(): void {
-    const filtered = this.scrobbles.filter(s => !this.dateRange || (s.date >= this.dateRange[0] && s.date <= this.dateRange[1]));
+    const filtered = this.progress.allScrobbles.filter(s => !this.dateRange || (s.date >= this.dateRange[0] && s.date <= this.dateRange[1]));
     this.builder.update(filtered, false);
   }
 
@@ -89,5 +61,9 @@ export class StatsComponent implements OnInit, OnDestroy {
   updateListSize(size: number): void {
     this.builder.listSize = size;
     this.rebuild();
+  }
+
+  showContent(state: State): boolean {
+    return state === 'INTERRUPTED' || state === 'COMPLETED' || state === 'RETRIEVING';
   }
 }

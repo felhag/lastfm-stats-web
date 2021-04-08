@@ -25,6 +25,7 @@
     "@ngneat/until-destroy": "^8.0.4",
     "highcharts": "^9.0.1",
     "highcharts-angular": "^2.10.0",
+    "ngx-csv-parser": "0.0.7",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
