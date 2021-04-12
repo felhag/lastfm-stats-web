@@ -2,8 +2,7 @@ import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxCsvParser, NgxCSVParserError} from 'ngx-csv-parser';
 import {Subject, BehaviorSubject} from 'rxjs';
-import {Export} from '../model';
-import {Scrobble} from '../scrobble-retriever.service';
+import {Export, Scrobble} from '../model';
 
 @Component({
   selector: 'app-home',

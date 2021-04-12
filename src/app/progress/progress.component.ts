@@ -1,7 +1,5 @@
-import {Component, OnInit, Input, AfterViewInit, ChangeDetectionStrategy} from '@angular/core';
-import {MDCSlider} from '@material/slider/component';
-import {Constants, Export} from '../model';
-import {Progress} from '../scrobble-retriever.service';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {Export, Progress} from '../model';
 
 @Component({
   selector: 'app-progress',

@@ -1,9 +1,8 @@
-import {A} from '@angular/cdk/keycodes';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, Subject, of, BehaviorSubject} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
-import {Constants, User} from './model';
+import {Observable, Subject, BehaviorSubject} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {Progress, User, Constants, Scrobble} from '../model';
 
 interface Response {
   recenttracks: RecentTracks;
@@ -31,27 +30,7 @@ interface Track {
   };
 }
 
-export interface Scrobble {
-  artist: string;
-  track: string;
-  date: Date;
-}
-
 export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
-
-export interface Progress {
-  user?: User;
-  first: Subject<Scrobble>;
-  last: Subject<Scrobble>;
-  totalPages: number;
-  loadScrobbles: number;
-  importedScrobbles: number;
-  allScrobbles: Scrobble[];
-  currentPage: number;
-  pageLoadTime?: number;
-  state: BehaviorSubject<State>;
-  loader: Subject<Scrobble[]>;
-}
 
 @Injectable({
   providedIn: 'root'

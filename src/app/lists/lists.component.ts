@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {StatsBuilderService} from '../stats-builder.service';
+import {StatsBuilderService} from '../service/stats-builder.service';
 import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants} from '../model';
 
 export interface Top10Item {

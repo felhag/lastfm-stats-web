@@ -1,9 +1,9 @@
 import {Component, AfterViewInit, ChangeDetectionStrategy} from '@angular/core';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
-import {filter, startWith} from 'rxjs/operators';
+import {startWith} from 'rxjs/operators';
 import {TempStats, Constants} from '../model';
-import {StatsBuilderService} from '../stats-builder.service';
+import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractChart} from './abstract-chart';
 import {ArtistScrobbleChart} from './artist-scrobble-chart';
 import {ArtistTimelineChart} from './artist-timeline-chart';

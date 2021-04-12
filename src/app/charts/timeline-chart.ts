@@ -1,6 +1,6 @@
+import * as Highcharts from 'highcharts';
 import {TempStats} from '../model';
 import {AbstractChart} from './abstract-chart';
-import * as Highcharts from 'highcharts';
 
 export class TimelineChart extends AbstractChart {
   options: Highcharts.Options = {
@@ -17,7 +17,7 @@ export class TimelineChart extends AbstractChart {
       title: {
         text: 'Scrobbles',
         style: {
-          color: Highcharts.getOptions().colors![1]
+          color: Highcharts.getOptions().colors![0]
         }
       }
     }, {
@@ -26,7 +26,7 @@ export class TimelineChart extends AbstractChart {
       title: {
         text: 'Artists',
         style: {
-          color: Highcharts.getOptions().colors![0]
+          color: Highcharts.getOptions().colors![1]
         }
       }
     }, {
@@ -43,7 +43,7 @@ export class TimelineChart extends AbstractChart {
       name: 'Scrobbles',
       data: [],
       type: 'line',
-    },{
+    }, {
       name: 'Artists',
       yAxis: 1,
       data: [],

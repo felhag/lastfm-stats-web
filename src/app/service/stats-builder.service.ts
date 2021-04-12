@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {TempStats, StreakStack, Month, ScrobbleStreakStack, Constants} from './model';
-import {Scrobble} from './scrobble-retriever.service';
+import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants} from '../model';
 
 @Injectable({
   providedIn: 'root'

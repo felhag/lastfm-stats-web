@@ -2,9 +2,10 @@ import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/co
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
-import {map, tap, take, filter} from 'rxjs/operators';
-import {ScrobbleRetrieverService, Progress, Scrobble, State} from '../scrobble-retriever.service';
-import {StatsBuilderService} from '../stats-builder.service';
+import {map, take, filter} from 'rxjs/operators';
+import {Progress, Scrobble} from '../model';
+import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
+import {StatsBuilderService} from '../service/stats-builder.service';
 
 @UntilDestroy()
 @Component({

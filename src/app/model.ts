@@ -1,4 +1,5 @@
-import {Scrobble} from './scrobble-retriever.service';
+import {Subject, BehaviorSubject} from 'rxjs';
+import {State} from './service/scrobble-retriever.service';
 
 export interface User {
   name: string;
@@ -10,6 +11,12 @@ export interface User {
   image: {
     '#text': string;
   }[];
+}
+
+export interface Scrobble {
+  artist: string;
+  track: string;
+  date: Date;
 }
 
 export interface Artist {
@@ -97,6 +104,20 @@ export class ScrobbleStreakStack extends StreakStack {
       }
     }
   }
+}
+
+export interface Progress {
+  user?: User;
+  first: Subject<Scrobble>;
+  last: Subject<Scrobble>;
+  totalPages: number;
+  loadScrobbles: number;
+  importedScrobbles: number;
+  allScrobbles: Scrobble[];
+  currentPage: number;
+  pageLoadTime?: number;
+  state: BehaviorSubject<State>;
+  loader: Subject<Scrobble[]>;
 }
 
 export class Constants {
