@@ -46,8 +46,8 @@ export class ScrobbleRetrieverService {
     const to = new Date().toDateString();
     const progress: Progress = {
       loader: new Subject<Scrobble[]>(),
-      first: new Subject<Scrobble>(),
-      last: new Subject<Scrobble>(),
+      first: new BehaviorSubject<Scrobble | undefined>(undefined),
+      last: new BehaviorSubject<Scrobble | undefined>(undefined),
       state: new BehaviorSubject<State>('LOADINGUSER'),
       totalPages: -1,
       currentPage: -1,
@@ -66,6 +66,8 @@ export class ScrobbleRetrieverService {
         // trigger update for imported scrobbles
         if (scrobbles.length) {
           progress.loader.next(scrobbles);
+          progress.first.next(scrobbles[0]);
+          progress.last.next(scrobbles[scrobbles.length - 1]);
         }
 
         if (page > 0) {
@@ -109,7 +111,7 @@ export class ScrobbleRetrieverService {
         artist: t.artist['#text'],
         date: new Date(t.date?.uts * 1000)
       })).reverse();
-      if (progress.currentPage === progress.totalPages) {
+      if (!progress.first.value) {
         progress.first.next(tracks[0]);
       }
       progress.last.next(tracks[tracks.length - 1]);

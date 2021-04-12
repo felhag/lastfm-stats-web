@@ -48,7 +48,7 @@ export class ProgressComponent {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `stats-${this.progress.user!.name}.${ext}`);
+    link.setAttribute('download', `lastfmstats-${this.progress.user!.name}.${ext}`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

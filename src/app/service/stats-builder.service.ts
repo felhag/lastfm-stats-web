@@ -7,7 +7,6 @@ import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants}
 })
 export class StatsBuilderService {
   tempStats = new BehaviorSubject<TempStats>(this.emptyStats());
-  listSize = 10;
 
   constructor() {
   }

@@ -18,18 +18,18 @@
         <mat-card-subtitle>Settings</mat-card-subtitle>
         <div *ngIf="progress.first | async as f" class="date-range">
           Date range:
-          <app-date-range [start]="f.date" (changed)="updateDateRange($event)"></app-date-range>
+          <app-date-range [start]="f.date" (startChanged)="settings.dateRangeStart.next($event)" (endChanged)="settings.dateRangeEnd.next($event)"></app-date-range>
         </div>
         <div class="auto-update">
           Auto update:
-          <mat-slide-toggle (change)="autoUpdate.next($event.checked)" [checked]="true" color="primary"></mat-slide-toggle>
-          <button [class.hide]="autoUpdate | async" mat-flat-button (click)="rebuild()">
+          <mat-slide-toggle (change)="settings.autoUpdate.next($event.checked)" [checked]="settings.autoUpdate.value" color="primary"></mat-slide-toggle>
+          <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
             <mat-icon>update</mat-icon>
             Update
           </button>
         </div>
         List size:
-        <mat-slider min="1" max="100" [thumbLabel]="true" color="primary" value="10" (change)="updateListSize($event.value || 10)"></mat-slider>
+        <mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize.value" (change)="settings.listSize.next($event.value || 10)"></mat-slider>
       </mat-card-content>
     </mat-card>
 

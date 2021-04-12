@@ -1,10 +1,11 @@
 import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, combineLatest} from 'rxjs';
 import {map, take, filter} from 'rxjs/operators';
 import {Progress, Scrobble} from '../model';
 import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
+import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 
 @UntilDestroy()
@@ -18,11 +19,10 @@ export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
   username?: string;
   imported: Scrobble[];
-  dateRange?: [Date, Date];
-  autoUpdate = new BehaviorSubject<boolean>(true);
 
   constructor(private retriever: ScrobbleRetrieverService,
               private builder: StatsBuilderService,
+              public settings: SettingsService,
               private router: Router,
               private route: ActivatedRoute) {
 
@@ -36,13 +36,15 @@ export class StatsComponent implements OnInit, OnDestroy {
     ).subscribe(s => this.username = s || undefined);
 
     this.progress = this.retriever.retrieveFor(this.username!, this.imported);
-    this.rebuild();
-
     this.progress.loader.pipe(
       untilDestroyed(this),
-      filter(() => this.autoUpdate.value),
-      map(s => s.filter(a => !this.dateRange || (a.date >= this.dateRange![0] && a.date <= this.dateRange![1]))),
+      filter(() => this.settings.autoUpdate.value),
+      map(s => this.applyDate(s))
     ).subscribe(s => this.builder.update(s, true));
+
+    combineLatest([this.settings.listSize, this.settings.dateRangeStart, this.settings.dateRangeEnd])
+      .pipe(untilDestroyed(this))
+      .subscribe(() => this.rebuild());
   }
 
   ngOnDestroy(): void {
@@ -50,18 +52,13 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   rebuild(): void {
-    const filtered = this.progress.allScrobbles.filter(s => !this.dateRange || (s.date >= this.dateRange[0] && s.date <= this.dateRange[1]));
-    this.builder.update(filtered, false);
+    this.builder.update(this.applyDate(this.progress.allScrobbles), false);
   }
 
-  updateDateRange(range?: [Date, Date]): void {
-    this.dateRange = range;
-    this.rebuild();
-  }
-
-  updateListSize(size: number): void {
-    this.builder.listSize = size;
-    this.rebuild();
+  private applyDate(scrobbles: Scrobble[]): Scrobble[] {
+    const start = this.settings.dateRangeStart.value;
+    const end = this.settings.dateRangeEnd.value;
+    return scrobbles.filter(s => (!start || s.date >= start) && (!end || s.date <= end));
   }
 
   showContent(state: State): boolean {

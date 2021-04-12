@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
+import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants} from '../model';
 
@@ -39,7 +40,9 @@ export class ListsComponent implements OnInit {
   stats = new BehaviorSubject<Stats>(this.emptyStats());
   username?: string;
 
-  constructor(private builder: StatsBuilderService, private route: ActivatedRoute) {
+  constructor(private builder: StatsBuilderService,
+              private settings: SettingsService,
+              private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
@@ -153,7 +156,7 @@ export class ListsComponent implements OnInit {
   }
 
   private get listSize(): number {
-    return this.builder.listSize;
+    return this.settings.listSize.value;
   }
 
   private including(scrobblesPerArtist: { [key: string]: number }): string {
