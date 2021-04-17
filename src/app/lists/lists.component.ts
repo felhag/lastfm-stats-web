@@ -1,9 +1,11 @@
 import {Component, OnInit} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {StatsBuilderService} from '../stats-builder.service';
+import {SettingsService} from '../service/settings.service';
+import {StatsBuilderService} from '../service/stats-builder.service';
 import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants} from '../model';
 
 export interface Top10Item {
@@ -27,6 +29,8 @@ export interface Stats {
   avgTrackPerArtist: Top10Item[];
   oneHitWonders: Top10Item[];
   scrobblesPerTrack: Top10Item[];
+  avgScrobbleDesc: Top10Item[];
+  avgScrobbleAsc: Top10Item[];
 }
 
 @UntilDestroy()
@@ -39,12 +43,21 @@ export class ListsComponent implements OnInit {
   stats = new BehaviorSubject<Stats>(this.emptyStats());
   username?: string;
 
-  constructor(private builder: StatsBuilderService, private route: ActivatedRoute) {
+  constructor(private builder: StatsBuilderService,
+              private settings: SettingsService,
+              private route: ActivatedRoute,
+              private snackbar: MatSnackBar) {
   }
 
   ngOnInit(): void {
     this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.updateStats(stats));
     this.route.parent!.paramMap.pipe(untilDestroyed(this), map(params => params.get('username'))).subscribe(name => this.username = name!);
+  }
+
+  explain(explanation: string): void{
+    this.snackbar.open(explanation, 'Got it!', {
+      duration: 10000
+    });
   }
 
   private updateStats(tempStats: TempStats): void {
@@ -98,10 +111,14 @@ export class ListsComponent implements OnInit {
     next.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, artistUrl);
     next.tracksPerArtist = this.getTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`, artistUrl);
 
+    const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_THRESHOLD);
     const ohw = seen.filter(a => a.tracks.length === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : '' })`;
     next.oneHitWonders = this.getTop10(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
-    next.scrobblesPerTrack = this.getTop10(seen, s => s.scrobbleCount / s.tracks.length, k => seen[+k], a => a.name, sptDescription, artistUrl);
+    next.scrobblesPerTrack = this.getTop10(seenThreshold, s => s.scrobbleCount / s.tracks.length, k => seenThreshold[+k], a => a.name, sptDescription, artistUrl);
+
+    next.avgScrobbleDesc = this.getTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(v).toLocaleDateString(), artistUrl);
+    next.avgScrobbleAsc = this.getTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString(), artistUrl);
 
     this.stats.next(next);
   }
@@ -153,7 +170,7 @@ export class ListsComponent implements OnInit {
   }
 
   private get listSize(): number {
-    return this.builder.listSize;
+    return this.settings.listSize.value;
   }
 
   private including(scrobblesPerArtist: { [key: string]: number }): string {
@@ -194,6 +211,8 @@ export class ListsComponent implements OnInit {
       avgTrackPerArtist: [],
       oneHitWonders: [],
       scrobblesPerTrack: [],
+      avgScrobbleDesc: [],
+      avgScrobbleAsc: [],
     };
   }
 }

@@ -1,11 +1,11 @@
-import {TempStats} from '../model';
+import {TempStats, Constants} from '../model';
 import {AbstractChart} from './abstract-chart';
 import * as Highcharts from 'highcharts';
 
 export class ArtistScrobbleChart extends AbstractChart {
   options: Highcharts.Options = {
     title: {text: 'Tracks per artist'},
-    subtitle: {text: '(50+ scrobbles)'},
+    subtitle: {text: `(${Constants.SCROBBLE_THRESHOLD}+ scrobbles)`},
     chart: {
       type: 'scatter',
       zoomType: 'xy',
@@ -37,7 +37,8 @@ export class ArtistScrobbleChart extends AbstractChart {
       name: 'Artists',
       type: 'scatter',
       data: []
-    }]
+    }],
+    responsive: this.responsive()
   };
 
   update(stats: TempStats): void {
@@ -45,7 +46,7 @@ export class ArtistScrobbleChart extends AbstractChart {
       return;
     }
 
-    const data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount > 50).map(artist => ({
+    const data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount >= Constants.SCROBBLE_THRESHOLD).map(artist => ({
       x: artist.scrobbleCount,
       y: artist.tracks.length,
       name: artist.name

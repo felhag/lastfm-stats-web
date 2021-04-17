@@ -1,4 +1,5 @@
-import {Scrobble} from './scrobble-retriever.service';
+import {Subject, BehaviorSubject} from 'rxjs';
+import {State} from './service/scrobble-retriever.service';
 
 export interface User {
   name: string;
@@ -12,12 +13,18 @@ export interface User {
   }[];
 }
 
+export interface Scrobble {
+  artist: string;
+  track: string;
+  date: Date;
+}
+
 export interface Artist {
   weeks: string[];
   name: string;
-  first: Scrobble;
   betweenStreak: Streak;
   scrobbleCount: number;
+  avgScrobble: number;
   tracks: string[];
 }
 
@@ -26,6 +33,11 @@ export interface Month {
   newArtists: Scrobble[];
   scrobblesPerArtist: { [key: string]: number };
   avg?: number;
+}
+
+export interface Export {
+  username: string;
+  scrobbles: {artist: string, track: string, date: number}[];
 }
 
 export interface TempStats {
@@ -94,8 +106,24 @@ export class ScrobbleStreakStack extends StreakStack {
   }
 }
 
+export interface Progress {
+  user?: User;
+  first: BehaviorSubject<Scrobble | undefined>;
+  last: BehaviorSubject<Scrobble | undefined>;
+  pageSize: number;
+  totalPages: number;
+  loadScrobbles: number;
+  importedScrobbles: number;
+  allScrobbles: Scrobble[];
+  currentPage: number;
+  pageLoadTime?: number;
+  state: BehaviorSubject<State>;
+  loader: Subject<Scrobble[]>;
+}
+
 export class Constants {
   static readonly API_PAGE_SIZE = 1000;
+  static readonly SCROBBLE_THRESHOLD = 50;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 }

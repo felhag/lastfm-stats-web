@@ -2,6 +2,7 @@ import {Component, OnInit, AfterViewInit, Input, Output, ChangeDetectionStrategy
 import {MDCSlider} from '@material/slider/component';
 import {cssClasses} from '@material/slider/constants';
 import {Subject} from 'rxjs';
+import {SettingsService} from '../service/settings.service';
 
 interface Step {
   date: Date;
@@ -16,10 +17,12 @@ interface Step {
 })
 export class DateRangeComponent implements OnInit, AfterViewInit {
   @Input() start: Date = new Date(0);
-  @Output() changed = new Subject<[Date, Date]>();
+  @Output() startChanged = new Subject<Date>();
+  @Output() endChanged = new Subject<Date>();
   steps: Step[] = [];
 
-  constructor() {
+  constructor(public settings: SettingsService) {
+
   }
 
   ngOnInit(): void {
@@ -37,24 +40,32 @@ export class DateRangeComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const slider = new MDCSlider(document.querySelector('.mdc-slider')!);
     const foundation = (slider as any).foundation;
-    foundation.adapter.setValueIndicatorText =  (value: any, thumb: any) => {
+    foundation.adapter.setValueIndicatorText = (value: any, thumb: any) => {
       const valueIndicatorEl = (slider as any).getThumbEl(thumb).querySelector('.' + cssClasses.VALUE_INDICATOR_TEXT);
       valueIndicatorEl.textContent = this.steps[value].display;
     };
 
-    slider.root.addEventListener('MDCSlider:change', () => {
-      if (slider.getValueStart() === 0 && slider.getValue() === this.steps.length - 1) {
-        this.changed.next(undefined);
-      } else {
-        const start = this.steps[slider.getValueStart()].date;
-        const end = this.steps[slider.getValue()].date;
-        this.changed.next([start, end]);
+    slider.root.addEventListener('MDCSlider:change', (ev: any) => {
+      const thumb: 1 | 2 = ev.detail.thumb;
+      if (thumb === 1) {
+        this.startChanged.next(slider.getValueStart() === 0 ? undefined : this.steps[slider.getValueStart()].date);
+      } else if (thumb === 2) {
+        this.endChanged.next(slider.getValue() === this.steps.length - 1 ? undefined : this.steps[slider.getValue()].date);
       }
     });
     foundation.layout();
   }
 
+  getStep(date: Date): number | undefined {
+    if (!date) {
+      return undefined;
+    }
+    const time = date.getTime();
+    const idx = this.steps.findIndex(s => s.date.getTime() === time);
+    return idx >= 0 ? idx : undefined;
+  }
+
   private createStep(date: Date): void {
-    this.steps.push( { date, display: date.toLocaleDateString() });
+    this.steps.push({date, display: date.toLocaleDateString()});
   }
 }

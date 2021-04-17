@@ -10,5 +10,28 @@ export abstract class AbstractChart {
   get fullWidth(): boolean {
     return true;
   }
+
+  responsive(): any {
+    return {
+      rules: [{
+        condition: {
+          maxWidth: 768
+        },
+        // Make the labels less space demanding on mobile
+        chartOptions: {
+          yAxis: [{
+            labels: {
+              align: 'left',
+              x: 0,
+              y: -5
+            },
+            title: {
+              text: ''
+            }
+          }]
+        }
+      }]
+    };
+  }
 }
 

@@ -1,6 +1,6 @@
+import * as Highcharts from 'highcharts';
 import {TempStats} from '../model';
 import {AbstractChart} from './abstract-chart';
-import * as Highcharts from 'highcharts';
 
 export class TimelineChart extends AbstractChart {
   options: Highcharts.Options = {
@@ -17,7 +17,7 @@ export class TimelineChart extends AbstractChart {
       title: {
         text: 'Scrobbles',
         style: {
-          color: Highcharts.getOptions().colors![1]
+          color: Highcharts.getOptions().colors![0]
         }
       }
     }, {
@@ -26,7 +26,7 @@ export class TimelineChart extends AbstractChart {
       title: {
         text: 'Artists',
         style: {
-          color: Highcharts.getOptions().colors![0]
+          color: Highcharts.getOptions().colors![1]
         }
       }
     }, {
@@ -43,7 +43,7 @@ export class TimelineChart extends AbstractChart {
       name: 'Scrobbles',
       data: [],
       type: 'line',
-    },{
+    }, {
       name: 'Artists',
       yAxis: 1,
       data: [],
@@ -53,7 +53,8 @@ export class TimelineChart extends AbstractChart {
       yAxis: 2,
       data: [],
       type: 'line',
-    }]
+    }],
+    responsive: this.extendedResponsive
   };
 
   update(stats: TempStats): void {
@@ -90,5 +91,22 @@ export class TimelineChart extends AbstractChart {
     this.chart.series[0].setData(scrobbles);
     this.chart.series[1].setData(uniqueArtists);
     this.chart.series[2].setData(tracks);
+  }
+
+  private get extendedResponsive(): any {
+    const responsive = super.responsive();
+    const chartOptions = responsive.rules[0].chartOptions;
+    chartOptions.series = [{type: 'line'}, {type: 'line'}, {type: 'line', yAxis: 1}];
+    chartOptions.yAxis.push({labels: {
+      align: 'right',
+        x: 0,
+        y: -5
+      },
+      title: {
+        text: ''
+      }
+    });
+
+    return responsive;
   }
 }

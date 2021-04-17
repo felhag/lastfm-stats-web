@@ -8,8 +8,8 @@
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between artists', list: s.ongoingBetweenArtists}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Weeks per artists', list: s.weeksPerArtist}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Tracks per artists', list: s.tracksPerArtist}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Weeks per artists', list: s.weeksPerArtist, explanation: 'Unique weeks an artist has been scrobbled at least once'}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Tracks per artists', list: s.tracksPerArtist, explanation: 'Different tracks per artist scrobbled'}"></ng-container>
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'New artists in a single month', list: s.newArtistsPerMonth}"></ng-container>
@@ -20,14 +20,22 @@
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Avg scrobbles per artist', list: s.avgTrackPerArtist}"></ng-container>
   </div>
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'One hit wonders', list: s.oneHitWonders}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Avg scrobbles per track', list: s.scrobblesPerTrack}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'One hit wonders', list: s.oneHitWonders, explanation: 'Most scrobbled artists with just one song scrobbled'}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Avg scrobbles per track', list: s.scrobblesPerTrack, explanation: 'Average scrobbles per track for artists with at least 50 scrobbles'}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Golden oldies', list: s.avgScrobbleAsc, explanation: 'Average scrobble date for artists with at least 50 scrobbles, sorted ascending'}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Latest discoveries', list: s.avgScrobbleDesc, explanation: 'Average scrobble date for artists with at least 50 scrobbles, sorted descending'}"></ng-container>
   </div>
 
-  <ng-template #top10list let-title="title" let-list="list">
+  <ng-template #top10list let-title="title" let-list="list" let-explanation="explanation">
     <mat-card class="top10list">
       <mat-card-header>
-        <mat-card-title>{{title}}</mat-card-title>
+        <mat-card-title>{{title}}
+          <button *ngIf="explanation" mat-icon-button>
+            <mat-icon (click)="explain(explanation)">info_outline</mat-icon>
+          </button>
+        </mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <mat-list role="list">

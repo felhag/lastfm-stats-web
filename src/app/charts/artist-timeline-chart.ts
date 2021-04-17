@@ -19,7 +19,8 @@ export class ArtistTimelineChart extends AbstractChart {
       data: [],
       groupPadding: 0,
       pointPadding: 0,
-    }]
+    }],
+    responsive: this.responsive()
   };
 
   update(stats: TempStats): void {

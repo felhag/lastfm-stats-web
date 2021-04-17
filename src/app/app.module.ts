@@ -1,10 +1,9 @@
-import {MatSelectModule} from '@angular/material/select';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatSliderModule} from '@angular/material/slider';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {BrowserModule} from '@angular/platform-browser';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
 import {HttpClientModule} from '@angular/common/http';
+import {NgModule} from '@angular/core';
+import {ReactiveFormsModule} from '@angular/forms';
+import {MatBottomSheet} from '@angular/material/bottom-sheet';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -14,14 +13,16 @@ import {MatInputModule} from '@angular/material/input';
 import {MatListModule} from '@angular/material/list';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {NgModule} from '@angular/core';
-import {ReactiveFormsModule} from '@angular/forms';
-import {ScrollingModule} from '@angular/cdk/scrolling';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HighchartsChartModule} from 'highcharts-angular';
-import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
 import {ChartsComponent} from './charts/charts.component';
 import {DateRangeComponent} from './date-range/date-range.component';
 import {HomeComponent} from './home/home.component';
@@ -57,6 +58,7 @@ import {StatsComponent} from './stats/stats.component';
     MatProgressSpinnerModule,
     MatSliderModule,
     MatSlideToggleModule,
+    MatSnackBarModule,
     MatTabsModule,
     MatTooltipModule,
     ReactiveFormsModule,

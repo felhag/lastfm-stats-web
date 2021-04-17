@@ -9,6 +9,19 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog 
+0.3 (17-04-2021)
+- added golden oldies list (avg scrobble date, sorted ascending)
+- added latest discoveries list (avg scrobble date, sorted descending)
+- added explanation to some lists
+- moved import button to home page
+- load new scrobbles after importing
+- csv support for importing/exporting
+- store settings in localstorage
+- show message when adblocker blocks api requests
+- improved responsiveness (a bit)
+- fixed label color for axis on timeline chart
+- fixed issue regarding page size (apparently 1000 doesn't work for some accounts)
+
 0.2 (04-04-2021)
 - load data with UTC time zone
 - fixed an issue when stats were requested multiple times
