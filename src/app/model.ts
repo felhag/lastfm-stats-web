@@ -22,9 +22,9 @@ export interface Scrobble {
 export interface Artist {
   weeks: string[];
   name: string;
-  first: Scrobble;
   betweenStreak: Streak;
   scrobbleCount: number;
+  avgScrobble: number;
   tracks: string[];
 }
 
@@ -123,6 +123,7 @@ export interface Progress {
 
 export class Constants {
   static readonly API_PAGE_SIZE = 1000;
+  static readonly SCROBBLE_THRESHOLD = 50;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 }

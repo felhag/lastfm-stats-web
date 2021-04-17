@@ -7,8 +7,24 @@
   min-width: 340px;
   margin: 16px;
   flex: 1;
+
+  .mat-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mat-icon {
+    color: #999;
+  }
 }
 
 .item-description {
   color: #999;
+}
+
+:host ::ng-deep {
+  .mat-card-header-text {
+    width: 100%;
+  }
 }
