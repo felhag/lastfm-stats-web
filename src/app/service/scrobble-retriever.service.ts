@@ -30,7 +30,7 @@ interface Track {
   };
 }
 
-export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
+export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'LOADFAILED' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +49,7 @@ export class ScrobbleRetrieverService {
       first: new BehaviorSubject<Scrobble | undefined>(undefined),
       last: new BehaviorSubject<Scrobble | undefined>(undefined),
       state: new BehaviorSubject<State>('LOADINGUSER'),
+      pageSize: Constants.API_PAGE_SIZE,
       totalPages: -1,
       currentPage: -1,
       loadScrobbles: 0,
@@ -60,29 +61,42 @@ export class ScrobbleRetrieverService {
       progress.user = user;
       progress.state.next('CALCULATINGPAGES');
       const from = scrobbles.length ? String(scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1) : user.registered.unixtime;
-      this.get(user.name, from, to, 1).subscribe(r => {
-        const page = parseInt(r.recenttracks['@attr'].totalPages);
 
-        // trigger update for imported scrobbles
-        if (scrobbles.length) {
-          progress.loader.next(scrobbles);
-          progress.first.next(scrobbles[0]);
-          progress.last.next(scrobbles[scrobbles.length - 1]);
-        }
-
-        if (page > 0) {
-          progress.state.next('RETRIEVING');
-          progress.totalPages = page;
-          progress.currentPage = page;
-          progress.loadScrobbles = parseInt(r.recenttracks['@attr'].total);
-          this.iterate(progress, from, to, 3);
-        } else {
-          progress.state.next('COMPLETED');
-        }
-      });
+      this.start(scrobbles, progress, from, to);
     }, () => progress.state.next('USERNOTFOUND'));
 
     return progress;
+  }
+
+  private start(scrobbles: Scrobble[], progress: Progress, from: string, to: string): void {
+    this.get(progress.user!.name, from, to, 1, progress.pageSize).subscribe(response => {
+      const page = parseInt(response.recenttracks['@attr'].totalPages);
+
+      // trigger update for imported scrobbles
+      if (scrobbles.length) {
+        progress.loader.next(scrobbles);
+        progress.first.next(scrobbles[0]);
+        progress.last.next(scrobbles[scrobbles.length - 1]);
+      }
+
+      if (page > 0) {
+        progress.state.next('RETRIEVING');
+        progress.totalPages = page;
+        progress.currentPage = page;
+        progress.loadScrobbles = parseInt(response.recenttracks['@attr'].total);
+        this.iterate(progress, from, to, 3);
+      } else {
+        progress.state.next('COMPLETED');
+      }
+    }, () => {
+      // restart with a lower page size :/
+      if (progress.pageSize !== 500) {
+        progress.pageSize = 500;
+        this.start(scrobbles, progress, from, to);
+      } else {
+        progress.state.next('LOADFAILED');
+      }
+    });
   }
 
   private retrieveUser(username: string): Observable<User> {
@@ -101,7 +115,7 @@ export class ScrobbleRetrieverService {
     }
 
     const start = new Date().getTime();
-    this.get(progress.user!.name, from, to, progress.currentPage).subscribe(r => {
+    this.get(progress.user!.name, from, to, progress.currentPage, progress.pageSize).subscribe(r => {
       if (progress.state.value === 'INTERRUPTED') {
         return;
       }
@@ -131,7 +145,7 @@ export class ScrobbleRetrieverService {
     }, () => retry > 0 ? this.iterate(progress, from, to, retry--) : undefined);
   }
 
-  private get(username: string, from: string, to: string, page: number): Observable<Response> {
+  private get(username: string, from: string, to: string, page: number, size: number): Observable<Response> {
     const params = new HttpParams()
       .append('method', 'user.getrecenttracks')
       .append('api_key', this.KEY)
@@ -139,7 +153,7 @@ export class ScrobbleRetrieverService {
       .append('format', 'json')
       .append('to', to)
       .append('from', from)
-      .append('limit', String(Constants.API_PAGE_SIZE))
+      .append('limit', String(size))
       .append('page', String(page));
 
     return this.http.get<Response>(this.API, {params});

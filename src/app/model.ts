@@ -110,6 +110,7 @@ export interface Progress {
   user?: User;
   first: BehaviorSubject<Scrobble | undefined>;
   last: BehaviorSubject<Scrobble | undefined>;
+  pageSize: number;
   totalPages: number;
   loadScrobbles: number;
   importedScrobbles: number;

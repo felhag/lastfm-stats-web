@@ -53,7 +53,8 @@ export class TimelineChart extends AbstractChart {
       yAxis: 2,
       data: [],
       type: 'line',
-    }]
+    }],
+    responsive: this.extendedResponsive
   };
 
   update(stats: TempStats): void {
@@ -90,5 +91,22 @@ export class TimelineChart extends AbstractChart {
     this.chart.series[0].setData(scrobbles);
     this.chart.series[1].setData(uniqueArtists);
     this.chart.series[2].setData(tracks);
+  }
+
+  private get extendedResponsive(): any {
+    const responsive = super.responsive();
+    const chartOptions = responsive.rules[0].chartOptions;
+    chartOptions.series = [{type: 'line'}, {type: 'line'}, {type: 'line', yAxis: 1}];
+    chartOptions.yAxis.push({labels: {
+      align: 'right',
+        x: 0,
+        y: -5
+      },
+      title: {
+        text: ''
+      }
+    });
+
+    return responsive;
   }
 }

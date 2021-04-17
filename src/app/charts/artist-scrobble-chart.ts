@@ -37,7 +37,8 @@ export class ArtistScrobbleChart extends AbstractChart {
       name: 'Artists',
       type: 'scatter',
       data: []
-    }]
+    }],
+    responsive: this.responsive()
   };
 
   update(stats: TempStats): void {

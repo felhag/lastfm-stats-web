@@ -2,7 +2,7 @@ import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/co
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject, combineLatest} from 'rxjs';
-import {map, take, filter} from 'rxjs/operators';
+import {map, take, filter, skip} from 'rxjs/operators';
 import {Progress, Scrobble} from '../model';
 import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
 import {SettingsService} from '../service/settings.service';
@@ -43,7 +43,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     ).subscribe(s => this.builder.update(s, true));
 
     combineLatest([this.settings.listSize, this.settings.dateRangeStart, this.settings.dateRangeEnd])
-      .pipe(untilDestroyed(this))
+      .pipe(untilDestroyed(this), skip(1))
       .subscribe(() => this.rebuild());
   }
 
