@@ -11,20 +11,35 @@ export class SettingsService {
   listSize: BehaviorSubject<number>;
   dateRangeStart: BehaviorSubject<Date>;
   dateRangeEnd: BehaviorSubject<Date>;
+  artistsInclude: BehaviorSubject<boolean>;
+  artists: BehaviorSubject<string[]>;
 
   constructor() {
     this.autoUpdate = this.init('auto-update', true, v => v === 'true');
     this.listSize = this.init('list-size', 10, v => parseInt(v));
 
-    this.dateRangeStart = this.init('date-range-start', undefined, v => new Date(parseInt(v)), d => String(d.getTime()));
-    this.dateRangeEnd = this.init('date-range-end', undefined, v => new Date(parseInt(v)), d => String(d.getTime()));
+    this.dateRangeStart = this.initDate('date-range-start');
+    this.dateRangeEnd = this.initDate('date-range-end');
+
+    this.artistsInclude = this.init('artists-include', true, v => v === 'true');
+    this.artists = this.init('artists', [], v => JSON.parse(v), v => JSON.stringify(v));
   }
 
-  private init<T>(key: string, def: any, parse: (value: string) => any, toString: (value: any) => string = v => String(v)): BehaviorSubject<any> {
+  private init<T>(key: string, def: any, parse: (value: string) => any, toString: (value: any) => string | undefined = v => String(v)): BehaviorSubject<any> {
     const value = localStorage.getItem(key);
     const sub = new BehaviorSubject(value ? parse(value) : def);
-    sub.pipe(untilDestroyed(this))
-      .subscribe(v => v === def ? localStorage.removeItem(key) : localStorage.setItem(key, toString(v)));
+    sub.pipe(untilDestroyed(this)).subscribe(v => {
+      const parsed = toString(v);
+      if (parsed === def) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, parsed!);
+      }
+    });
     return sub;
+  }
+
+  private initDate(key: string): BehaviorSubject<Date> {
+    return this.init(key, undefined, v => new Date(parseInt(v)), d => d ? String(d.getTime()) : undefined);
   }
 }
