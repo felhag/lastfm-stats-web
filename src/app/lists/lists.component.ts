@@ -62,7 +62,8 @@ export class ListsComponent implements OnInit {
 
   private updateStats(tempStats: TempStats): void {
     const next = this.emptyStats();
-    const endDate = tempStats.last?.date || new Date();
+    const now = new Date();
+    const endDate = tempStats.last?.date || now;
     const seen = Object.values(tempStats.seenArtists);
     const streak = this.currentScrobbleStreak(tempStats, endDate);
     next.scrobbleStreak = this.getStreakTop10(streak, (s: Streak) => `${s.length! + 1} days`);
@@ -71,7 +72,7 @@ export class ListsComponent implements OnInit {
     next.ongoingBetweenArtists = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: '?', date: endDate}}))
+        .map(a => ({start: a.start, end: {artist: a.start.artist, track: '?', date: now}}))
         .map(a => StreakStack.calcLength(a)),
       s => `${s.start.artist} (${s.length} days)`,
       s => this.artistUrl(s.start.artist)

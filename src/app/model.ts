@@ -41,6 +41,7 @@ export interface Export {
 }
 
 export interface TempStats {
+  first?: Scrobble;
   last?: Scrobble;
   monthList: { [key: string]: Month };
   hours: { [key: number]: number };

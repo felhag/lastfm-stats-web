@@ -49,7 +49,9 @@ export class StatsBuilderService {
       if (next.scrobbleCount % 1000 === 0) {
         next.scrobbleMilestones.push(scrobble);
       }
-
+      if (!next.first) {
+        next.first = scrobble;
+      }
       next.last = scrobble;
     }
 

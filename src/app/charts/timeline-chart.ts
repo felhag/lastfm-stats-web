@@ -78,15 +78,18 @@ export class TimelineChart extends AbstractChart {
 
     const scrobbles = stats.scrobbleMilestones.map((scrobble, idx) => ({
       x: scrobble.date.getTime(),
-      y: idx * 1000,
+      y: (idx + 1) * 1000,
       name: scrobble.artist + ' - ' + scrobble.track
     }));
 
     const tracks = stats.trackMilestones.map((scrobble, idx) => ({
       x: scrobble.date.getTime(),
-      y: idx * 1000,
+      y: (idx + 1) * 1000,
       name: scrobble.artist + ' - ' + scrobble.track
     }));
+
+    const start = {x: stats.first?.date.getTime()!, y: 0, name: 'Account created'};
+    [scrobbles, uniqueArtists, tracks].forEach(arr => arr.unshift(start));
 
     this.chart.series[0].setData(scrobbles);
     this.chart.series[1].setData(uniqueArtists);
@@ -97,8 +100,9 @@ export class TimelineChart extends AbstractChart {
     const responsive = super.responsive();
     const chartOptions = responsive.rules[0].chartOptions;
     chartOptions.series = [{type: 'line'}, {type: 'line'}, {type: 'line', yAxis: 1}];
-    chartOptions.yAxis.push({labels: {
-      align: 'right',
+    chartOptions.yAxis.push({
+      labels: {
+        align: 'right',
         x: 0,
         y: -5
       },
