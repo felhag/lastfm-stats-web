@@ -4,7 +4,6 @@
       <highcharts-chart [Highcharts]="Highcharts"
                         [options]="c.options"
                         (chartInstance)="c.chart = $event"
-                        [(update)]="c.updateFlag"
                         style="width: 100%; display: block;"
       ></highcharts-chart>
     </mat-card-content>

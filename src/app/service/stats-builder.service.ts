@@ -133,7 +133,7 @@ export class StatsBuilderService {
   private filter(scrobbles: Scrobble[]): Scrobble[] {
       const start = this.settings.dateRangeStart.value;
       const end = this.settings.dateRangeEnd.value;
-      const include = this.settings.artistsInclude.value || true;
+      const include = this.settings.artistsInclude.value;
       const artists = this.settings.artists.value || [];
       return scrobbles.filter(s => {
         if ((start && s.date < start) || (end && s.date > end)) {
