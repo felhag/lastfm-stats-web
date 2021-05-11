@@ -13,7 +13,8 @@ export class CumulativeArtistChart extends AbstractChart {
       title: {
         text: 'Scrobbles'
       }
-    }]
+    }],
+    responsive: this.responsive()
   };
 
   update(stats: TempStats): void {
