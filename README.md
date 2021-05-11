@@ -9,6 +9,16 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog 
+0.4 (11-05-2021)
+- added artist include/exclude filtering possibility
+- added cumulative scrobbles for top 25 artists chart
+- added wordcloud of artist and track names
+- added more colors for most listened artist per month chart
+- added starting point for timeline chart
+- show detailed error when listening data is hidden due privacy setting
+- improved responsiveness for scrobble moment charts
+- extended color set for artist timeline chart
+
 0.3 (17-04-2021)
 - added golden oldies list (avg scrobble date, sorted ascending)
 - added latest discoveries list (avg scrobble date, sorted descending)

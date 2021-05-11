@@ -2,12 +2,13 @@
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADINGUSER'">🔎 Looking for {{username}}...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'CALCULATINGPAGES'">👨‍🔬 {{username}} found, calculating pages...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'USERNOTFOUND'">Username {{username}} not found 😥</mat-card>
+  <mat-card class="spinner-wrapper" *ngIf="state === 'LOADFAILEDDUEPRIVACY'">🔏 Your recent listening information is not publicly visible. You can change this&nbsp;<a href="https://last.fm/settings/privacy" target="_blank">here</a>.</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADFAILED'">⛔ Can't reach lastfm API. Maybe there is an adblocker which is blocking the requests?</mat-card>
   <ng-container *ngIf="showContent(state)">
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          <a [href]="progress.user!.url" class="user-link">
+          <a [href]="progress.user!.url" class="user-link regular-text">
             <img [src]="progress.user!.image[0]['#text']">Statistics for {{username}}
           </a>
         </mat-card-title>
@@ -16,21 +17,19 @@
       <mat-card-content class="scrobble-header">
         <mat-card-subtitle>Progress</mat-card-subtitle>
         <app-progress [progress]="progress"></app-progress>
-        <mat-card-subtitle>Settings</mat-card-subtitle>
-        <div *ngIf="progress.first | async as f" class="date-range">
-          Date range:
-          <app-date-range [start]="f.date" (startChanged)="settings.dateRangeStart.next($event)" (endChanged)="settings.dateRangeEnd.next($event)"></app-date-range>
-        </div>
-        <div class="auto-update">
-          Auto update:
+
+        <div class="conf-row">
+          <button type="button" mat-stroked-button (click)="openSettings()">
+            <mat-icon class="material-icons-outlined">settings</mat-icon>
+            Filter data
+          </button>
+          <span class="auto-update">Auto update:</span>
           <mat-slide-toggle (change)="settings.autoUpdate.next($event.checked)" [checked]="settings.autoUpdate.value" color="primary"></mat-slide-toggle>
           <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
             <mat-icon>update</mat-icon>
             Update
           </button>
         </div>
-        List size:
-        <mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize.value" (change)="settings.listSize.next($event.value || 10)"></mat-slider>
       </mat-card-content>
     </mat-card>
 

@@ -37,10 +37,11 @@ export interface Month {
 
 export interface Export {
   username: string;
-  scrobbles: {artist: string, track: string, date: number}[];
+  scrobbles: { artist: string, track: string, date: number }[];
 }
 
 export interface TempStats {
+  first?: Scrobble;
   last?: Scrobble;
   monthList: { [key: string]: Month };
   hours: { [key: number]: number };
@@ -126,4 +127,13 @@ export class Constants {
   static readonly SCROBBLE_THRESHOLD = 50;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  static readonly COLORS = [
+    // highcharts colors
+    '#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1',
+    // 50 other colors
+    '#e77c36', '#3e59ce', '#52c04c', '#9043c1', '#81b744', '#976ee7', '#b0b834', '#cd6ee4', '#498929', '#e55ac5',
+    '#d03896', '#43a664', '#a641a5', '#d7a136', '#707bec', '#6e7720', '#6a49a7', '#baa957', '#5a8ce5', '#d0482a',
+    '#4fce8d', '#36bddc', '#d3404e', '#44c3b8', '#dd3e77', '#3a7a41', '#e46fb3', '#69b78e', '#aa367c', '#98b36b',
+    '#9360b1', '#b56c2b', '#5563b4', '#8e6d2e', '#d08ede', '#627037', '#9d9adc', '#a55232', '#5ba2d8', '#e09970',
+    '#4468a2', '#e27387', '#2a8168', '#a93e5b', '#745796', '#ad5b5a', '#c27cae', '#8a4262', '#ea97b2', '#995688'];
 }

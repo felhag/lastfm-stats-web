@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants} from '../model';
+import {SettingsService} from './settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,13 +9,13 @@ import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants}
 export class StatsBuilderService {
   tempStats = new BehaviorSubject<TempStats>(this.emptyStats());
 
-  constructor() {
+  constructor(private settings: SettingsService) {
   }
 
   update(scrobbles: Scrobble[], cumulative: boolean): void {
     const next = cumulative ? this.tempStats.value : this.emptyStats();
     let changed = !cumulative;
-    for (const scrobble of scrobbles) {
+    for (const scrobble of this.filter(scrobbles)) {
       if (scrobble.date.getFullYear() === 1970) {
         continue;
       }
@@ -48,7 +49,9 @@ export class StatsBuilderService {
       if (next.scrobbleCount % 1000 === 0) {
         next.scrobbleMilestones.push(scrobble);
       }
-
+      if (!next.first) {
+        next.first = scrobble;
+      }
       next.last = scrobble;
     }
 
@@ -125,5 +128,22 @@ export class StatsBuilderService {
       trackMilestones: [],
       trackCount: 0,
     };
+  }
+
+  private filter(scrobbles: Scrobble[]): Scrobble[] {
+      const start = this.settings.dateRangeStart.value;
+      const end = this.settings.dateRangeEnd.value;
+      const include = this.settings.artistsInclude.value;
+      const artists = this.settings.artists.value || [];
+      return scrobbles.filter(s => {
+        if ((start && s.date < start) || (end && s.date > end)) {
+          return false;
+        }
+        if (artists.length) {
+          const contains = artists.indexOf(s.artist) >= 0;
+          return contains === include;
+        }
+        return true;
+      });
   }
 }

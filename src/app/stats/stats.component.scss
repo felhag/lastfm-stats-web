@@ -36,21 +36,16 @@
   margin: 16px 0 0 0 !important;
 }
 
-.date-range {
+.conf-row {
   display: flex;
   align-items: center;
 
-  app-date-range {
-    flex-grow: 1;
+  .auto-update {
+    margin: 0 8px 0 16px;
   }
-}
-
-.auto-update {
-  display: flex;
-  align-items: center;
 
   .hide {
-    visibility: hidden;
+    display: none;
   }
 }
 

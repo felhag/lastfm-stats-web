@@ -30,7 +30,7 @@ interface Track {
   };
 }
 
-export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'LOADFAILED' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED' | 'USERNOTFOUND';
+export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED';
 
 @Injectable({
   providedIn: 'root'
@@ -88,9 +88,11 @@ export class ScrobbleRetrieverService {
       } else {
         progress.state.next('COMPLETED');
       }
-    }, () => {
-      // restart with a lower page size :/
-      if (progress.pageSize !== 500) {
+    }, err => {
+      if (err.error?.error === 17) {
+        progress.state.next('LOADFAILEDDUEPRIVACY');
+      } else if (progress.pageSize !== 500) {
+        // restart with a lower page size :/
         progress.pageSize = 500;
         this.start(scrobbles, progress, from, to);
       } else {

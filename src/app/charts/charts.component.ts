@@ -7,8 +7,10 @@ import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractChart} from './abstract-chart';
 import {ArtistScrobbleChart} from './artist-scrobble-chart';
 import {ArtistTimelineChart} from './artist-timeline-chart';
+import {CumulativeArtistChart} from './cumulative-artist-chart';
 import {ScrobbleMomentChart} from './scrobble-moment-chart';
 import {TimelineChart} from './timeline-chart';
+import {WordcloudChart} from './wordcloud-chart';
 
 @UntilDestroy()
 @Component({
@@ -23,6 +25,8 @@ export class ChartsComponent implements AfterViewInit {
     new TimelineChart(),
     new ArtistScrobbleChart(),
     new ArtistTimelineChart(),
+    new CumulativeArtistChart(),
+    new WordcloudChart(),
     new ScrobbleMomentChart('Scrobbled hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
     new ScrobbleMomentChart('Scrobbled days', Constants.DAYS, s => Object.values(s.days)),
     new ScrobbleMomentChart('Scrobbled months', Constants.MONTHS, s => Object.values(s.months)),
@@ -34,7 +38,6 @@ export class ChartsComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.builder.tempStats.pipe(
       untilDestroyed(this),
-      startWith(this.builder.tempStats.value),
     ).subscribe(stats => this.updateStats(stats));
   }
 

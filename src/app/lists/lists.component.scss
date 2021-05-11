@@ -4,9 +4,9 @@
 }
 
 .mat-card {
-  min-width: 340px;
   margin: 16px;
   flex: 1;
+  min-width: 1px;
 
   .mat-card-title {
     display: flex;
@@ -16,6 +16,12 @@
 
   .mat-icon {
     color: #999;
+  }
+}
+
+@media (max-width: 767px) {
+  .row {
+    flex-direction: column;
   }
 }
 
