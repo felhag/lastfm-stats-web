@@ -2,11 +2,11 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   push:
-    tags:        
-      - '*' 
+    tags:
+      - '*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-    
+          ${{ runner.os }}-node-
     - name: Build
       run: |
         npm install
@@ -35,4 +35,4 @@ jobs:
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: gh-pages
-        FOLDER: docs
+        FOLDER: dist

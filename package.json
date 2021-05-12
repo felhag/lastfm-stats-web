@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "lint": "ng lint",
-    "deploy": "ng build --prod --output-path docs"
+    "deploy": "ng build --prod --output-path dist/docs"
   },
   "private": true,
   "dependencies": {
