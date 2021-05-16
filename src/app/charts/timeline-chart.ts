@@ -64,16 +64,19 @@ export class TimelineChart extends AbstractChart {
     let i = 0;
     const uniqueArtists: Highcharts.PointOptionsObject[] = [];
     for (const month of Object.values(stats.monthList)) {
-      for (const scrobble of month.newArtists) {
-        i++;
-        if (i % 100 === 0) {
-          uniqueArtists.push({
-            x: scrobble.date.getTime(),
-            y: i,
-            name: scrobble.artist
-          });
-        }
-      }
+      Object.values(month.artists)
+        .filter(a => a.new)
+        .forEach(a => {
+          i++;
+          if (i % 100 === 0) {
+            const scrobble = a.new!;
+            uniqueArtists.push({
+              x: scrobble.date.getTime(),
+              y: i,
+              name: scrobble.artist
+            });
+          }
+      });
     }
 
     const scrobbles = stats.scrobbleMilestones.map((scrobble, idx) => ({

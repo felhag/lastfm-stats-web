@@ -1,0 +1,28 @@
+<div *ngIf="stats | async as s" class="container">
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Listened streaks', list: s.scrobbleStreak}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Not listened streaks', list: s.notListenedStreak}"></ng-container>
+  </div>
+
+  <ng-template #top10list let-title="title" let-list="list" let-explanation="explanation">
+    <mat-card class="top10list">
+      <mat-card-header>
+        <mat-card-title>{{title}}
+          <button *ngIf="explanation" mat-icon-button>
+            <mat-icon (click)="explain(explanation)">info_outline</mat-icon>
+          </button>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list role="list">
+          <mat-list-item role="listitem" *ngFor="let top10item of list">
+            <a *ngIf="top10item.url" mat-line [href]="top10item.url" target="_blank" class="regular-text">{{top10item.name}}</a>
+            <div *ngIf="!top10item.url" mat-line>{{top10item.name}}</div>
+            <div mat-line class="item-description">{{top10item.description}}</div>
+          </mat-list-item>
+          <mat-list-item *ngIf="!list.length">No results</mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+</div>

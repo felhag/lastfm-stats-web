@@ -29,21 +29,23 @@ import {AppComponent} from './app.component';
 import {ChartsComponent} from './charts/charts.component';
 import {ConfComponent} from './conf/conf.component';
 import {HomeComponent} from './home/home.component';
-import {ListsComponent} from './lists/lists.component';
+import {ArtistListsComponent} from './lists/artist-lists.component';
+import {ScrobbleListsComponent} from './lists/scrobble-lists.component';
+import {TrackListsComponent} from './lists/track-lists.component';
 import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
-import { TrackListsComponent } from './track-lists/track-lists.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartsComponent,
     HomeComponent,
-    ListsComponent,
+    ArtistListsComponent,
     ProgressComponent,
     StatsComponent,
     ConfComponent,
     TrackListsComponent,
+    ScrobbleListsComponent,
   ],
   imports: [
     AppRoutingModule,

@@ -34,8 +34,9 @@
     </mat-card>
 
     <nav mat-tab-nav-bar mat-stretch-tabs>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/lists'" routerLinkActive #listsLink="routerLinkActive" [active]="listsLink.isActive">Lists</a>
+      <a mat-tab-link [routerLink]="'/user/' + username + '/artists'" routerLinkActive #artistsLink="routerLinkActive" [active]="artistsLink.isActive">Artists</a>
       <a mat-tab-link [routerLink]="'/user/' + username + '/tracks'" routerLinkActive #tracksLink="routerLinkActive" [active]="tracksLink.isActive">Tracks</a>
+      <a mat-tab-link [routerLink]="'/user/' + username + '/scrobbles'" routerLinkActive #scrobblesLink="routerLinkActive" [active]="scrobblesLink.isActive">Scrobbles</a>
       <a mat-tab-link [routerLink]="'/user/' + username + '/charts'" routerLinkActive #chartLink="routerLinkActive" [active]="chartLink.isActive">Charts</a>
     </nav>
     <router-outlet></router-outlet>

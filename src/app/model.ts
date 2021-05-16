@@ -30,13 +30,21 @@ export interface Artist {
 
 export interface Month {
   alias: string;
-  newArtists: Scrobble[];
-  artists: { [key: string]: {
-    count: number;
-    tracks: { [key: string]: number };
-  }};
-  // scrobblesPerArtist: { [key: string]: number };
+  artists: { [key: string]: MonthArtist};
   avg?: number;
+}
+
+export interface MonthArtist {
+  name: string;
+  count: number;
+  new?: Scrobble;
+  tracks: { [key: string]: MonthTrack };
+}
+
+export interface MonthTrack {
+  name: string;
+  count: number;
+  new?: Scrobble;
 }
 
 export interface Export {

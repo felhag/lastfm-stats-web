@@ -28,10 +28,10 @@ export class StatsBuilderService {
       const monthYear = `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
       const weekYear = `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
       if (!next.monthList[monthYear]) {
-        next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), newArtists: [], artists: {}};
+        next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), artists: {}};
       }
-      this.handleArtist(next, scrobble, weekYear);
       this.handleMonth(next, monthYear, scrobble);
+      this.handleArtist(next, scrobble, weekYear);
 
       next.scrobbleStreak.push(scrobble);
       const sod = StreakStack.startOfDay(scrobble.date);
@@ -56,20 +56,27 @@ export class StatsBuilderService {
 
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
     const month = next.monthList[monthYear];
-    month.newArtists.push(scrobble);
-
     const monthArtist = month.artists[scrobble.artist];
+    const newArtist = next.seenArtists[scrobble.artist] ? undefined : scrobble;
+    const newTrack = !newArtist && next.seenArtists[scrobble.artist].tracks.indexOf(scrobble.track) >= 0 ? undefined : scrobble;
+    const newTrackItem = {
+      name: scrobble.artist + ' - ' + scrobble.track,
+      new: newTrack,
+      count: 1
+    };
     if (!monthArtist) {
       month.artists[scrobble.artist] = {
+        name: scrobble.artist,
+        new: newArtist,
         count: 1,
-        tracks: {[scrobble.track]: 1}
+        tracks: {[scrobble.track]: newTrackItem}
       };
     } else {
       monthArtist.count++;
       if (!monthArtist.tracks[scrobble.track]) {
-        monthArtist.tracks[scrobble.track] = 1;
+        monthArtist.tracks[scrobble.track] = newTrackItem;
       } else {
-        monthArtist.tracks[scrobble.track]++;
+        monthArtist.tracks[scrobble.track].count++;
       }
     }
   }

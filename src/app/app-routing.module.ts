@@ -2,9 +2,10 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {ChartsComponent} from './charts/charts.component';
 import {HomeComponent} from './home/home.component';
-import {ListsComponent} from './lists/lists.component';
+import {ArtistListsComponent} from './lists/artist-lists.component';
+import {ScrobbleListsComponent} from './lists/scrobble-lists.component';
+import {TrackListsComponent} from './lists/track-lists.component';
 import {StatsComponent} from './stats/stats.component';
-import {TrackListsComponent} from './track-lists/track-lists.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -14,16 +15,20 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'lists',
+        redirectTo: 'artists',
         pathMatch: 'full'
       }, {
-        path: 'lists',
+        path: 'artists',
         pathMatch: 'full',
-        component: ListsComponent
+        component: ArtistListsComponent
       }, {
         path: 'tracks',
         pathMatch: 'full',
         component: TrackListsComponent
+      }, {
+        path: 'scrobbles',
+        pathMatch: 'full',
+        component: ScrobbleListsComponent
       }, {
         path: 'charts',
         pathMatch: 'full',

@@ -1,9 +1,5 @@
 <div *ngIf="stats | async as s" class="container">
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Listened streaks', list: s.scrobbleStreak}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Not listened streaks', list: s.notListenedStreak}"></ng-container>
-  </div>
-  <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Gaps between artists', list: s.betweenArtists}"></ng-container>
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between artists', list: s.ongoingBetweenArtists}"></ng-container>
   </div>
