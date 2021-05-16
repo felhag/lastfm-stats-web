@@ -1,16 +1,21 @@
 import * as Highcharts from 'highcharts';
-import {TempStats} from '../model';
+import {TempStats, Constants} from '../model';
 import {AbstractChart} from './abstract-chart';
 import wordcloud from 'highcharts/modules/wordcloud';
 wordcloud(Highcharts);
 
 export class WordcloudChart extends AbstractChart {
+  private readonly EXCLUDE = ['the', 'a', 'an', 'on', 'in', 'to', 'at', 'and', 'for', 'is',
+    'i', 'you', 'your', 'me', 'my', 'of',
+    'mix', 'remix', 'remaster', 'remastered', 'version', 'feat', '-'];
+
   options: Highcharts.Options = {
     series: [{
       type: 'wordcloud',
       data: [],
       name: 'Occurrences'
     }],
+    colors: Constants.COLORS,
     title: {
       text: 'Wordcloud of artists and tracks'
     },
@@ -33,6 +38,7 @@ export class WordcloudChart extends AbstractChart {
       .forEach(w => words[w] = (words[w] || 0) + 1));
 
     const data = Object.keys(words)
+      .filter(k => this.EXCLUDE.indexOf(k) < 0)
       .sort((a, b) => words[b] - words[a])
       .slice(0, 100)
       .map(k => ({name: k, weight: Math.min(words[k], 750), y: words[k]}));
