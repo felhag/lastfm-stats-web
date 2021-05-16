@@ -22,7 +22,7 @@ export class CumulativeArtistChart extends AbstractChart {
       return;
     }
 
-    const months = [{alias: 'Account created', scrobblesPerArtist: {}, newArtists: []}, ...Object.values(stats.monthList)];
+    const months = [{alias: 'Account created', artists: {}, newArtists: []}, ...Object.values(stats.monthList)];
     const series = [...this.chart!.series];
     Object.values(stats.seenArtists)
       .sort((a, b) => b.scrobbleCount - a.scrobbleCount)
@@ -50,7 +50,7 @@ export class CumulativeArtistChart extends AbstractChart {
 
   private cumulativeMonths(months: Month[], artist: string): number[] {
     const result: number[] = [];
-    months.reduce((acc, cur, idx) => result[idx] = acc + (cur.scrobblesPerArtist[artist] || 0), 0);
+    months.reduce((acc, cur, idx) => result[idx] = acc + (cur.artists[artist]?.count || 0), 0);
     return result;
   }
 }

@@ -1,12 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {UntilDestroy} from '@ngneat/until-destroy';
+import {AbstractListsComponent} from '../abstract-lists.component';
+import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
-import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants} from '../model';
 
 export interface Top10Item {
   name: string;
@@ -26,6 +25,7 @@ export interface Stats {
   newArtistsPerMonth: Top10Item[];
   mostListenedNewArtist: Top10Item[];
   uniqueArtists: Top10Item[];
+  uniqueTracks: Top10Item[];
   avgTrackPerArtist: Top10Item[];
   oneHitWonders: Top10Item[];
   scrobblesPerTrack: Top10Item[];
@@ -33,34 +33,17 @@ export interface Stats {
   avgScrobbleAsc: Top10Item[];
 }
 
-@UntilDestroy()
 @Component({
   selector: 'app-lists',
   templateUrl: './lists.component.html',
   styleUrls: ['./lists.component.scss']
 })
-export class ListsComponent implements OnInit {
-  stats = new BehaviorSubject<Stats>(this.emptyStats());
-  username?: string;
-
-  constructor(private builder: StatsBuilderService,
-              private settings: SettingsService,
-              private route: ActivatedRoute,
-              private snackbar: MatSnackBar) {
+export class ListsComponent extends AbstractListsComponent<Stats> implements OnInit {
+  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute, snackbar: MatSnackBar) {
+    super(builder, settings, route, snackbar);
   }
 
-  ngOnInit(): void {
-    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.updateStats(stats));
-    this.route.parent!.paramMap.pipe(untilDestroyed(this), map(params => params.get('username'))).subscribe(name => this.username = name!);
-  }
-
-  explain(explanation: string): void{
-    this.snackbar.open(explanation, 'Got it!', {
-      duration: 10000
-    });
-  }
-
-  private updateStats(tempStats: TempStats): void {
+  protected updateStats(tempStats: TempStats): void {
     const next = this.emptyStats();
     const now = new Date();
     const endDate = tempStats.last?.date || now;
@@ -81,32 +64,38 @@ export class ListsComponent implements OnInit {
     const months = tempStats.monthList;
     const monthsValues = Object.values(months);
     monthsValues.forEach(m => {
-      const values = Object.values(m.scrobblesPerArtist);
+      const values = Object.values(m.artists).map(a => a.count);
       const sum = values.reduce((a, b) => a + b, 0);
       m.avg = (sum / values.length) || 0;
     });
+
+    const tracks: { [key: string]: string[] } = {};
+    monthsValues.forEach(m => tracks[m.alias] = Object.keys(m.artists).flatMap(a => Object.keys(m.artists[a].tracks).map(t => a + ' - ' + t)));
 
     const artistUrl = (item: Artist) => this.artistUrl(item.name);
     const monthUrl = (item: Month) => this.monthUrl(item.alias);
     next.newArtistsPerMonth = this.getTop10(months, m => m.newArtists.length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
       // only show new artists in Including... text
       const newArtists = m.newArtists.map(s => s.artist);
-      const result = Object.keys(m.scrobblesPerArtist).filter(spa => newArtists.indexOf(spa) >= 0).reduce((r: any, e) => {
-        r[e] = m.scrobblesPerArtist[e];
+      const result = Object.keys(m.artists).filter(spa => newArtists.indexOf(spa) >= 0).reduce((r: any, e) => {
+        r[e] = m.artists[e].count;
         return r;
       }, {});
       return this.including(result);
     }, monthUrl);
-    next.uniqueArtists = this.getTop10(months, m => Object.keys(m.scrobblesPerArtist).length, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.scrobblesPerArtist), monthUrl);
+
+
+    next.uniqueArtists = this.getTop10(months, m => Object.keys(m.artists).length, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.artists), monthUrl);
+    next.uniqueTracks = this.getTop10(tracks, tx => tracks[tx].length, k => k, (m, k) => `${m} (${k} unique tracks)`, (m: string) => m, m => this.monthUrl(m));
 
     const arr = Object.values(months)
-      .map(m => Object.keys(m.scrobblesPerArtist)
+      .map(m => Object.keys(m.artists)
         .filter(k => m.newArtists.map(a => a.artist).indexOf(k) >= 0)
-        .map(a => ({artist: a, month: m.alias, amount: m.scrobblesPerArtist[a]})))
+        .map(a => ({artist: a, month: m.alias, amount: m.artists[a].count})))
       .flat();
     const xTimes = (item: any, v: number) => `${v} times`;
 
-    next.avgTrackPerArtist = this.getTop10(months, m => m.avg, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.scrobblesPerArtist), monthUrl);
+    next.avgTrackPerArtist = this.getTop10(months, m => m.avg, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.artists), monthUrl);
     next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes, a => this.artistMonthUrl(a.artist, a.month));
 
     next.weeksPerArtist = this.getTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, artistUrl);
@@ -114,7 +103,7 @@ export class ListsComponent implements OnInit {
 
     const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_THRESHOLD);
     const ohw = seen.filter(a => a.tracks.length === 1);
-    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : '' })`;
+    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
     next.oneHitWonders = this.getTop10(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
     next.scrobblesPerTrack = this.getTop10(seenThreshold, s => s.scrobbleCount / s.tracks.length, k => seenThreshold[+k], a => a.name, sptDescription, artistUrl);
 
@@ -170,13 +159,9 @@ export class ListsComponent implements OnInit {
     });
   }
 
-  private get listSize(): number {
-    return this.settings.listSize.value;
-  }
-
-  private including(scrobblesPerArtist: { [key: string]: number }): string {
-    const keys = Object.keys(scrobblesPerArtist);
-    keys.sort((a, b) => scrobblesPerArtist[b] - scrobblesPerArtist[a]);
+  private including(artists: { [p: string]: { count: number; tracks: { [p: string]: number } } }): string {
+    const keys = Object.keys(artists);
+    keys.sort((a, b) => artists[b].count - artists[a].count);
     return 'Including ' + keys.splice(0, 3).join(', ');
   }
 
@@ -184,21 +169,11 @@ export class ListsComponent implements OnInit {
     return `${this.rootUrl}/music/${artist.replaceAll(' ', '+')}`;
   }
 
-  private monthUrl(month: string, baseUrl?: string): string {
-    const split = month.split(' ');
-    const url = baseUrl || this.rootUrl;
-    return `${url}?from=${split[1]}-${Constants.MONTHS.indexOf(split[0]) + 1}-01&rangetype=1month`;
-  }
-
   private artistMonthUrl(artist: string, month: string): string {
     return this.monthUrl(month, this.artistUrl(artist));
   }
 
-  private get rootUrl(): string {
-    return `https://www.last.fm/user/${this.username}/library`;
-  }
-
-  private emptyStats(): Stats {
+  protected emptyStats(): Stats {
     return {
       scrobbleStreak: [],
       notListenedStreak: [],
@@ -209,6 +184,7 @@ export class ListsComponent implements OnInit {
       newArtistsPerMonth: [],
       mostListenedNewArtist: [],
       uniqueArtists: [],
+      uniqueTracks: [],
       avgTrackPerArtist: [],
       oneHitWonders: [],
       scrobblesPerTrack: [],

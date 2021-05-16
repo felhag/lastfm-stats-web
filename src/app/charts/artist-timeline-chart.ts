@@ -32,12 +32,12 @@ export class ArtistTimelineChart extends AbstractChart {
     const colorMap: { [key: string]: string } = {};
     let idx = 0;
     for (const month of Object.values(stats.monthList)) {
-      const scrobbles = month.scrobblesPerArtist;
-      const artist = Object.keys(scrobbles).reduce((a, b) => scrobbles[a] > scrobbles[b] ? a : b);
+      const scrobbles = month.artists;
+      const artist = Object.keys(scrobbles).reduce((a, b) => scrobbles[a].count > scrobbles[b].count ? a : b);
       if (!colorMap[artist]) {
         colorMap[artist] = Constants.COLORS[Object.keys(colorMap).length % Constants.COLORS.length];
       }
-      points.push({name: month.alias + ' - ' + artist, color: colorMap[artist], y: scrobbles[artist]});
+      points.push({name: month.alias + ' - ' + artist, color: colorMap[artist], y: scrobbles[artist].count});
       idx++;
     }
     this.chart.series[0].setData(points);

@@ -32,6 +32,7 @@ import {HomeComponent} from './home/home.component';
 import {ListsComponent} from './lists/lists.component';
 import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
+import { TrackListsComponent } from './track-lists/track-lists.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import {StatsComponent} from './stats/stats.component';
     ProgressComponent,
     StatsComponent,
     ConfComponent,
+    TrackListsComponent,
   ],
   imports: [
     AppRoutingModule,

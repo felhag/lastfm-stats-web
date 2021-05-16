@@ -4,6 +4,7 @@ import {ChartsComponent} from './charts/charts.component';
 import {HomeComponent} from './home/home.component';
 import {ListsComponent} from './lists/lists.component';
 import {StatsComponent} from './stats/stats.component';
+import {TrackListsComponent} from './track-lists/track-lists.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -19,6 +20,10 @@ const routes: Routes = [
         path: 'lists',
         pathMatch: 'full',
         component: ListsComponent
+      }, {
+        path: 'tracks',
+        pathMatch: 'full',
+        component: TrackListsComponent
       }, {
         path: 'charts',
         pathMatch: 'full',

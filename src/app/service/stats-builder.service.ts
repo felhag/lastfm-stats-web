@@ -28,16 +28,10 @@ export class StatsBuilderService {
       const monthYear = `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
       const weekYear = `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
       if (!next.monthList[monthYear]) {
-        next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), newArtists: [], scrobblesPerArtist: {}};
+        next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), newArtists: [], artists: {}};
       }
-      const month = next.monthList[monthYear];
-      this.handleArtist(next, scrobble, weekYear, month);
-
-      if (!month.scrobblesPerArtist[scrobble.artist]) {
-        month.scrobblesPerArtist[scrobble.artist] = 1;
-      } else {
-        month.scrobblesPerArtist[scrobble.artist]++;
-      }
+      this.handleArtist(next, scrobble, weekYear);
+      this.handleMonth(next, monthYear, scrobble);
 
       next.scrobbleStreak.push(scrobble);
       const sod = StreakStack.startOfDay(scrobble.date);
@@ -60,7 +54,27 @@ export class StatsBuilderService {
     }
   }
 
-  private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string, month: Month): void {
+  private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
+    const month = next.monthList[monthYear];
+    month.newArtists.push(scrobble);
+
+    const monthArtist = month.artists[scrobble.artist];
+    if (!monthArtist) {
+      month.artists[scrobble.artist] = {
+        count: 1,
+        tracks: {[scrobble.track]: 1}
+      };
+    } else {
+      monthArtist.count++;
+      if (!monthArtist.tracks[scrobble.track]) {
+        monthArtist.tracks[scrobble.track] = 1;
+      } else {
+        monthArtist.tracks[scrobble.track]++;
+      }
+    }
+  }
+
+  private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     const seen = next.seenArtists;
     const seenArtist = seen[scrobble.artist];
     if (seenArtist) {
@@ -86,7 +100,6 @@ export class StatsBuilderService {
         tracks: [scrobble.track],
       };
 
-      month.newArtists.push(scrobble);
       this.uniqueTrackAdded(next, scrobble);
     }
   }
