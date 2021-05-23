@@ -19,13 +19,20 @@ export interface Scrobble {
   date: Date;
 }
 
-export interface Artist {
+export interface StreakItem {
   weeks: string[];
   name: string;
   betweenStreak: Streak;
   scrobbleCount: number;
   avgScrobble: number;
+}
+
+export interface Artist extends StreakItem {
   tracks: string[];
+}
+
+export interface Track extends StreakItem {
+  artist: string;
 }
 
 export interface Month {
@@ -60,9 +67,11 @@ export interface TempStats {
   days: { [key: number]: number };
   months: { [key: number]: number };
   seenArtists: { [key: string]: Artist };
+  seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
   notListenedStreak: StreakStack;
   betweenArtists: StreakStack;
+  betweenTracks: StreakStack;
   scrobbleMilestones: Scrobble[];
   trackMilestones: Scrobble[];
   scrobbleCount: number;
@@ -136,7 +145,8 @@ export interface Progress {
 
 export class Constants {
   static readonly API_PAGE_SIZE = 1000;
-  static readonly SCROBBLE_THRESHOLD = 50;
+  static readonly SCROBBLE_ARTIST_THRESHOLD = 50;
+  static readonly SCROBBLE_TRACK_THRESHOLD = 10;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   static readonly COLORS = [

@@ -5,7 +5,7 @@ import * as Highcharts from 'highcharts';
 export class ArtistScrobbleChart extends AbstractChart {
   options: Highcharts.Options = {
     title: {text: 'Tracks per artist'},
-    subtitle: {text: `(${Constants.SCROBBLE_THRESHOLD}+ scrobbles)`},
+    subtitle: {text: `(${Constants.SCROBBLE_ARTIST_THRESHOLD}+ scrobbles)`},
     chart: {
       type: 'scatter',
       zoomType: 'xy',
@@ -46,7 +46,7 @@ export class ArtistScrobbleChart extends AbstractChart {
       return;
     }
 
-    const data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount >= Constants.SCROBBLE_THRESHOLD).map(artist => ({
+    const data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
       x: artist.scrobbleCount,
       y: artist.tracks.length,
       name: artist.name

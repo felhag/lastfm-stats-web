@@ -1,6 +1,18 @@
 <div *ngIf="stats | async as s" class="container">
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Unique tracks in a single month', list: s.unique}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Gaps between tracks', list: s.betweenTracks}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between tracks', list: s.ongoingBetweenTracks}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Weeks per track', list: s.weeksPerTrack, explanation: 'Unique weeks a track has been scrobbled at least once'}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'New tracks in a single month', list: s.newPerMonth}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Unique tracks in a single month', list: s.uniquePerMonth}"></ng-container>
+  </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Golden oldies', list: s.avgScrobbleAsc, explanation: 'Average scrobble date for tracks with at least 10 scrobbles, sorted ascending'}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Latest discoveries', list: s.avgScrobbleDesc, explanation: 'Average scrobble date for tracks with at least 10 scrobbles, sorted descending'}"></ng-container>
   </div>
 
   <ng-template #top10list let-title="title" let-list="list" let-explanation="explanation">

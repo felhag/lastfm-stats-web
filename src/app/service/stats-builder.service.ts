@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants} from '../model';
+import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants, StreakItem, Streak} from '../model';
 import {SettingsService} from './settings.service';
 
 @Injectable({
@@ -32,6 +32,7 @@ export class StatsBuilderService {
       }
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
+      this.handleTrack(next, scrobble, weekYear);
 
       next.scrobbleStreak.push(scrobble);
       const sod = StreakStack.startOfDay(scrobble.date);
@@ -85,14 +86,7 @@ export class StatsBuilderService {
     const seen = next.seenArtists;
     const seenArtist = seen[scrobble.artist];
     if (seenArtist) {
-      seenArtist.betweenStreak.end = scrobble;
-      next.betweenArtists.add(seenArtist.betweenStreak);
-      seenArtist.betweenStreak = {start: scrobble, end: scrobble};
-      seenArtist.avgScrobble = ((seenArtist.avgScrobble * seenArtist.scrobbleCount) + scrobble.date.getTime()) / (seenArtist.scrobbleCount + 1);
-      seenArtist.scrobbleCount++;
-      if (seenArtist.weeks.indexOf(weekYear) < 0) {
-        seenArtist.weeks.push(weekYear);
-      }
+      this.handleStreakItem(seenArtist, next.betweenArtists, scrobble, weekYear);
       if (seenArtist.tracks.indexOf(scrobble.track) < 0) {
         seenArtist.tracks.push(scrobble.track);
         this.uniqueTrackAdded(next, scrobble);
@@ -108,6 +102,35 @@ export class StatsBuilderService {
       };
 
       this.uniqueTrackAdded(next, scrobble);
+    }
+  }
+
+  private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): void {
+    const seen = next.seenTracks;
+    const track = scrobble.artist + ' - ' + scrobble.track;
+    const seenTrack = seen[track];
+    if (seenTrack) {
+      this.handleStreakItem(seenTrack, next.betweenTracks, scrobble, weekYear);
+    } else {
+      seen[track] = {
+        artist: scrobble.artist,
+        name: track,
+        weeks: [weekYear],
+        betweenStreak: {start: scrobble, end: scrobble},
+        avgScrobble: scrobble.date.getTime(),
+        scrobbleCount: 1,
+      };
+    }
+  }
+
+  private handleStreakItem(seen: StreakItem, stack: StreakStack, scrobble: Scrobble, weekYear: string): void {
+    seen.betweenStreak.end = scrobble;
+    stack.add(seen.betweenStreak);
+    seen.betweenStreak = {start: scrobble, end: scrobble};
+    seen.avgScrobble = ((seen.avgScrobble * seen.scrobbleCount) + scrobble.date.getTime()) / (seen.scrobbleCount + 1);
+    seen.scrobbleCount++;
+    if (seen.weeks.indexOf(weekYear) < 0) {
+      seen.weeks.push(weekYear);
     }
   }
 
@@ -142,7 +165,9 @@ export class StatsBuilderService {
       scrobbleStreak: new ScrobbleStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
+      betweenTracks: new StreakStack(),
       seenArtists: {},
+      seenTracks: {},
       scrobbleMilestones: [],
       scrobbleCount: 0,
       trackMilestones: [],

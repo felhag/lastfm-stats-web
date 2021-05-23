@@ -77,7 +77,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.weeksPerArtist = this.getTop10<Artist>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, artistUrl);
     next.tracksPerArtist = this.getTop10<Artist>(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`, artistUrl);
 
-    const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_THRESHOLD);
+    const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD);
     const ohw = seen.filter(a => a.tracks.length === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
     next.oneHitWonders = this.getTop10<Artist>(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
@@ -94,7 +94,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
   }
 
   private artistUrl(artist: string): string {
-    return `${this.rootUrl}/music/${artist.replaceAll(' ', '+')}`;
+    return `${this.rootUrl}/music/${encodeURIComponent(artist)}`;
   }
 
   private artistMonthUrl(artist: string, month: string): string {
