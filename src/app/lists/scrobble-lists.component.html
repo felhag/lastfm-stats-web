@@ -3,6 +3,10 @@
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Listened streaks', list: s.scrobbleStreak}"></ng-container>
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Not listened streaks', list: s.notListenedStreak}"></ng-container>
   </div>
+  <div class="row">
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Most scrobbles per day', list: s.mostScrobblesPerDay}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Most scrobbles per week', list: s.mostScrobblesPerWeek}"></ng-container>
+  </div>
 
   <ng-template #top10list let-title="title" let-list="list" let-explanation="explanation">
     <mat-card class="top10list">

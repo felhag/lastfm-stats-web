@@ -6,7 +6,9 @@
 .mat-card {
   margin: 16px;
   flex: 1;
+  box-sizing: border-box;
   min-width: 1px;
+  max-width: calc(100% - 32px);
 
   .mat-card-title {
     display: flex;

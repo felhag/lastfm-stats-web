@@ -66,6 +66,8 @@ export interface TempStats {
   hours: { [key: number]: number };
   days: { [key: number]: number };
   months: { [key: number]: number };
+  specificDays: { [key: number]: number };
+  specificWeeks: { [key: string]: number };
   seenArtists: { [key: string]: Artist };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;

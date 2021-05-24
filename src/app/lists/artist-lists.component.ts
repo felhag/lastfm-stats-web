@@ -83,8 +83,8 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.oneHitWonders = this.getTop10<Artist>(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
     next.scrobblesPerTrack = this.getTop10<Artist>(seenThreshold, s => s.scrobbleCount / s.tracks.length, k => seenThreshold[+k], a => a.name, sptDescription, artistUrl);
 
-    next.avgScrobbleDesc = this.getTop10<Artist>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(v).toLocaleDateString(), artistUrl);
-    next.avgScrobbleAsc = this.getTop10<Artist>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString(), artistUrl);
+    next.avgScrobbleDesc = this.getTop10<Artist>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(v), artistUrl);
+    next.avgScrobbleAsc = this.getTop10<Artist>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(Math.abs(v)), artistUrl);
   }
 
   private including(artists: { [p: string]: MonthArtist }): string {

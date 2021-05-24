@@ -19,23 +19,25 @@ export class StatsBuilderService {
       if (scrobble.date.getFullYear() === 1970) {
         continue;
       }
+
+      const monthYear = `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
+      const weekYear = `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
+      const sod = StreakStack.startOfDay(scrobble.date);
+      const dayOfYear = sod.getTime();
+
       changed = true;
       next.scrobbleCount++;
       next.hours[scrobble.date.getHours()]++;
       next.months[scrobble.date.getMonth()]++;
       next.days[scrobble.date.getDay()]++;
+      next.specificDays[dayOfYear] = (next.specificDays[dayOfYear] || 0) + 1;
+      next.specificWeeks[weekYear] = (next.specificWeeks[weekYear] || 0) + 1;
 
-      const monthYear = `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
-      const weekYear = `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
-      if (!next.monthList[monthYear]) {
-        next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), artists: {}};
-      }
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
       this.handleTrack(next, scrobble, weekYear);
 
       next.scrobbleStreak.push(scrobble);
-      const sod = StreakStack.startOfDay(scrobble.date);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
       if (lastDate && sod.getTime() - lastDate.getTime() > StreakStack.DAY) {
         next.notListenedStreak.add({start: next.last!, end: scrobble});
@@ -56,7 +58,11 @@ export class StatsBuilderService {
   }
 
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
-    const month = next.monthList[monthYear];
+    let month = next.monthList[monthYear];
+    if (!month) {
+      month = next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), artists: {}};
+    }
+
     const monthArtist = month.artists[scrobble.artist];
     const newArtist = next.seenArtists[scrobble.artist] ? undefined : scrobble;
     const newTrack = !newArtist && next.seenArtists[scrobble.artist].tracks.indexOf(scrobble.track) >= 0 ? undefined : scrobble;
@@ -156,12 +162,11 @@ export class StatsBuilderService {
   private emptyStats(): TempStats {
     return {
       monthList: {},
-      days: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
-      hours: {
-        0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0,
-        13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0
-      },
-      months: {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0},
+      specificDays: {},
+      specificWeeks: {},
+      days: this.scrobbleCountObject(7),
+      hours: this.scrobbleCountObject(24),
+      months: this.scrobbleCountObject(12),
       scrobbleStreak: new ScrobbleStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
@@ -173,6 +178,10 @@ export class StatsBuilderService {
       trackMilestones: [],
       trackCount: 0,
     };
+  }
+
+  private scrobbleCountObject(keys: number): { [p: string]: any } {
+    return Object.fromEntries([...Array(keys).keys()].map(k => [k, 0] ));
   }
 
   private filter(scrobbles: Scrobble[]): Scrobble[] {

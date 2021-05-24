@@ -9,6 +9,15 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog 
+1.0 (24-05-2021)
+- seperate tabs for artists/tracks/scrobbles
+- added (ongoing) gaps between tracks 
+- added weeks per track
+- added new/unique tracks in a single month
+- added avg scrobble date lists for tracks
+- added most scrobbles per day/week
+- added list of excluded words for the wordcloud
+
 0.4 (11-05-2021)
 - added artist include/exclude filtering possibility
 - added cumulative scrobbles for top 25 artists chart

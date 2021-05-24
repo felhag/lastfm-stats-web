@@ -95,6 +95,10 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     return `https://www.last.fm/user/${this.username}/library`;
   }
 
+  protected dateString(date: number): string {
+    return new Date(date).toLocaleDateString();
+  }
+
   protected abstract doUpdate(stats: TempStats, next: S): void;
 
   protected abstract emptyStats(): S;
