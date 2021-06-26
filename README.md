@@ -9,6 +9,11 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog 
+1.1 (26-06-2021)
+- added punchard (Number of scrobbles)
+- improved layout wordcloud
+- ongoing gaps are now relative to end date
+
 1.0 (24-05-2021)
 - seperate tabs for artists/tracks/scrobbles
 - added (ongoing) gaps between tracks 
