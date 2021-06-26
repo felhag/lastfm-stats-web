@@ -40,8 +40,23 @@ export class WordcloudChart extends AbstractChart {
     const data = Object.keys(words)
       .filter(k => this.EXCLUDE.indexOf(k) < 0)
       .sort((a, b) => words[b] - words[a])
-      .slice(0, 100)
-      .map(k => ({name: k, weight: Math.min(words[k], 750), y: words[k]}));
-    this.chart.series[0].setData(data);
+      .slice(0, 100);
+
+    const amounts = data.map(a => words[a]);
+    const min = Math.min(...amounts);
+    const max = Math.max(...amounts);
+    const gap = max - min;
+    const serie = data.map(k => {
+
+      // create range from .25 to 1
+      const percentage = (words[k] - min) / gap;
+      return {
+        weight: percentage + (1 - percentage) / 4,
+        name: k,
+        y: words[k]
+      };
+    });
+
+    this.chart.series[0].setData(serie);
   }
 }
