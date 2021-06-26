@@ -1,7 +1,7 @@
 <div *ngIf="stats | async as s" class="container">
   <div class="row">
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Gaps between tracks', list: s.betweenTracks}"></ng-container>
-    <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between tracks', list: s.ongoingBetweenTracks}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Gaps between tracks', list: s.betweenTracks, explanation: 'Largest time passed between two scrobbles of the same track'}"></ng-container>
+    <ng-container *ngTemplateOutlet="top10list; context:{title:'Ongoing gaps between tracks', list: s.ongoingBetweenTracks, explanation: 'Largest time passed since last time you listened to a track.'}"></ng-container>
   </div>
   <div class="row">
     <ng-container *ngTemplateOutlet="top10list; context:{title:'Weeks per track', list: s.weeksPerTrack, explanation: 'Unique weeks a track has been scrobbled at least once'}"></ng-container>

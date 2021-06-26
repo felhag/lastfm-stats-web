@@ -36,8 +36,7 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
   private currentScrobbleStreak(tempStats: TempStats, endDate: Date): Streak[] {
     const current = tempStats.scrobbleStreak.current;
     if (current) {
-      const currentStreak: Streak = {start: current.start, end: {artist: '?', track: '?', date: endDate}};
-      ScrobbleStreakStack.calcLength(currentStreak);
+      const currentStreak = this.ongoingStreak({start: current.start, end: {artist: '?', track: '?', date: endDate}});
       return [...tempStats.scrobbleStreak.streaks, currentStreak];
     } else {
       return tempStats.scrobbleStreak.streaks;

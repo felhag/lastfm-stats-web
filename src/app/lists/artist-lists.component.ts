@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
-import {Month, Streak, StreakStack, TempStats, ScrobbleStreakStack, Artist, Constants, MonthArtist} from '../model';
+import {Month, TempStats, Artist, Constants, MonthArtist} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
@@ -33,13 +33,13 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
     const seen = Object.values(stats.seenArtists);
-    const now = new Date();
+    const endDate = stats.last?.date || new Date();
     next.betweenArtists = this.getStreakTop10(stats.betweenArtists.streaks, s => `${s.start.artist} (${s.length! - 1} days)`, s => this.artistUrl(s.start.artist));
     next.ongoingBetweenArtists = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: '?', date: now}}))
-        .map(a => StreakStack.calcLength(a)),
+        .map(a => ({start: a.start, end: {artist: a.start.artist, track: '?', date: endDate}}))
+        .map(a => this.ongoingStreak(a)),
       s => `${s.start.artist} (${s.length} days)`,
       s => this.artistUrl(s.start.artist)
     );
@@ -117,4 +117,4 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       avgScrobbleAsc: [],
     };
   }
-  }
+}

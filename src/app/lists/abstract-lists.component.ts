@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {Constants, TempStats, Streak} from '../model';
+import {Constants, TempStats, Streak, StreakStack} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 
@@ -75,7 +75,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
       return {
         amount: streak.length!,
         name: buildName(streak),
-        description: streak.start.date.toLocaleDateString() + ' - ' + streak.end.date.toLocaleDateString(),
+        description: streak.start.date.toLocaleDateString() + ' - ' + (streak.ongoing ? '?' : streak.end.date.toLocaleDateString()),
         url: buildUrl ? buildUrl(streak) : undefined
       };
     });
@@ -102,4 +102,10 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected abstract doUpdate(stats: TempStats, next: S): void;
 
   protected abstract emptyStats(): S;
+
+  protected ongoingStreak(a: Streak): Streak {
+    StreakStack.calcLength(a);
+    a.ongoing = true;
+    return a;
+  }
 }

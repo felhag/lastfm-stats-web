@@ -28,14 +28,14 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
     const seen = Object.values(stats.seenTracks);
-    const now = new Date();
+    const endDate = stats.last?.date || new Date();
     const scrobbleUrl = (streak: Streak) => this.trackUrl(streak.start.artist, streak.start.track);
     next.betweenTracks = this.getStreakTop10(stats.betweenTracks.streaks, s => `${s.start.artist} - ${s.start.track} (${s.length! - 1} days)`, scrobbleUrl);
     next.ongoingBetweenTracks = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: a.start.track, date: now}}))
-        .map(a => StreakStack.calcLength(a)),
+        .map(a => ({start: a.start, end: {artist: a.start.artist, track: a.start.track, date: endDate}}))
+        .map(a => this.ongoingStreak(a)),
       s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
       scrobbleUrl
     );

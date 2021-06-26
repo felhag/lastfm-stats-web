@@ -84,6 +84,7 @@ export interface Streak {
   start: Scrobble;
   end: Scrobble;
   length?: number;
+  ongoing?: boolean;
 }
 
 export class StreakStack {
@@ -91,6 +92,7 @@ export class StreakStack {
   current?: Streak;
 
   static calcLength(streak: Streak): Streak {
+    streak.ongoing = false;
     streak.length = Math.floor((this.startOfDay(streak.end.date).getTime() - this.startOfDay(streak.start.date).getTime()) / Constants.DAY);
     return streak;
   }
@@ -110,7 +112,7 @@ export class StreakStack {
 export class ScrobbleStreakStack extends StreakStack {
   push(scrobble: Scrobble): void {
     if (!this.current) {
-      this.current = {start: scrobble, end: scrobble, length: 1};
+      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
     } else {
       const end = StreakStack.startOfDay(this.current.end.date).getTime();
       const add = StreakStack.startOfDay(scrobble.date).getTime();
