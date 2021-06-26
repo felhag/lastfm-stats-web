@@ -87,13 +87,11 @@ export interface Streak {
 }
 
 export class StreakStack {
-  static readonly DAY = 24 * 60 * 60 * 1000;
-  static readonly TWO_DAYS = 2 * StreakStack.DAY;
   streaks: Streak[] = [];
   current?: Streak;
 
   static calcLength(streak: Streak): Streak {
-    streak.length = Math.floor((this.startOfDay(streak.end.date).getTime() - this.startOfDay(streak.start.date).getTime()) / this.DAY);
+    streak.length = Math.floor((this.startOfDay(streak.end.date).getTime() - this.startOfDay(streak.start.date).getTime()) / Constants.DAY);
     return streak;
   }
 
@@ -118,7 +116,7 @@ export class ScrobbleStreakStack extends StreakStack {
       const add = StreakStack.startOfDay(scrobble.date).getTime();
       if (add === end) {
         this.current.end = scrobble;
-      } else if (add - end < StreakStack.TWO_DAYS) {
+      } else if (add - end < Constants.TWO_DAYS) {
         this.current.end = scrobble;
         this.current.length!++;
       } else {
@@ -146,6 +144,8 @@ export interface Progress {
 }
 
 export class Constants {
+  static readonly DAY = 24 * 60 * 60 * 1000;
+  static readonly TWO_DAYS = 2 * Constants.DAY;
   static readonly API_PAGE_SIZE = 1000;
   static readonly SCROBBLE_ARTIST_THRESHOLD = 50;
   static readonly SCROBBLE_TRACK_THRESHOLD = 10;

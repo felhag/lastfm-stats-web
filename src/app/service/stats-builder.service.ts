@@ -39,7 +39,7 @@ export class StatsBuilderService {
 
       next.scrobbleStreak.push(scrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
-      if (lastDate && sod.getTime() - lastDate.getTime() > StreakStack.DAY) {
+      if (lastDate && sod.getTime() - lastDate.getTime() > Constants.DAY) {
         next.notListenedStreak.add({start: next.last!, end: scrobble});
       }
 
