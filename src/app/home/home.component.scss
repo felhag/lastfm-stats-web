@@ -69,6 +69,10 @@ $font-size: 32px;
     letter-spacing: 1px;
     padding: 0 20px;
   }
+
+  app-buttons {
+    align-self: flex-end;
+  }
 }
 
 @media (max-width: 575px) {

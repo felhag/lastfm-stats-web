@@ -34,6 +34,7 @@ import {ScrobbleListsComponent} from './lists/scrobble-lists.component';
 import {TrackListsComponent} from './lists/track-lists.component';
 import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
+import { ButtonsComponent } from './buttons/buttons.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import {StatsComponent} from './stats/stats.component';
     ConfComponent,
     TrackListsComponent,
     ScrobbleListsComponent,
+    ButtonsComponent,
   ],
   imports: [
     AppRoutingModule,

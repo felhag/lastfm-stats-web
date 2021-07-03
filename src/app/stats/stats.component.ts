@@ -1,5 +1,6 @@
 import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
+import {MatIconRegistry} from '@angular/material/icon';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {map, take, filter} from 'rxjs/operators';
@@ -27,7 +28,6 @@ export class StatsComponent implements OnInit, OnDestroy {
               private router: Router,
               private route: ActivatedRoute,
               private dialog: MatDialog) {
-
     this.imported = this.router.getCurrentNavigation()?.extras.state?.scrobbles || [];
   }
 
