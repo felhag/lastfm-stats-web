@@ -60,10 +60,16 @@ export class ScrobbleRetrieverService {
     this.retrieveUser(username).subscribe(user => {
       progress.user = user;
       progress.state.next('CALCULATINGPAGES');
-      const from = scrobbles.length ? String(scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1) : user.registered.unixtime;
+      const from = String(scrobbles.length ? scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1 : parseInt(user.registered.unixtime) - 1000);
 
       this.start(scrobbles, progress, from, to);
-    }, () => progress.state.next('USERNOTFOUND'));
+    }, (e) => {
+      if (e.status === 404) {
+        progress.state.next('USERNOTFOUND');
+      } else {
+        progress.state.next('LOADFAILED');
+      }
+    });
 
     return progress;
   }

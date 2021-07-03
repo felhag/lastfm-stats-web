@@ -46,11 +46,14 @@ export class ArtistScrobbleChart extends AbstractChart {
       return;
     }
 
-    const data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
+    let data = Object.values(stats.seenArtists).filter(a => a.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
       x: artist.scrobbleCount,
       y: artist.tracks.length,
       name: artist.name
     }));
+    if (data.length > 500) {
+      data = data.sort((a, b) => b.x - a.x).slice(0, 499);
+    }
 
     this.chart.series[0].setData(data);
   }
