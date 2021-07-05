@@ -3,36 +3,16 @@
   flex-wrap: wrap;
 }
 
-.mat-card {
+app-top10list {
   margin: 16px;
   flex: 1;
   box-sizing: border-box;
   min-width: 1px;
   max-width: calc(100% - 32px);
-
-  .mat-card-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .mat-icon {
-    color: #999;
-  }
 }
 
 @media (max-width: 767px) {
   .row {
     flex-direction: column;
-  }
-}
-
-.item-description {
-  color: #999;
-}
-
-:host ::ng-deep {
-  .mat-card-header-text {
-    width: 100%;
   }
 }

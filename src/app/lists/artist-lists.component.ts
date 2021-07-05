@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
 import {Month, TempStats, Artist, Constants, MonthArtist} from '../model';
 import {SettingsService} from '../service/settings.service';
@@ -27,8 +26,8 @@ export interface ArtistStats {
   styleUrls: ['./lists.component.scss']
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute, snackbar: MatSnackBar) {
-    super(builder, settings, route, snackbar);
+  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
+    super(builder, settings, route);
   }
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {

@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
-import {TempStats, Streak, ScrobbleStreakStack} from '../model';
+import {TempStats, Streak} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
@@ -19,8 +18,8 @@ export interface ScrobbleStats {
   styleUrls: ['./lists.component.scss']
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute, snackbar: MatSnackBar) {
-    super(builder, settings, route, snackbar);
+  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
+    super(builder, settings, route);
   }
 
   protected doUpdate(stats: TempStats, next: ScrobbleStats): void {

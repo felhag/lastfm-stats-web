@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
-import {TempStats, MonthTrack, StreakStack, Track, Streak, Constants} from '../model';
+import {TempStats, MonthTrack, Track, Streak, Constants} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
@@ -22,8 +21,8 @@ export interface TrackStats {
   styleUrls: ['./lists.component.scss']
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute, snackbar: MatSnackBar) {
-    super(builder, settings, route, snackbar);
+  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
+    super(builder, settings, route);
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {

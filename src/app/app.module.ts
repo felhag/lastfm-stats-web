@@ -26,6 +26,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HighchartsChartModule} from 'highcharts-angular';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
+import {ButtonsComponent} from './buttons/buttons.component';
 import {ChartsComponent} from './charts/charts.component';
 import {ConfComponent} from './conf/conf.component';
 import {HomeComponent} from './home/home.component';
@@ -34,7 +35,7 @@ import {ScrobbleListsComponent} from './lists/scrobble-lists.component';
 import {TrackListsComponent} from './lists/track-lists.component';
 import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
-import { ButtonsComponent } from './buttons/buttons.component';
+import {Top10listComponent} from './lists/top10list/top10list.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,8 @@ import { ButtonsComponent } from './buttons/buttons.component';
     TrackListsComponent,
     ScrobbleListsComponent,
     ButtonsComponent,
+    Top10listComponent,
+    Top10listComponent,
   ],
   imports: [
     AppRoutingModule,

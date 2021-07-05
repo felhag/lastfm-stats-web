@@ -25,8 +25,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
 
   protected constructor(private builder: StatsBuilderService,
                         private settings: SettingsService,
-                        private route: ActivatedRoute,
-                        private snackbar: MatSnackBar) {
+                        private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
@@ -38,12 +37,6 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     const next = this.emptyStats();
     this.doUpdate(stats, next);
     this.stats.next(next);
-  }
-
-  explain(explanation: string): void {
-    this.snackbar.open(explanation, 'Got it!', {
-      duration: 10000
-    });
   }
 
   getTop10<T>(countMap: { [key: string]: any },
