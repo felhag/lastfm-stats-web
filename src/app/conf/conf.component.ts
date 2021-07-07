@@ -95,4 +95,8 @@ export class ConfComponent implements OnInit {
   updateKeyword($event: Event): void {
     this.keyword.next(($event.target as HTMLInputElement).value);
   }
+
+  updateMinScrobbles(ev: Event): void {
+    this.settings.minScrobbles.next(parseInt((ev.target as HTMLInputElement).value) || 0);
+  }
 }

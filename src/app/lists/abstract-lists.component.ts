@@ -1,10 +1,9 @@
 import {OnInit, Directive} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute} from '@angular/router';
-import {UntilDestroy} from '@ngneat/until-destroy';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {Constants, TempStats, Streak, StreakStack} from '../model';
+import {Constants, TempStats, Streak, StreakStack, Artist, StreakItem} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 
@@ -24,13 +23,13 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   username?: string;
 
   protected constructor(private builder: StatsBuilderService,
-                        private settings: SettingsService,
+                        protected settings: SettingsService,
                         private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
     this.route.parent!.paramMap.pipe(map(params => params.get('username'))).subscribe(name => this.username = name!);
-    this.builder.tempStats.subscribe(stats => this.update(stats));
+    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
   }
 
   private update(stats: TempStats): void {
@@ -95,6 +94,29 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected abstract doUpdate(stats: TempStats, next: S): void;
 
   protected abstract emptyStats(): S;
+
+  protected calculateGaps(stats: TempStats,
+                          seenThingies: { [key: string]: StreakItem },
+                          between: StreakStack,
+                          includeTrack: boolean,
+                          url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
+    const threshold = this.settings.minScrobbles.value || 0;
+    const seen = Object.values(seenThingies).filter(a => a.scrobbleCount >= threshold);
+    const seenStrings = seen.map(a => a.name);
+    const toString = (s: Streak) => s.start.artist + (includeTrack ? ' - ' + s.start.track : '');
+    const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
+    const endDate = stats.last?.date || new Date();
+    const betweenResult = this.getStreakTop10(ba, s => `${s.start.artist} ${includeTrack ? (' - ' + s.start.track) : ''} (${s.length! - 1} days)`, url);
+    const ongoingResult = this.getStreakTop10(
+      seen
+        .map(a => a.betweenStreak)
+        .map(a => ({start: a.start, end: {artist: a.start.artist, track: includeTrack ? a.start.track : '?', date: endDate}}))
+        .map(a => this.ongoingStreak(a)),
+      s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
+      url
+    );
+    return [betweenResult, ongoingResult];
+  }
 
   protected ongoingStreak(a: Streak): Streak {
     StreakStack.calcLength(a);

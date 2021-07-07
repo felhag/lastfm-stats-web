@@ -2,26 +2,31 @@
 List size:
 <mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize.value" (change)="settings.listSize.next($event.value || 10)"></mat-slider>
 
-<ng-container>
-  <div class="setting-row">
-    <h3>Filter dates</h3>
+<div class="setting-row">
+  <mat-form-field>
+    <mat-label>Min scrobble count for gaps</mat-label>
+    <input matInput type="number" [value]="settings.minScrobbles | async" (change)="updateMinScrobbles($event)">
+  </mat-form-field>
+</div>
 
-    <button mat-button (click)="clearDate()" [disabled]="!startDateCtrl.value && !endDateCtrl.value">
-      <mat-icon class="material-icons-outlined">delete</mat-icon>Clear date filter
-    </button>
-  </div>
-  <div class="setting-row">
-    <mat-form-field appearance="standard" (focusin)="picker.open()">
-      <mat-label>Date range</mat-label>
-      <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
-        <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
-        <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
-      </mat-date-range-input>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
-    </mat-form-field>
-  </div>
-</ng-container>
+<div class="setting-row">
+  <h3>Filter dates</h3>
+
+  <button mat-button (click)="clearDate()" [disabled]="!startDateCtrl.value && !endDateCtrl.value">
+    <mat-icon class="material-icons-outlined">delete</mat-icon>Clear date filter
+  </button>
+</div>
+<div class="setting-row">
+  <mat-form-field appearance="standard" (focusin)="picker.open()">
+    <mat-label>Date range</mat-label>
+    <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
+      <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
+      <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
+    </mat-date-range-input>
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
+  </mat-form-field>
+</div>
 
 <ng-container *ngIf="(filteredArtists | async) as fa">
   <div class="setting-row">
@@ -30,6 +35,7 @@ List size:
       <mat-icon class="material-icons-outlined">delete</mat-icon>Clear artist filter
     </button>
   </div>
+
   <div class="setting-row">
     <mat-chip-list [disabled]="fa.length === 0">
       <mat-chip color="primary" [selected]="settings.artistsInclude | async" (click)="settings.artistsInclude.next(true)">Include {{fa.length}} artists</mat-chip>

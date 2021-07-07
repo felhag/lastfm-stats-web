@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Month, TempStats, Artist, Constants, MonthArtist} from '../model';
+import {Month, TempStats, Artist, Constants, MonthArtist, Streak, StreakItem, StreakStack} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
+import {TrackStats} from './track-lists.component';
 
 export interface ArtistStats {
   betweenArtists: Top10Item[];
@@ -31,17 +32,9 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
   }
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
-    const seen = Object.values(stats.seenArtists);
-    const endDate = stats.last?.date || new Date();
-    next.betweenArtists = this.getStreakTop10(stats.betweenArtists.streaks, s => `${s.start.artist} (${s.length! - 1} days)`, s => this.artistUrl(s.start.artist));
-    next.ongoingBetweenArtists = this.getStreakTop10(
-      seen
-        .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: '?', date: endDate}}))
-        .map(a => this.ongoingStreak(a)),
-      s => `${s.start.artist} (${s.length} days)`,
-      s => this.artistUrl(s.start.artist)
-    );
+    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, false, s => this.artistUrl(s.start.artist));
+    next.betweenArtists = gaps[0];
+    next.ongoingBetweenArtists = gaps[1];
 
     const months = stats.monthList;
     const monthsValues = Object.values(months);
@@ -53,7 +46,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
 
     const artistUrl = (item: Artist) => this.artistUrl(item.name);
     const monthUrl = (item: Month) => this.monthUrl(item.alias);
-    next.newArtistsPerMonth = this.getTop10(months, m => Object.values(m.artists).filter(a => (a as any).new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
+    next.newArtistsPerMonth = this.getTop10(months, m => Object.values(m.artists).filter(a => a.new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
       // only show new artists in Including... text
       const newArtists = Object.values(m.artists).filter(a => a.new).map(s => s.name);
       const result = Object.keys(m.artists).filter(spa => newArtists.indexOf(spa) >= 0).reduce((r: any, e) => {
@@ -65,6 +58,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
 
     next.uniqueArtists = this.getTop10<Month>(months, m => Object.keys(m.artists).length, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.artists), monthUrl);
 
+    const seen = Object.values(stats.seenArtists);
     const arr = Object.values(months)
       .map(m => Object.values(m.artists).filter(a => a.new).map(a => ({artist: a.name, month: m.alias, amount: a.count})))
       .flat();

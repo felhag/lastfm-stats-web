@@ -26,19 +26,11 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
-    const seen = Object.values(stats.seenTracks);
-    const endDate = stats.last?.date || new Date();
-    const scrobbleUrl = (streak: Streak) => this.trackUrl(streak.start.artist, streak.start.track);
-    next.betweenTracks = this.getStreakTop10(stats.betweenTracks.streaks, s => `${s.start.artist} - ${s.start.track} (${s.length! - 1} days)`, scrobbleUrl);
-    next.ongoingBetweenTracks = this.getStreakTop10(
-      seen
-        .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: a.start.track, date: endDate}}))
-        .map(a => this.ongoingStreak(a)),
-      s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
-      scrobbleUrl
-    );
+    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, true, s => this.trackUrl(s.start.artist, s.start.track));
+    next.betweenTracks = gaps[0];
+    next.ongoingBetweenTracks = gaps[1];
 
+    const seen = Object.values(stats.seenTracks);
     const monthsValues = Object.values(stats.monthList);
     const tracks: { [month: string]: { [track: string]: MonthTrack } } = {};
     monthsValues.forEach(m => {

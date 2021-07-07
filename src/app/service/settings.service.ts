@@ -9,6 +9,7 @@ import {BehaviorSubject} from 'rxjs';
 export class SettingsService {
   autoUpdate: BehaviorSubject<boolean>;
   listSize: BehaviorSubject<number>;
+  minScrobbles: BehaviorSubject<number>;
   dateRangeStart: BehaviorSubject<Date>;
   dateRangeEnd: BehaviorSubject<Date>;
   artistsInclude: BehaviorSubject<boolean>;
@@ -17,6 +18,7 @@ export class SettingsService {
   constructor() {
     this.autoUpdate = this.init('auto-update', true, v => v === 'true');
     this.listSize = this.init('list-size', 10, v => parseInt(v));
+    this.minScrobbles = this.init('min-scrobbles', 0, v => parseInt(v));
 
     this.dateRangeStart = this.initDate('date-range-start');
     this.dateRangeEnd = this.initDate('date-range-end');

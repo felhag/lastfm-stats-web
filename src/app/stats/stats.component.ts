@@ -1,11 +1,11 @@
 import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {MatIconRegistry} from '@angular/material/icon';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {Subject, combineLatest, Observable} from 'rxjs';
 import {map, take, filter} from 'rxjs/operators';
 import {ConfComponent} from '../conf/conf.component';
-import {Progress, Scrobble, Constants} from '../model';
+import {Progress, Scrobble} from '../model';
 import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
@@ -21,6 +21,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
   username?: string;
   imported: Scrobble[];
+  settingCount = new Observable<number>();
 
   constructor(private retriever: ScrobbleRetrieverService,
               private builder: StatsBuilderService,
@@ -47,6 +48,14 @@ export class StatsComponent implements OnInit, OnDestroy {
     if (!this.settings.autoUpdate.value) {
       this.rebuild();
     }
+
+    this.settingCount = combineLatest([
+      this.settings.dateRangeStart,
+      this.settings.dateRangeEnd,
+      this.settings.artists,
+      this.settings.minScrobbles]).pipe(map(([start, end, artists, min]) => {
+      return (start || end ? 1 : 0) + (artists.length ? 1 : 0) + (min ? 1 : 0);
+    }));
   }
 
   ngOnDestroy(): void {
