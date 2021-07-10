@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 
@@ -7,7 +7,7 @@ import {DomSanitizer} from '@angular/platform-browser';
   templateUrl: './buttons.component.html',
   styleUrls: ['./buttons.component.scss']
 })
-export class ButtonsComponent implements OnInit {
+export class ButtonsComponent {
   @Input() showHome = true;
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
@@ -24,8 +24,4 @@ export class ButtonsComponent implements OnInit {
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/reddit_icon.svg')
     );
   }
-
-  ngOnInit(): void {
-  }
-
 }

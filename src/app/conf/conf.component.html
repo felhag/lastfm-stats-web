@@ -39,7 +39,7 @@ List size:
   <div class="setting-row">
     <mat-chip-list [disabled]="fa.length === 0">
       <mat-chip color="primary" [selected]="settings.artistsInclude | async" (click)="settings.artistsInclude.next(true)">Include {{fa.length}} artists</mat-chip>
-      <mat-chip color="warn" [selected]="!(settings.artistsInclude | async)" (click)="settings.artistsInclude.next(false)">Exclude {{fa.length}} artists</mat-chip>
+      <mat-chip color="warn" [selected]="(settings.artistsInclude | async) === false" (click)="settings.artistsInclude.next(false)">Exclude {{fa.length}} artists</mat-chip>
     </mat-chip-list>
   </div>
 

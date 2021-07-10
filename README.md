@@ -8,7 +8,17 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - custom date range
 - import/export
 
-## 🐛 Changelog 
+## 🐛 Changelog
+1.2 (12-07-2021)
+- added artists race chart
+- added scrobble count filter for gap charts
+- added links to reddit, github and ko-fi
+- added list index when list size is greater than 10
+- added badges to filter and auto update buttons
+- fixed error message when adblocker is bothering 
+- fixed first scrobble when it's same date as account creation
+- fixed track per artist if more than 1000 artists have 50+ scrobbles
+
 1.1 (26-06-2021)
 - added punchard (Number of scrobbles)
 - improved layout wordcloud

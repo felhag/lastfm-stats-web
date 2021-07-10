@@ -9,7 +9,7 @@
     <span>last.fm/user/</span>
     <span class="input-wrap">
       <span class="width-machine" aria-hidden="true" [innerHTML]="username">username</span>
-      <input type="text" placeholder="username" class="input" autofocus (input)="update($event)" (keydown.enter)="go()" [class.invalid]="!(valid | async)">
+      <input type="text" placeholder="username" class="input" autofocus (input)="update($event)" (keydown.enter)="go()" [class.invalid]="(valid | async) === false">
     </span>
   </label>
   <div class="home-row">

@@ -93,6 +93,7 @@ export class ScrobbleRetrieverService {
         this.iterate(progress, from, to, 3);
       } else {
         progress.state.next('COMPLETED');
+        progress.loader.complete();
       }
     }, err => {
       if (err.error?.error === 17) {
@@ -148,6 +149,7 @@ export class ScrobbleRetrieverService {
         this.iterate(progress, from, to, 3);
       } else {
         progress.state.next('COMPLETED');
+        progress.loader.complete();
       }
       // sometimes lastfm returns a 500, retry a few times.
     }, () => retry > 0 ? this.iterate(progress, from, to, retry--) : undefined);

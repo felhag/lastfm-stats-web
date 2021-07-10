@@ -2,8 +2,8 @@ import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/co
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Subject, combineLatest, Observable} from 'rxjs';
-import {map, take, filter} from 'rxjs/operators';
+import {combineLatest, Observable} from 'rxjs';
+import {map, take, filter, finalize} from 'rxjs/operators';
 import {ConfComponent} from '../conf/conf.component';
 import {Progress, Scrobble} from '../model';
 import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
@@ -42,13 +42,11 @@ export class StatsComponent implements OnInit, OnDestroy {
     this.progress = this.retriever.retrieveFor(this.username!, this.imported);
     this.progress.loader.pipe(
       untilDestroyed(this),
-      filter(() => this.settings.autoUpdate.value),
+      filter((s, idx) => idx === 0 || this.settings.autoUpdate.value),
+      finalize(() => this.rebuildWithoutAutoUpdate())
     ).subscribe(s => this.builder.update(s, true));
 
-    if (!this.settings.autoUpdate.value) {
-      this.rebuild();
-    }
-
+    this.rebuildWithoutAutoUpdate();
     this.settingCount = combineLatest([
       this.settings.dateRangeStart,
       this.settings.dateRangeEnd,
@@ -60,6 +58,12 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.progress.state.next('INTERRUPTED');
+  }
+
+  private rebuildWithoutAutoUpdate(): void {
+    if (!this.settings.autoUpdate.value && this.progress.state.value !== 'INTERRUPTED') {
+      this.rebuild();
+    }
   }
 
   rebuild(): void {

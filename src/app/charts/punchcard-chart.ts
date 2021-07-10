@@ -77,6 +77,23 @@ export class PunchcardChart extends AbstractChart {
           }
         }
       }
+    },
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 768
+        },
+        // Make the labels less space demanding on mobile
+        chartOptions: {
+          yAxis: {
+            labels: {
+              formatter(): string {
+                return (this.value as string).substr(0, 1);
+              }
+            }
+          },
+        }
+      }]
     }
   };
 
