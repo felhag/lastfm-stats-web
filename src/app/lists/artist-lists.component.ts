@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Month, TempStats, Artist, Constants, MonthArtist, Streak, StreakItem, StreakStack} from '../model';
+import {Month, TempStats, Artist, Constants, MonthArtist} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
-import {TrackStats} from './track-lists.component';
 
 export interface ArtistStats {
   betweenArtists: Top10Item[];
@@ -71,10 +70,11 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.tracksPerArtist = this.getTop10<Artist>(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`, artistUrl);
 
     const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD);
+    const spt = seenThreshold.filter(s => s.tracks.length > 1);
     const ohw = seen.filter(a => a.tracks.length === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
     next.oneHitWonders = this.getTop10<Artist>(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
-    next.scrobblesPerTrack = this.getTop10<Artist>(seenThreshold, s => s.scrobbleCount / s.tracks.length, k => seenThreshold[+k], a => a.name, sptDescription, artistUrl);
+    next.scrobblesPerTrack = this.getTop10<Artist>(spt, s => s.scrobbleCount / s.tracks.length, k => spt[+k], a => a.name, sptDescription, artistUrl);
 
     next.avgScrobbleDesc = this.getTop10<Artist>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(v), artistUrl);
     next.avgScrobbleAsc = this.getTop10<Artist>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(Math.abs(v)), artistUrl);

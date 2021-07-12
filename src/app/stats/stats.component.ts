@@ -46,7 +46,6 @@ export class StatsComponent implements OnInit, OnDestroy {
       finalize(() => this.rebuildWithoutAutoUpdate())
     ).subscribe(s => this.builder.update(s, true));
 
-    this.rebuildWithoutAutoUpdate();
     this.settingCount = combineLatest([
       this.settings.dateRangeStart,
       this.settings.dateRangeEnd,

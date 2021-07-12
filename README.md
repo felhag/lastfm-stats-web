@@ -9,6 +9,10 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog
+1.3 (12-07-2021)
+- fixed issue when using import and autoupdate was disabled scrobbles were handled twice
+- only include artists with 2+ tracks in avg scrobbles per track
+
 1.2 (12-07-2021)
 - added artists race chart
 - added scrobble count filter for gap charts
