@@ -149,6 +149,7 @@ export class Constants {
   static readonly DAY = 24 * 60 * 60 * 1000;
   static readonly TWO_DAYS = 2 * Constants.DAY;
   static readonly API_PAGE_SIZE = 1000;
+  static readonly RETRIES = 2;
   static readonly SCROBBLE_ARTIST_THRESHOLD = 50;
   static readonly SCROBBLE_TRACK_THRESHOLD = 10;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

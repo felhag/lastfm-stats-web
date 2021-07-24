@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, Subject, BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {Observable, Subject, BehaviorSubject, combineLatest, forkJoin} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {Progress, User, Constants, Scrobble} from '../model';
 
 interface Response {
@@ -61,7 +61,7 @@ export class ScrobbleRetrieverService {
     this.retrieveUser(username).subscribe(user => {
       progress.user = user;
       progress.state.next('CALCULATINGPAGES');
-      const from = String(this.determineFrom(user));
+      const from = String(this.determineFrom(user, this.imported));
       this.start(this.imported, progress, from, to);
       this.imported = [];
     }, (e) => {
@@ -75,9 +75,9 @@ export class ScrobbleRetrieverService {
     return progress;
   }
 
-  private determineFrom(user: User): number {
-    if (this.imported.length) {
-      return this.imported[this.imported.length - 1].date.getTime() / 1000 + 1;
+  private determineFrom(user: User, scrobbles: Scrobble[]): number {
+    if (scrobbles.length) {
+      return scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1;
     } else {
       return parseInt(user.registered.unixtime) - 1000;
     }
@@ -99,7 +99,7 @@ export class ScrobbleRetrieverService {
         progress.totalPages = page;
         progress.currentPage = page;
         progress.loadScrobbles = parseInt(response.recenttracks['@attr'].total);
-        this.iterate(progress, from, to, 3);
+        this.iterate(progress, from, to);
       } else {
         progress.state.next('COMPLETED');
         progress.loader.complete();
@@ -127,41 +127,74 @@ export class ScrobbleRetrieverService {
     return this.http.get<{user: User}>(this.API, {params}).pipe(map(u => u.user));
   }
 
-  private iterate(progress: Progress, from: string, to: string, retry: number): void {
+  private iterate(progress: Progress, from: string, to: string, retry: number = Constants.RETRIES): void {
     if (progress.state.value === 'INTERRUPTED') {
       return;
     }
 
     const start = new Date().getTime();
+
     this.get(progress.user!.name, from, to, progress.currentPage, progress.pageSize).subscribe(r => {
       if (progress.state.value === 'INTERRUPTED') {
         return;
       }
 
-      const tracks: Scrobble[] = r.recenttracks.track.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
-        track: t.name,
-        artist: t.artist['#text'],
-        date: new Date(t.date?.uts * 1000)
-      })).reverse();
-      if (!progress.first.value) {
-        progress.first.next(tracks[0]);
-      }
-      progress.last.next(tracks[tracks.length - 1]);
-      progress.loader.next(tracks);
-      progress.allScrobbles.push(...tracks);
-      progress.currentPage--;
+      this.updateTracks(r.recenttracks.track, progress);
+
       if (progress.currentPage > 0) {
         const ms = new Date().getTime() - start;
         const handled = progress.totalPages - progress.currentPage - 1;
         const avgLoadTime = progress.pageLoadTime ? progress.pageLoadTime * handled : 0;
         progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
-        this.iterate(progress, from, to, 3);
+        this.iterate(progress, from, to);
       } else {
         progress.state.next('COMPLETED');
         progress.loader.complete();
       }
-      // sometimes lastfm returns a 500, retry a few times.
-    }, () => retry > 0 ? this.iterate(progress, from, to, retry--) : undefined);
+    }, () => {
+      if (retry > 0) {
+        // sometimes lastfm returns a 500, retry a few times.
+        this.iterate(progress, from, to, retry - 1);
+      } else {
+        // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in two chunks
+        this.retryLowerPageSize(progress, from, to);
+      }
+    });
+  }
+
+  private retryLowerPageSize(progress: Progress, from: string, to: string): void {
+    const newFrom = String(this.determineFrom(progress.user!, progress.allScrobbles));
+    const tempPageSize = 250;
+    // split current page in two or four pages (based on page size)
+    this.get(progress.user!.name, newFrom, to, 1, tempPageSize).pipe(switchMap(r => {
+      // build observable for each page and combine result
+      const lastPage = parseInt(r.recenttracks['@attr'].totalPages);
+      return forkJoin(Array.from(Array(progress.pageSize / tempPageSize).keys())
+        .map((o, idx) => lastPage - idx)
+        .map(page => this.get(progress.user!.name, newFrom, to, page, tempPageSize)))
+        .pipe(map((pages) => pages.map(p => p.recenttracks.track).flat()));
+    })).subscribe(tracks => {
+      // add combined chunks to result
+      this.updateTracks(tracks, progress);
+
+      // restart
+      this.iterate(progress, from, to);
+    }, () => progress.state.next('LOADFAILED'));
+  }
+
+  private updateTracks(response: Track[], progress: Progress): void {
+    const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
+      track: t.name,
+      artist: t.artist['#text'],
+      date: new Date(t.date?.uts * 1000)
+    })).reverse();
+    if (!progress.first.value) {
+      progress.first.next(tracks[0]);
+    }
+    progress.last.next(tracks[tracks.length - 1]);
+    progress.loader.next(tracks);
+    progress.allScrobbles.push(...tracks);
+    progress.currentPage--;
   }
 
   private get(username: string, from: string, to: string, page: number, size: number): Observable<Response> {
