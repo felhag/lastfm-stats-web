@@ -9,7 +9,26 @@
   @media (min-width: 1200px) {
     &.multiple {
       width: 400px;
-    float: left;
+      float: left;
     }
+  }
+}
+
+.toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  padding: 16px;
+
+  input {
+    width: 100%;
+  }
+
+  .current {
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+    font-weight: bold;
   }
 }

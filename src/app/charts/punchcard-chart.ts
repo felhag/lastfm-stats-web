@@ -5,9 +5,10 @@ import heatmap from 'highcharts/modules/heatmap';
 heatmap(Highcharts);
 
 export class PunchcardChart extends AbstractChart {
-  private yearLabel?: Highcharts.SVGElement;
-  private prevButton?: Highcharts.SVGElement;
-  private nextButton?: Highcharts.SVGElement;
+  yearLabel?: HTMLElement;
+  prevButton?: HTMLButtonElement;
+  nextButton?: HTMLButtonElement;
+  toolbar?: HTMLElement;
 
   options: Highcharts.Options = {
     series: [{
@@ -61,19 +62,25 @@ export class PunchcardChart extends AbstractChart {
         render(): void {
           const chart = this;
           const custom = chart.series[0].options.custom!;
-          const component = custom.component;
-          if (!component.yearLabel) {
-            component.yearLabel = chart.renderer.label('', 48, 0).css({fontWeight: 'bold', fontSize: '14px'}).add();
-            component.prevButton = chart.renderer.button('prev', 0, 0, () => {
+          const component = custom.component as PunchcardChart;
+          if (!component.toolbar) {
+            component.toolbar = document.getElementById('punchcard-toolbar')!;
+            component.yearLabel = component.toolbar.querySelector('.current') as HTMLElement;
+            component.prevButton = component.toolbar.querySelector('.prev') as HTMLButtonElement;
+            component.nextButton = component.toolbar.querySelector('.next') as HTMLButtonElement;
+
+            component.prevButton.onclick = () => {
               custom.byUser = true;
               custom.year--;
               component.updateDays(custom.data);
-            }, { padding: 4 }).add();
-            component.nextButton = chart.renderer.button('next', 100, 0, () => {
+            };
+            component.nextButton.onclick = () => {
               custom.byUser = true;
               custom.year++;
               component.updateDays(custom.data);
-            }, { padding: 4 }).add();
+            };
+
+            chart.container.parentNode!.appendChild(component.toolbar);
           }
         }
       }
@@ -138,8 +145,8 @@ export class PunchcardChart extends AbstractChart {
     serie.setData(data as number[][]);
     custom.year = year;
     custom.data = specificDays;
-    custom.component.yearLabel?.attr({text: year});
-    custom.component.prevButton.attr({visibility: year <= custom.first ? 'hidden' : 'visible', text: year - 1});
-    custom.component.nextButton.attr({visibility: year >= custom.last ? 'hidden' : 'visible', text: year + 1});
+    this.yearLabel!.innerText = year;
+    this.prevButton!.style.visibility = year <= custom.first ? 'hidden' : 'visible';
+    this.nextButton!.style.visibility = year >= custom.last ? 'hidden' : 'visible';
   }
 }

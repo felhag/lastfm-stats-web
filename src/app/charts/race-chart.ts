@@ -1,6 +1,6 @@
+import * as Highcharts from 'highcharts';
 import {TempStats, Constants, Month} from '../model';
 import {AbstractChart} from './abstract-chart';
-import * as Highcharts from 'highcharts';
 
 export class RaceChart extends AbstractChart {
   data: [string, [string, number][]][] = [];
@@ -8,36 +8,34 @@ export class RaceChart extends AbstractChart {
   artists: string[] = [];
   current = -1;
   timer?: number;
-  button?: Highcharts.SVGElement;
+  toolbar?: HTMLElement;
+  button?: HTMLElement;
   input?: HTMLInputElement;
+  speedText?: HTMLElement;
+  speed = 1000;
 
   options: Highcharts.Options = {
     chart: {
       animation: {
-        duration: 1000
+        duration: this.speed
       },
       height: 800,
       events: {
         render(): void {
           const chart = this;
           const custom = chart.series[0].options.custom!;
-          const component = custom.component;
-          if (!component.button) {
-            component.button = chart.renderer.button('Play', 0, 4, () => component.toggle(), {padding: 4}).add();
-            component.input = Highcharts.createElement(
-              'input', {
-                type: 'range',
-                value: 0,
-                min: 0,
-                max: component.months.length,
-                onchange: (v: any) => component.tick(parseInt(v.target.value))
-              }, {
-                position: 'absolute',
-                top: '52px', // position under title
-                left: '16px',
-                minWidth: 'calc(100% - 32px)',
-                zIndex: '1'
-              }, chart.container.parentNode as HTMLElement);
+          const component = custom.component as RaceChart;
+          if (!component.toolbar) {
+            component.toolbar = document.getElementById('race-chart-toolbar')!;
+            component.speedText = component.toolbar.querySelector('.current') as HTMLElement;
+            component.button = component.toolbar.querySelector('.play mat-icon') as HTMLElement;
+            component.input = component.toolbar.querySelector('input') as HTMLInputElement;
+            component.input.onclick = (ev: any) => component.tick(parseInt(ev.target.value));
+            (component.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => component.toggle();
+            (component.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => component.changeSpeed(500);
+            (component.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => component.changeSpeed(-500);
+
+            chart.container.parentNode!.appendChild(component.toolbar);
           }
         }
       }
@@ -51,8 +49,8 @@ export class RaceChart extends AbstractChart {
       } as any
     },
     colors: Constants.COLORS,
-    title: { text: 'Artists race chart' },
-    xAxis: { type: 'category' },
+    title: {text: 'Artists race chart'},
+    xAxis: {type: 'category'},
     yAxis: [{
       opposite: true,
       title: {
@@ -119,7 +117,7 @@ export class RaceChart extends AbstractChart {
 
   private getData(month: Month): [string, number][] {
     return this.artists
-      .map(a => ({name: a, count: this.cumulativeUntil(month, a) }))
+      .map(a => ({name: a, count: this.cumulativeUntil(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
       .map(a => [a.name, a.count]);
@@ -163,9 +161,20 @@ export class RaceChart extends AbstractChart {
     }
   }
 
+  changeSpeed(amount: number): void {
+    this.speed = Math.max(500, this.speed + amount);
+    this.chart?.update({chart: {animation: {duration: this.speed}}});
+    this.speedText!.innerText = String((this.speed / 1000)) + 's';
+    if (this.timer) {
+      this.pause();
+      this.play();
+    }
+  }
+
   private play(): void {
-    this.button?.attr({text : 'Pause'});
-    this.timer = setInterval(() => this.tick(this.current + 1), 1000);
+    this.button!.innerHTML = 'pause';
+    this.tick(this.current + 1);
+    this.timer = setInterval(() => this.tick(this.current + 1), this.speed);
   }
 
   /**
@@ -173,7 +182,7 @@ export class RaceChart extends AbstractChart {
    * Pausing stops the timer and resets the button to play mode.
    */
   private pause(): void {
-    this.button?.attr({text : 'Play'});
+    this.button!.innerHTML = 'play_arrow';
     clearTimeout(this.timer);
     this.timer = undefined;
   }
