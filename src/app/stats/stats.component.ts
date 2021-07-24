@@ -20,7 +20,7 @@ import {StatsBuilderService} from '../service/stats-builder.service';
 export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
   username?: string;
-  imported: Scrobble[];
+  // imported: Scrobble[];
   settingCount = new Observable<number>();
 
   constructor(private retriever: ScrobbleRetrieverService,
@@ -29,7 +29,7 @@ export class StatsComponent implements OnInit, OnDestroy {
               private router: Router,
               private route: ActivatedRoute,
               private dialog: MatDialog) {
-    this.imported = this.router.getCurrentNavigation()?.extras.state?.scrobbles || [];
+    // this.imported = this.router.getCurrentNavigation()?.extras.state?.scrobbles || [];
   }
 
   ngOnInit(): void {
@@ -39,7 +39,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     ).subscribe(s => this.username = s || undefined);
 
     this.builder.update([], false);
-    this.progress = this.retriever.retrieveFor(this.username!, this.imported);
+    this.progress = this.retriever.retrieveFor(this.username!);
     this.progress.loader.pipe(
       untilDestroyed(this),
       filter((s, idx) => idx === 0 || this.settings.autoUpdate.value),

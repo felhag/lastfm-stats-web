@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {NgxCsvParser, NgxCSVParserError} from 'ngx-csv-parser';
 import {Subject, BehaviorSubject} from 'rxjs';
 import {Export, Scrobble} from '../model';
+import {ScrobbleRetrieverService} from '../service/scrobble-retriever.service';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,9 @@ export class HomeComponent {
   valid = new BehaviorSubject(true);
   importError = new Subject<string>();
 
-  constructor(private router: Router, private ngxCsvParser: NgxCsvParser) {
+  constructor(private router: Router,
+              private ngxCsvParser: NgxCsvParser,
+              private retriever: ScrobbleRetrieverService) {
   }
 
   update(ev: Event): void {
@@ -44,20 +47,25 @@ export class HomeComponent {
         }
 
         const username = headers[2].substr(headers[2].indexOf('#') + 1);
-        const scrobbles: Scrobble[] = (csvArray as any[]).map(arr => ({artist: arr[0], track: arr[1], date: new Date(parseInt(arr[2]))}));
-        this.router.navigateByUrl(`/user/${username}`, {state: {scrobbles}});
+        const scrobbles = (csvArray as any[]).map(arr => ({artist: arr[0], track: arr[1], date: new Date(parseInt(arr[2]))}));
+        this.handleImport(username, scrobbles);
       }, (error: NgxCSVParserError) => this.importError.next('Can\t parse csv: ' + error.message));
     } else if (ext === 'json') {
       const reader = new FileReader();
       reader.onloadend = () => {
         const parsed = this.parseJSON(reader.result as string);
         const scrobbles = parsed.scrobbles.map(s => ({track: s.track, artist: s.artist, date: new Date(s.date)}));
-        this.router.navigateByUrl(`/user/${parsed.username}`, {state: {scrobbles}});
+        this.handleImport(parsed.username, scrobbles);
       };
       reader.readAsText(file);
     } else {
       this.importError.next('Only csv and json are supported.');
     }
+  }
+
+  private handleImport(username: string, scrobbles: Scrobble[]): void {
+    this.retriever.imported = scrobbles;
+    this.router.navigate([`/user/${username}`]);
   }
 
   private parseJSON(data: string): Export {

@@ -38,11 +38,12 @@ export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'LOADFAILED' | 'LOADFAI
 export class ScrobbleRetrieverService {
   private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
+  imported: Scrobble[] = [];
 
   constructor(private http: HttpClient) {
   }
 
-  retrieveFor(username: string, scrobbles: Scrobble[]): Progress {
+  retrieveFor(username: string): Progress {
     const to = new Date().toDateString();
     const progress: Progress = {
       loader: new Subject<Scrobble[]>(),
@@ -53,16 +54,16 @@ export class ScrobbleRetrieverService {
       totalPages: -1,
       currentPage: -1,
       loadScrobbles: 0,
-      importedScrobbles: scrobbles.length,
-      allScrobbles: scrobbles
+      importedScrobbles: this.imported.length,
+      allScrobbles: this.imported
     };
 
     this.retrieveUser(username).subscribe(user => {
       progress.user = user;
       progress.state.next('CALCULATINGPAGES');
-      const from = String(scrobbles.length ? scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1 : parseInt(user.registered.unixtime) - 1000);
-
-      this.start(scrobbles, progress, from, to);
+      const from = String(this.determineFrom(user));
+      this.start(this.imported, progress, from, to);
+      this.imported = [];
     }, (e) => {
       if (e.status === 404) {
         progress.state.next('USERNOTFOUND');
@@ -72,6 +73,14 @@ export class ScrobbleRetrieverService {
     });
 
     return progress;
+  }
+
+  private determineFrom(user: User): number {
+    if (this.imported.length) {
+      return this.imported[this.imported.length - 1].date.getTime() / 1000 + 1;
+    } else {
+      return parseInt(user.registered.unixtime) - 1000;
+    }
   }
 
   private start(scrobbles: Scrobble[], progress: Progress, from: string, to: string): void {
