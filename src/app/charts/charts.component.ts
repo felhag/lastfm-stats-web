@@ -10,6 +10,7 @@ import {CumulativeArtistChart} from './cumulative-artist-chart';
 import {PunchcardChart} from './punchcard-chart';
 import {RaceChart} from './race-chart';
 import {ScrobbleMomentChart} from './scrobble-moment-chart';
+import {ScrobblePerDayChart} from './scrobble-per-day-chart';
 import {TimelineChart} from './timeline-chart';
 import {WordcloudChart} from './wordcloud-chart';
 
@@ -29,6 +30,7 @@ export class ChartsComponent implements AfterViewInit {
     new CumulativeArtistChart(),
     new WordcloudChart(),
     new PunchcardChart(),
+    new ScrobblePerDayChart(),
     new RaceChart(),
     new ScrobbleMomentChart('Scrobbled hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
     new ScrobbleMomentChart('Scrobbled days', Constants.DAYS, s => Object.values(s.days)),
