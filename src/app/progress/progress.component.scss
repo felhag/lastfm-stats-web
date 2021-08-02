@@ -30,3 +30,11 @@
 .mat-spinner {
   margin-left: 24px;
 }
+.load-stuck {
+  display: flex;
+  align-items: center;
+
+  .mat-icon {
+    margin-right: 8px;
+  }
+}

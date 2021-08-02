@@ -9,6 +9,12 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog
+1.4 (02-08-2021)
+- added scrobble count per day chart
+- added possibility to adjust speed in race chart
+- fixed importing scrobbles with Firefox
+- fixed issue which caused loader to get stuck
+
 1.3 (12-07-2021)
 - fixed issue when using import and autoupdate was disabled scrobbles were handled twice
 - only include artists with 2+ tracks in avg scrobbles per track

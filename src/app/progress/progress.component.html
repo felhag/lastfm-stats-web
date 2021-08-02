@@ -3,10 +3,13 @@
     <div class="loading">Loading: {{currentPage}}/{{totalPages}} pages ({{this.percentage | number:'1.2-2'}}%, {{eta}}) <mat-spinner [diameter]="24"></mat-spinner></div>
     <mat-progress-bar mode="determinate" [value]="percentage"></mat-progress-bar>
   </div>
+  <div *ngIf="state === 'LOADSTUCK'" class="load-stuck">
+    <mat-icon color="warn">error_outline</mat-icon> Loading got stuck at page {{currentPage}}/{{totalPages}} 😭.
+  </div>
   <div *ngIf="state === 'COMPLETED'">
     Loading finished, your statistics are up to date!
   </div>
-  <div>
+  <div *ngIf="state !== 'LOADSTUCK'">
     <span>{{state === 'RETRIEVING' ? 'Retrieving' : 'Retrieved'}} <b>{{progress.loadScrobbles | number}}</b> scrobbles</span>
     <span *ngIf="progress.importedScrobbles">, imported <b>{{progress.importedScrobbles | number}}</b> scrobbles. Total scrobbles: <b>{{progress.importedScrobbles + progress.loadScrobbles | number}}</b></span>
   </div>

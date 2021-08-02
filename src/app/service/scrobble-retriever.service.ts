@@ -1,6 +1,6 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, Subject, BehaviorSubject, combineLatest, forkJoin} from 'rxjs';
+import {Observable, Subject, BehaviorSubject, forkJoin} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {Progress, User, Constants, Scrobble} from '../model';
 
@@ -30,7 +30,10 @@ interface Track {
   };
 }
 
-export type State = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' | 'RETRIEVING' | 'INTERRUPTED' | 'COMPLETED';
+export type State =
+  'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' |       // happy flow states
+  'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' |  // initial error states
+  'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';                // completed states
 
 @Injectable({
   providedIn: 'root'
@@ -107,9 +110,9 @@ export class ScrobbleRetrieverService {
     }, err => {
       if (err.error?.error === 17) {
         progress.state.next('LOADFAILEDDUEPRIVACY');
-      } else if (progress.pageSize !== 500) {
+      } else if (progress.pageSize !== Constants.API_PAGE_SIZE_REDUCED) {
         // restart with a lower page size :/
-        progress.pageSize = 500;
+        progress.pageSize = Constants.API_PAGE_SIZE_REDUCED;
         this.start(scrobbles, progress, from, to);
       } else {
         progress.state.next('LOADFAILED');
@@ -156,7 +159,7 @@ export class ScrobbleRetrieverService {
         // sometimes lastfm returns a 500, retry a few times.
         this.iterate(progress, from, to, retry - 1);
       } else {
-        // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in two chunks
+        // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in multiple chunks
         this.retryLowerPageSize(progress, from, to);
       }
     });
@@ -164,22 +167,22 @@ export class ScrobbleRetrieverService {
 
   private retryLowerPageSize(progress: Progress, from: string, to: string): void {
     const newFrom = String(this.determineFrom(progress.user!, progress.allScrobbles));
-    const tempPageSize = 250;
-    // split current page in two or four pages (based on page size)
+    const tempPageSize = progress.pageSize === 1000 ? 200 : 125;
+    // split current page in five or four pages (based on page size)
     this.get(progress.user!.name, newFrom, to, 1, tempPageSize).pipe(switchMap(r => {
       // build observable for each page and combine result
       const lastPage = parseInt(r.recenttracks['@attr'].totalPages);
       return forkJoin(Array.from(Array(progress.pageSize / tempPageSize).keys())
         .map((o, idx) => lastPage - idx)
         .map(page => this.get(progress.user!.name, newFrom, to, page, tempPageSize)))
-        .pipe(map((pages) => pages.map(p => p.recenttracks.track).flat()));
+        .pipe(map(pages => pages.map(p => p.recenttracks.track).flat()));
     })).subscribe(tracks => {
       // add combined chunks to result
       this.updateTracks(tracks, progress);
 
       // restart
       this.iterate(progress, from, to);
-    }, () => progress.state.next('LOADFAILED'));
+    }, () => progress.state.next('LOADSTUCK'));
   }
 
   private updateTracks(response: Track[], progress: Progress): void {

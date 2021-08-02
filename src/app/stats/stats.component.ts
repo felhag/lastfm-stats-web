@@ -5,7 +5,7 @@ import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {combineLatest, Observable} from 'rxjs';
 import {map, take, filter, finalize} from 'rxjs/operators';
 import {ConfComponent} from '../conf/conf.component';
-import {Progress, Scrobble} from '../model';
+import {Progress} from '../model';
 import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
@@ -20,7 +20,6 @@ import {StatsBuilderService} from '../service/stats-builder.service';
 export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
   username?: string;
-  // imported: Scrobble[];
   settingCount = new Observable<number>();
 
   constructor(private retriever: ScrobbleRetrieverService,
@@ -29,7 +28,6 @@ export class StatsComponent implements OnInit, OnDestroy {
               private router: Router,
               private route: ActivatedRoute,
               private dialog: MatDialog) {
-    // this.imported = this.router.getCurrentNavigation()?.extras.state?.scrobbles || [];
   }
 
   ngOnInit(): void {
@@ -70,7 +68,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   showContent(state: State): boolean {
-    return state === 'INTERRUPTED' || state === 'COMPLETED' || state === 'RETRIEVING';
+    return state === 'INTERRUPTED' || state === 'COMPLETED' || state === 'RETRIEVING' || state === 'LOADSTUCK';
   }
 
   openSettings(): void {
