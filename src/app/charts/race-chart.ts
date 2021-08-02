@@ -1,9 +1,10 @@
+import {PointOptionsObject} from 'highcharts';
 import * as Highcharts from 'highcharts';
 import {TempStats, Constants, Month} from '../model';
 import {AbstractChart} from './abstract-chart';
 
 export class RaceChart extends AbstractChart {
-  data: [string, [string, number][]][] = [];
+  colors: {[key: string]: string} = {};
   months: Month[] = [];
   artists: string[] = [];
   current = -1;
@@ -115,12 +116,25 @@ export class RaceChart extends AbstractChart {
     }
   }
 
-  private getData(month: Month): [string, number][] {
+  private getData(month: Month): PointOptionsObject[] {
     return this.artists
       .map(a => ({name: a, count: this.cumulativeUntil(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
-      .map(a => [a.name, a.count]);
+      .map(a => ({
+        y: a.count,
+        name: a.name,
+        color: this.getColor(a.name)
+      }));
+  }
+
+  private getColor(name: string): string {
+    if (this.colors[name]) {
+      return this.colors[name];
+    }
+    const color = Constants.COLORS[Object.keys(this.colors).length % Constants.COLORS.length];
+    this.colors[name] = color;
+    return color;
   }
 
   private cumulativeUntil(until: Month, artist: string): number {

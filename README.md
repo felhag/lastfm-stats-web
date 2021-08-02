@@ -14,6 +14,7 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - added possibility to adjust speed in race chart
 - fixed importing scrobbles with Firefox
 - fixed issue which caused loader to get stuck
+- fixed colors in race chart
 
 1.3 (12-07-2021)
 - fixed issue when using import and autoupdate was disabled scrobbles were handled twice
