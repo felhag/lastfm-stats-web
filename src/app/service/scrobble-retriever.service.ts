@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, Subject, BehaviorSubject, forkJoin} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {Observable, Subject, BehaviorSubject, throwError, concat} from 'rxjs';
+import {map, switchMap, catchError, toArray, expand} from 'rxjs/operators';
 import {Progress, User, Constants, Scrobble} from '../model';
 
 interface Response {
@@ -110,12 +110,14 @@ export class ScrobbleRetrieverService {
     }, err => {
       if (err.error?.error === 17) {
         progress.state.next('LOADFAILEDDUEPRIVACY');
-      } else if (progress.pageSize !== Constants.API_PAGE_SIZE_REDUCED) {
-        // restart with a lower page size :/
-        progress.pageSize = Constants.API_PAGE_SIZE_REDUCED;
-        this.start(scrobbles, progress, from, to);
       } else {
-        progress.state.next('LOADFAILED');
+        const idx = Constants.API_PAGE_SIZE_REDUCTIONS.indexOf(progress.pageSize);
+        if (Constants.API_PAGE_SIZE_REDUCTIONS.length > idx + 1) {
+          progress.pageSize = Constants.API_PAGE_SIZE_REDUCTIONS[idx + 1];
+          this.start(scrobbles, progress, from, to);
+        } else {
+          progress.state.next('LOADFAILED');
+        }
       }
     });
   }
@@ -130,19 +132,19 @@ export class ScrobbleRetrieverService {
     return this.http.get<{user: User}>(this.API, {params}).pipe(map(u => u.user));
   }
 
-  private iterate(progress: Progress, from: string, to: string, retry: number = Constants.RETRIES): void {
+  private iterate(progress: Progress, from: string, to: string): void {
     if (progress.state.value === 'INTERRUPTED') {
       return;
     }
 
     const start = new Date().getTime();
 
-    this.get(progress.user!.name, from, to, progress.currentPage, progress.pageSize).subscribe(r => {
+    this.getPageSizeFallback(progress, from, to).subscribe(tracks => {
       if (progress.state.value === 'INTERRUPTED') {
         return;
       }
 
-      this.updateTracks(r.recenttracks.track, progress);
+      this.updateTracks(tracks, progress);
 
       if (progress.currentPage > 0) {
         const ms = new Date().getTime() - start;
@@ -154,35 +156,70 @@ export class ScrobbleRetrieverService {
         progress.state.next('COMPLETED');
         progress.loader.complete();
       }
-    }, () => {
-      if (retry > 0) {
-        // sometimes lastfm returns a 500, retry a few times.
-        this.iterate(progress, from, to, retry - 1);
-      } else {
-        // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in multiple chunks
-        this.retryLowerPageSize(progress, from, to);
-      }
-    });
+    }, () => progress.state.next('LOADSTUCK'));
   }
 
-  private retryLowerPageSize(progress: Progress, from: string, to: string): void {
-    const newFrom = String(this.determineFrom(progress.user!, progress.allScrobbles));
-    const tempPageSize = progress.pageSize === 1000 ? 200 : 125;
-    // split current page in five or four pages (based on page size)
-    this.get(progress.user!.name, newFrom, to, 1, tempPageSize).pipe(switchMap(r => {
-      // build observable for each page and combine result
-      const lastPage = parseInt(r.recenttracks['@attr'].totalPages);
-      return forkJoin(Array.from(Array(progress.pageSize / tempPageSize).keys())
-        .map((o, idx) => lastPage - idx)
-        .map(page => this.get(progress.user!.name, newFrom, to, page, tempPageSize)))
-        .pipe(map(pages => pages.map(p => p.recenttracks.track).flat()));
-    })).subscribe(tracks => {
-      // add combined chunks to result
-      this.updateTracks(tracks, progress);
+  /**
+   * Loads a page page, with some fallbacks for the unstable last fm api:
+   * - tries to load with two retries
+   * - if failed three times, retries with lower page size
+   * - if failed again, recursively call method with smaller page size.
+   */
+  private getPageSizeFallback(progress: Progress, from: string, to: string): Observable<Track[]> {
+    return this.getWithRetry(progress.user!.name, from, to, progress.currentPage, progress.pageSize).pipe(
+      map(r => r.recenttracks.track),
+      catchError(() => this.retryLowerPageSize(progress, from, to, progress.pageSize))
+    );
+  }
 
-      // restart
-      this.iterate(progress, from, to);
-    }, () => progress.state.next('LOADSTUCK'));
+  private retryLowerPageSize(progress: Progress, from: string, to: string, orgPageSize: number): Observable<Track[]> {
+    // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in multiple chunks
+    const sizeIdx = Constants.API_PAGE_SIZE_REDUCTIONS.indexOf(orgPageSize);
+    const nextSize = Constants.API_PAGE_SIZE_REDUCTIONS[sizeIdx === 0 ? 2 : sizeIdx + 1]; // skip page size 600
+    if (!nextSize) {
+      // tried loading with lowest page size. Last fm really wont give a response ..
+      return throwError(() => new Error(`API wont give a response, even with smallest page size ${orgPageSize}.`));
+    } else {
+      // use last loaded scrobble as from date
+      const newFrom = String(this.determineFrom(progress.user!, progress.allScrobbles));
+      return this.getWithRetry(progress.user!.name, newFrom, to, 1, nextSize).pipe(switchMap(r => {
+        // build observable for each page and combine result
+        const lastPage = parseInt(r.recenttracks['@attr'].totalPages);
+
+        return concat(...Array.from(Array(orgPageSize / nextSize).keys())
+          .map((o, idx) => lastPage - idx)
+          .map(page => this.getWithRetry(progress.user!.name, newFrom, to, page, nextSize, 10)))
+          .pipe(
+            expand(),
+            toArray(),
+            map(pages => pages.map(p => p.recenttracks.track).flat()),
+
+            // if any failed, retry again with a lower page size
+            catchError(() => this.retryLowerPageSize(progress, from, to, nextSize))
+          );
+      }));
+    }
+  }
+
+  private x(progress: Progress, from: string, to: string, pageSize: number, tracks: Track[]): Observable<Track[]> {
+    return this.retryLowerPageSize(progress, from, to, pageSize).pipe(
+      map(r => [...tracks, ...r]),
+      expand()
+    );
+  }
+
+  // lastfm api isn't very stable an sometimes returns a 500 error so we'll retry a few times.
+  private getWithRetry(username: string, from: string, to: string, page: number, size: number,
+                       retry: number = Constants.RETRIES): Observable<Response> {
+    return this.get(username, from, to, page, size).pipe(
+      catchError(() => {
+        if (retry > 0) {
+          return this.getWithRetry(username, from, to, page, size, retry - 1);
+        } else {
+          return throwError(() => new Error(`Retried ${Constants.RETRIES} times but couldn't retrieve page ${page} with size ${size} for ${username}`));
+        }
+      })
+    );
   }
 
   private updateTracks(response: Track[], progress: Progress): void {
