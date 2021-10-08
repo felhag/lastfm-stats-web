@@ -76,4 +76,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     const minWidth = width > 1200 ? 1000 : width - 48;
     this.dialog.open(ConfComponent, {data: this.progress, minWidth}).afterClosed().subscribe(() => this.rebuild());
   }
+
+  get hasAlbums(): Observable<boolean> {
+    // TODO: startsWith()
+    return this.progress.first.pipe(map(f => !!f?.album));
+  }
 }

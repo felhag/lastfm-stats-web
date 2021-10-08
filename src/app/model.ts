@@ -32,6 +32,10 @@ export interface Artist extends StreakItem {
   tracks: string[];
 }
 
+export interface Album extends StreakItem {
+  artist: string;
+}
+
 export interface Track extends StreakItem {
   artist: string;
 }
@@ -70,10 +74,12 @@ export interface TempStats {
   specificDays: { [key: number]: number };
   specificWeeks: { [key: string]: number };
   seenArtists: { [key: string]: Artist };
+  seenAlbums: { [key: string]: Album };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
   notListenedStreak: StreakStack;
   betweenArtists: StreakStack;
+  betweenAlbums: StreakStack;
   betweenTracks: StreakStack;
   scrobbleMilestones: Scrobble[];
   trackMilestones: Scrobble[];

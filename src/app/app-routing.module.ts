@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {ChartsComponent} from './charts/charts.component';
 import {HomeComponent} from './home/home.component';
+import {AlbumListsComponent} from './lists/album-lists.component';
 import {ArtistListsComponent} from './lists/artist-lists.component';
 import {ScrobbleListsComponent} from './lists/scrobble-lists.component';
 import {TrackListsComponent} from './lists/track-lists.component';
@@ -21,6 +22,10 @@ const routes: Routes = [
         path: 'artists',
         pathMatch: 'full',
         component: ArtistListsComponent
+      }, {
+        path: 'albums',
+        pathMatch: 'full',
+        component: AlbumListsComponent
       }, {
         path: 'tracks',
         pathMatch: 'full',

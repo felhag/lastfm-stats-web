@@ -1,0 +1,9 @@
+<div *ngIf="stats | async as s" class="container">
+  <div class="row">
+    <app-top10list [list]="s.betweenAlbums" title="Gaps between albums" explanation="Largest time passed between two scrobbles of the same album"></app-top10list>
+    <app-top10list [list]="s.ongoingBetweenAlbums" title="Ongoing gaps between albums" explanation="Largest time passed since last time you listened to an album"></app-top10list>
+  </div>
+  <div class="row">
+    <app-top10list [list]="s.weeksPerAlbum" title="Weeks per album" explanation="Unique weeks a album has been scrobbled at least once"></app-top10list>
+  </div>
+</div>

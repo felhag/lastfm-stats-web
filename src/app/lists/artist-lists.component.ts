@@ -31,7 +31,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
   }
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, false, s => this.artistUrl(s.start.artist));
+    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, undefined, s => this.artistUrl(s.start.artist));
     next.betweenArtists = gaps[0];
     next.ongoingBetweenArtists = gaps[1];
 

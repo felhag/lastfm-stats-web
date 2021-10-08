@@ -98,19 +98,23 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected calculateGaps(stats: TempStats,
                           seenThingies: { [key: string]: StreakItem },
                           between: StreakStack,
-                          includeTrack: boolean,
+                          include: 'album' | 'track' | undefined,
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
     const threshold = this.settings.minScrobbles.value || 0;
     const seen = Object.values(seenThingies).filter(a => a.scrobbleCount >= threshold);
     const seenStrings = seen.map(a => a.name);
-    const toString = (s: Streak) => s.start.artist + (includeTrack ? ' - ' + s.start.track : '');
+    const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
     const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
     const endDate = stats.last?.date || new Date();
-    const betweenResult = this.getStreakTop10(ba, s => `${s.start.artist} ${includeTrack ? (' - ' + s.start.track) : ''} (${s.length! - 1} days)`, url);
+    const betweenResult = this.getStreakTop10(ba, s => `${toString(s)} (${s.length! - 1} days)`, url);
     const ongoingResult = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, album: a.start.album, track: includeTrack ? a.start.track : '?', date: endDate}}))
+        .map(a => ({start: a.start, end: {
+          artist: a.start.artist,
+          album: include === 'album' ? a.start.album : '?',
+          track: include === 'track' ? a.start.track : '?',
+          date: endDate}}))
         .map(a => this.ongoingStreak(a)),
       s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
       url

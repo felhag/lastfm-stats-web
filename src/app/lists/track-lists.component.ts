@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {TempStats, MonthTrack, Track, Streak, Constants} from '../model';
+import {TempStats, MonthTrack, Track, Constants} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
@@ -26,7 +26,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, true, s => this.trackUrl(s.start.artist, s.start.track));
+    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, 'track', s => this.trackUrl(s.start.artist, s.start.track));
     next.betweenTracks = gaps[0];
     next.ongoingBetweenTracks = gaps[1];
 

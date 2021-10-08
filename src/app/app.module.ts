@@ -37,6 +37,7 @@ import {TrackListsComponent} from './lists/track-lists.component';
 import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
 import {Top10listComponent} from './lists/top10list/top10list.component';
+import { AlbumListsComponent } from './lists/album-lists.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import {Top10listComponent} from './lists/top10list/top10list.component';
     StatsComponent,
     Top10listComponent,
     TrackListsComponent,
+    AlbumListsComponent,
   ],
   imports: [
     AppRoutingModule,

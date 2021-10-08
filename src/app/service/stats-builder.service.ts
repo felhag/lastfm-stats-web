@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {TempStats, Scrobble, StreakStack, Month, ScrobbleStreakStack, Constants, StreakItem, Streak} from '../model';
+import {TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album} from '../model';
 import {SettingsService} from './settings.service';
 
 @Injectable({
@@ -35,6 +35,7 @@ export class StatsBuilderService {
 
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
+      this.handleAlbum(next, scrobble, weekYear);
       this.handleTrack(next, scrobble, weekYear);
 
       next.scrobbleStreak.push(scrobble);
@@ -111,16 +112,24 @@ export class StatsBuilderService {
     }
   }
 
+  private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
+    if (scrobble.album) {
+      this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.artist + ' - ' + scrobble.album, scrobble, weekYear);
+    }
+  }
+
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): void {
-    const seen = next.seenTracks;
-    const track = scrobble.artist + ' - ' + scrobble.track;
-    const seenTrack = seen[track];
+    this.handleItem(next.seenTracks, next.betweenTracks, scrobble.artist + ' - ' + scrobble.track, scrobble, weekYear);
+  }
+
+  private handleItem(seen: { [key: string]: Album | Track }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): void {
+    const seenTrack = seen[item];
     if (seenTrack) {
-      this.handleStreakItem(seenTrack, next.betweenTracks, scrobble, weekYear);
+      this.handleStreakItem(seenTrack, between, scrobble, weekYear);
     } else {
-      seen[track] = {
+      seen[item] = {
         artist: scrobble.artist,
-        name: track,
+        name: item,
         weeks: [weekYear],
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
@@ -170,8 +179,10 @@ export class StatsBuilderService {
       scrobbleStreak: new ScrobbleStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
+      betweenAlbums: new StreakStack(),
       betweenTracks: new StreakStack(),
       seenArtists: {},
+      seenAlbums: {},
       seenTracks: {},
       scrobbleMilestones: [],
       scrobbleCount: 0,
