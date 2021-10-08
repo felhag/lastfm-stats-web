@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {Constants, TempStats, Streak, StreakStack, Artist, StreakItem} from '../model';
+import {Constants, TempStats, Streak, StreakStack, StreakItem} from '../model';
 import {SettingsService} from '../service/settings.service';
 import {StatsBuilderService} from '../service/stats-builder.service';
 
@@ -110,7 +110,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     const ongoingResult = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {artist: a.start.artist, track: includeTrack ? a.start.track : '?', date: endDate}}))
+        .map(a => ({start: a.start, end: {artist: a.start.artist, album: a.start.album, track: includeTrack ? a.start.track : '?', date: endDate}}))
         .map(a => this.ongoingStreak(a)),
       s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
       url

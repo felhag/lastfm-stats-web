@@ -22,6 +22,9 @@ interface Track {
   artist: {
     '#text': string;
   };
+  album: {
+    '#text': string;
+  };
   date: {
     uts: number;
   };
@@ -189,6 +192,7 @@ export class ScrobbleRetrieverService {
     const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
       track: t.name,
       artist: t.artist['#text'],
+      album: t.album['#text'],
       date: new Date(t.date?.uts * 1000)
     })).reverse();
     if (!progress.first.value) {

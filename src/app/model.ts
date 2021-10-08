@@ -15,6 +15,7 @@ export interface User {
 
 export interface Scrobble {
   artist: string;
+  album: string;
   track: string;
   date: Date;
 }
@@ -56,7 +57,7 @@ export interface MonthTrack {
 
 export interface Export {
   username: string;
-  scrobbles: { artist: string, track: string, date: number }[];
+  scrobbles: { artist: string, album: string, track: string, date: number }[];
 }
 
 export interface TempStats {

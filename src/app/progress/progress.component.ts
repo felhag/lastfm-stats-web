@@ -33,15 +33,23 @@ export class ProgressComponent {
   exportJSON(): void {
     const data: Export = {
       username: this.progress.user!.name,
-      scrobbles: this.progress.allScrobbles.map(s => ({track: s.track, artist: s.artist, date: s.date.getTime()}))
+      scrobbles: this.progress.allScrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: s.date.getTime()}))
     };
     this.export(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8;'}), 'json');
   }
 
   exportCSV(): void {
-    const headers = 'Artist;Track;Date#' + this.progress.user!.name + '\n';
-    const data = this.progress.allScrobbles.map(s => `"${s.artist.replaceAll('"', '""')}";"${s.track.replaceAll('"', '""')}";"${s.date.getTime()}"`).join('\n');
+    const headers = 'Artist;Album;Track;Date#' + this.progress.user!.name + '\n';
+    const data = this.progress.allScrobbles.map(s =>
+      this.csvEntry(s.artist) +
+      this.csvEntry(s.album) +
+      this.csvEntry(s.track) +
+      `"${s.date.getTime()}"`).join('\n');
     this.export(new Blob(['\ufeff' + headers + data], {type: 'text/csv;charset=utf-8;'}), 'csv');
+  }
+
+  private csvEntry(input: string): string {
+    return `"${input.replaceAll('"', '""')}";`;
   }
 
   private export(blob: Blob, ext: string): void {
