@@ -50,7 +50,9 @@ $font-size: 32px;
       border: 0;
       background: transparent;
       font-size: $font-size;
-      font-family: 'Roboto';
+      font-family: inherit;
+      color: inherit;
+      padding: 0;
 
       &.invalid::placeholder {
         color: red;

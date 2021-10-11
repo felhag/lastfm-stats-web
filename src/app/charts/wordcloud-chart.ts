@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import {TempStats, Constants} from '../model';
+import {TempStats} from '../model';
 import {AbstractChart} from './abstract-chart';
 import wordcloud from 'highcharts/modules/wordcloud';
 wordcloud(Highcharts);
@@ -15,7 +15,6 @@ export class WordcloudChart extends AbstractChart {
       data: [],
       name: 'Occurrences'
     }],
-    colors: Constants.COLORS,
     title: {
       text: 'Wordcloud of artists and tracks'
     },
@@ -34,7 +33,7 @@ export class WordcloudChart extends AbstractChart {
     const words: {[key: string]: number} = {};
     Object.values(stats.seenArtists).forEach(a => a.name.split(' ')
       .concat(a.tracks.flatMap(t => t.split(' ')))
-      .map(w => w.toLowerCase().replace(/[^a-z0-9\'-]/g, ''))
+      .map(w => w.toLowerCase().replace(/[^a-z0-9'-]/g, ''))
       .forEach(w => words[w] = (words[w] || 0) + 1));
 
     const data = Object.keys(words)

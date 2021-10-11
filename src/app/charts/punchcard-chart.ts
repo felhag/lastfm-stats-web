@@ -53,6 +53,7 @@ export class PunchcardChart extends AbstractChart {
       reversed: true
     },
     colorAxis: {
+      labels: {style: {color: Highcharts.getOptions()?.title?.style?.color}},
       min: 0,
       minColor: '#FFFFFF',
       maxColor: Highcharts.getOptions().colors![0]

@@ -1,5 +1,5 @@
 import {PointOptionsType} from 'highcharts';
-import {TempStats, Constants} from '../model';
+import {TempStats} from '../model';
 import {AbstractChart} from './abstract-chart';
 import * as Highcharts from 'highcharts';
 
@@ -30,12 +30,13 @@ export class ArtistTimelineChart extends AbstractChart {
 
     const points: PointOptionsType[] = [];
     const colorMap: { [key: string]: string } = {};
+    const colors = Highcharts.getOptions().colors!;
     let idx = 0;
     for (const month of Object.values(stats.monthList)) {
       const scrobbles = month.artists;
       const artist = Object.keys(scrobbles).reduce((a, b) => scrobbles[a].count > scrobbles[b].count ? a : b);
       if (!colorMap[artist]) {
-        colorMap[artist] = Constants.COLORS[Object.keys(colorMap).length % Constants.COLORS.length];
+        colorMap[artist] = colors[Object.keys(colorMap).length % colors.length];
       }
       points.push({name: month.alias + ' - ' + artist, color: colorMap[artist], y: scrobbles[artist].count});
       idx++;

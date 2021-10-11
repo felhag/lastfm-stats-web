@@ -1,6 +1,6 @@
 import {PointOptionsObject} from 'highcharts';
 import * as Highcharts from 'highcharts';
-import {TempStats, Constants, Month} from '../model';
+import {TempStats, Month} from '../model';
 import {AbstractChart} from './abstract-chart';
 
 export class RaceChart extends AbstractChart {
@@ -49,7 +49,6 @@ export class RaceChart extends AbstractChart {
         borderWidth: 0
       } as any
     },
-    colors: Constants.COLORS,
     title: {text: 'Artists race chart'},
     xAxis: {type: 'category'},
     yAxis: [{
@@ -132,7 +131,8 @@ export class RaceChart extends AbstractChart {
     if (this.colors[name]) {
       return this.colors[name];
     }
-    const color = Constants.COLORS[Object.keys(this.colors).length % Constants.COLORS.length];
+    const colors = Highcharts.getOptions().colors!;
+    const color = colors[Object.keys(this.colors).length % colors.length];
     this.colors[name] = color;
     return color;
   }

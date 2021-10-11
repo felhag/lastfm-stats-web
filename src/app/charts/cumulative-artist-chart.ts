@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import {TempStats, Month, Constants} from '../model';
+import {TempStats, Month} from '../model';
 import {AbstractChart} from './abstract-chart';
 
 export class CumulativeArtistChart extends AbstractChart {
@@ -7,7 +7,6 @@ export class CumulativeArtistChart extends AbstractChart {
     chart: {zoomType: 'xy'},
     title: {text: 'Cumulative scrobbles for top 25 artists'},
     legend: {enabled: false},
-    colors: Constants.COLORS,
     xAxis: {type: 'category'},
     yAxis: [{
       title: {

@@ -1,10 +1,43 @@
+@import '~@angular/material/theming';
+@include mat-core();
+
+$light-app-theme: mat-light-theme((
+  color: (
+    primary: mat-palette($mat-indigo),
+    accent: mat-palette($mat-pink, A200, A100, A400),
+    warn: mat-palette($mat-red),
+  )
+));
+
+$dark-app-theme: mat-dark-theme((
+  color: (
+    primary: mat-palette($mat-cyan),
+    accent: mat-palette($mat-blue-gray, A200, A100, A400),
+    warn: mat-palette($mat-amber),
+  )
+));
+
+@media (prefers-color-scheme: light) {
+  @include angular-material-theme($light-app-theme);
+  body {
+    background-color: #f9f9f9;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  @include angular-material-theme($dark-app-theme);
+
+  body {
+    background-color: #303030;
+  }
+}
+
 html, body {
   height: 100%;
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f9f9f9;
   margin: 0;
 }
 

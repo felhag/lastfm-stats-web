@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, ChangeDetectionStrategy} from '@angular/core';
+import { Component, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
 import {TempStats, Constants} from '../model';
@@ -13,6 +13,31 @@ import {ScrobbleMomentChart} from './scrobble-moment-chart';
 import {ScrobblePerDayChart} from './scrobble-per-day-chart';
 import {TimelineChart} from './timeline-chart';
 import {WordcloudChart} from './wordcloud-chart';
+
+const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
+if (darkMode.matches) {
+  const style = { style: { color: '#fff'} };
+  Highcharts.setOptions({
+    chart: {
+      backgroundColor: '#424242'
+    },
+    title: style,
+    subtitle: style,
+    legend: { itemStyle: {color: '#fff'} },
+    xAxis: {
+      title: style,
+      labels: style
+    },
+    yAxis: {
+      title: style,
+      labels: style
+    },
+    colors: Constants.DARK_COLORS,
+    plotOptions: { series: { borderColor: '#424242' } },
+  });
+} else {
+  Highcharts.setOptions({colors: Constants.COLORS});
+}
 
 @UntilDestroy()
 @Component({
