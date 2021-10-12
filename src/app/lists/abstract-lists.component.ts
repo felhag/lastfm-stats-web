@@ -116,7 +116,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
           track: include === 'track' ? a.start.track : '?',
           date: endDate}}))
         .map(a => this.ongoingStreak(a)),
-      s => `${s.start.artist} - ${s.start.track} (${s.length} days)`,
+      s => `${toString(s)} (${s.length} days)`,
       url
     );
     return [betweenResult, ongoingResult];

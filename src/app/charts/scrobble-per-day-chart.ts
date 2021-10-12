@@ -32,7 +32,7 @@ export class ScrobblePerDayChart extends AbstractChart {
       tooltip: {
         headerFormat: '',
         pointFormatter(): string {
-          return `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> scrobble${this.name === '1' ? '': 's'}.`;
+          return `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> scrobble${this.name === '1' ? '' : 's'}.`;
         }
       }
     }, {
@@ -44,7 +44,11 @@ export class ScrobblePerDayChart extends AbstractChart {
       },
       dataLabels: {
         enabled: true,
-        format: '{point.name}'
+        format: '{point.name}',
+        style: {
+          color: this.textColor,
+          textOutline: 0
+        } as any
       },
       tooltip: {
         useHTML: true,

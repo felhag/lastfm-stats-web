@@ -42,7 +42,7 @@ export class ProgressComponent {
     const headers = 'Artist;Album;Track;Date#' + this.progress.user!.name + '\n';
     const data = this.progress.allScrobbles.map(s =>
       this.csvEntry(s.artist) +
-      this.csvEntry(s.album) +
+      this.csvEntry(s.album || '') +
       this.csvEntry(s.track) +
       `"${s.date.getTime()}"`).join('\n');
     this.export(new Blob(['\ufeff' + headers + data], {type: 'text/csv;charset=utf-8;'}), 'csv');

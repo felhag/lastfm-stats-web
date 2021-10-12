@@ -79,6 +79,10 @@ export class RaceChart extends AbstractChart {
       type: 'bar',
       dataLabels: [{
         enabled: true,
+        style: {
+          color: this.textColor,
+          textOutline: 0
+        } as any
       }],
       name: '',
       data: [],

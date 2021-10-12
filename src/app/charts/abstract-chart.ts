@@ -1,3 +1,4 @@
+import * as Highcharts from 'highcharts';
 import {TempStats} from '../model';
 
 export abstract class AbstractChart {
@@ -8,6 +9,10 @@ export abstract class AbstractChart {
 
   get fullWidth(): boolean {
     return true;
+  }
+
+  protected get textColor(): string | undefined {
+    return Highcharts.getOptions()?.title?.style?.color || '#333';
   }
 
   responsive(): any {

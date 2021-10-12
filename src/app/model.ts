@@ -171,5 +171,5 @@ export class Constants {
     '#4fce8d', '#36bddc', '#d3404e', '#44c3b8', '#dd3e77', '#3a7a41', '#e46fb3', '#69b78e', '#aa367c', '#98b36b',
     '#9360b1', '#b56c2b', '#5563b4', '#8e6d2e', '#d08ede', '#627037', '#9d9adc', '#a55232', '#5ba2d8', '#e09970',
     '#4468a2', '#e27387', '#2a8168', '#a93e5b', '#745796', '#ad5b5a', '#c27cae', '#8a4262', '#ea97b2', '#995688'];
-  static readonly DARK_COLORS = [Constants.COLORS[0], '#c6bbbb', ...Constants.COLORS.splice(2)];
+  static readonly DARK_COLORS = [Constants.COLORS[0], '#c6bbbb', ...Constants.COLORS.slice(2)];
 }
