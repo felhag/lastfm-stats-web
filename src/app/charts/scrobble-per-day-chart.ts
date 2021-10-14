@@ -66,7 +66,8 @@ export class ScrobblePerDayChart extends AbstractChart {
 
     const counts: {[key: number]: number} = {};
     const years: {[key: number]: [number, number]} = {};
-    Object.entries(stats.specificDays).forEach(([day, count]) => {
+    Object.entries(stats.specificDays).forEach(([day, tracks]) => {
+      const count = tracks.length;
       if (!counts[count]) {
         counts[count] = 1;
       } else {

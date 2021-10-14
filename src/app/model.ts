@@ -71,7 +71,7 @@ export interface TempStats {
   hours: { [key: number]: number };
   days: { [key: number]: number };
   months: { [key: number]: number };
-  specificDays: { [key: number]: number };
+  specificDays: { [key: number]: Track[] };
   specificWeeks: { [key: string]: number };
   seenArtists: { [key: string]: Artist };
   seenAlbums: { [key: string]: Album };

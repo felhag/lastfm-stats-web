@@ -30,13 +30,17 @@ export class StatsBuilderService {
       next.hours[scrobble.date.getHours()]++;
       next.months[scrobble.date.getMonth()]++;
       next.days[scrobble.date.getDay()]++;
-      next.specificDays[dayOfYear] = (next.specificDays[dayOfYear] || 0) + 1;
       next.specificWeeks[weekYear] = (next.specificWeeks[weekYear] || 0) + 1;
 
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
       this.handleAlbum(next, scrobble, weekYear);
-      this.handleTrack(next, scrobble, weekYear);
+      const track = this.handleTrack(next, scrobble, weekYear);
+
+      if (!next.specificDays[dayOfYear]) {
+        next.specificDays[dayOfYear] = [] as Track[];
+      }
+      next.specificDays[dayOfYear].push(track);
 
       next.scrobbleStreak.push(scrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
@@ -118,16 +122,16 @@ export class StatsBuilderService {
     }
   }
 
-  private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): void {
-    this.handleItem(next.seenTracks, next.betweenTracks, scrobble.artist + ' - ' + scrobble.track, scrobble, weekYear);
+  private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
+    return this.handleItem(next.seenTracks, next.betweenTracks, scrobble.artist + ' - ' + scrobble.track, scrobble, weekYear);
   }
 
-  private handleItem(seen: { [key: string]: Album | Track }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): void {
+  private handleItem<T extends Track | Album>(seen: { [key: string]: T }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): T {
     const seenTrack = seen[item];
     if (seenTrack) {
-      this.handleStreakItem(seenTrack, between, scrobble, weekYear);
+      return this.handleStreakItem(seenTrack, between, scrobble, weekYear);
     } else {
-      seen[item] = {
+      const result: Track | Album = {
         artist: scrobble.artist,
         name: item,
         weeks: [weekYear],
@@ -135,10 +139,12 @@ export class StatsBuilderService {
         avgScrobble: scrobble.date.getTime(),
         scrobbleCount: 1,
       };
+      seen[item] = result as T;
+      return result as T;
     }
   }
 
-  private handleStreakItem(seen: StreakItem, stack: StreakStack, scrobble: Scrobble, weekYear: string): void {
+  private handleStreakItem<T extends StreakItem>(seen: T, stack: StreakStack, scrobble: Scrobble, weekYear: string): T {
     seen.betweenStreak.end = scrobble;
     stack.add(seen.betweenStreak);
     seen.betweenStreak = {start: scrobble, end: scrobble};
@@ -147,6 +153,7 @@ export class StatsBuilderService {
     if (seen.weeks.indexOf(weekYear) < 0) {
       seen.weeks.push(weekYear);
     }
+    return seen;
   }
 
   private uniqueTrackAdded(next: TempStats, scrobble: Scrobble): void {

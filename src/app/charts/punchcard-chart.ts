@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import {TempStats, Constants} from '../model';
+import {TempStats, Constants, Track} from '../model';
 import {AbstractChart} from './abstract-chart';
 import heatmap from 'highcharts/modules/heatmap';
 heatmap(Highcharts);
@@ -119,7 +119,7 @@ export class PunchcardChart extends AbstractChart {
     this.updateDays(stats.specificDays);
   }
 
-  updateDays(specificDays: { [p: number]: number }): void {
+  updateDays(specificDays: { [p: number]: Track[] }): void {
     const serie = this.chart!.series[0];
     const custom = serie.options.custom!;
     const entries = Object.entries(specificDays);
@@ -140,7 +140,7 @@ export class PunchcardChart extends AbstractChart {
 
       const dow = date.getDay();
       const since = Math.floor(Math.round((key - start) / Constants.DAY) / 7);
-      return [since, dow, e[1]];
+      return [since, dow, e[1].length];
     }).filter(r => r);
 
     serie.setData(data as number[][]);

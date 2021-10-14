@@ -10,6 +10,7 @@ export interface ScrobbleStats {
   notListenedStreak: Top10Item[];
   mostScrobblesPerDay: Top10Item[];
   mostScrobblesPerWeek: Top10Item[];
+  mostScrobbledArtistPerDay: Top10Item[];
 }
 
 @Component({
@@ -28,8 +29,25 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
     const streak = this.currentScrobbleStreak(stats, endDate);
     next.scrobbleStreak = this.getStreakTop10(streak, (s: Streak) => `${s.length! + 1} days`);
     next.notListenedStreak = this.getStreakTop10(stats.notListenedStreak.streaks, (s: Streak) => `${s.length! - 1} days`);
-    next.mostScrobblesPerDay = this.getTop10<number>(stats.specificDays, k => stats.specificDays[k], k => +k, k => this.dateString(k), (k, n) => `${n} scrobbles`, k => this.dayUrl(k));
+    next.mostScrobblesPerDay = this.getTop10<number>(stats.specificDays, k => stats.specificDays[k].length, k => +k, k => this.dateString(k), (k, n) => `${n} scrobbles`, k => this.dayUrl(k));
     next.mostScrobblesPerWeek = this.getTop10<string>(stats.specificWeeks, k => stats.specificWeeks[k], k => k, k => k, (k, n) => `${n} scrobbles`, k => this.weekUrl(k));
+
+    const artistPerDay = Object.fromEntries(Object.entries(stats.specificDays).map(([day, tracks]) => {
+      const artistCounts = tracks.reduce((acc, track) => {
+        acc[track.artist] = (acc[track.artist] || 0) + 1;
+        return acc;
+      }, {} as { [key: string]: number });
+      const mostListenedArtist = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b);
+      return [day, {
+        name: mostListenedArtist,
+        count: artistCounts[mostListenedArtist]
+      }];
+    }));
+
+    next.mostScrobbledArtistPerDay = this.getTop10(artistPerDay, (k: string) => artistPerDay[k].count, k => k, key => {
+      const obj = artistPerDay[key];
+      return `${obj.name} (${obj.count} times)`;
+    }, i => this.dateString(parseInt(i)), k => this.dayArtistUrl(parseInt(k), artistPerDay[k].name));
   }
 
   private currentScrobbleStreak(tempStats: TempStats, endDate: Date): Streak[] {
@@ -49,12 +67,19 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
     const dow = start.getDay();
     start.setDate(dow <= 4 ? start.getDate() - start.getDay() + 1 : start.getDate() + 8 - start.getDay());
     const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
-    return `${this.rootUrl}?from=${start.getFullYear()}-${start.getMonth() + 1}-${start.getDate()}&to=${end.getFullYear()}-${end.getMonth() + 1}-${end.getDate()}`;
+    return `${this.rootUrl}?from=${this.dateUrlParameter(start)}&to=${this.dateUrlParameter(end)}`;
   }
 
   private dayUrl(day: number): string {
-    const date = new Date(day);
-    return `${this.rootUrl}?from=${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}&rangetype=1day`;
+    return `${this.rootUrl}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
+  }
+
+  private dateUrlParameter(date: Date): string {
+     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
+
+  private dayArtistUrl(day: number, artist: string): string {
+    return `${this.rootUrl}/music/${encodeURIComponent(artist)}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
   }
 
   protected emptyStats(): ScrobbleStats {
@@ -63,6 +88,7 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
       notListenedStreak: [],
       mostScrobblesPerDay: [],
       mostScrobblesPerWeek: [],
+      mostScrobbledArtistPerDay: []
     };
   }
 }
