@@ -56,7 +56,7 @@ export class ScrobblePerDayChart extends AbstractChart {
         pointFormat: '{point.name}<br>Average scrobbles per day: <b>{point.avg}</b><br>Days scrobbled:<b style="text-align: right;">{point.y}</b>'
       } as any
     }],
-    responsive: this.responsive()
+    responsive: this.responsive(['left', 'right'])
   };
 
   update(stats: TempStats): void {
@@ -107,8 +107,6 @@ export class ScrobblePerDayChart extends AbstractChart {
       new Date(year, last.getMonth(), last.getDate(), 23, 59, 59) :
       new Date(year, 11, 31, 23, 59, 59);
 
-    const days = Math.ceil((end.getTime() - start.getTime()) / Constants.DAY);
-    console.log('days for ' + year + ': ' + days);
-    return days;
+    return Math.ceil((end.getTime() - start.getTime()) / Constants.DAY);
   }
 }
