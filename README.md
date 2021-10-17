@@ -9,6 +9,15 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - import/export
 
 ## 🐛 Changelog
+2.0 (17-10-2021)
+- added album statistics
+- added dark theme
+- added most scrobbled artist on a single day list
+- added average delta list
+- added latest new artist list
+- fixed some charts which didn't work on mobile
+- fixed artist name for ongoing gaps between artists list (also showed track name)
+
 1.4 (02-08-2021)
 - added scrobble count per day chart
 - added possibility to adjust speed in race chart
