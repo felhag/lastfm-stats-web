@@ -24,7 +24,7 @@ export interface StreakItem {
   weeks: string[];
   name: string;
   betweenStreak: Streak;
-  scrobbleCount: number;
+  scrobbles: number[];
   avgScrobble: number;
 }
 

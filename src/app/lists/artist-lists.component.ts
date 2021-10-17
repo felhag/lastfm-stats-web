@@ -18,6 +18,7 @@ export interface ArtistStats {
   scrobblesPerTrack: Top10Item[];
   avgScrobbleDesc: Top10Item[];
   avgScrobbleAsc: Top10Item[];
+  avgDelta: Top10Item[];
 }
 
 @Component({
@@ -69,15 +70,32 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.weeksPerArtist = this.getTop10<Artist>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, artistUrl);
     next.tracksPerArtist = this.getTop10<Artist>(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`, artistUrl);
 
-    const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_ARTIST_THRESHOLD);
+    const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_ARTIST_THRESHOLD);
     const spt = seenThreshold.filter(s => s.tracks.length > 1);
     const ohw = seen.filter(a => a.tracks.length === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
-    next.oneHitWonders = this.getTop10<Artist>(ohw, s => s.scrobbleCount, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
-    next.scrobblesPerTrack = this.getTop10<Artist>(spt, s => s.scrobbleCount / s.tracks.length, k => spt[+k], a => a.name, sptDescription, artistUrl);
+    next.oneHitWonders = this.getTop10<Artist>(ohw, s => s.scrobbles.length, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes, artistUrl);
+    next.scrobblesPerTrack = this.getTop10<Artist>(spt, s => s.scrobbles.length / s.tracks.length, k => spt[+k], a => a.name, sptDescription, artistUrl);
 
-    next.avgScrobbleDesc = this.getTop10<Artist>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(v), artistUrl);
-    next.avgScrobbleAsc = this.getTop10<Artist>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => this.dateString(Math.abs(v)), artistUrl);
+    next.avgScrobbleDesc = this.getTop10<Artist>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v), artistUrl);
+    next.avgScrobbleAsc = this.getTop10<Artist>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(Math.abs(v)), artistUrl);
+
+    const std = seenThreshold.map(a => ({
+      name: a.name,
+      scrobbles: a.scrobbles,
+      deltas: this.calcDeltas(a.scrobbles),
+    }));
+    next.avgDelta = this.getTop10<{name: string, scrobbles: number[], deltas: number}>(std, s => s.deltas, k => std[+k], a => `${a.name} (${Math.round(a.deltas / Constants.DAY * 100) / 100} days)`,
+      i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`, artistUrl);
+  }
+
+  private calcDeltas(arr: number[]): number {
+    if (arr.length <= 1) {
+      return 0;
+    }
+    const result = arr.map((v, i, a) => i === 0 ? 0 : (a[i] - a[i - 1]));
+    result.shift();
+    return result.reduce((s, n) => s + n) / result.length;
   }
 
   private including(artists: { [p: string]: MonthArtist }): string {
@@ -108,6 +126,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       scrobblesPerTrack: [],
       avgScrobbleDesc: [],
       avgScrobbleAsc: [],
+      avgDelta: []
     };
   }
 }

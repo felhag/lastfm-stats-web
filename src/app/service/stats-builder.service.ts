@@ -108,7 +108,7 @@ export class StatsBuilderService {
         name: scrobble.artist,
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
-        scrobbleCount: 1,
+        scrobbles: [scrobble.date.getTime()],
         tracks: [scrobble.track],
       };
 
@@ -137,7 +137,7 @@ export class StatsBuilderService {
         weeks: [weekYear],
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
-        scrobbleCount: 1,
+        scrobbles: [scrobble.date.getTime()],
       };
       seen[item] = result as T;
       return result as T;
@@ -148,8 +148,8 @@ export class StatsBuilderService {
     seen.betweenStreak.end = scrobble;
     stack.add(seen.betweenStreak);
     seen.betweenStreak = {start: scrobble, end: scrobble};
-    seen.avgScrobble = ((seen.avgScrobble * seen.scrobbleCount) + scrobble.date.getTime()) / (seen.scrobbleCount + 1);
-    seen.scrobbleCount++;
+    seen.avgScrobble = ((seen.avgScrobble * seen.scrobbles.length) + scrobble.date.getTime()) / (seen.scrobbles.length + 1);
+    seen.scrobbles.push(scrobble.date.getTime());
     if (seen.weeks.indexOf(weekYear) < 0) {
       seen.weeks.push(weekYear);
     }

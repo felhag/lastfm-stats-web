@@ -101,7 +101,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
                           include: 'album' | 'track' | undefined,
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
     const threshold = this.settings.minScrobbles.value || 0;
-    const seen = Object.values(seenThingies).filter(a => a.scrobbleCount >= threshold);
+    const seen = Object.values(seenThingies).filter(a => a.scrobbles.length >= threshold);
     const seenStrings = seen.map(a => a.name);
     const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
     const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);

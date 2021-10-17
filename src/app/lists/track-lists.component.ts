@@ -41,15 +41,15 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
 
     const trackUrl = (item: Track) => this.trackUrl(item.artist, item.name.substring((item.artist + ' - ').length));
     next.weeksPerTrack = this.getTop10<Track>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, trackUrl);
-    next.uniquePerMonth = this.getTop10<string>(tracks, m => Object.keys(tracks[m]).length, k => k, (m, k) => `${m} (${k} unique tracks)`, (m, k) => this.including(tracks[m]), m => this.monthUrl(m));
+    next.uniquePerMonth = this.getTop10<string>(tracks, m => Object.keys(tracks[m]).length, k => k, (m, k) => `${m} (${k} unique tracks)`, m => this.including(tracks[m]), m => this.monthUrl(m));
     next.newPerMonth = this.getTop10(tracks, m => Object.values(tracks[m]).filter(a => a.new).length, k => k, (m, k) => `${m} (${k} tracks)`, (m: string) => {
       // only show new artists in Including... text
       return this.including(Object.fromEntries(Object.entries(tracks[m]).filter(([, value]) => value.new)));
     }, m => this.monthUrl(m));
 
-    const seenThreshold = seen.filter(s => s.scrobbleCount >= Constants.SCROBBLE_TRACK_THRESHOLD);
-    next.avgScrobbleDesc = this.getTop10<Track>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(v).toLocaleDateString(), trackUrl);
-    next.avgScrobbleAsc = this.getTop10<Track>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbleCount} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString(), trackUrl);
+    const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_TRACK_THRESHOLD);
+    next.avgScrobbleDesc = this.getTop10<Track>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString(), trackUrl);
+    next.avgScrobbleAsc = this.getTop10<Track>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString(), trackUrl);
   }
 
   private including(tracks: { [p: string]: MonthTrack }): string {
