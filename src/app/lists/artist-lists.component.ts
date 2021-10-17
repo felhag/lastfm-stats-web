@@ -19,6 +19,7 @@ export interface ArtistStats {
   avgScrobbleDesc: Top10Item[];
   avgScrobbleAsc: Top10Item[];
   avgDelta: Top10Item[];
+  latestNew: Top10Item[];
 }
 
 @Component({
@@ -85,8 +86,9 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       scrobbles: a.scrobbles,
       deltas: this.calcDeltas(a.scrobbles),
     }));
-    next.avgDelta = this.getTop10<{name: string, scrobbles: number[], deltas: number}>(std, s => s.deltas, k => std[+k], a => `${a.name} (${Math.round(a.deltas / Constants.DAY * 100) / 100} days)`,
+    next.avgDelta = this.getTop10<{name: string, scrobbles: number[], deltas: number}>(std, s => s.deltas, k => std[+k], a => `${a.name} (${Math.round(a.deltas / Constants.DAY)} days)`,
       i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`, artistUrl);
+    next.latestNew = this.getTop10<Artist>(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v), artistUrl);
   }
 
   private calcDeltas(arr: number[]): number {
@@ -126,7 +128,8 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       scrobblesPerTrack: [],
       avgScrobbleDesc: [],
       avgScrobbleAsc: [],
-      avgDelta: []
+      avgDelta: [],
+      latestNew: [],
     };
   }
 }

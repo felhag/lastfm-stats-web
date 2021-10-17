@@ -1,8 +1,8 @@
 <mat-card class="top10list">
   <mat-card-header>
     <mat-card-title>{{title}}
-      <button *ngIf="explanation" mat-icon-button>
-        <mat-icon (click)="explain(explanation)">info_outline</mat-icon>
+      <button mat-icon-button [style.visibility]="explanation ? 'visible' : 'hidden'">
+        <mat-icon (click)="explain(explanation!)">info_outline</mat-icon>
       </button>
     </mat-card-title>
   </mat-card-header>
