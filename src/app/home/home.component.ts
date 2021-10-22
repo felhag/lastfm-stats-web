@@ -81,7 +81,7 @@ export class HomeComponent {
 
   private parseJSON(data: string): Export | undefined {
     const parsed = JSON.parse(data) as Export;
-    const hasAlbum = parsed.scrobbles.length && parsed.scrobbles[0].album;
+    const hasAlbum = parsed.scrobbles.length && parsed.scrobbles.some(r => r.album);
     if (hasAlbum) {
       // 2.0+ format
       return parsed;

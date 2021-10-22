@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {TempStats, MonthTrack, Track, Constants} from '../model';
-import {SettingsService} from '../service/settings.service';
-import {StatsBuilderService} from '../service/stats-builder.service';
-import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TempStats, MonthTrack, Track, Constants, Month } from '../model';
+import { SettingsService } from '../service/settings.service';
+import { StatsBuilderService } from '../service/stats-builder.service';
+import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
 export interface TrackStats {
   betweenTracks: Top10Item[];
@@ -39,17 +39,34 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
       Object.values(m.artists).forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
     });
 
-    const trackUrl = (item: Track) => this.trackUrl(item.artist, item.name.substring((item.artist + ' - ').length));
-    next.weeksPerTrack = this.getTop10<Track>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, trackUrl);
-    next.uniquePerMonth = this.getTop10<string>(tracks, m => Object.keys(tracks[m]).length, k => k, (m, k) => `${m} (${k} unique tracks)`, m => this.including(tracks[m]), m => this.monthUrl(m));
-    next.newPerMonth = this.getTop10(tracks, m => Object.values(tracks[m]).filter(a => a.new).length, k => k, (m, k) => `${m} (${k} tracks)`, (m: string) => {
+    next.weeksPerTrack = this.getTrackTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
+    next.uniquePerMonth = this.getMonthTop10(tracks, monthsValues, m => Object.keys(tracks[m]).length, (m, k) => `${m} (${k} unique tracks)`, m => this.including(tracks[m]));
+    next.newPerMonth = this.getMonthTop10(tracks, monthsValues, m => Object.values(tracks[m]).filter(a => a.new).length, (m, k) => `${m} (${k} tracks)`, (m: string) => {
       // only show new artists in Including... text
       return this.including(Object.fromEntries(Object.entries(tracks[m]).filter(([, value]) => value.new)));
-    }, m => this.monthUrl(m));
+    });
 
     const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_TRACK_THRESHOLD);
-    next.avgScrobbleDesc = this.getTop10<Track>(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString(), trackUrl);
-    next.avgScrobbleAsc = this.getTop10<Track>(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString(), trackUrl);
+    next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
+    next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+  }
+
+  private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthTrack } },
+                        months: Month[],
+                        getValue: (k: string) => number,
+                        buildName: (item: string, value: number) => string,
+                        buildDescription: (item: string, value: number) => string): Top10Item[] {
+    return this.getTop10<string>(tracks, getValue, k => k, buildName, buildDescription, m => this.monthUrl(m), m => months.find(x => x.alias === m)!.date);
+  }
+
+  private getTrackTop10(countMap: { [key: string]: any },
+                        getValue: (k: Track) => number,
+                        getItem: (k: string) => Track,
+                        buildName: (item: Track, value: number) => string,
+                        buildDescription: (item: Track, value: number) => string): Top10Item[] {
+    const trackUrl = (item: Track) => this.trackUrl(item.artist, item.name.substring((item.artist + ' - ').length));
+    const trackDate = (item: Track) => new Date(item.avgScrobble);
+    return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
   }
 
   private including(tracks: { [p: string]: MonthTrack }): string {

@@ -1,17 +1,17 @@
-import {OnInit, Directive} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {Constants, TempStats, Streak, StreakStack, StreakItem} from '../model';
-import {SettingsService} from '../service/settings.service';
-import {StatsBuilderService} from '../service/stats-builder.service';
+import { OnInit, Directive } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Constants, TempStats, Streak, StreakStack, StreakItem } from '../model';
+import { SettingsService } from '../service/settings.service';
+import { StatsBuilderService } from '../service/stats-builder.service';
 
 export interface Top10Item {
   name: string;
   amount: number;
   description?: string;
-  date?: string;
+  date?: Date;
   url?: string;
 }
 
@@ -43,18 +43,19 @@ export abstract class AbstractListsComponent<S> implements OnInit {
               getItem: (k: string) => T,
               buildName: (item: T, value: number) => string,
               buildDescription: (item: T, value: number) => string,
-              buildUrl?: (item: any) => string
+              buildUrl?: (T: any) => string,
+              buildDate?: (T: any) => Date,
   ): Top10Item[] {
-    const keys = Object.keys(countMap);
-    keys.sort((a, b) => getValue(getItem(b)) - getValue(getItem(a)));
-    return keys.splice(0, this.listSize).map(k => {
+    const keys: [string, number][] = Object.keys(countMap).map(k => [k, getValue(getItem(k))]);
+    keys.sort((a, b) => b[1] - a[1]);
+    return keys.splice(0, this.listSize).map(([k, val]) => {
       const item = getItem(k);
-      const val = getValue(item);
       return {
         amount: val,
         name: buildName(item, val),
         description: buildDescription(item, val),
-        url: buildUrl ? buildUrl(item) : undefined
+        url: buildUrl ? buildUrl(item) : undefined,
+        date: buildDate ? buildDate(item) : undefined,
       };
     });
   }
@@ -64,11 +65,14 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     keys.sort((a, b) => streaks[+b].length! - streaks[+a].length!);
     return keys.splice(0, this.listSize).map(k => {
       const streak = streaks[+k];
+      const start = streak.start.date;
+      const end = streak.end.date;
       return {
         amount: streak.length!,
         name: buildName(streak),
-        description: streak.start.date.toLocaleDateString() + ' - ' + (streak.ongoing ? '?' : streak.end.date.toLocaleDateString()),
-        url: buildUrl ? buildUrl(streak) : undefined
+        description: start.toLocaleDateString() + ' - ' + (streak.ongoing ? '?' : end.toLocaleDateString()),
+        url: buildUrl ? buildUrl(streak) : undefined,
+        date: new Date( start.getTime() + (end.getTime() - start.getTime()) / 2),
       };
     });
   }

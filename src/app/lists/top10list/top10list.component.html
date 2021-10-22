@@ -9,6 +9,7 @@
   <mat-card-content>
     <mat-list role="list">
       <mat-list-item role="listitem" *ngFor="let top10item of list; let idx = index">
+        <mat-icon *ngIf="top10item.date" mat-list-icon [style.color]="getColor(top10item.date) | async">blur_on</mat-icon>
         <a *ngIf="top10item.url" mat-line [href]="top10item.url" target="_blank" class="regular-text">
           <span *ngIf="isNumbered">{{idx + 1}}.&nbsp;</span>{{top10item.name}}
         </a>

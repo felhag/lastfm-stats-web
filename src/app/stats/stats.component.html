@@ -16,7 +16,7 @@
       </mat-card-header>
       <mat-card-content class="scrobble-header">
         <mat-card-subtitle>Progress</mat-card-subtitle>
-        <app-progress [progress]="progress"></app-progress>
+        <app-progress></app-progress>
 
         <div class="conf-row">
           <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settingCount | async" [matBadgeHidden]="(settingCount | async) === 0">
@@ -34,11 +34,10 @@
     </mat-card>
 
     <nav mat-tab-nav-bar mat-stretch-tabs>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/artists'" routerLinkActive #artistsLink="routerLinkActive" [active]="artistsLink.isActive">Artists</a>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/albums'" routerLinkActive #tracksLink="routerLinkActive" [active]="tracksLink.isActive" *ngIf="hasAlbums | async">Albums</a>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/tracks'" routerLinkActive #tracksLink="routerLinkActive" [active]="tracksLink.isActive">Tracks</a>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/scrobbles'" routerLinkActive #scrobblesLink="routerLinkActive" [active]="scrobblesLink.isActive">Scrobbles</a>
-      <a mat-tab-link [routerLink]="'/user/' + username + '/charts'" routerLinkActive #chartLink="routerLinkActive" [active]="chartLink.isActive">Charts</a>
+      <a *ngFor="let tab of ['artists', 'albums', 'tracks', 'scrobbles', 'charts']"
+         mat-tab-link [routerLink]="'/user/' + username + '/' + tab" routerLinkActive #link="routerLinkActive" [active]="link.isActive">
+        {{tab | titlecase}}
+      </a>
     </nav>
     <router-outlet></router-outlet>
   </ng-container>

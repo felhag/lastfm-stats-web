@@ -1,8 +1,9 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable, Subject, BehaviorSubject, forkJoin} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
-import {Progress, User, Constants, Scrobble} from '../model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { Progress, User, Constants, Scrobble } from '../model';
+import { ProgressService } from './progress.service';
 
 interface Response {
   recenttracks: RecentTracks;
@@ -46,23 +47,12 @@ export class ScrobbleRetrieverService {
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   imported: Scrobble[] = [];
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private progress: ProgressService) {
   }
 
   retrieveFor(username: string): Progress {
     const to = new Date().toDateString();
-    const progress: Progress = {
-      loader: new Subject<Scrobble[]>(),
-      first: new BehaviorSubject<Scrobble | undefined>(undefined),
-      last: new BehaviorSubject<Scrobble | undefined>(undefined),
-      state: new BehaviorSubject<State>('LOADINGUSER'),
-      pageSize: Constants.API_PAGE_SIZE,
-      totalPages: -1,
-      currentPage: -1,
-      loadScrobbles: 0,
-      importedScrobbles: this.imported.length,
-      allScrobbles: this.imported
-    };
+    const progress = this.progress.init(this.imported);
 
     this.retrieveUser(username).subscribe(user => {
       progress.user = user;

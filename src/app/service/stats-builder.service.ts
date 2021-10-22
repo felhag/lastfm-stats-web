@@ -65,7 +65,11 @@ export class StatsBuilderService {
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
     let month = next.monthList[monthYear];
     if (!month) {
-      month = next.monthList[monthYear] = {alias: this.monthYearDisplay(scrobble.date), artists: {}};
+      month = next.monthList[monthYear] = {
+        alias: this.monthYearDisplay(scrobble.date),
+        artists: {},
+        date: scrobble.date
+      };
     }
 
     const monthArtist = month.artists[scrobble.artist];

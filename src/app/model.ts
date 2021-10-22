@@ -1,5 +1,5 @@
-import {Subject, BehaviorSubject} from 'rxjs';
-import {State} from './service/scrobble-retriever.service';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { State } from './service/scrobble-retriever.service';
 
 export interface User {
   name: string;
@@ -43,6 +43,7 @@ export interface Track extends StreakItem {
 export interface Month {
   alias: string;
   artists: { [key: string]: MonthArtist};
+  date: Date;
   avg?: number;
 }
 
@@ -172,4 +173,6 @@ export class Constants {
     '#9360b1', '#b56c2b', '#5563b4', '#8e6d2e', '#d08ede', '#627037', '#9d9adc', '#a55232', '#5ba2d8', '#e09970',
     '#4468a2', '#e27387', '#2a8168', '#a93e5b', '#745796', '#ad5b5a', '#c27cae', '#8a4262', '#ea97b2', '#995688'];
   static readonly DARK_COLORS = [Constants.COLORS[0], '#c6bbbb', ...Constants.COLORS.slice(2)];
+  static readonly DATE_COLORS = ['#FF0000', '#FF2000', '#FF4000', '#FF6000', '#FF8000', '#FFA000', '#FFC000',
+    '#FFE000', '#FFFF00', '#E0FF00', '#C0FF00', '#A0FF00', '#80FF00', '#60FF00', '#40FF00', '#20FF00', '#10FF00'];
 }

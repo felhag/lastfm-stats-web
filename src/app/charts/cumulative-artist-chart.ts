@@ -21,7 +21,7 @@ export class CumulativeArtistChart extends AbstractChart {
       return;
     }
 
-    const months = [{alias: 'Account created', artists: {}, newArtists: []}, ...Object.values(stats.monthList)];
+    const months = [{alias: 'Account created', artists: {}, newArtists: [], date: new Date()}, ...Object.values(stats.monthList)];
     const series = [...this.chart!.series];
     Object.values(stats.seenArtists)
       .sort((a, b) => b.scrobbles.length - a.scrobbles.length)

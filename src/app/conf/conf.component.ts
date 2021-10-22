@@ -1,12 +1,11 @@
-import {Component, OnInit, Inject, ViewChild} from '@angular/core';
-import {FormControl} from '@angular/forms';
-import {MatAutocompleteSelectedEvent, MatAutocompleteTrigger} from '@angular/material/autocomplete';
-import {MAT_DIALOG_DATA} from '@angular/material/dialog';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {Observable, combineLatest, BehaviorSubject, Subject, of} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
-import {Progress} from '../model';
-import {SettingsService} from '../service/settings.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable, combineLatest, BehaviorSubject, Subject, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { ProgressService } from '../service/progress.service';
+import { SettingsService } from '../service/settings.service';
 
 @Component({
   selector: 'app-conf',
@@ -25,7 +24,7 @@ export class ConfComponent implements OnInit {
   startDate = new Date();
   endDate = new Date();
 
-  constructor(@Inject(MAT_DIALOG_DATA) public progress: Progress,
+  constructor(public progress: ProgressService,
               public settings: SettingsService) {
   }
 
@@ -35,7 +34,7 @@ export class ConfComponent implements OnInit {
       startWith(''),
       map(a => a.toLowerCase())
     );
-    const all: { [key: string]: number } = this.progress.allScrobbles
+    const all: { [key: string]: number } = this.progress.progress.allScrobbles
       .map(s => s.artist)
       .reduce((acc: any, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {});
 
@@ -48,7 +47,7 @@ export class ConfComponent implements OnInit {
         .slice(0, 30))
     );
 
-    this.startDate = this.progress.first.value!.date;
+    this.startDate = this.progress.progress.first.value!.date;
     this.startDateCtrl = this.dateControl(this.settings.dateRangeStart);
     this.endDateCtrl = this.dateControl(this.settings.dateRangeEnd);
   }

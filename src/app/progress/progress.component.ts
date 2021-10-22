@@ -1,5 +1,6 @@
-import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
-import {Export, Progress} from '../model';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Export, Progress } from '../model';
+import { ProgressService } from '../service/progress.service';
 
 @Component({
   selector: 'app-progress',
@@ -8,9 +9,11 @@ import {Export, Progress} from '../model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressComponent {
-  @Input() progress!: Progress;
+  constructor(private service: ProgressService) {
+  }
 
-  constructor() {
+  get progress(): Progress {
+    return this.service.progress;
   }
 
   get percentage(): number {
@@ -39,7 +42,7 @@ export class ProgressComponent {
   }
 
   exportCSV(): void {
-    const hasAlbums = !!this.progress.first.value!.album;
+    const hasAlbums = this.progress.allScrobbles.some(r => r.album);
     const headers = `Artist;${hasAlbums ? 'Album;' : ''}Track;Date#${this.progress.user!.name}\n`;
     const data = this.progress.allScrobbles.map(s =>
       this.csvEntry(s.artist) +
