@@ -54,17 +54,20 @@ export class ScrobbleRetrieverService {
     const to = new Date().toDateString();
     const progress = this.progress.init(this.imported);
 
-    this.retrieveUser(username).subscribe(user => {
-      progress.user = user;
-      progress.state.next('CALCULATINGPAGES');
-      const from = String(this.determineFrom(user, this.imported));
-      this.start(this.imported, progress, from, to);
-      this.imported = [];
-    }, (e) => {
-      if (e.status === 404) {
-        progress.state.next('USERNOTFOUND');
-      } else {
-        progress.state.next('LOADFAILED');
+    this.retrieveUser(username).subscribe({
+      next: user => {
+        progress.user = user;
+        progress.state.next('CALCULATINGPAGES');
+        const from = String(this.determineFrom(user, this.imported));
+        this.start(this.imported, progress, from, to);
+        this.imported = [];
+      },
+      error: (e) => {
+        if (e.status === 404) {
+          progress.state.next('USERNOTFOUND');
+        } else {
+          progress.state.next('LOADFAILED');
+        }
       }
     });
 
@@ -80,35 +83,38 @@ export class ScrobbleRetrieverService {
   }
 
   private start(scrobbles: Scrobble[], progress: Progress, from: string, to: string): void {
-    this.get(progress.user!.name, from, to, 1, progress.pageSize).subscribe(response => {
-      const page = parseInt(response.recenttracks['@attr'].totalPages);
+    this.get(progress.user!.name, from, to, 1, progress.pageSize).subscribe({
+      next: response => {
+        const page = parseInt(response.recenttracks['@attr'].totalPages);
 
-      // trigger update for imported scrobbles
-      if (scrobbles.length) {
-        progress.loader.next(scrobbles);
-        progress.first.next(scrobbles[0]);
-        progress.last.next(scrobbles[scrobbles.length - 1]);
-      }
+        // trigger update for imported scrobbles
+        if (scrobbles.length) {
+          progress.loader.next(scrobbles);
+          progress.first.next(scrobbles[0]);
+          progress.last.next(scrobbles[scrobbles.length - 1]);
+        }
 
-      if (page > 0) {
-        progress.state.next('RETRIEVING');
-        progress.totalPages = page;
-        progress.currentPage = page;
-        progress.loadScrobbles = parseInt(response.recenttracks['@attr'].total);
-        this.iterate(progress, from, to);
-      } else {
-        progress.state.next('COMPLETED');
-        progress.loader.complete();
-      }
-    }, err => {
-      if (err.error?.error === 17) {
-        progress.state.next('LOADFAILEDDUEPRIVACY');
-      } else if (progress.pageSize !== Constants.API_PAGE_SIZE_REDUCED) {
-        // restart with a lower page size :/
-        progress.pageSize = Constants.API_PAGE_SIZE_REDUCED;
-        this.start(scrobbles, progress, from, to);
-      } else {
-        progress.state.next('LOADFAILED');
+        if (page > 0) {
+          progress.state.next('RETRIEVING');
+          progress.totalPages = page;
+          progress.currentPage = page;
+          progress.loadScrobbles = parseInt(response.recenttracks['@attr'].total);
+          this.iterate(progress, from, to);
+        } else {
+          progress.state.next('COMPLETED');
+          progress.loader.complete();
+        }
+      },
+      error: err => {
+        if (err.error?.error === 17) {
+          progress.state.next('LOADFAILEDDUEPRIVACY');
+        } else if (progress.pageSize !== Constants.API_PAGE_SIZE_REDUCED) {
+          // restart with a lower page size :/
+          progress.pageSize = Constants.API_PAGE_SIZE_REDUCED;
+          this.start(scrobbles, progress, from, to);
+        } else {
+          progress.state.next('LOADFAILED');
+        }
       }
     });
   }
@@ -130,30 +136,33 @@ export class ScrobbleRetrieverService {
 
     const start = new Date().getTime();
 
-    this.get(progress.user!.name, from, to, progress.currentPage, progress.pageSize).subscribe(r => {
-      if (progress.state.value === 'INTERRUPTED') {
-        return;
-      }
+    this.get(progress.user!.name, from, to, progress.currentPage, progress.pageSize).subscribe({
+      next: r => {
+        if (progress.state.value === 'INTERRUPTED') {
+          return;
+        }
 
-      this.updateTracks(r.recenttracks.track, progress);
+        this.updateTracks(r.recenttracks.track, progress);
 
-      if (progress.currentPage > 0) {
-        const ms = new Date().getTime() - start;
-        const handled = progress.totalPages - progress.currentPage - 1;
-        const avgLoadTime = progress.pageLoadTime ? progress.pageLoadTime * handled : 0;
-        progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
-        this.iterate(progress, from, to);
-      } else {
-        progress.state.next('COMPLETED');
-        progress.loader.complete();
-      }
-    }, () => {
-      if (retry > 0) {
-        // sometimes lastfm returns a 500, retry a few times.
-        this.iterate(progress, from, to, retry - 1);
-      } else {
-        // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in multiple chunks
-        this.retryLowerPageSize(progress, from, to);
+        if (progress.currentPage > 0) {
+          const ms = new Date().getTime() - start;
+          const handled = progress.totalPages - progress.currentPage - 1;
+          const avgLoadTime = progress.pageLoadTime ? progress.pageLoadTime * handled : 0;
+          progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
+          this.iterate(progress, from, to);
+        } else {
+          progress.state.next('COMPLETED');
+          progress.loader.complete();
+        }
+      },
+      error: () => {
+        if (retry > 0) {
+          // sometimes lastfm returns a 500, retry a few times.
+          this.iterate(progress, from, to, retry - 1);
+        } else {
+          // failed to load data twice. Lastfm is probably not gonna give a decent result, load this page in multiple chunks
+          this.retryLowerPageSize(progress, from, to);
+        }
       }
     });
   }
@@ -169,13 +178,16 @@ export class ScrobbleRetrieverService {
         .map((o, idx) => lastPage - idx)
         .map(page => this.get(progress.user!.name, newFrom, to, page, tempPageSize)))
         .pipe(map(pages => pages.map(p => p.recenttracks.track).flat()));
-    })).subscribe(tracks => {
-      // add combined chunks to result
-      this.updateTracks(tracks, progress);
+    })).subscribe({
+      next: tracks => {
+        // add combined chunks to result
+        this.updateTracks(tracks, progress);
 
-      // restart
-      this.iterate(progress, from, to);
-    }, () => progress.state.next('LOADSTUCK'));
+        // restart
+        this.iterate(progress, from, to);
+      },
+      error: () => progress.state.next('LOADSTUCK')
+    });
   }
 
   private updateTracks(response: Track[], progress: Progress): void {

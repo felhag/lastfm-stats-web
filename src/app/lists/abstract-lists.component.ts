@@ -17,7 +17,6 @@ export interface Top10Item {
 
 @UntilDestroy()
 @Directive()
-// tslint:disable-next-line:directive-class-suffix
 export abstract class AbstractListsComponent<S> implements OnInit {
   stats = new BehaviorSubject<S>(this.emptyStats());
   username?: string;

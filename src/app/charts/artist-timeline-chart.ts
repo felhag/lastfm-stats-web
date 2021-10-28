@@ -31,7 +31,6 @@ export class ArtistTimelineChart extends AbstractChart {
     const points: PointOptionsType[] = [];
     const colorMap: { [key: string]: string } = {};
     const colors = Highcharts.getOptions().colors!;
-    let idx = 0;
     for (const month of Object.values(stats.monthList)) {
       const scrobbles = month.artists;
       const artist = Object.keys(scrobbles).reduce((a, b) => scrobbles[a].count > scrobbles[b].count ? a : b);
@@ -39,7 +38,6 @@ export class ArtistTimelineChart extends AbstractChart {
         colorMap[artist] = colors[Object.keys(colorMap).length % colors.length];
       }
       points.push({name: month.alias + ' - ' + artist, color: colorMap[artist], y: scrobbles[artist].count});
-      idx++;
     }
     this.chart.series[0].setData(points);
   }
