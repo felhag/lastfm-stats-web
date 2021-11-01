@@ -1,6 +1,8 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { State } from './service/scrobble-retriever.service';
 
+export type ItemType = 'artist' | 'album' | 'track';
+
 export interface User {
   name: string;
   url: string;
@@ -34,10 +36,12 @@ export interface Artist extends StreakItem {
 
 export interface Album extends StreakItem {
   artist: string;
+  shortName: string;
 }
 
 export interface Track extends StreakItem {
   artist: string;
+  shortName: string;
 }
 
 export interface Month {
@@ -47,17 +51,15 @@ export interface Month {
   avg?: number;
 }
 
-export interface MonthArtist {
+export interface MonthItem {
   name: string;
   count: number;
   new?: Scrobble;
-  tracks: { [key: string]: MonthTrack };
 }
 
-export interface MonthTrack {
-  name: string;
-  count: number;
-  new?: Scrobble;
+export interface MonthArtist extends MonthItem{
+  albums: { [key: string]: MonthItem };
+  tracks: { [key: string]: MonthItem };
 }
 
 export interface Export {

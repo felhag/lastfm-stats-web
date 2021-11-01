@@ -6,7 +6,7 @@ import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractChart} from './abstract-chart';
 import {ArtistScrobbleChart} from './artist-scrobble-chart';
 import {ArtistTimelineChart} from './artist-timeline-chart';
-import {CumulativeArtistChart} from './cumulative-artist-chart';
+import {CumulativeItemsChart} from './cumulative-items-chart';
 import {PunchcardChart} from './punchcard-chart';
 import {RaceChart} from './race-chart';
 import {ScrobbleMomentChart} from './scrobble-moment-chart';
@@ -52,7 +52,7 @@ export class ChartsComponent implements AfterViewInit {
     new TimelineChart(),
     new ArtistScrobbleChart(),
     new ArtistTimelineChart(),
-    new CumulativeArtistChart(),
+    new CumulativeItemsChart(),
     new WordcloudChart(),
     new PunchcardChart(),
     new ScrobblePerDayChart(),

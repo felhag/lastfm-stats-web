@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TempStats, MonthTrack, Track, Constants, Month } from '../model';
+import { TempStats, Track, Constants, Month, MonthItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
@@ -32,9 +32,9 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
 
     const seen = Object.values(stats.seenTracks);
     const monthsValues = Object.values(stats.monthList);
-    const tracks: { [month: string]: { [track: string]: MonthTrack } } = {};
+    const tracks: { [month: string]: { [track: string]: MonthItem } } = {};
     monthsValues.forEach(m => {
-      const curr: { [track: string]: MonthTrack } = {};
+      const curr: { [track: string]: MonthItem } = {};
       tracks[m.alias] = curr;
       Object.values(m.artists).forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
     });
@@ -51,7 +51,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
   }
 
-  private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthTrack } },
+  private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthItem } },
                         months: Month[],
                         getValue: (k: string) => number,
                         buildName: (item: string, value: number) => string,
@@ -69,7 +69,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
   }
 
-  private including(tracks: { [p: string]: MonthTrack }): string {
+  private including(tracks: { [p: string]: MonthItem }): string {
     const keys = Object.keys(tracks);
     keys.sort((a, b) => tracks[b].count - tracks[a].count);
     return 'Including ' + keys.splice(0, 3).join(', ');
