@@ -1,11 +1,14 @@
-import {PointOptionsType} from 'highcharts';
-import {TempStats} from '../model';
-import {AbstractChart} from './abstract-chart';
 import * as Highcharts from 'highcharts';
+import { PointOptionsType } from 'highcharts';
+import { Mapper } from '../mapper';
+import { TempStats } from '../model';
+import { ToggleableChart } from './ToggleableChart';
 
-export class ArtistTimelineChart extends AbstractChart {
+export class ArtistTimelineChart extends ToggleableChart {
   options: Highcharts.Options = {
-    title: {text: 'Most listened artist per month'},
+    chart: {events: this.events},
+    plotOptions: this.plotOptions,
+    title: {text: 'Most listened per month'},
     legend: {enabled: false},
     yAxis: {
       title: {
@@ -27,19 +30,19 @@ export class ArtistTimelineChart extends AbstractChart {
     if (!this.chart) {
       return;
     }
+    super.update(stats);
 
     const points: PointOptionsType[] = [];
     const colorMap: { [key: string]: string } = {};
     const colors = Highcharts.getOptions().colors!;
-    let idx = 0;
+
     for (const month of Object.values(stats.monthList)) {
-      const scrobbles = month.artists;
-      const artist = Object.keys(scrobbles).reduce((a, b) => scrobbles[a].count > scrobbles[b].count ? a : b);
-      if (!colorMap[artist]) {
-        colorMap[artist] = colors[Object.keys(colorMap).length % colors.length];
+      const items = Mapper.monthItems(this.type, month);
+      const item = items.reduce((a, b) => a.count > b.count ? a : b);
+      if (!colorMap[item.name]) {
+        colorMap[item.name] = colors[Object.keys(colorMap).length % colors.length];
       }
-      points.push({name: month.alias + ' - ' + artist, color: colorMap[artist], y: scrobbles[artist].count});
-      idx++;
+      points.push({name: month.alias + ' - ' + item.name, color: colorMap[item.name], y: item.count});
     }
     this.chart.series[0].setData(points);
   }

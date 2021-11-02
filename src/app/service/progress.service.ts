@@ -10,8 +10,6 @@ export class ProgressService {
   public progress = this.build();
   gaps!: Observable<number[]>;
 
-  constructor() { }
-
   public init(imported: Scrobble[]): Progress {
     this.progress.importedScrobbles = imported.length;
     this.progress.allScrobbles = imported;

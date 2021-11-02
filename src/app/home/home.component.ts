@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
-import {NgxCsvParser, NgxCSVParserError} from 'ngx-csv-parser';
+import {NgxCsvParser} from 'ngx-csv-parser';
 import {Subject, BehaviorSubject} from 'rxjs';
 import {Export, Scrobble} from '../model';
 import {ScrobbleRetrieverService} from '../service/scrobble-retriever.service';
@@ -33,32 +33,36 @@ export class HomeComponent {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   import(ev: any): void {
     const file = ev.target.files[0];
     const filename: string = file.name;
     const ext = filename.toLowerCase().substring(filename.lastIndexOf('.') + 1);
     if (ext === 'csv') {
       // Parse the file you want to select for the operation along with the configuration
-      this.ngxCsvParser.parse(file, { header: false, delimiter: ';' }).subscribe((csvArray: any) => {
-        const headers = csvArray.splice(0, 1)[0];
-        const length = headers.length;
-        if (!headers || length < 3 || length > 4) {
-          this.importError.next('Expected 3 or 4 columns but found ' + length);
-          return;
-        }
+      this.ngxCsvParser.parse(file, {header: false, delimiter: ';'}).subscribe({
+        next: (csvArray: any) => {
+          const headers = csvArray.splice(0, 1)[0];
+          const length = headers.length;
+          if (!headers || length < 3 || length > 4) {
+            this.importError.next('Expected 3 or 4 columns but found ' + length);
+            return;
+          }
 
-        const username = headers[length - 1].substr(headers[length - 1].indexOf('#') + 1);
-        const hasAlbum = length === 4;
-        if (hasAlbum || !this.continueWithoutAlbums(username)) {
-          const scrobbles = (csvArray as any[]).map(arr => ({
-            artist: arr[0],
-            album: hasAlbum ? arr[1] : undefined,
-            track: arr[hasAlbum ? 2 : 1],
-            date: new Date(parseInt(arr[hasAlbum ? 3 : 2]))
-          }));
-          this.handleImport(username, scrobbles);
-        }
-      }, (error: NgxCSVParserError) => this.importError.next('Can\t parse csv: ' + error.message));
+          const username = headers[length - 1].substr(headers[length - 1].indexOf('#') + 1);
+          const hasAlbum = length === 4;
+          if (hasAlbum || !this.continueWithoutAlbums(username)) {
+            const scrobbles = (csvArray as any[]).map(arr => ({
+              artist: arr[0],
+              album: hasAlbum ? arr[1] : undefined,
+              track: arr[hasAlbum ? 2 : 1],
+              date: new Date(parseInt(arr[hasAlbum ? 3 : 2]))
+            }));
+            this.handleImport(username, scrobbles);
+          }
+        },
+        error: error => this.importError.next('Can\t parse csv: ' + error.message)
+      });
     } else if (ext === 'json') {
       const reader = new FileReader();
       reader.onloadend = () => {

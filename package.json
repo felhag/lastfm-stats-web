@@ -6,21 +6,25 @@
     "start": "ng serve",
     "build": "ng build",
     "lint": "ng lint",
-    "deploy": "ng build --configuration production"
+    "deploy": "ng build --configuration production",
+    "preinstall": "npx npm-force-resolutions"
+  },
+  "resolutions": {
+    "ansi-html": "https://registry.npmjs.org/ansi-html-community/-/ansi-html-community-0.0.8.tgz"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~12.2.9",
-    "@angular/cdk": "^12.2.9",
-    "@angular/common": "~12.2.9",
-    "@angular/compiler": "~12.2.9",
-    "@angular/core": "~12.2.9",
-    "@angular/forms": "~12.2.9",
-    "@angular/material": "^12.2.9",
-    "@angular/material-moment-adapter": "^12.2.9",
-    "@angular/platform-browser": "~12.2.9",
-    "@angular/platform-browser-dynamic": "~12.2.9",
-    "@angular/router": "~12.2.9",
+    "@angular/animations": "~12.2.12",
+    "@angular/cdk": "^12.2.12",
+    "@angular/common": "~12.2.12",
+    "@angular/compiler": "~12.2.12",
+    "@angular/core": "~12.2.12",
+    "@angular/forms": "~12.2.12",
+    "@angular/material": "^12.2.12",
+    "@angular/material-moment-adapter": "^12.2.12",
+    "@angular/platform-browser": "~12.2.12",
+    "@angular/platform-browser-dynamic": "~12.2.12",
+    "@angular/router": "~12.2.12",
     "@ngneat/until-destroy": "^8.1.4",
     "highcharts": "^9.2.2",
     "highcharts-angular": "^2.10.0",
@@ -30,13 +34,19 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~12.2.9",
-    "@angular/cli": "~12.2.9",
-    "@angular/compiler-cli": "~12.2.9",
+    "@angular-devkit/build-angular": "~12.2.12",
+    "@angular-eslint/builder": "12.6.1",
+    "@angular-eslint/eslint-plugin": "12.6.1",
+    "@angular-eslint/eslint-plugin-template": "12.6.1",
+    "@angular-eslint/schematics": "12.6.1",
+    "@angular-eslint/template-parser": "12.6.1",
+    "@angular/cli": "~12.2.12",
+    "@angular/compiler-cli": "~12.2.12",
     "@types/node": "^16.10.4",
-    "codelyzer": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "4.28.2",
+    "@typescript-eslint/parser": "4.28.2",
+    "eslint": "^7.26.0",
     "ts-node": "~10.3.0",
-    "tslint": "~6.1.0",
     "typescript": "~4.2.4"
   }
 }

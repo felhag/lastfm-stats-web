@@ -1,6 +1,8 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { State } from './service/scrobble-retriever.service';
 
+export type ItemType = 'artist' | 'album' | 'track';
+
 export interface User {
   name: string;
   url: string;
@@ -34,10 +36,12 @@ export interface Artist extends StreakItem {
 
 export interface Album extends StreakItem {
   artist: string;
+  shortName: string;
 }
 
 export interface Track extends StreakItem {
   artist: string;
+  shortName: string;
 }
 
 export interface Month {
@@ -47,17 +51,15 @@ export interface Month {
   avg?: number;
 }
 
-export interface MonthArtist {
+export interface MonthItem {
   name: string;
   count: number;
   new?: Scrobble;
-  tracks: { [key: string]: MonthTrack };
 }
 
-export interface MonthTrack {
-  name: string;
-  count: number;
-  new?: Scrobble;
+export interface MonthArtist extends MonthItem{
+  albums: { [key: string]: MonthItem };
+  tracks: { [key: string]: MonthItem };
 }
 
 export interface Export {
@@ -78,6 +80,9 @@ export interface TempStats {
   seenAlbums: { [key: string]: Album };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
+  trackStreak: TrackStreakStack;
+  artistStreak: ArtistStreakStack;
+  albumStreak: AlbumStreakStack;
   notListenedStreak: StreakStack;
   betweenArtists: StreakStack;
   betweenAlbums: StreakStack;
@@ -132,6 +137,60 @@ export class ScrobbleStreakStack extends StreakStack {
       } else {
         // finish
         this.add(this.current);
+        this.current = undefined;
+      }
+    }
+  }
+}
+
+export class TrackStreakStack extends StreakStack {
+  push(scrobble: Scrobble): void {
+    if (!this.current) {
+      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+    } else {
+      if (this.current.start.track === scrobble.track && this.current.start.artist === scrobble.artist) {
+        this.current.length!++;
+      } else {
+        // finish
+        this.current.end = scrobble;
+        this.current.ongoing = false
+        this.streaks.push(this.current);
+        this.current = undefined;
+      }
+    }
+  }
+}
+
+export class ArtistStreakStack extends StreakStack {
+  push(scrobble: Scrobble): void {
+    if (!this.current) {
+      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+    } else {
+      if (this.current.start.artist === scrobble.artist) {
+        this.current.length!++;
+      } else {
+        // finish
+        this.current.end = scrobble;
+        this.current.ongoing = false
+        this.streaks.push(this.current);
+        this.current = undefined;
+      }
+    }
+  }
+}
+
+export class AlbumStreakStack extends StreakStack {
+  push(scrobble: Scrobble): void {
+    if (!this.current) {
+      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+    } else {
+      if (this.current.start.album && scrobble.album && this.current.start.album === scrobble.album) {
+        this.current.length!++;
+      } else {
+        // finish
+        this.current.end = scrobble;
+        this.current.ongoing = false
+        this.streaks.push(this.current);
         this.current = undefined;
       }
     }

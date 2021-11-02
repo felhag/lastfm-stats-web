@@ -27,7 +27,7 @@ export class SettingsService {
     this.artists = this.init('artists', [], v => JSON.parse(v), v => JSON.stringify(v));
   }
 
-  private init<T>(key: string, def: any, parse: (value: string) => any, toString: (value: any) => string | undefined = v => String(v)): BehaviorSubject<any> {
+  private init(key: string, def: any, parse: (value: string) => any, toString: (value: any) => string | undefined = v => String(v)): BehaviorSubject<any> {
     const value = localStorage.getItem(key);
     const sub = new BehaviorSubject(value ? parse(value) : def);
     sub.pipe(untilDestroyed(this)).subscribe(v => {

@@ -17,7 +17,6 @@ export interface Top10Item {
 
 @UntilDestroy()
 @Directive()
-// tslint:disable-next-line:directive-class-suffix
 export abstract class AbstractListsComponent<S> implements OnInit {
   stats = new BehaviorSubject<S>(this.emptyStats());
   username?: string;
@@ -80,6 +79,18 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected get listSize(): number {
     return this.settings.listSize.value;
   }
+
+  protected dateUrl(day: Date): string {
+    return `${this.rootUrl}?from=${this.dateUrlParameter(day)}&rangetype=1day`;
+  }
+
+  protected dayUrl(day: number): string {
+    return `${this.rootUrl}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
+  }
+
+  protected dateUrlParameter(date: Date): string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+ }
 
   protected monthUrl(month: string, baseUrl?: string): string {
     const split = month.split(' ');

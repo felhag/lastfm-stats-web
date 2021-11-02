@@ -91,7 +91,11 @@ export class TimelineChart extends AbstractChart {
       name: scrobble.artist + ' - ' + scrobble.track
     }));
 
-    const start = {x: stats.first?.date.getTime()!, y: 0, name: 'Account created'};
+    const start = {
+      x: stats.first!.date.getTime(),
+      y: 0,
+      name: 'Account created'
+    };
     [scrobbles, uniqueArtists, tracks].forEach(arr => arr.unshift(start));
 
     this.chart.series[0].setData(scrobbles);

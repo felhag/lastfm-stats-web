@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TempStats, MonthTrack, Track, Constants, Month } from '../model';
+import { TempStats, Streak, Track, Constants, Month, MonthItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
@@ -13,6 +13,7 @@ export interface TrackStats {
   newPerMonth: Top10Item[];
   avgScrobbleDesc: Top10Item [];
   avgScrobbleAsc: Top10Item[];
+  trackStreak: Top10Item[];
 }
 
 @Component({
@@ -32,9 +33,9 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
 
     const seen = Object.values(stats.seenTracks);
     const monthsValues = Object.values(stats.monthList);
-    const tracks: { [month: string]: { [track: string]: MonthTrack } } = {};
+    const tracks: { [month: string]: { [track: string]: MonthItem } } = {};
     monthsValues.forEach(m => {
-      const curr: { [track: string]: MonthTrack } = {};
+      const curr: { [track: string]: MonthItem } = {};
       tracks[m.alias] = curr;
       Object.values(m.artists).forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
     });
@@ -49,9 +50,24 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_TRACK_THRESHOLD);
     next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+
+    const now = new Date();
+    const endDate = stats.last?.date || now;
+    const streak = this.currentTrackStreak(stats, endDate);
+    next.trackStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} - ${s.start.track} (${s.length! + 1} times)`, (s: Streak) => this.dateUrl(s.start.date));
   }
 
-  private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthTrack } },
+  private currentTrackStreak(tempStats: TempStats, endDate: Date): Streak[] {
+    const current = tempStats.trackStreak.current;
+    if (current) {
+      const currentStreak = this.ongoingStreak({start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}});
+      return [...tempStats.trackStreak.streaks, currentStreak];
+    } else {
+      return tempStats.trackStreak.streaks;
+    }
+  }
+
+  private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthItem } },
                         months: Month[],
                         getValue: (k: string) => number,
                         buildName: (item: string, value: number) => string,
@@ -69,7 +85,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
   }
 
-  private including(tracks: { [p: string]: MonthTrack }): string {
+  private including(tracks: { [p: string]: MonthItem }): string {
     const keys = Object.keys(tracks);
     keys.sort((a, b) => tracks[b].count - tracks[a].count);
     return 'Including ' + keys.splice(0, 3).join(', ');
@@ -84,6 +100,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
       newPerMonth: [],
       avgScrobbleDesc: [],
       avgScrobbleAsc: [],
+      trackStreak: [],
     };
   }
 

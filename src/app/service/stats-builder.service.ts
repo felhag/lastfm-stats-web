@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album} from '../model';
+import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, TrackStreakStack, ArtistStreakStack, AlbumStreakStack, Constants, StreakItem, Track, Album, MonthItem } from '../model';
 import {SettingsService} from './settings.service';
 
 @Injectable({
@@ -41,7 +41,11 @@ export class StatsBuilderService {
         next.specificDays[dayOfYear] = [] as Track[];
       }
       next.specificDays[dayOfYear].push(track);
-
+      
+      next.trackStreak.push(scrobble);
+      next.artistStreak.push(scrobble);
+      next.albumStreak.push(scrobble);
+      
       next.scrobbleStreak.push(scrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
       if (lastDate && sod.getTime() - lastDate.getTime() > Constants.DAY) {
@@ -74,27 +78,38 @@ export class StatsBuilderService {
 
     const monthArtist = month.artists[scrobble.artist];
     const newArtist = next.seenArtists[scrobble.artist] ? undefined : scrobble;
-    const newTrack = !newArtist && next.seenArtists[scrobble.artist].tracks.indexOf(scrobble.track) >= 0 ? undefined : scrobble;
-    const newTrackItem = {
-      name: scrobble.artist + ' - ' + scrobble.track,
-      new: newTrack,
-      count: 1
-    };
+    const newAlbumItem = this.newMonthItem(next, scrobble, scrobble.album, newArtist);
+    const newTrackItem = this.newMonthItem(next, scrobble, scrobble.track, newArtist);
     if (!monthArtist) {
       month.artists[scrobble.artist] = {
         name: scrobble.artist,
         new: newArtist,
         count: 1,
+        albums: {[scrobble.album]: newAlbumItem},
         tracks: {[scrobble.track]: newTrackItem}
       };
     } else {
       monthArtist.count++;
+      if (!monthArtist.albums[scrobble.album]) {
+        monthArtist.albums[scrobble.album] = newAlbumItem;
+      } else {
+        monthArtist.albums[scrobble.album].count++;
+      }
       if (!monthArtist.tracks[scrobble.track]) {
         monthArtist.tracks[scrobble.track] = newTrackItem;
       } else {
         monthArtist.tracks[scrobble.track].count++;
       }
     }
+  }
+
+  private newMonthItem(next: TempStats, scrobble: Scrobble, name: string, newArtist?: Scrobble): MonthItem {
+    const newItem = !newArtist && next.seenArtists[scrobble.artist].tracks.indexOf(name) >= 0 ? undefined : scrobble;
+    return {
+      name: scrobble.artist + ' - ' + name,
+      new: newItem,
+      count: 1
+    };
   }
 
   private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string): void {
@@ -122,28 +137,30 @@ export class StatsBuilderService {
 
   private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     if (scrobble.album) {
-      this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.artist + ' - ' + scrobble.album, scrobble, weekYear);
+      this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.album, scrobble, weekYear);
     }
   }
 
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
-    return this.handleItem(next.seenTracks, next.betweenTracks, scrobble.artist + ' - ' + scrobble.track, scrobble, weekYear);
+    return this.handleItem(next.seenTracks, next.betweenTracks, scrobble.track, scrobble, weekYear);
   }
 
   private handleItem<T extends Track | Album>(seen: { [key: string]: T }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): T {
-    const seenTrack = seen[item];
+    const fullName = scrobble.artist + ' - ' + item;
+    const seenTrack = seen[fullName];
     if (seenTrack) {
       return this.handleStreakItem(seenTrack, between, scrobble, weekYear);
     } else {
       const result: Track | Album = {
         artist: scrobble.artist,
-        name: item,
+        shortName: item,
+        name: fullName,
         weeks: [weekYear],
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
         scrobbles: [scrobble.date.getTime()],
       };
-      seen[item] = result as T;
+      seen[fullName] = result as T;
       return result as T;
     }
   }
@@ -188,6 +205,9 @@ export class StatsBuilderService {
       hours: this.scrobbleCountObject(24),
       months: this.scrobbleCountObject(12),
       scrobbleStreak: new ScrobbleStreakStack(),
+      trackStreak: new TrackStreakStack(),
+      artistStreak: new ArtistStreakStack(),
+      albumStreak: new AlbumStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),
