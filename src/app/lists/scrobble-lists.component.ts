@@ -74,14 +74,6 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
     return new Date(year, 0, 1 + (week - 1) * 7);
   }
 
-  private dayUrl(day: number): string {
-    return `${this.rootUrl}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
-  }
-
-  private dateUrlParameter(date: Date): string {
-     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-  }
-
   private dayArtistUrl(day: number, artist: string): string {
     return `${this.rootUrl}/music/${encodeURIComponent(artist)}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
   }

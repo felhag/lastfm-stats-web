@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem } from '../model';
+import {TempStats, Scrobble, StreakStack, ScrobbleStreakStack, TrackStreakStack, ArtistStreakStack, AlbumStreakStack, Constants, StreakItem, Track, Album, MonthItem} from '../model';
 import {SettingsService} from './settings.service';
 
 @Injectable({
@@ -41,6 +41,10 @@ export class StatsBuilderService {
         next.specificDays[dayOfYear] = [] as Track[];
       }
       next.specificDays[dayOfYear].push(track);
+
+      next.trackStreak.push(scrobble);
+      next.artistStreak.push(scrobble);
+      next.albumStreak.push(scrobble);
 
       next.scrobbleStreak.push(scrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
@@ -201,6 +205,9 @@ export class StatsBuilderService {
       hours: this.scrobbleCountObject(24),
       months: this.scrobbleCountObject(12),
       scrobbleStreak: new ScrobbleStreakStack(),
+      trackStreak: new TrackStreakStack(),
+      artistStreak: new ArtistStreakStack(),
+      albumStreak: new AlbumStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Month, TempStats, Artist, Constants, MonthArtist } from '../model';
+import { Month, Streak, TempStats, Artist, Constants, MonthArtist } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
@@ -20,6 +20,7 @@ export interface ArtistStats {
   avgScrobbleAsc: Top10Item[];
   avgDelta: Top10Item[];
   latestNew: Top10Item[];
+  artistStreak: Top10Item[];
 }
 
 @Component({
@@ -85,6 +86,22 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.avgDelta = this.getArtistTop10(std, s => (s as any).deltas, k => std[+k], a => `${a.name} (${Math.round((a as any).deltas / Constants.DAY)} days)`,
       i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`);
     next.latestNew = this.getArtistTop10(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
+
+    const now = new Date();
+    const endDate = stats.last?.date || now;
+    const streak = this.currentArtistStreak(stats, endDate);
+    next.artistStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} (${s.length! + 1} times)`, (s: Streak) => this.dateUrl(s.start.date));
+
+  }
+
+  private currentArtistStreak(tempStats: TempStats, endDate: Date): Streak[] {
+    const current = tempStats.artistStreak.current;
+    if (current) {
+      const currentStreak = this.ongoingStreak({start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}});
+      return [...tempStats.artistStreak.streaks, currentStreak];
+    } else {
+      return tempStats.artistStreak.streaks;
+    }
   }
 
   private getMonthTop10(countMap: { [key: string]: any },
@@ -142,6 +159,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       avgScrobbleAsc: [],
       avgDelta: [],
       latestNew: [],
+      artistStreak: [],
     };
   }
 }

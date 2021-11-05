@@ -14,4 +14,7 @@
     <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average scrobble date for tracks with at least 10 scrobbles, sorted ascending"></app-top10list>
     <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average scrobble date for tracks with at least 10 scrobbles, sorted descending"></app-top10list>
   </div>
+  <div class="row">
+    <app-top10list [list]="s.trackStreak" title="Track streaks"></app-top10list>
+  </div>
 </div>
