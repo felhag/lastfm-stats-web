@@ -153,9 +153,6 @@ export class ItemStreakStack extends StreakStack {
       this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
     } else {
       if (this.compare(this.current.start, scrobble)) {
-
-      }
-      if (this.current.start.track === scrobble.track && this.current.start.artist === scrobble.artist) {
         this.current.length!++;
       } else {
         // finish
