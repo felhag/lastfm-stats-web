@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {TempStats, Scrobble, StreakStack, ScrobbleStreakStack, TrackStreakStack, ArtistStreakStack, AlbumStreakStack, Constants, StreakItem, Track, Album, MonthItem} from '../model';
-import {SettingsService} from './settings.service';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem, ItemStreakStack } from '../model';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -205,9 +205,9 @@ export class StatsBuilderService {
       hours: this.scrobbleCountObject(24),
       months: this.scrobbleCountObject(12),
       scrobbleStreak: new ScrobbleStreakStack(),
-      trackStreak: new TrackStreakStack(),
-      artistStreak: new ArtistStreakStack(),
-      albumStreak: new AlbumStreakStack(),
+      artistStreak: new ItemStreakStack((a, b) => a.artist === b.artist),
+      trackStreak: new ItemStreakStack((a, b) => a.track === b.track && a.artist === b.artist),
+      albumStreak: new ItemStreakStack((a, b) => a.album === b.album && a.artist === b.artist),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),

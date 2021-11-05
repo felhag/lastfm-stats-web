@@ -4,9 +4,6 @@
     <app-top10list [list]="s.ongoingBetweenTracks" title="Ongoing gaps between tracks" explanation="Largest time passed since last time you listened to a track."></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.weeksPerTrack" title="Weeks per track" explanation="Unique weeks a track has been scrobbled at least once"></app-top10list>
-  </div>
-  <div class="row">
     <app-top10list [list]="s.newPerMonth" title="New tracks in a single month"></app-top10list>
     <app-top10list [list]="s.uniquePerMonth" title="Unique tracks in a single month"></app-top10list>
   </div>
@@ -15,6 +12,7 @@
     <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average scrobble date for tracks with at least 10 scrobbles, sorted descending"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.trackStreak" title="Track streaks"></app-top10list>
+    <app-top10list [list]="s.weeksPerTrack" title="Weeks per track" explanation="Unique weeks a track has been scrobbled at least once"></app-top10list>
+    <app-top10list [list]="s.trackStreak" title="Track streaks" explanation="Streaks for playing the same track in a row."></app-top10list>
   </div>
 </div>

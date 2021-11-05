@@ -31,7 +31,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.betweenAlbums = gaps[0];
     next.ongoingBetweenAlbums = gaps[1];
     next.weeksPerAlbum = this.getTop10<Album>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, albumUrl, albumDate);
-  
+
     const now = new Date();
     const endDate = stats.last?.date || now;
     const streak = this.currentAlbumStreak(stats, endDate);

@@ -80,9 +80,9 @@ export interface TempStats {
   seenAlbums: { [key: string]: Album };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
-  trackStreak: TrackStreakStack;
-  artistStreak: ArtistStreakStack;
-  albumStreak: AlbumStreakStack;
+  trackStreak: ItemStreakStack;
+  artistStreak: ItemStreakStack;
+  albumStreak: ItemStreakStack;
   notListenedStreak: StreakStack;
   betweenArtists: StreakStack;
   betweenAlbums: StreakStack;
@@ -143,48 +143,19 @@ export class ScrobbleStreakStack extends StreakStack {
   }
 }
 
-export class TrackStreakStack extends StreakStack {
+export class ItemStreakStack extends StreakStack {
+  constructor(private compare: (a: Scrobble, b: Scrobble) => boolean) {
+    super();
+  }
+
   push(scrobble: Scrobble): void {
     if (!this.current) {
       this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
     } else {
+      if (this.compare(this.current.start, scrobble)) {
+
+      }
       if (this.current.start.track === scrobble.track && this.current.start.artist === scrobble.artist) {
-        this.current.length!++;
-      } else {
-        // finish
-        this.current.end = scrobble;
-        this.current.ongoing = false
-        this.streaks.push(this.current);
-        this.current = undefined;
-      }
-    }
-  }
-}
-
-export class ArtistStreakStack extends StreakStack {
-  push(scrobble: Scrobble): void {
-    if (!this.current) {
-      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
-    } else {
-      if (this.current.start.artist === scrobble.artist) {
-        this.current.length!++;
-      } else {
-        // finish
-        this.current.end = scrobble;
-        this.current.ongoing = false
-        this.streaks.push(this.current);
-        this.current = undefined;
-      }
-    }
-  }
-}
-
-export class AlbumStreakStack extends StreakStack {
-  push(scrobble: Scrobble): void {
-    if (!this.current) {
-      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
-    } else {
-      if (this.current.start.album && scrobble.album && this.current.start.album === scrobble.album) {
         this.current.length!++;
       } else {
         // finish
