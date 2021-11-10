@@ -58,7 +58,7 @@ export class TimelineChart extends AbstractChart {
   };
 
   update(stats: TempStats): void {
-    if (!this.chart) {
+    if (!this.chart || !stats.first) {
       return;
     }
     let i = 0;

@@ -34,6 +34,7 @@ if (darkMode.matches) {
     },
     colors: Constants.DARK_COLORS,
     plotOptions: { series: { borderColor: '#424242' } },
+    navigation: { buttonOptions: { enabled: false } }
   });
 } else {
   Highcharts.setOptions({colors: Constants.COLORS});

@@ -4,8 +4,10 @@
       <highcharts-chart [Highcharts]="Highcharts"
                         [options]="c.options"
                         (chartInstance)="c.chart = $event"
-                        style="width: 100%; display: block;"
       ></highcharts-chart>
+      <button (click)="c.print()" mat-icon-button matTooltip="Download" class="print-button">
+        <mat-icon>download</mat-icon>
+      </button>
     </mat-card-content>
   </mat-card>
 </div>

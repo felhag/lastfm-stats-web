@@ -1,6 +1,10 @@
 import { AlignValue } from 'highcharts';
 import * as Highcharts from 'highcharts';
 import {TempStats} from '../model';
+import exporting from 'highcharts/modules/exporting';
+import offline from 'highcharts/modules/offline-exporting';
+exporting(Highcharts);
+offline(Highcharts);
 
 export abstract class AbstractChart {
   abstract options: Highcharts.Options;
@@ -14,6 +18,10 @@ export abstract class AbstractChart {
 
   protected get textColor(): string | undefined {
     return Highcharts.getOptions()?.title?.style?.color || '#333';
+  }
+
+  print(): void {
+    return this.chart?.exportChartLocal();
   }
 
   responsive(yAxis: (AlignValue | undefined)[] = ['left']): any {
