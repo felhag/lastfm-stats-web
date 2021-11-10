@@ -1,4 +1,4 @@
-import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from './model';
+import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from '../model';
 
 export class Mapper {
   private static mappers = {

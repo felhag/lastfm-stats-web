@@ -1,6 +1,8 @@
 import { Component, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
+import { map, take } from 'rxjs/operators';
 import {TempStats, Constants} from '../model';
 import {StatsBuilderService} from '../service/stats-builder.service';
 import {AbstractChart} from './abstract-chart';
@@ -63,13 +65,19 @@ export class ChartsComponent implements AfterViewInit {
     new ScrobbleMomentChart('Scrobbled months', Constants.MONTHS, s => Object.values(s.months)),
   ];
 
-  constructor(private builder: StatsBuilderService) {
+  constructor(
+    private builder: StatsBuilderService,
+    private route: ActivatedRoute) {
   }
 
   ngAfterViewInit(): void {
     this.builder.tempStats.pipe(
       untilDestroyed(this),
     ).subscribe(stats => this.updateStats(stats));
+    this.route.parent!.paramMap.pipe(
+      take(1),
+      map(params => params.get('username'))
+    ).subscribe(name => this.charts.forEach(c => c.username = name!));
   }
 
   private updateStats(stats: TempStats): void {

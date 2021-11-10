@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Constants, TempStats, Streak, StreakStack, StreakItem } from '../model';
+import { TempStats, Streak, StreakStack, StreakItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 
@@ -19,7 +19,7 @@ export interface Top10Item {
 @Directive()
 export abstract class AbstractListsComponent<S> implements OnInit {
   stats = new BehaviorSubject<S>(this.emptyStats());
-  username?: string;
+  username = '';
 
   protected constructor(private builder: StatsBuilderService,
                         protected settings: SettingsService,
@@ -78,28 +78,6 @@ export abstract class AbstractListsComponent<S> implements OnInit {
 
   protected get listSize(): number {
     return this.settings.listSize.value;
-  }
-
-  protected dateUrl(day: Date): string {
-    return `${this.rootUrl}?from=${this.dateUrlParameter(day)}&rangetype=1day`;
-  }
-
-  protected dayUrl(day: number): string {
-    return `${this.rootUrl}?from=${this.dateUrlParameter(new Date(day))}&rangetype=1day`;
-  }
-
-  protected dateUrlParameter(date: Date): string {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
- }
-
-  protected monthUrl(month: string, baseUrl?: string): string {
-    const split = month.split(' ');
-    const url = baseUrl || this.rootUrl;
-    return `${url}?from=${split[1]}-${Constants.MONTHS.indexOf(split[0]) + 1}-01&rangetype=1month`;
-  }
-
-  protected get rootUrl(): string {
-    return `https://www.last.fm/user/${this.username}/library`;
   }
 
   protected dateString(date: number): string {

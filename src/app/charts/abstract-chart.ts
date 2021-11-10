@@ -9,6 +9,7 @@ offline(Highcharts);
 export abstract class AbstractChart {
   abstract options: Highcharts.Options;
   chart?: Highcharts.Chart;
+  username = '';
 
   abstract update(stats: TempStats): void;
 

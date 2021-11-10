@@ -1,5 +1,6 @@
 import * as Highcharts from 'highcharts';
 import {TempStats, Constants, Track} from '../model';
+import { UrlBuilder } from '../util/url-builder';
 import {AbstractChart} from './abstract-chart';
 import heatmap from 'highcharts/modules/heatmap';
 heatmap(Highcharts);
@@ -29,6 +30,13 @@ export class PunchcardChart extends AbstractChart {
         first: 0,
         last: 0,
         byUser: false,
+      },
+      events: {
+        click(event): void {
+          const custom = this.options.custom!;
+          const date = custom.component.parseWeek(event.point.x, event.point.y!, custom.year);
+          window.open(UrlBuilder.day(custom.component.username, date));
+        }
       }
     }],
     title: {
@@ -36,11 +44,8 @@ export class PunchcardChart extends AbstractChart {
     },
     tooltip: {
       formatter(): string {
-        const year = this.series.options.custom!.year;
-        const week = this.point.x;
-        const fdoy = new Date(year, 0, 1).getDay();
-        const days = (1 + (week - 1) * 7) + this.point.y! + (7 - fdoy);
-        const date = new Date(year, 0, days);
+        const custom = this.series.options.custom!;
+        const date = custom.component.parseWeek(this.point.x, this.point.y, custom.year);
         return `${date.toLocaleDateString()}: <b>${this.point.value} scrobbles</b>`;
       }
     },
@@ -149,5 +154,11 @@ export class PunchcardChart extends AbstractChart {
     this.yearLabel!.innerText = year;
     this.prevButton!.style.visibility = year <= custom.first ? 'hidden' : 'visible';
     this.nextButton!.style.visibility = year >= custom.last ? 'hidden' : 'visible';
+  }
+
+  parseWeek(x: number, y: number, year: number): Date {
+    const fdoy = new Date(year, 0, 1).getDay();
+    const days = (1 + (x - 1) * 7) + y + (7 - fdoy);
+    return new Date(year, 0, days);
   }
 }

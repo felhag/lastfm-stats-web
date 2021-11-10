@@ -1,7 +1,8 @@
 import * as Highcharts from 'highcharts';
 import { PointOptionsType } from 'highcharts';
-import { Mapper } from '../mapper';
+import { Mapper } from '../util/mapper';
 import { TempStats } from '../model';
+import { UrlBuilder } from '../util/url-builder';
 import { ToggleableChart } from './ToggleableChart';
 
 export class ArtistTimelineChart extends ToggleableChart {
@@ -22,6 +23,12 @@ export class ArtistTimelineChart extends ToggleableChart {
       data: [],
       groupPadding: 0,
       pointPadding: 0,
+      events: {
+        click: event => {
+          const month = event.point.name.substring(0, event.point.name.indexOf('-') - 1);
+          window.open(UrlBuilder.month(this.username, month))
+        }
+      }
     }],
     responsive: this.responsive()
   };

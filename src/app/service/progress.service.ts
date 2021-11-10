@@ -7,10 +7,11 @@ import { State } from './scrobble-retriever.service';
   providedIn: 'root'
 })
 export class ProgressService {
-  public progress = this.build();
+  public progress!: Progress;
   gaps!: Observable<number[]>;
 
   public init(imported: Scrobble[]): Progress {
+    this.progress = this.build();
     this.progress.importedScrobbles = imported.length;
     this.progress.allScrobbles = imported;
 

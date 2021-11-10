@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TempStats, Streak, Album } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UrlBuilder } from '../util/url-builder';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
 export interface AlbumStats {
@@ -24,8 +25,8 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
 
   protected doUpdate(stats: TempStats, next: AlbumStats): void {
     const seen = Object.values(stats.seenAlbums);
-    const gaps = this.calculateGaps(stats, stats.seenAlbums, stats.betweenAlbums, 'album', s => this.albumUrl(s.start.artist, s.start.album));
-    const albumUrl = (item: Album) => this.albumUrl(item.artist, item.name.substring((item.artist + ' - ').length));
+    const gaps = this.calculateGaps(stats, stats.seenAlbums, stats.betweenAlbums, 'album', s => UrlBuilder.album(this.username, s.start.artist, s.start.album));
+    const albumUrl = (item: Album) => UrlBuilder.album(this.username, item.artist, item.shortName);
     const albumDate = (item: Album) => new Date(item.avgScrobble);
 
     next.betweenAlbums = gaps[0];
@@ -35,7 +36,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     const now = new Date();
     const endDate = stats.last?.date || now;
     const streak = this.currentAlbumStreak(stats, endDate);
-    next.albumStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.album} (${s.length! + 1} times)`, (s: Streak) => this.dateUrl(s.start.date));
+    next.albumStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} - ${s.start.album} (${s.length! + 1} times)`, s => UrlBuilder.day(this.username, s.start.date));
   }
 
   private currentAlbumStreak(tempStats: TempStats, endDate: Date): Streak[] {
@@ -46,12 +47,6 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     } else {
       return tempStats.albumStreak.streaks;
     }
-  }
-
-  private albumUrl(artist: string, album: string): string {
-    const urlArtist = encodeURIComponent(artist);
-    const urlAlbum = encodeURIComponent(album);
-    return `${this.rootUrl}/music/${urlArtist}/${urlAlbum}`;
   }
 
   protected emptyStats(): AlbumStats {

@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import { Mapper } from '../mapper';
+import { Mapper } from '../util/mapper';
 import { TempStats, Month, StreakItem } from '../model';
 import { ToggleableChart } from './ToggleableChart';
 

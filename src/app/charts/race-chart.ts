@@ -1,6 +1,7 @@
 import {PointOptionsObject} from 'highcharts';
 import * as Highcharts from 'highcharts';
 import {TempStats, Month} from '../model';
+import { UrlBuilder } from '../util/url-builder';
 import {AbstractChart} from './abstract-chart';
 
 export class RaceChart extends AbstractChart {
@@ -88,6 +89,9 @@ export class RaceChart extends AbstractChart {
       data: [],
       custom: {
         component: this
+      },
+      events: {
+        click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
       }
     }],
     responsive: {

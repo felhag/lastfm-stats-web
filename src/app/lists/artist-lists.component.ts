@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Month, Streak, TempStats, Artist, Constants, MonthArtist } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UrlBuilder } from '../util/url-builder';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
 export interface ArtistStats {
@@ -34,7 +35,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
   }
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, undefined, s => this.artistUrl(s.start.artist));
+    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, undefined, s => UrlBuilder.artist(this.username, s.start.artist));
     next.betweenArtists = gaps[0];
     next.ongoingBetweenArtists = gaps[1];
 
@@ -64,7 +65,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     const xTimes = (item: any, v: number) => `${v} times`;
 
     next.avgTrackPerArtist = this.getMonthTop10(months, m => m.avg!, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.artists));
-    next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes, a => this.artistMonthUrl(a.artist, a.month), i => i.date);
+    next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes, a => UrlBuilder.artistMonth(this.username, a.artist, a.month), i => i.date);
 
     next.weeksPerArtist = this.getArtistTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
     next.tracksPerArtist = this.getArtistTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
@@ -90,7 +91,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     const now = new Date();
     const endDate = stats.last?.date || now;
     const streak = this.currentArtistStreak(stats, endDate);
-    next.artistStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} (${s.length! + 1} times)`, (s: Streak) => this.dateUrl(s.start.date));
+    next.artistStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} (${s.length! + 1} times)`, s => UrlBuilder.day(this.username, s.start.date));
 
   }
 
@@ -109,7 +110,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
                         getItem: (k: string) => Month,
                         buildName: (item: Month, value: number) => string,
                         buildDescription: (item: Month, value: number) => string): Top10Item[] {
-    return this.getTop10<Month>(countMap, getValue, getItem, buildName, buildDescription, item => this.monthUrl(item.alias), item => item.date);
+    return this.getTop10<Month>(countMap, getValue, getItem, buildName, buildDescription, item => UrlBuilder.month(this.username, item.alias), item => item.date);
   }
 
   private getArtistTop10(countMap: { [key: string]: any },
@@ -117,7 +118,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
                          getItem: (k: string) => Artist,
                          buildName: (item: Artist, value: number) => string,
                          buildDescription: (item: Artist, value: number) => string): Top10Item[] {
-    return this.getTop10<Artist>(countMap, getValue, getItem, buildName, buildDescription, item => this.artistUrl(item.name), item => new Date(item.avgScrobble));
+    return this.getTop10<Artist>(countMap, getValue, getItem, buildName, buildDescription, item => UrlBuilder.artist(this.username, item.name), item => new Date(item.avgScrobble));
   }
 
   private calcDeltas(arr: number[]): number {
@@ -133,14 +134,6 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     const keys = Object.keys(artists);
     keys.sort((a, b) => artists[b].count - artists[a].count);
     return 'Including ' + keys.splice(0, 3).join(', ');
-  }
-
-  private artistUrl(artist: string): string {
-    return `${this.rootUrl}/music/${encodeURIComponent(artist)}`;
-  }
-
-  private artistMonthUrl(artist: string, month: string): string {
-    return this.monthUrl(month, this.artistUrl(artist));
   }
 
   protected emptyStats(): ArtistStats {

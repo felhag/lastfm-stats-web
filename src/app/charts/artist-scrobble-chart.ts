@@ -1,4 +1,5 @@
 import {TempStats, Constants} from '../model';
+import { UrlBuilder } from '../util/url-builder';
 import {AbstractChart} from './abstract-chart';
 import * as Highcharts from 'highcharts';
 
@@ -36,7 +37,10 @@ export class ArtistScrobbleChart extends AbstractChart {
     series: [{
       name: 'Artists',
       type: 'scatter',
-      data: []
+      data: [],
+      events: {
+        click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
+      }
     }],
     responsive: this.responsive()
   };
