@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 @include mat-core();
 
 $light-app-theme: mat-light-theme((
