@@ -23,21 +23,19 @@ export class RaceChart extends AbstractChart {
       },
       height: 800,
       events: {
-        render(): void {
-          const chart = this;
-          const custom = chart.series[0].options.custom!;
-          const component = custom.component as RaceChart;
-          if (!component.toolbar) {
-            component.toolbar = document.getElementById('race-chart-toolbar')!;
-            component.speedText = component.toolbar.querySelector('.current') as HTMLElement;
-            component.button = component.toolbar.querySelector('.play mat-icon') as HTMLElement;
-            component.input = component.toolbar.querySelector('input') as HTMLInputElement;
-            component.input.onclick = (ev: any) => component.tick(parseInt(ev.target.value));
-            (component.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => component.toggle();
-            (component.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => component.changeSpeed(500);
-            (component.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => component.changeSpeed(-500);
+        render: event => {
+          if (!this.toolbar) {
+            this.toolbar = document.getElementById('race-chart-toolbar')!;
+            this.speedText = this.toolbar.querySelector('.current') as HTMLElement;
+            this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
+            this.input = this.toolbar.querySelector('input') as HTMLInputElement;
+            this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
+            (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
+            (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(500);
+            (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(-500);
 
-            chart.container.parentNode!.appendChild(component.toolbar);
+            const chart = event.target as any as Highcharts.Chart;
+            chart.container.parentNode!.appendChild(this.toolbar);
           }
         }
       }
@@ -87,9 +85,6 @@ export class RaceChart extends AbstractChart {
       }],
       name: '',
       data: [],
-      custom: {
-        component: this
-      },
       events: {
         click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
       }

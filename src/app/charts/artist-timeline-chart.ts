@@ -3,7 +3,7 @@ import { PointOptionsType } from 'highcharts';
 import { Mapper } from '../util/mapper';
 import { TempStats } from '../model';
 import { UrlBuilder } from '../util/url-builder';
-import { ToggleableChart } from './ToggleableChart';
+import { ToggleableChart } from './toggleable-chart';
 
 export class ArtistTimelineChart extends ToggleableChart {
   options: Highcharts.Options = {

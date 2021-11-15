@@ -10,6 +10,11 @@ export class PunchcardChart extends AbstractChart {
   prevButton?: HTMLButtonElement;
   nextButton?: HTMLButtonElement;
   toolbar?: HTMLElement;
+  data: { [p: number]: Track[] } = {};
+  year = 0;
+  first = 0;
+  last = 0;
+  byUser = false;
 
   options: Highcharts.Options = {
     series: [{
@@ -23,19 +28,10 @@ export class PunchcardChart extends AbstractChart {
           fontSize: '10px'
         }
       },
-      custom: {
-        component: this,
-        data: undefined,
-        year: 0,
-        first: 0,
-        last: 0,
-        byUser: false,
-      },
       events: {
-        click(event): void {
-          const custom = this.options.custom!;
-          const date = custom.component.parseWeek(event.point.x, event.point.y!, custom.year);
-          window.open(UrlBuilder.day(custom.component.username, date));
+        click: event => {
+          const date = PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year);
+          window.open(UrlBuilder.day(this.username, date));
         }
       }
     }],
@@ -43,9 +39,9 @@ export class PunchcardChart extends AbstractChart {
       text: 'Number of scrobbles'
     },
     tooltip: {
-      formatter(): string {
-        const custom = this.series.options.custom!;
-        const date = custom.component.parseWeek(this.point.x, this.point.y, custom.year);
+      formatter(event): string {
+        const year = parseInt((event.chart.container.parentNode!.querySelector('.current') as HTMLElement).innerText);
+        const date = PunchcardChart.parseWeek(this.point.x, this.point.y!, year);
         return `${date.toLocaleDateString()}: <b>${this.point.value} scrobbles</b>`;
       }
     },
@@ -65,28 +61,26 @@ export class PunchcardChart extends AbstractChart {
     },
     chart: {
       events: {
-        render(): void {
-          const chart = this;
-          const custom = chart.series[0].options.custom!;
-          const component = custom.component as PunchcardChart;
-          if (!component.toolbar) {
-            component.toolbar = document.getElementById('punchcard-toolbar')!;
-            component.yearLabel = component.toolbar.querySelector('.current') as HTMLElement;
-            component.prevButton = component.toolbar.querySelector('.prev') as HTMLButtonElement;
-            component.nextButton = component.toolbar.querySelector('.next') as HTMLButtonElement;
+        render: event => {
+          if (!this.toolbar) {
+            this.toolbar = document.getElementById('punchcard-toolbar')!;
+            this.yearLabel = this.toolbar.querySelector('.current') as HTMLElement;
+            this.prevButton = this.toolbar.querySelector('.prev') as HTMLButtonElement;
+            this.nextButton = this.toolbar.querySelector('.next') as HTMLButtonElement;
 
-            component.prevButton.onclick = () => {
-              custom.byUser = true;
-              custom.year--;
-              component.updateDays(custom.data);
+            this.prevButton.onclick = () => {
+              this.byUser = true;
+              this.year--;
+              this.updateDays(this.data);
             };
-            component.nextButton.onclick = () => {
-              custom.byUser = true;
-              custom.year++;
-              component.updateDays(custom.data);
+            this.nextButton.onclick = () => {
+              this.byUser = true;
+              this.year++;
+              this.updateDays(this.data);
             };
 
-            chart.container.parentNode!.appendChild(component.toolbar);
+            const chart = event.target as any as Highcharts.Chart;
+            chart.container.parentNode!.appendChild(this.toolbar);
           }
         }
       }
@@ -115,22 +109,18 @@ export class PunchcardChart extends AbstractChart {
       return;
     }
 
-    const custom = this.chart!.series[0].options.custom!;
-    custom.first = stats.first?.date.getFullYear();
-    custom.last = stats.last?.date.getFullYear();
-    if (!custom.byUser && custom.last !== custom.year) {
-      custom.year = custom.last;
+    this.first = stats.first?.date.getFullYear()!;
+    this.last = stats.last?.date.getFullYear();
+    if (!this.byUser && this.last !== this.year) {
+      this.year = this.last;
     }
     this.updateDays(stats.specificDays);
   }
 
   updateDays(specificDays: { [p: number]: Track[] }): void {
     const serie = this.chart!.series[0];
-    const custom = serie.options.custom!;
     const entries = Object.entries(specificDays);
-    const year = custom.year;
-
-    const fdoy = new Date(year, 0, 1);
+    const fdoy = new Date(this.year, 0, 1);
     if (fdoy.getDay() !== 0) {
       fdoy.setTime(fdoy.getTime() - (fdoy.getDay() * Constants.DAY));
     }
@@ -139,7 +129,7 @@ export class PunchcardChart extends AbstractChart {
       const key = parseInt(e[0]);
       const date = new Date(key);
 
-      if (date.getFullYear() !== year) {
+      if (date.getFullYear() !== this.year) {
         return undefined;
       }
 
@@ -148,15 +138,16 @@ export class PunchcardChart extends AbstractChart {
       return [since, dow, e[1].length];
     }).filter(r => r);
 
+    // for some reason clearing the data first is needed after updating to Angular 13...
+    serie.setData([]);
     serie.setData(data as number[][]);
-    custom.year = year;
-    custom.data = specificDays;
-    this.yearLabel!.innerText = year;
-    this.prevButton!.style.visibility = year <= custom.first ? 'hidden' : 'visible';
-    this.nextButton!.style.visibility = year >= custom.last ? 'hidden' : 'visible';
+    this.data = specificDays;
+    this.yearLabel!.innerText = String(this.year);
+    this.prevButton!.style.visibility = this.year <= this.first ? 'hidden' : 'visible';
+    this.nextButton!.style.visibility = this.year >= this.last ? 'hidden' : 'visible';
   }
 
-  parseWeek(x: number, y: number, year: number): Date {
+  static parseWeek(x: number, y: number, year: number): Date {
     const fdoy = new Date(year, 0, 1).getDay();
     const days = (1 + (x - 1) * 7) + y + (7 - fdoy);
     return new Date(year, 0, days);

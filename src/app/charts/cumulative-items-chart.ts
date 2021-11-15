@@ -1,7 +1,7 @@
 import * as Highcharts from 'highcharts';
 import { Mapper } from '../util/mapper';
 import { TempStats, Month, StreakItem } from '../model';
-import { ToggleableChart } from './ToggleableChart';
+import { ToggleableChart } from './toggleable-chart';
 
 export class CumulativeItemsChart extends ToggleableChart {
   options: Highcharts.Options = {
