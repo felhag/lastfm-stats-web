@@ -5,6 +5,12 @@
   min-height: 75%;
 }
 
+@media screen and (max-height: 768px) {
+  :host {
+    min-height: 100%;
+  }
+}
+
 .container {
   display: flex;
   justify-content: center;

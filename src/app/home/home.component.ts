@@ -106,4 +106,9 @@ export class HomeComponent {
     }
     return false;
   }
+
+  get christmas(): boolean {
+    const date = new Date();
+    return date.getMonth() === 11 && [24, 25, 26].indexOf(date.getDate()) >= 0;
+  }
 }

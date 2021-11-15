@@ -8,7 +8,27 @@ A small project to show some additional statistics for last.fm: https://lastfmst
 - custom date range
 - import/export
 
+## 🔨 Development
+
+Setting up a local dev environment:
+```
+git clone https://github.com/felhag/lastfm-stats-web.git
+cd lastfm-stats-web
+npm ci
+npx ng serve
+```
+If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
+
 ## 🐛 Changelog
+2.1 (15-11-2021)
+- added consecutive streak lists (pr by m0nkiii)
+- added colors to visualize date occurrence
+- added toggle between artists/albums/tracks for some charts 
+- added drilldown possibility for some charts
+- added download button for charts
+- fixed invalid 'does not contain albums' message
+- updated to Angular 13
+
 2.0 (17-10-2021)
 - added album statistics
 - added dark theme

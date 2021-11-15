@@ -26,6 +26,18 @@ $font-size: 32px;
       margin-right: 24px;
     }
 
+    .cm-logo {
+      width: 104px;
+      height: 80px;
+      position: relative;
+      img {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        max-width: 120px;
+      }
+    }
+
     .subtext {
       font-size: 18px;
       line-height: 18px;
@@ -88,5 +100,8 @@ $font-size: 32px;
 @media (max-width: 767px) {
   label {
     flex-direction: column;
+  }
+  .home .home-row {
+    margin-bottom: 24px;
   }
 }
