@@ -25,11 +25,8 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
   }
 
   protected doUpdate(stats: TempStats, next: ScrobbleStats): void {
-    const now = new Date();
-    const endDate = stats.last?.date || now;
-    const streak = this.currentScrobbleStreak(stats, endDate);
-    next.scrobbleStreak = this.getStreakTop10(streak, (s: Streak) => `${s.length! + 1} days`);
-    next.notListenedStreak = this.getStreakTop10(stats.notListenedStreak.streaks, (s: Streak) => `${s.length! - 1} days`);
+    next.scrobbleStreak = this.consecutiveStreak(stats, stats.scrobbleStreak, s => `${s.length! + 1} days`);
+    next.notListenedStreak = this.getStreakTop10(stats.notListenedStreak.streaks, (s: Streak) => `${s.length! - 1} days`, s => UrlBuilder.range(this.username, s.start.date, s.end.date));
     next.mostScrobblesPerDay = this.getTop10<number>(stats.specificDays, k => stats.specificDays[k].length, k => +k, k => this.dateString(k), (k, n) => `${n} scrobbles`, k => UrlBuilder.day(this.username, new Date(k)), k => new Date(k));
     next.mostScrobblesPerWeek = this.getTop10<string>(stats.specificWeeks, k => stats.specificWeeks[k], k => k, k => k, (k, n) => `${n} scrobbles`, k => UrlBuilder.week(this.username, k), k => UrlBuilder.weekAsDate(k));
 
@@ -49,16 +46,6 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
       const obj = artistPerDay[key];
       return `${obj.name} (${obj.count} times)`;
     }, i => this.dateString(parseInt(i)), k => UrlBuilder.dayArtist(this.username, parseInt(k), artistPerDay[k].name), k => new Date(parseInt(k)));
-  }
-
-  private currentScrobbleStreak(tempStats: TempStats, endDate: Date): Streak[] {
-    const current = tempStats.scrobbleStreak.current;
-    if (current) {
-      const currentStreak = this.ongoingStreak({start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}});
-      return [...tempStats.scrobbleStreak.streaks, currentStreak];
-    } else {
-      return tempStats.scrobbleStreak.streaks;
-    }
   }
 
   protected emptyStats(): ScrobbleStats {

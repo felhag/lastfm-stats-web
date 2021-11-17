@@ -20,6 +20,12 @@ npx ng serve
 If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
 
 ## 🐛 Changelog
+2.2 (17-11-2021)
+- added tooltip to list items
+- improved onclick for streak lists
+- fixed rounding error in consecutive streak rollover
+- fixed an issue where the first scrobble wasn't taken in account for scrobble streaks
+
 2.1 (15-11-2021)
 - added consecutive streak lists (pr by m0nkiii)
 - added colors to visualize date occurrence

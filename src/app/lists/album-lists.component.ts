@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TempStats, Streak, Album } from '../model';
+import { TempStats, Album } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { UrlBuilder } from '../util/url-builder';
@@ -32,21 +32,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.betweenAlbums = gaps[0];
     next.ongoingBetweenAlbums = gaps[1];
     next.weeksPerAlbum = this.getTop10<Album>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, albumUrl, albumDate);
-
-    const now = new Date();
-    const endDate = stats.last?.date || now;
-    const streak = this.currentAlbumStreak(stats, endDate);
-    next.albumStreak = this.getStreakTop10(streak, (s: Streak) => `${s.start.artist} - ${s.start.album} (${s.length! + 1} times)`, s => UrlBuilder.day(this.username, s.start.date));
-  }
-
-  private currentAlbumStreak(tempStats: TempStats, endDate: Date): Streak[] {
-    const current = tempStats.albumStreak.current;
-    if (current) {
-      const currentStreak = this.ongoingStreak({start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}});
-      return [...tempStats.albumStreak.streaks, currentStreak];
-    } else {
-      return tempStats.albumStreak.streaks;
-    }
+    next.albumStreak = this.consecutiveStreak(stats, stats.albumStreak, s => `${s.start.artist} - ${s.start.album} (${s.length} times)`);
   }
 
   protected emptyStats(): AlbumStats {

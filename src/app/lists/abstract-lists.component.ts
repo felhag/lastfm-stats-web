@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { TempStats, Streak, StreakStack, StreakItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UrlBuilder } from '../util/url-builder';
 
 export interface Top10Item {
   name: string;
@@ -108,16 +109,32 @@ export abstract class AbstractListsComponent<S> implements OnInit {
           album: include === 'album' ? a.start.album : '?',
           track: include === 'track' ? a.start.track : '?',
           date: endDate}}))
-        .map(a => this.ongoingStreak(a)),
+        .map(a => this.ongoingStreak(between, a)),
       s => `${toString(s)} (${s.length} days)`,
       url
     );
     return [betweenResult, ongoingResult];
   }
 
-  protected ongoingStreak(a: Streak): Streak {
-    StreakStack.calcLength(a);
+  protected ongoingStreak(stack: StreakStack, a: Streak): Streak {
+    stack.calcLength(a);
     a.ongoing = true;
     return a;
+  }
+
+  protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
+    const endDate = stats.last?.date || new Date();
+    const streak = this.currentStreak(stack, endDate);
+    return this.getStreakTop10(streak, toString, s => UrlBuilder.range(this.username, s.start.date, s.end.date));
+  }
+
+  protected currentStreak(stack: StreakStack, endDate: Date): Streak[] {
+    const current = stack.current;
+    if (current && current.length! > 1) {
+      const currentStreak = this.ongoingStreak(stack, {start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}, length: current.length});
+      return [...stack.streaks, currentStreak];
+    } else {
+      return stack.streaks;
+    }
   }
 }

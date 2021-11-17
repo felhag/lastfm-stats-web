@@ -19,6 +19,10 @@ export class UrlBuilder {
     return this.month(username, month, UrlBuilder.artist(username, artist));
   }
 
+  static range(username: string, from: Date, to: Date): string {
+    return `${this.base(username)}?from=${this.dateUrlParameter(from)}&to=${this.dateUrlParameter(to)}`;
+  }
+
   static day(username: string, day: Date): string {
     return `${this.base(username)}?from=${this.dateUrlParameter(day)}&rangetype=1day`;
   }
@@ -32,7 +36,7 @@ export class UrlBuilder {
     const dow = start.getDay();
     start.setDate(dow <= 4 ? start.getDate() - start.getDay() + 1 : start.getDate() + 8 - start.getDay());
     const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
-    return `${this.base(username)}?from=${this.dateUrlParameter(start)}&to=${this.dateUrlParameter(end)}`;
+    return this.range(username, start, end);
   }
 
   static weekAsDate(weekYear: string): Date {

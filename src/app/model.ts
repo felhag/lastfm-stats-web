@@ -104,9 +104,9 @@ export class StreakStack {
   streaks: Streak[] = [];
   current?: Streak;
 
-  static calcLength(streak: Streak): Streak {
+  calcLength(streak: Streak): Streak {
     streak.ongoing = false;
-    streak.length = Math.floor((this.startOfDay(streak.end.date).getTime() - this.startOfDay(streak.start.date).getTime()) / Constants.DAY);
+    streak.length = Math.floor((StreakStack.startOfDay(streak.end.date).getTime() - StreakStack.startOfDay(streak.start.date).getTime()) / Constants.DAY);
     return streak;
   }
 
@@ -114,9 +114,18 @@ export class StreakStack {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
+  protected create(scrobble: Scrobble): void {
+    this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+  }
+
+  protected finish(scrobble: Scrobble): void {
+    this.add(this.current!);
+    this.create(scrobble);
+  }
+
   add(streak: Streak): void {
-    StreakStack.calcLength(streak);
-    if (streak.length! > 0) {
+    this.calcLength(streak);
+    if (streak.length! > 1) {
       this.streaks.push(streak);
     }
   }
@@ -125,7 +134,7 @@ export class StreakStack {
 export class ScrobbleStreakStack extends StreakStack {
   push(scrobble: Scrobble): void {
     if (!this.current) {
-      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+      this.create(scrobble);
     } else {
       const end = StreakStack.startOfDay(this.current.end.date).getTime();
       const add = StreakStack.startOfDay(scrobble.date).getTime();
@@ -135,9 +144,7 @@ export class ScrobbleStreakStack extends StreakStack {
         this.current.end = scrobble;
         this.current.length!++;
       } else {
-        // finish
-        this.add(this.current);
-        this.current = undefined;
+        this.finish(scrobble);
       }
     }
   }
@@ -148,18 +155,21 @@ export class ItemStreakStack extends StreakStack {
     super();
   }
 
+  calcLength(streak: Streak): Streak {
+    // length is calculated on the fly
+    streak.ongoing = false;
+    return streak;
+  }
+
   push(scrobble: Scrobble): void {
     if (!this.current) {
-      this.current = {start: scrobble, end: scrobble, length: 1, ongoing: true};
+      this.create(scrobble);
     } else {
       if (this.compare(this.current.start, scrobble)) {
         this.current.length!++;
-      } else {
-        // finish
         this.current.end = scrobble;
-        this.current.ongoing = false
-        this.streaks.push(this.current);
-        this.current = undefined;
+      } else {
+        this.finish(scrobble);
       }
     }
   }
