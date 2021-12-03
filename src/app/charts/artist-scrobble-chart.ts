@@ -15,7 +15,7 @@ export class ArtistScrobbleChart extends AbstractChart {
       title: {
         text: 'Scrobbles'
       },
-      min: 0
+      min: 50
     },
     yAxis: {
       title: {

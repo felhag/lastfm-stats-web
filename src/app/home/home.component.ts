@@ -27,7 +27,7 @@ export class HomeComponent {
 
   go(): void {
     if (this.username) {
-      this.router.navigateByUrl(`/user/${this.username.toLowerCase()}`);
+      this.router.navigateByUrl(`/user/${this.username.trim().toLowerCase()}`);
     } else {
       this.valid.next(false);
     }

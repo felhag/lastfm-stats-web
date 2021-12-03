@@ -20,6 +20,11 @@ npx ng serve
 If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
 
 ## 🐛 Changelog
+2.3 (03-12-2021)
+- artist scrobble chart xaxis starts at 50
+- fixed timeline chart for artists starting with a number
+- fixed drilldown url for usernames starting/ending with whitespace
+
 2.2 (17-11-2021)
 - added tooltip to list items
 - improved onclick for streak lists
