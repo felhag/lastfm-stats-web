@@ -38,7 +38,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     monthsValues.forEach(m => {
       const curr: { [track: string]: MonthItem } = {};
       tracks[m.alias] = curr;
-      Object.values(m.artists).forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
+      m.artists.forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
     });
 
     next.weeksPerTrack = this.getTrackTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);

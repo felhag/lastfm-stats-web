@@ -41,26 +41,27 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
 
     const months = stats.monthList;
     Object.values(months).forEach(m => {
-      const values = Object.values(m.artists).map(a => a.count);
+      const values = [...m.artists.values()].map(a => a.count);
       const sum = values.reduce((a, b) => a + b, 0);
       m.avg = (sum / values.length) || 0;
     });
 
-    next.newArtistsPerMonth = this.getMonthTop10(months, m => Object.values(m.artists).filter(a => a.new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
+    next.newArtistsPerMonth = this.getMonthTop10(months, m => [...m.artists.values()].filter(a => a.new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, (m: Month) => {
       // only show new artists in Including... text
-      const newArtists = Object.values(m.artists).filter(a => a.new).map(s => s.name);
-      const result = Object.keys(m.artists).filter(spa => newArtists.indexOf(spa) >= 0).reduce((r: any, e) => {
-        r[e] = m.artists[e].count;
-        return r;
-      }, {});
-      return this.including(result);
+      const including = new Map<string, MonthArtist>();
+      m.artists.forEach(artist => {
+        if (artist.new) {
+          including.set(artist.name, artist);
+        }
+      });
+      return this.including(new Map(including));
     });
 
-    next.uniqueArtists = this.getMonthTop10(months, m => Object.keys(m.artists).length, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.artists));
+    next.uniqueArtists = this.getMonthTop10(months, m => m.artists.size, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.artists));
 
     const seen = Object.values(stats.seenArtists);
     const arr = Object.values(months)
-      .map(m => Object.values(m.artists).filter(a => a.new).map(a => ({artist: a.name, month: m.alias, amount: a.count, date: m.date})))
+      .map(m => [...m.artists.values()].filter(a => a.new).map(a => ({artist: a.name, month: m.alias, amount: a.count, date: m.date})))
       .flat();
     const xTimes = (item: any, v: number) => `${v} times`;
 
@@ -115,10 +116,9 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     return result.reduce((s, n) => s + n) / result.length;
   }
 
-  private including(artists: { [p: string]: MonthArtist }): string {
-    const keys = Object.keys(artists);
-    keys.sort((a, b) => artists[b].count - artists[a].count);
-    return 'Including ' + keys.splice(0, 3).join(', ');
+  private including(artists: Map<string, MonthArtist>): string {
+    const sorted = [...artists.values()].sort((a, b) => b!.count - a!.count);
+    return 'Including ' + sorted.splice(0, 3).map(a => a.name).join(', ');
   }
 
   protected emptyStats(): ArtistStats {

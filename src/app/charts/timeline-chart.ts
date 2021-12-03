@@ -64,7 +64,7 @@ export class TimelineChart extends AbstractChart {
     let i = 0;
     const uniqueArtists: Highcharts.PointOptionsObject[] = [];
     for (const month of Object.values(stats.monthList)) {
-      Object.values(month.artists)
+      [...month.artists.values()]
         .filter(a => a.new)
         .forEach(a => {
           i++;

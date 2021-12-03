@@ -141,7 +141,7 @@ export class RaceChart extends AbstractChart {
   }
 
   private cumulativeUntil(until: Month, artist: string): number {
-    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (cur.artists[artist]?.count || 0), 0);
+    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (cur.artists.get(artist)?.count || 0), 0);
   }
 
   /**

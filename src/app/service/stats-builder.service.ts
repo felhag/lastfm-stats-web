@@ -71,23 +71,23 @@ export class StatsBuilderService {
     if (!month) {
       month = next.monthList[monthYear] = {
         alias: this.monthYearDisplay(scrobble.date),
-        artists: {},
+        artists: new Map(),
         date: scrobble.date
       };
     }
 
-    const monthArtist = month.artists[scrobble.artist];
+    const monthArtist = month.artists.get(scrobble.artist);
     const newArtist = next.seenArtists[scrobble.artist] ? undefined : scrobble;
     const newAlbumItem = this.newMonthItem(next, scrobble, scrobble.album, newArtist);
     const newTrackItem = this.newMonthItem(next, scrobble, scrobble.track, newArtist);
     if (!monthArtist) {
-      month.artists[scrobble.artist] = {
+      month.artists.set(scrobble.artist, {
         name: scrobble.artist,
         new: newArtist,
         count: 1,
         albums: {[scrobble.album]: newAlbumItem},
         tracks: {[scrobble.track]: newTrackItem}
-      };
+      });
     } else {
       monthArtist.count++;
       if (!monthArtist.albums[scrobble.album]) {

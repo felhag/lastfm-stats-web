@@ -4,18 +4,18 @@ export class Mapper {
   private static mappers = {
     'artist': {
       seen: (stats: TempStats) => stats.seenArtists,
-      monthItems: (month: Month) => Object.values(month.artists),
-      monthItem: (month: Month, artist: StreakItem) => month.artists[artist.name],
+      monthItems: (month: Month) => [...month.artists.values()],
+      monthItem: (month: Month, artist: StreakItem) => month.artists.get(artist.name),
     },
     'album': {
       seen: (stats: TempStats) => stats.seenAlbums,
-      monthItems: (month: Month) => Object.values(month.artists).flatMap(a => Object.values(a.albums)),
-      monthItem: (month: Month, track: StreakItem) => month.artists[(track as Album).artist]?.albums[(track as Album).shortName],
+      monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.albums)),
+      monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Album).artist)?.albums[(track as Album).shortName],
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,
-      monthItems: (month: Month) => Object.values(month.artists).flatMap(a => Object.values(a.tracks)),
-      monthItem: (month: Month, track: StreakItem) => month.artists[(track as Track).artist]?.tracks[(track as Track).shortName],
+      monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.tracks)),
+      monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Track).artist)?.tracks[(track as Track).shortName],
     },
   };
 
@@ -28,7 +28,7 @@ export class Mapper {
   }
 
   public static monthItem(type: ItemType, month: Month, item: StreakItem): MonthItem {
-    return this.mappers[type].monthItem(month, item);
+    return this.mappers[type].monthItem(month, item)!;
   }
 
   public static countPerMonth(type: ItemType, month: Month, item: StreakItem): number {
