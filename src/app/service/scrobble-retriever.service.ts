@@ -46,6 +46,7 @@ export class ScrobbleRetrieverService {
   private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   imported: Scrobble[] = [];
+  artistSanitizer = new Map<string,string>();
 
   constructor(private http: HttpClient, private progress: ProgressService) {
   }
@@ -101,8 +102,7 @@ export class ScrobbleRetrieverService {
           progress.loadScrobbles = parseInt(response.recenttracks['@attr'].total);
           this.iterate(progress, from, to);
         } else {
-          progress.state.next('COMPLETED');
-          progress.loader.complete();
+          this.complete(progress);
         }
       },
       error: err => {
@@ -117,6 +117,12 @@ export class ScrobbleRetrieverService {
         }
       }
     });
+  }
+
+  private complete(progress: Progress) {
+    progress.state.next('COMPLETED');
+    progress.loader.complete();
+    this.artistSanitizer.clear();
   }
 
   private retrieveUser(username: string): Observable<User> {
@@ -151,8 +157,7 @@ export class ScrobbleRetrieverService {
           progress.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
           this.iterate(progress, from, to);
         } else {
-          progress.state.next('COMPLETED');
-          progress.loader.complete();
+          this.complete(progress);
         }
       },
       error: () => {
@@ -193,7 +198,7 @@ export class ScrobbleRetrieverService {
   private updateTracks(response: Track[], progress: Progress): void {
     const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
       track: t.name,
-      artist: t.artist['#text'],
+      artist: this.sanitizeArtist(t.artist['#text']),
       album: t.album['#text'],
       date: new Date(t.date?.uts * 1000)
     })).reverse();
@@ -218,5 +223,15 @@ export class ScrobbleRetrieverService {
       .append('page', String(page));
 
     return this.http.get<Response>(this.API, {params});
+  }
+
+  private sanitizeArtist(artist: string): string {
+    const result = this.artistSanitizer.get(artist.toLowerCase());
+    if (result) {
+      return result;
+    } else {
+      this.artistSanitizer.set(artist.toLowerCase(), artist);
+      return artist;
+    }
   }
 }
