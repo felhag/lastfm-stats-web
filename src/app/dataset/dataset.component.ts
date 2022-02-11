@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { Subject, debounceTime } from 'rxjs';
@@ -17,6 +18,8 @@ export class DatasetComponent implements OnInit {
   dataSource = new TableVirtualScrollDataSource<Track>();
   filter = new Subject<string>();
 
+  @ViewChild(MatSort, { static: true }) sort!: MatSort;
+
   constructor(private builder: StatsBuilderService) {
   }
 
@@ -28,7 +31,23 @@ export class DatasetComponent implements OnInit {
       debounceTime(200)
     ).subscribe(f => this.dataSource.filter = f);
 
-    this.dataSource.filterPredicate = ((obj, f) => [obj.artist, obj.shortName, obj.scrobbles.length].join(' ').toLowerCase().indexOf(f.toLowerCase()) >= 0);
+    this.dataSource.filterPredicate = ((track, f) => [track.artist, track.shortName, track.scrobbles.length]
+      .join(' ')
+      .toLowerCase()
+      .indexOf(f.toLowerCase()) >= 0);
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (track, id): string => {
+      // @ts-ignore
+      const value = track[id];
+      if (['artist', 'name'].indexOf(id) >= 0) {
+        return value.toLocaleLowerCase();
+      } else if (id === 'scrobbles') {
+        return value.length;
+      } else {
+        console.error('cannot find ', id);
+        return '';
+      }
+    };
   }
 
   private update(tempStats: TempStats) {
