@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {ChartsComponent} from './charts/charts.component';
+import { DatasetComponent } from './dataset/dataset.component';
 import {HomeComponent} from './home/home.component';
 import {AlbumListsComponent} from './lists/album-lists.component';
 import {ArtistListsComponent} from './lists/artist-lists.component';
@@ -38,6 +39,10 @@ const routes: Routes = [
         path: 'charts',
         pathMatch: 'full',
         component: ChartsComponent
+      }, {
+        path: 'dataset',
+        pathMatch: 'full',
+        component: DatasetComponent
       }]
   },
 ];

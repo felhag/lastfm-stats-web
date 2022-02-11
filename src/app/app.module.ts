@@ -20,11 +20,13 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HighchartsChartModule} from 'highcharts-angular';
+import { TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {ButtonsComponent} from './buttons/buttons.component';
@@ -38,6 +40,7 @@ import {ProgressComponent} from './progress/progress.component';
 import {StatsComponent} from './stats/stats.component';
 import {Top10listComponent} from './lists/top10list/top10list.component';
 import { AlbumListsComponent } from './lists/album-lists.component';
+import { DatasetComponent } from './dataset/dataset.component';
 
 @NgModule({
   declarations: [
@@ -53,36 +56,39 @@ import { AlbumListsComponent } from './lists/album-lists.component';
     Top10listComponent,
     TrackListsComponent,
     AlbumListsComponent,
+    DatasetComponent,
   ],
-  imports: [
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    BrowserModule,
-    CommonModule,
-    HighchartsChartModule,
-    HttpClientModule,
-    MatAutocompleteModule,
-    MatBadgeModule,
-    MatButtonModule,
-    MatCardModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatNativeDateModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatSlideToggleModule,
-    MatSliderModule,
-    MatSnackBarModule,
-    MatTabsModule,
-    MatTooltipModule,
-    ReactiveFormsModule,
-    ScrollingModule,
-  ],
+    imports: [
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        CommonModule,
+        HighchartsChartModule,
+        HttpClientModule,
+        MatAutocompleteModule,
+        MatBadgeModule,
+        MatButtonModule,
+        MatCardModule,
+        MatChipsModule,
+        MatDatepickerModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatNativeDateModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
+        MatSlideToggleModule,
+        MatSliderModule,
+        MatSnackBarModule,
+        MatTabsModule,
+        MatTooltipModule,
+        ReactiveFormsModule,
+        ScrollingModule,
+        MatTableModule,
+        TableVirtualScrollModule,
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

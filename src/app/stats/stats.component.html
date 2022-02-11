@@ -34,7 +34,7 @@
     </mat-card>
 
     <nav mat-tab-nav-bar mat-stretch-tabs>
-      <a *ngFor="let tab of ['artists', 'albums', 'tracks', 'scrobbles', 'charts']"
+      <a *ngFor="let tab of ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset']"
          mat-tab-link [routerLink]="'/user/' + username + '/' + tab" routerLinkActive #link="routerLinkActive" [active]="link.isActive">
         {{tab | titlecase}}
       </a>
