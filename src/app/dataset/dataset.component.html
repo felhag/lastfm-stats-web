@@ -5,23 +5,21 @@
       <input matInput placeholder="Search..." (keyup)="filter.next($any($event.target).value)">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
+
+    <mat-radio-group [value]="groupedBy" (change)="groupBy($event)">
+      Group by:
+      <mat-radio-button value="artist">Artist</mat-radio-button>
+      <mat-radio-button value="album">Artist and album</mat-radio-button>
+      <mat-radio-button value="track">Artist and track</mat-radio-button>
+    </mat-radio-group>
   </mat-card>
 
   <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">
-    <table mat-table matSort [dataSource]="dataSource" class="full-width">
-      <ng-container matColumnDef="artist">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header="artist"> Artist</th>
-        <td mat-cell *matCellDef="let element"> {{element.artist}} </td>
+    <table mat-table matSort matSortActive="scrobbles" matSortDirection="desc" [dataSource]="dataSource" class="full-width">
+      <ng-container *ngFor="let col of columns" [matColumnDef]="col">
+        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{(col === 'shortName' ? groupedBy : col) | titlecase}}</th>
+        <td mat-cell *matCellDef="let element"> {{col === 'scrobbles' || col === 'tracks' ? element[col].length : element[col]}} </td>
       </ng-container>
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header="shortName"> Track</th>
-        <td mat-cell *matCellDef="let element"> {{element.shortName}} </td>
-      </ng-container>
-      <ng-container matColumnDef="scrobbles">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header="scrobbles"> Scrobbles</th>
-        <td mat-cell *matCellDef="let element"> {{element.scrobbles.length}} </td>
-      </ng-container>
-
       <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;"></tr>
     </table>

@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { Subject, debounceTime } from 'rxjs';
-import { TempStats, Track } from '../model';
+import { StreakItem } from '../model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 
 @UntilDestroy()
@@ -13,9 +14,26 @@ import { StatsBuilderService } from '../service/stats-builder.service';
   styleUrls: ['./dataset.component.scss']
 })
 export class DatasetComponent implements OnInit {
+  private readonly groups = {
+    artist: {
+      columns: ['name', 'scrobbles', 'tracks'],
+      data: () => this.builder.tempStats.value.seenArtists,
+      default: 'name'
+    },
+    album: {
+      columns: ['artist', 'shortName', 'scrobbles'],
+      data: () => this.builder.tempStats.value.seenAlbums,
+      default: 'shortName'
+    },
+    track: {
+      columns: ['artist', 'shortName', 'scrobbles'],
+      data: () => this.builder.tempStats.value.seenTracks,
+      default: 'shortName'
+    },
+  };
+  groupedBy: 'artist' | 'album' | 'track' = 'artist';
   height!: number;
-  columns: string[] = ['artist', 'name', 'scrobbles'];
-  dataSource = new TableVirtualScrollDataSource<Track>();
+  dataSource = new TableVirtualScrollDataSource<StreakItem>();
   filter = new Subject<string>();
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
@@ -25,13 +43,14 @@ export class DatasetComponent implements OnInit {
 
   ngOnInit(): void {
     this.height = window.innerHeight - 32;
-    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
+    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(() => this.update());
     this.filter.pipe(
       untilDestroyed(this),
       debounceTime(200)
     ).subscribe(f => this.dataSource.filter = f);
 
-    this.dataSource.filterPredicate = ((track, f) => [track.artist, track.shortName, track.scrobbles.length]
+    // @ts-ignore
+    this.dataSource.filterPredicate = ((obj, f) => this.columns.map(col => obj[col])
       .join(' ')
       .toLowerCase()
       .indexOf(f.toLowerCase()) >= 0);
@@ -39,9 +58,9 @@ export class DatasetComponent implements OnInit {
     this.dataSource.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
       const value = track[id];
-      if (['artist', 'name'].indexOf(id) >= 0) {
+      if (['artist', 'name', 'shortName'].indexOf(id) >= 0) {
         return value.toLocaleLowerCase();
-      } else if (id === 'scrobbles') {
+      } else if (['scrobbles', 'tracks']) {
         return value.length;
       } else {
         console.error('cannot find ', id);
@@ -50,12 +69,20 @@ export class DatasetComponent implements OnInit {
     };
   }
 
-  private update(tempStats: TempStats) {
-    this.dataSource.data = Object.values(tempStats.seenTracks).sort((a, b) => {
-      if (a.artist === b.artist) {
-        return a.name > b.name ? 1 : -1;
-      }
-      return a.artist > b.artist ? 1 : -1;
-    });
+  private update() {
+    this.dataSource.data = Object.values(this.groupedByObj.data());
+  }
+
+  groupBy(change: MatRadioChange): void {
+    this.groupedBy = change.value;
+    this.update();
+  }
+
+  get columns(): string[] {
+    return this.groupedByObj.columns;
+  }
+
+  get groupedByObj(): {columns: string[], default: string, data: () => { [key: string]: StreakItem }} {
+    return this.groups[this.groupedBy];
   }
 }

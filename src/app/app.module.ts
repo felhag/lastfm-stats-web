@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -90,6 +91,7 @@ import { StatsComponent } from './stats/stats.component';
     ReactiveFormsModule,
     ScrollingModule,
     TableVirtualScrollModule,
+    MatRadioModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
