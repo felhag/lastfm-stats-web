@@ -60,11 +60,14 @@ export class StatsComponent implements OnInit, OnDestroy {
   private rebuildWithoutAutoUpdate(): void {
     if (!this.settings.autoUpdate.value && this.progress.state.value !== 'INTERRUPTED') {
       this.rebuild();
+    } else {
+      this.builder.finish();
     }
   }
 
   rebuild(): void {
     this.builder.update(this.progress.allScrobbles, false);
+    this.builder.finish();
   }
 
   showContent(state: State): boolean {

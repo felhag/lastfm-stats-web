@@ -4,8 +4,16 @@ import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { Subject, debounceTime } from 'rxjs';
-import { StreakItem } from '../model';
+import { StreakItem, Album, Track, Artist } from '../model';
 import { StatsBuilderService } from '../service/stats-builder.service';
+
+interface DataSetEntry {
+  artist: string;
+  name: string;
+  tracks: number;
+  scrobbles: number;
+  rank: number;
+}
 
 @UntilDestroy()
 @Component({
@@ -16,24 +24,21 @@ import { StatsBuilderService } from '../service/stats-builder.service';
 export class DatasetComponent implements OnInit {
   private readonly groups = {
     artist: {
-      columns: ['name', 'scrobbles', 'tracks'],
-      data: () => this.builder.tempStats.value.seenArtists,
-      default: 'name'
+      columns: ['name', 'tracks', 'scrobbles', 'rank'],
+      data: () => this.builder.tempStats.value.seenArtists
     },
     album: {
-      columns: ['artist', 'shortName', 'scrobbles'],
-      data: () => this.builder.tempStats.value.seenAlbums,
-      default: 'shortName'
+      columns: ['artist', 'name', 'scrobbles', 'rank'],
+      data: () => this.builder.tempStats.value.seenAlbums
     },
     track: {
-      columns: ['artist', 'shortName', 'scrobbles'],
-      data: () => this.builder.tempStats.value.seenTracks,
-      default: 'shortName'
+      columns: ['artist', 'name', 'scrobbles', 'rank'],
+      data: () => this.builder.tempStats.value.seenTracks
     },
   };
   groupedBy: 'artist' | 'album' | 'track' = 'artist';
   height!: number;
-  dataSource = new TableVirtualScrollDataSource<StreakItem>();
+  dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
   filter = new Subject<string>();
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
@@ -60,17 +65,23 @@ export class DatasetComponent implements OnInit {
       const value = track[id];
       if (['artist', 'name', 'shortName'].indexOf(id) >= 0) {
         return value.toLocaleLowerCase();
-      } else if (['scrobbles', 'tracks']) {
-        return value.length;
       } else {
-        console.error('cannot find ', id);
-        return '';
+        return value;
       }
     };
   }
 
   private update() {
-    this.dataSource.data = Object.values(this.groupedByObj.data());
+    this.dataSource.data = Object.values(this.groupedByObj.data()).map(d => {
+      const albumOrTrack = 'shortName' in d;
+      return {
+        artist: albumOrTrack ? (d as Album | Track).artist : undefined,
+        name: albumOrTrack ? (d as Album | Track).shortName : d.name,
+        tracks: albumOrTrack ? undefined : (d as Artist).tracks.length,
+        scrobbles: d.scrobbles.length,
+        rank: d.ranks[d.ranks.length - 1]
+      } as DataSetEntry
+    });
   }
 
   groupBy(change: MatRadioChange): void {
@@ -82,7 +93,7 @@ export class DatasetComponent implements OnInit {
     return this.groupedByObj.columns;
   }
 
-  get groupedByObj(): {columns: string[], default: string, data: () => { [key: string]: StreakItem }} {
+  get groupedByObj(): {columns: string[], data: () => { [key: string]: StreakItem }} {
     return this.groups[this.groupedBy];
   }
 }

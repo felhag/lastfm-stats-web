@@ -66,16 +66,16 @@ export class StatsBuilderService {
     }
   }
 
+  finish(): void {
+    const stats = this.tempStats.value;
+    this.finishMonth(stats);
+    this.tempStats.next(stats);
+  }
+
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
     let month = next.monthList[monthYear];
     if (!month) {
-      const prev = next.last ? next.monthList[this.getMonthYear(next.last)] : undefined;
-      if (prev) {
-        const handled = Object.keys(next.monthList).length;
-        this.populateRank(next.seenArtists, handled);
-        this.populateRank(next.seenAlbums, handled);
-        this.populateRank(next.seenTracks, handled);
-      }
+      this.finishMonth(next);
       month = next.monthList[monthYear] = {
         index: Object.keys(next.monthList).length,
         alias: this.monthYearDisplay(scrobble.date),
@@ -108,6 +108,16 @@ export class StatsBuilderService {
       } else {
         monthArtist.tracks[scrobble.track].count++;
       }
+    }
+  }
+
+  private finishMonth(next: TempStats) {
+    const prev = next.last ? next.monthList[this.getMonthYear(next.last)] : undefined;
+    if (prev) {
+      const handled = Object.keys(next.monthList).length;
+      this.populateRank(next.seenArtists, handled);
+      this.populateRank(next.seenAlbums, handled);
+      this.populateRank(next.seenTracks, handled);
     }
   }
 
