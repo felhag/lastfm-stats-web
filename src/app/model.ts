@@ -26,8 +26,9 @@ export interface StreakItem {
   weeks: string[];
   name: string;
   betweenStreak: Streak;
-  scrobbles: number[];
   avgScrobble: number;
+  scrobbles: number[];
+  ranks: number[];
 }
 
 export interface Artist extends StreakItem {
@@ -45,6 +46,7 @@ export interface Track extends StreakItem {
 }
 
 export interface Month {
+  index: number;
   alias: string;
   artists: Map<string, MonthArtist>;
   date: Date;
@@ -57,7 +59,7 @@ export interface MonthItem {
   new?: Scrobble;
 }
 
-export interface MonthArtist extends MonthItem{
+export interface MonthArtist extends MonthItem {
   albums: { [key: string]: MonthItem };
   tracks: { [key: string]: MonthItem };
 }

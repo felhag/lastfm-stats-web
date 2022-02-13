@@ -20,8 +20,8 @@ export class StatsBuilderService {
         continue;
       }
 
-      const monthYear = `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
-      const weekYear = `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
+      const monthYear = this.getMonthYear(scrobble);
+      const weekYear = this.getWeekYear(scrobble);
       const sod = StreakStack.startOfDay(scrobble.date);
       const dayOfYear = sod.getTime();
 
@@ -69,7 +69,15 @@ export class StatsBuilderService {
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
     let month = next.monthList[monthYear];
     if (!month) {
+      const prev = next.last ? next.monthList[this.getMonthYear(next.last)] : undefined;
+      if (prev) {
+        const handled = Object.keys(next.monthList).length;
+        this.populateRank(next.seenArtists, handled);
+        this.populateRank(next.seenAlbums, handled);
+        this.populateRank(next.seenTracks, handled);
+      }
       month = next.monthList[monthYear] = {
+        index: Object.keys(next.monthList).length,
         alias: this.monthYearDisplay(scrobble.date),
         artists: new Map(),
         date: scrobble.date
@@ -129,6 +137,7 @@ export class StatsBuilderService {
         avgScrobble: scrobble.date.getTime(),
         scrobbles: [scrobble.date.getTime()],
         tracks: [scrobble.track],
+        ranks: []
       };
 
       this.uniqueTrackAdded(next, scrobble);
@@ -159,6 +168,7 @@ export class StatsBuilderService {
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
         scrobbles: [scrobble.date.getTime()],
+        ranks: []
       };
       seen[fullName] = result as T;
       return result as T;
@@ -241,5 +251,19 @@ export class StatsBuilderService {
         }
         return true;
       });
+  }
+
+  private populateRank(data: { [p: string]: StreakItem }, handled: number) {
+    Object.values(data)
+      .sort((a, b) => b.scrobbles.length - a.scrobbles.length)
+      .forEach((artist, idx) => artist.ranks[handled] = idx + 1);
+  }
+
+  private getWeekYear(scrobble: Scrobble) {
+    return `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
+  }
+
+  private getMonthYear(scrobble: Scrobble) {
+    return `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
   }
 }

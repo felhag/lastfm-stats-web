@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Month, TempStats, Artist, Constants, MonthArtist } from '../model';
+import { Month, TempStats, Artist, Constants, MonthArtist, StreakItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { UrlBuilder } from '../util/url-builder';
@@ -22,6 +22,8 @@ export interface ArtistStats {
   avgDelta: Top10Item[];
   latestNew: Top10Item[];
   artistStreak: Top10Item[];
+  climbers: Top10Item[];
+  fallers: Top10Item[];
 }
 
 @Component({
@@ -89,6 +91,45 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`);
     next.latestNew = this.getArtistTop10(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
     next.artistStreak = this.consecutiveStreak(stats, stats.artistStreak, s => `${s.start.artist} (${s.length} times)`);
+
+    const rankings = this.getRankings(stats.seenArtists, Object.values(months));
+    next.climbers = rankings.climbers;
+    next.fallers = rankings.fallers;
+  }
+
+  private getRankings(countMap: { [p: string]: StreakItem }, monthList: Month[]): { climbers: Top10Item[]; fallers: Top10Item[] } {
+    const climbers: Top10Item[] = [];
+    const fallers: Top10Item[] = [];
+    Object.values(countMap).filter(c => c.ranks.length > 1).forEach(item => {
+      item.ranks.forEach((rank, idx) => {
+        const diff = item.ranks[idx + 1] - rank;
+        if (diff < 0) {
+          this.addGap(climbers, Math.abs(diff), item, idx, monthList);
+        } else if (diff > 0) {
+          this.addGap(fallers, diff, item, idx, monthList);
+        }
+      });
+    });
+    return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
+  }
+
+  private addGap(gaps: Top10Item[], diff: number, item: StreakItem, monthIdx: number, monthList: Month[]): void {
+    let i = 0;
+    while (gaps[i]?.amount > diff && i < 10) {
+      i++;
+    }
+    if (i >= 10) {
+      return;
+    }
+
+    const month = monthList.find(m => m.index === monthIdx)!;
+    gaps.splice(i, 0, {
+      name: `${item.name} (${diff} places}`,
+      amount: Math.abs(diff),
+      description: month.alias,
+      date: month.date,
+      url: UrlBuilder.artistMonth(this.username, item.name, month.alias)
+    } as Top10Item);
   }
 
   private getMonthTop10(countMap: { [key: string]: any },
@@ -138,6 +179,8 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
       avgDelta: [],
       latestNew: [],
       artistStreak: [],
+      climbers: [],
+      fallers: [],
     };
   }
 }
