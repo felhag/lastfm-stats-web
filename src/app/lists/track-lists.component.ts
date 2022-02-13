@@ -15,6 +15,8 @@ export interface TrackStats {
   avgScrobbleDesc: Top10Item [];
   avgScrobbleAsc: Top10Item[];
   trackStreak: Top10Item[];
+  climbers: Top10Item[];
+  fallers: Top10Item[];
 }
 
 @Component({
@@ -52,6 +54,10 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
+
+    const rankings = this.getRankings(stats.seenTracks, monthsValues, (i, m) => UrlBuilder.trackMonth(this.username, i.artist, i.shortName, m));
+    next.climbers = rankings.climbers;
+    next.fallers = rankings.fallers;
   }
 
   private getMonthTop10(tracks: { [month: string]: { [track: string]: MonthItem } },
@@ -88,6 +94,8 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
       avgScrobbleDesc: [],
       avgScrobbleAsc: [],
       trackStreak: [],
+      climbers: [],
+      fallers: [],
     };
   }
 }

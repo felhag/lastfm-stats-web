@@ -11,6 +11,8 @@ export interface AlbumStats {
   ongoingBetweenAlbums: Top10Item[];
   weeksPerAlbum: Top10Item[];
   albumStreak: Top10Item[];
+  climbers: Top10Item[];
+  fallers: Top10Item[];
 }
 
 @Component({
@@ -33,6 +35,10 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.ongoingBetweenAlbums = gaps[1];
     next.weeksPerAlbum = this.getTop10<Album>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, albumUrl, albumDate);
     next.albumStreak = this.consecutiveStreak(stats, stats.albumStreak, s => `${s.start.artist} - ${s.start.album} (${s.length} times)`);
+
+    const rankings = this.getRankings(stats.seenAlbums, Object.values(stats.monthList), (i, m) => UrlBuilder.albumMonth(this.username, i.artist, i.shortName, m));
+    next.climbers = rankings.climbers;
+    next.fallers = rankings.fallers;
   }
 
   protected emptyStats(): AlbumStats {
@@ -41,6 +47,8 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
       ongoingBetweenAlbums: [],
       weeksPerAlbum: [],
       albumStreak: [],
+      climbers: [],
+      fallers: [],
     };
   }
 }

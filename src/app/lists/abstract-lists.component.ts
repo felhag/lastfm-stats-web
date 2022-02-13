@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TempStats, Streak, StreakStack, StreakItem } from '../model';
+import { TempStats, Streak, StreakStack, StreakItem, Month } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { UrlBuilder } from '../util/url-builder';
@@ -136,5 +136,45 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     } else {
       return stack.streaks;
     }
+  }
+
+  public getRankings<T extends StreakItem>(
+    countMap: { [p: string]: T },
+    monthList: Month[],
+    url: (item: T, month: string) => string,
+  )
+  : { climbers: Top10Item[]; fallers: Top10Item[] } {
+    const climbers: Top10Item[] = [];
+    const fallers: Top10Item[] = [];
+    Object.values(countMap).filter(c => c.ranks.length > 1).forEach(item => {
+      item.ranks.forEach((rank, idx) => {
+        const diff = item.ranks[idx + 1] - rank;
+        if (diff < 0) {
+          this.addGap(climbers, Math.abs(diff), item, idx, monthList, url);
+        } else if (diff > 0) {
+          this.addGap(fallers, diff, item, idx, monthList, url);
+        }
+      });
+    });
+    return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
+  }
+
+  private addGap<T extends StreakItem>(gaps: Top10Item[], diff: number, item: T, monthIdx: number, monthList: Month[], url: (item: T, month: string) => string): void {
+    let i = 0;
+    while (gaps[i]?.amount > diff && i < 10) {
+      i++;
+    }
+    if (i >= 10) {
+      return;
+    }
+
+    const month = monthList.find(m => m.index === monthIdx)!;
+    gaps.splice(i, 0, {
+      name: `${item.name} (${diff} places)`,
+      amount: Math.abs(diff),
+      description: month.alias,
+      date: month.date,
+      url: url(item, month.alias)
+    } as Top10Item);
   }
 }

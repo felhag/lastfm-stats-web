@@ -15,4 +15,8 @@
     <app-top10list [list]="s.weeksPerTrack" title="Weeks per track" explanation="Unique weeks a track has been scrobbled at least once"></app-top10list>
     <app-top10list [list]="s.trackStreak" title="Track streaks" explanation="Streaks for playing the same track in a row."></app-top10list>
   </div>
+  <div class="row">
+    <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to scrobble count)"></app-top10list>
+    <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to scrobble count)"></app-top10list>
+  </div>
 </div>

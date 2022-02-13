@@ -19,6 +19,14 @@ export class UrlBuilder {
     return this.month(username, month, UrlBuilder.artist(username, artist));
   }
 
+  static albumMonth(username: string, artist: string, album: string, month: string): string {
+    return this.month(username, month, UrlBuilder.album(username, artist, album));
+  }
+
+  static trackMonth(username: string, artist: string, track: string, month: string): string {
+    return this.month(username, month, UrlBuilder.track(username, artist, track));
+  }
+
   static range(username: string, from: Date, to: Date): string {
     return `${this.base(username)}?from=${this.dateUrlParameter(from)}&to=${this.dateUrlParameter(to)}`;
   }
