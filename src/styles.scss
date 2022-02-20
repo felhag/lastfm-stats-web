@@ -1,31 +1,32 @@
-@import '@angular/material/theming';
-@include mat-core();
+@use '@angular/material' as mat;
 
-$light-app-theme: mat-light-theme((
+@include mat.core();
+
+$light-app-theme: mat.define-light-theme((
   color: (
-    primary: mat-palette($mat-indigo),
-    accent: mat-palette($mat-pink, A200, A100, A400),
-    warn: mat-palette($mat-red),
+    primary: mat.define-palette(mat.$indigo-palette),
+    accent:  mat.define-palette(mat.$pink-palette),
+    warn:  mat.define-palette(mat.$red-palette)
   )
 ));
 
-$dark-app-theme: mat-dark-theme((
+$dark-app-theme: mat.define-dark-theme((
   color: (
-    primary: mat-palette($mat-cyan),
-    accent: mat-palette($mat-blue-gray, A200, A100, A400),
-    warn: mat-palette($mat-amber),
+    primary: mat.define-palette(mat.$cyan-palette),
+    accent: mat.define-palette(mat.$blue-gray-palette),
+    warn: mat.define-palette(mat.$amber-palette)
   )
 ));
 
 @media (prefers-color-scheme: light) {
-  @include angular-material-theme($light-app-theme);
+  @include mat.all-component-themes($light-app-theme);
   body {
     background-color: #f9f9f9;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  @include angular-material-theme($dark-app-theme);
+  @include mat.all-component-themes($dark-app-theme);
 
   body {
     background-color: #303030;
