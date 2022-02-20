@@ -34,4 +34,20 @@ export class Mapper {
   public static countPerMonth(type: ItemType, month: Month, item: StreakItem): number {
     return this.monthItem(type, month, item)?.count;
   }
+
+  public static getWeekYear(date: Date) {
+    return `W${this.getWeekNumber(date)} ${date.getFullYear()}`;
+  }
+
+  public static getMonthYear(date: Date) {
+    return `${date.getMonth()}-${date.getFullYear()}`;
+  }
+
+  private static getWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)).getTime();
+    return Math.ceil((((d.getTime() - yearStart) / 86400000) + 1) / 7);
+  }
 }

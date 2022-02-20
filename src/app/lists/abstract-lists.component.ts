@@ -150,16 +150,16 @@ export abstract class AbstractListsComponent<S> implements OnInit {
       item.ranks.forEach((rank, idx) => {
         const diff = item.ranks[idx + 1] - rank;
         if (diff < 0) {
-          this.addGap(climbers, Math.abs(diff), item, idx, monthList, url);
+          this.addGap(climbers, Math.abs(diff), item, monthList[idx + 1], url);
         } else if (diff > 0) {
-          this.addGap(fallers, diff, item, idx, monthList, url);
+          this.addGap(fallers, diff, item, monthList[idx + 1], url);
         }
       });
     });
     return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
   }
 
-  private addGap<T extends StreakItem>(gaps: Top10Item[], diff: number, item: T, monthIdx: number, monthList: Month[], url: (item: T, month: string) => string): void {
+  private addGap<T extends StreakItem>(gaps: Top10Item[], diff: number, item: T, month: Month, url: (item: T, month: string) => string): void {
     let i = 0;
     while (gaps[i]?.amount > diff && i < 10) {
       i++;
@@ -168,7 +168,6 @@ export abstract class AbstractListsComponent<S> implements OnInit {
       return;
     }
 
-    const month = monthList.find(m => m.index === monthIdx)!;
     gaps.splice(i, 0, {
       name: `${item.name} (${diff} places)`,
       amount: Math.abs(diff),

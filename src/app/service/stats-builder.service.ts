@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem, ItemStreakStack } from '../model';
+import { Mapper } from '../util/mapper';
 import { SettingsService } from './settings.service';
 
 @Injectable({
@@ -20,8 +21,8 @@ export class StatsBuilderService {
         continue;
       }
 
-      const monthYear = this.getMonthYear(scrobble);
-      const weekYear = this.getWeekYear(scrobble);
+      const monthYear = Mapper.getMonthYear(scrobble.date);
+      const weekYear = Mapper.getWeekYear(scrobble.date);
       const sod = StreakStack.startOfDay(scrobble.date);
       const dayOfYear = sod.getTime();
 
@@ -77,7 +78,6 @@ export class StatsBuilderService {
     if (!month) {
       this.finishMonth(next);
       month = next.monthList[monthYear] = {
-        index: Object.keys(next.monthList).length,
         alias: this.monthYearDisplay(scrobble.date),
         artists: new Map(),
         date: scrobble.date
@@ -112,9 +112,9 @@ export class StatsBuilderService {
   }
 
   private finishMonth(next: TempStats) {
-    const prev = next.last ? next.monthList[this.getMonthYear(next.last)] : undefined;
+    const prev = next.last ? next.monthList[Mapper.getMonthYear(next.last.date)] : undefined;
     if (prev) {
-      const handled = Object.keys(next.monthList).length;
+      const handled = Object.keys(next.monthList).length - 1;
       this.populateRank(next.seenArtists, handled);
       this.populateRank(next.seenAlbums, handled);
       this.populateRank(next.seenTracks, handled);
@@ -204,14 +204,6 @@ export class StatsBuilderService {
     }
   }
 
-  private getWeekNumber(date: Date): number {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)).getTime();
-    return Math.ceil((((d.getTime() - yearStart) / 86400000) + 1) / 7);
-  }
-
   private monthYearDisplay(date: Date): string {
     return Constants.MONTHS[date.getMonth()] + ' ' + date.getFullYear();
   }
@@ -267,13 +259,5 @@ export class StatsBuilderService {
     Object.values(data)
       .sort((a, b) => b.scrobbles.length - a.scrobbles.length)
       .forEach((artist, idx) => artist.ranks[handled] = idx + 1);
-  }
-
-  private getWeekYear(scrobble: Scrobble) {
-    return `W${this.getWeekNumber(scrobble.date)} ${scrobble.date.getFullYear()}`;
-  }
-
-  private getMonthYear(scrobble: Scrobble) {
-    return `${scrobble.date.getMonth()}-${scrobble.date.getFullYear()}`;
   }
 }

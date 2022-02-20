@@ -46,7 +46,6 @@ export interface Track extends StreakItem {
 }
 
 export interface Month {
-  index: number;
   alias: string;
   artists: Map<string, MonthArtist>;
   date: Date;

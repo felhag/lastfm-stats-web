@@ -96,9 +96,8 @@ import { DatasetModalComponent } from './dataset/dataset-modal/dataset-modal.com
     ScrollingModule,
     TableVirtualScrollModule,
     NgCircleProgressModule.forRoot({
-      animationDuration: 2500,
       percent: 100,
-      radius: 80,
+      radius: 60,
       renderOnClick: false,
       showUnits: false,
       startFromZero: true,
