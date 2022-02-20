@@ -56,8 +56,8 @@ export class DatasetModalComponent implements OnInit {
         data
       }],
       annotations: [
-        this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'top'),
-        this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'bottom'),
+        this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
+        this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
         this.mostScrobbledDayAnnotation(data),
       ]
     }
@@ -80,23 +80,16 @@ export class DatasetModalComponent implements OnInit {
     const max = Object.keys(days).reduce((a, b) => days[parseInt(a)] > days[parseInt(b)] ? a : b);
     const day = new Date(parseInt(max));
     const most = Object.keys(this.stats.tempStats.value.monthList).indexOf(Mapper.getMonthYear(day));
-    return this.annotationOptions(most, data[most], `Most scrobbled day: ${day.toLocaleDateString()} (${days[max]} scrobbles)`, 'middle');
+    return this.annotationOptions(most, data[most], `Most scrobbled day: ${day.toLocaleDateString()} (${days[max]} scrobbles)`, 'left');
   }
 
-  private annotationOptions(x: number, y: number, text: string, align: Highcharts.VerticalAlignValue): Highcharts.AnnotationsOptions {
+  private annotationOptions(x: number, y: number, text: string, align: Highcharts.AlignValue): Highcharts.AnnotationsOptions {
     return {
       draggable: '',
-      labelOptions: {
-        verticalAlign: align,
-        allowOverlap: true,
-        shape: 'connector',
-        borderColor: 'currentColor',
-        style: {
-          color: 'currentColor',
-          pointerEvents: 'none'
-        }
-      },
       labels: [{
+        allowOverlap: true,
+        align,
+        verticalAlign: align === 'left' ? 'bottom' : 'top',
         point: {
           x, y,
           xAxis: 0,
