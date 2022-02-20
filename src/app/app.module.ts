@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -43,6 +44,7 @@ import { Top10listComponent } from './lists/top10list/top10list.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { ProgressComponent } from './progress/progress.component';
 import { StatsComponent } from './stats/stats.component';
+import { DatasetModalComponent } from './dataset/dataset-modal/dataset-modal.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +61,7 @@ import { StatsComponent } from './stats/stats.component';
     TrackListsComponent,
     AlbumListsComponent,
     DatasetComponent,
+    DatasetModalComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -81,6 +84,7 @@ import { StatsComponent } from './stats/stats.component';
     MatNativeDateModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatRadioModule,
     MatSlideToggleModule,
     MatSliderModule,
     MatSnackBarModule,
@@ -91,7 +95,15 @@ import { StatsComponent } from './stats/stats.component';
     ReactiveFormsModule,
     ScrollingModule,
     TableVirtualScrollModule,
-    MatRadioModule,
+    NgCircleProgressModule.forRoot({
+      animationDuration: 2500,
+      percent: 100,
+      radius: 80,
+      renderOnClick: false,
+      showUnits: false,
+      startFromZero: true,
+      titleColor: 'currentColor'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]

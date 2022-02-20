@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>{{(data.artist ? data.artist + ' - ' : '') + data.name}}</h2>
+
+<div mat-dialog-content>
+  {{first | date}} - {{last | date}}
+
+  <div class="orb-wrapper">
+    <circle-progress *ngFor="let opt of options" [options]="$any(opt)" [lazy]="false" [renderOnClick]="true"></circle-progress>
+  </div>
+</div>
+Ranked {{data.rank}}

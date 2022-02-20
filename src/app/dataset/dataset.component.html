@@ -2,7 +2,7 @@
   <mat-card>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Search</mat-label>
-      <input matInput placeholder="Search..." (keyup)="filter.next($any($event.target).value)">
+      <input matInput placeholder="Search..." (keyup)="filter.next($any($event.target).value)" accesskey="s">
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
@@ -21,7 +21,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;" (click)="open(row)"></tr>
     </table>
   </cdk-virtual-scroll-viewport>
 </div>

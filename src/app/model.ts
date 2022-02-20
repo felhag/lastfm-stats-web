@@ -69,6 +69,15 @@ export interface Export {
   scrobbles: { artist: string, album: string, track: string, date: number }[];
 }
 
+export interface DataSetEntry {
+  item: StreakItem;
+  artist: string;
+  name: string;
+  tracks: number;
+  scrobbles: number;
+  rank: number;
+}
+
 export interface TempStats {
   first?: Scrobble;
   last?: Scrobble;

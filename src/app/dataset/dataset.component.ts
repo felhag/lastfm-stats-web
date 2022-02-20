@@ -1,19 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { Subject, debounceTime } from 'rxjs';
-import { StreakItem, Album, Track, Artist } from '../model';
+import { StreakItem, Album, Track, Artist, DataSetEntry } from '../model';
 import { StatsBuilderService } from '../service/stats-builder.service';
-
-interface DataSetEntry {
-  artist: string;
-  name: string;
-  tracks: number;
-  scrobbles: number;
-  rank: number;
-}
+import { DatasetModalComponent } from './dataset-modal/dataset-modal.component';
 
 @UntilDestroy()
 @Component({
@@ -43,7 +37,8 @@ export class DatasetComponent implements OnInit {
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
 
-  constructor(private builder: StatsBuilderService) {
+  constructor(private builder: StatsBuilderService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -71,15 +66,16 @@ export class DatasetComponent implements OnInit {
     };
   }
 
-  private update() {
-    this.dataSource.data = Object.values(this.groupedByObj.data()).map(d => {
-      const albumOrTrack = 'shortName' in d;
+  private update(): void {
+    this.dataSource.data = Object.values(this.groupedByObj.data()).map(item => {
+      const albumOrTrack = 'shortName' in item;
       return {
-        artist: albumOrTrack ? (d as Album | Track).artist : undefined,
-        name: albumOrTrack ? (d as Album | Track).shortName : d.name,
-        tracks: albumOrTrack ? undefined : (d as Artist).tracks.length,
-        scrobbles: d.scrobbles.length,
-        rank: d.ranks[d.ranks.length - 1]
+        item,
+        artist: albumOrTrack ? (item as Album | Track).artist : undefined,
+        name: albumOrTrack ? (item as Album | Track).shortName : item.name,
+        tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
+        scrobbles: item.scrobbles.length,
+        rank: item.ranks[item.ranks.length - 1]
       } as DataSetEntry
     });
   }
@@ -95,5 +91,11 @@ export class DatasetComponent implements OnInit {
 
   get groupedByObj(): {columns: string[], data: () => { [key: string]: StreakItem }} {
     return this.groups[this.groupedBy];
+  }
+
+  open(data: DataSetEntry): void {
+    const width = window.innerWidth;
+    const minWidth = width > 1200 ? 1000 : width - 48;
+    this.dialog.open(DatasetModalComponent, {minWidth, data});
   }
 }
