@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { Subject, debounceTime } from 'rxjs';
-import { StreakItem, Album, Track, Artist, DataSetEntry } from '../model';
+import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType } from '../model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { DatasetModalComponent } from './dataset-modal/dataset-modal.component';
 
@@ -30,7 +30,7 @@ export class DatasetComponent implements OnInit {
       data: () => this.builder.tempStats.value.seenTracks
     },
   };
-  groupedBy: 'artist' | 'album' | 'track' = 'artist';
+  groupedBy: ItemType = 'artist';
   height!: number;
   dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
   filter = new Subject<string>();
@@ -71,6 +71,7 @@ export class DatasetComponent implements OnInit {
       const albumOrTrack = 'shortName' in item;
       return {
         item,
+        type: this.groupedBy,
         artist: albumOrTrack ? (item as Album | Track).artist : undefined,
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,

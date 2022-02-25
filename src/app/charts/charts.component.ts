@@ -1,20 +1,19 @@
 import { Component, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
-import { map, take } from 'rxjs/operators';
-import {TempStats, Constants} from '../model';
-import {StatsBuilderService} from '../service/stats-builder.service';
-import {AbstractChart} from './abstract-chart';
-import {ArtistScrobbleChart} from './artist-scrobble-chart';
-import {ArtistTimelineChart} from './artist-timeline-chart';
-import {CumulativeItemsChart} from './cumulative-items-chart';
-import {PunchcardChart} from './punchcard-chart';
-import {RaceChart} from './race-chart';
-import {ScrobbleMomentChart} from './scrobble-moment-chart';
-import {ScrobblePerDayChart} from './scrobble-per-day-chart';
-import {TimelineChart} from './timeline-chart';
-import {WordcloudChart} from './wordcloud-chart';
+import { TempStats, Constants } from '../model';
+import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
+import { AbstractChart } from './abstract-chart';
+import { ArtistScrobbleChart } from './artist-scrobble-chart';
+import { ArtistTimelineChart } from './artist-timeline-chart';
+import { CumulativeItemsChart } from './cumulative-items-chart';
+import { PunchcardChart } from './punchcard-chart';
+import { RaceChart } from './race-chart';
+import { ScrobbleMomentChart } from './scrobble-moment-chart';
+import { ScrobblePerDayChart } from './scrobble-per-day-chart';
+import { TimelineChart } from './timeline-chart';
+import { WordcloudChart } from './wordcloud-chart';
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkMode.matches) {
@@ -39,7 +38,10 @@ if (darkMode.matches) {
     navigation: { buttonOptions: { enabled: false } }
   });
 } else {
-  Highcharts.setOptions({colors: Constants.COLORS});
+  Highcharts.setOptions({
+    colors: Constants.COLORS,
+    navigation: { buttonOptions: { enabled: false } }
+  });
 }
 
 @UntilDestroy()
@@ -67,17 +69,15 @@ export class ChartsComponent implements AfterViewInit {
 
   constructor(
     private builder: StatsBuilderService,
-    private route: ActivatedRoute) {
+    private usernameHolder: UsernameService) {
   }
 
   ngAfterViewInit(): void {
     this.builder.tempStats.pipe(
       untilDestroyed(this),
     ).subscribe(stats => this.updateStats(stats));
-    this.route.parent!.paramMap.pipe(
-      take(1),
-      map(params => params.get('username'))
-    ).subscribe(name => this.charts.forEach(c => c.username = name!));
+
+    this.charts.forEach(c => c.username = this.usernameHolder.username!);
   }
 
   private updateStats(stats: TempStats): void {

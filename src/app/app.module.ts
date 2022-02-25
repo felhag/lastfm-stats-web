@@ -96,12 +96,16 @@ import { DatasetModalComponent } from './dataset/dataset-modal/dataset-modal.com
     ScrollingModule,
     TableVirtualScrollModule,
     NgCircleProgressModule.forRoot({
+      animationDuration: 1000,
       percent: 100,
+      maxPercent: 100,
       radius: 60,
       renderOnClick: false,
       showUnits: false,
       startFromZero: true,
-      titleColor: 'currentColor'
+      titleColor: 'currentColor',
+      outerStrokeColor: 'var(--primaryColor)',
+      innerStrokeColor: 'var(--primaryColorContrast)'
     })
   ],
   providers: [],

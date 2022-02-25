@@ -1,14 +1,15 @@
-import {Component, OnInit, ChangeDetectionStrategy, OnDestroy} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {ActivatedRoute, Router} from '@angular/router';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {combineLatest, Observable} from 'rxjs';
-import {map, take, filter, finalize} from 'rxjs/operators';
-import {ConfComponent} from '../conf/conf.component';
-import {Progress} from '../model';
-import {ScrobbleRetrieverService, State} from '../service/scrobble-retriever.service';
-import {SettingsService} from '../service/settings.service';
-import {StatsBuilderService} from '../service/stats-builder.service';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { combineLatest, Observable } from 'rxjs';
+import { map, filter, finalize } from 'rxjs/operators';
+import { ConfComponent } from '../conf/conf.component';
+import { Progress } from '../model';
+import { ScrobbleRetrieverService, State } from '../service/scrobble-retriever.service';
+import { SettingsService } from '../service/settings.service';
+import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
 
 @UntilDestroy()
 @Component({
@@ -19,23 +20,17 @@ import {StatsBuilderService} from '../service/stats-builder.service';
 })
 export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
-  username?: string;
   settingCount = new Observable<number>();
 
   constructor(private retriever: ScrobbleRetrieverService,
               private builder: StatsBuilderService,
               public settings: SettingsService,
+              private usernameService: UsernameService,
               private router: Router,
-              private route: ActivatedRoute,
               private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      map(params => params.get('username')),
-      take(1)
-    ).subscribe(s => this.username = s || undefined);
-
     this.builder.update([], false);
     this.progress = this.retriever.retrieveFor(this.username!);
     this.progress.loader.pipe(
@@ -78,5 +73,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     const width = window.innerWidth;
     const minWidth = width > 1200 ? 1000 : width - 48;
     this.dialog.open(ConfComponent, {minWidth}).afterClosed().subscribe(() => this.rebuild());
+  }
+
+  get username(): string {
+    return this.usernameService.username!;
   }
 }

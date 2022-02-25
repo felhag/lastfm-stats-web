@@ -1,4 +1,5 @@
 import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from '../model';
+import { UrlBuilder } from './url-builder';
 
 export class Mapper {
   private static mappers = {
@@ -6,16 +7,19 @@ export class Mapper {
       seen: (stats: TempStats) => stats.seenArtists,
       monthItems: (month: Month) => [...month.artists.values()],
       monthItem: (month: Month, artist: StreakItem) => month.artists.get(artist.name),
+      url: (username: string, item: StreakItem) => UrlBuilder.artist(username, item.name)
     },
     'album': {
       seen: (stats: TempStats) => stats.seenAlbums,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.albums)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Album).artist)?.albums[(track as Album).shortName],
+      url: (username: string, item: StreakItem) => UrlBuilder.album(username, (item as Album).artist, item.name)
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.tracks)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Track).artist)?.tracks[(track as Track).shortName],
+      url: (username: string, item: StreakItem) => UrlBuilder.track(username, (item as Track).artist, item.name)
     },
   };
 
@@ -29,6 +33,10 @@ export class Mapper {
 
   public static monthItem(type: ItemType, month: Month, item: StreakItem): MonthItem {
     return this.mappers[type].monthItem(month, item)!;
+  }
+
+  public static url(type: ItemType, username: string, item: StreakItem) {
+    return this.mappers[type].url(username, item);
   }
 
   public static countPerMonth(type: ItemType, month: Month, item: StreakItem): number {

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { TempStats, Track, Constants, Month, MonthItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
 import { UrlBuilder } from '../util/url-builder';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
@@ -25,8 +25,8 @@ export interface TrackStats {
   styleUrls: ['./lists.component.scss']
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
-    super(builder, settings, route);
+  constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {
+    super(builder, settings, username);
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {

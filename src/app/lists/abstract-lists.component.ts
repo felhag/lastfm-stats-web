@@ -1,11 +1,10 @@
 import { OnInit, Directive } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { TempStats, Streak, StreakStack, StreakItem, Month } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
 import { UrlBuilder } from '../util/url-builder';
 
 export interface Top10Item {
@@ -20,15 +19,13 @@ export interface Top10Item {
 @Directive()
 export abstract class AbstractListsComponent<S> implements OnInit {
   stats = new BehaviorSubject<S>(this.emptyStats());
-  username = '';
 
   protected constructor(private builder: StatsBuilderService,
                         protected settings: SettingsService,
-                        private route: ActivatedRoute) {
+                        private usernameHolder: UsernameService) {
   }
 
   ngOnInit(): void {
-    this.route.parent!.paramMap.pipe(map(params => params.get('username'))).subscribe(name => this.username = name!);
     this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
   }
 
@@ -175,5 +172,9 @@ export abstract class AbstractListsComponent<S> implements OnInit {
       date: month.date,
       url: url(item, month.alias)
     } as Top10Item);
+  }
+
+  get username(): string {
+    return this.usernameHolder.username!;
   }
 }

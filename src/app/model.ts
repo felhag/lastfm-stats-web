@@ -70,6 +70,7 @@ export interface Export {
 
 export interface DataSetEntry {
   item: StreakItem;
+  type: ItemType;
   artist: string;
   name: string;
   tracks: number;

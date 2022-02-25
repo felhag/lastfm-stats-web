@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{(data.artist ? data.artist + ' - ' : '') + data.name}}</h2>
+<h2 mat-dialog-title><a [href]="url" target="_blank">{{(data.artist ? data.artist + ' - ' : '') + data.name}}<mat-icon>open_in_new</mat-icon></a></h2>
 
 <div mat-dialog-content>
   <div class="orb-wrapper">

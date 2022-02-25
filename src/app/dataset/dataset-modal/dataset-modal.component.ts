@@ -5,9 +5,11 @@ import { CircleProgressOptions } from 'ng-circle-progress/lib/ng-circle-progress
 import { DataSetEntry, StreakStack } from '../../model';
 import { StatsBuilderService } from '../../service/stats-builder.service';
 
+import { UsernameService } from '../../service/username.service';
+import { Mapper } from '../../util/mapper';
+
 import * as Highcharts from 'highcharts';
 import annotations from 'highcharts/modules/annotations';
-import { Mapper } from '../../util/mapper';
 annotations(Highcharts);
 
 @Component({
@@ -19,8 +21,11 @@ export class DatasetModalComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;
   options: (Partial<CircleProgressOptions> | undefined)[] = [];
   chartOptions: Highcharts.Options = {};
+  url?: string;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: DataSetEntry, private stats: StatsBuilderService) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: DataSetEntry,
+              private stats: StatsBuilderService,
+              private username: UsernameService) { }
 
   ngOnInit(): void {
     this.options = [
@@ -28,6 +33,8 @@ export class DatasetModalComponent implements OnInit {
       this.data.tracks ? this.circleOption('Tracks', this.data.tracks) : undefined,
       this.circleOption('Weeks', this.data.item.weeks.length),
     ];
+
+    this.url = Mapper.url(this.data.type, this.username.username!, this.data.item);
 
     const data = [];
     for (let i = 0; i < this.data.item.ranks.length; i++) {
@@ -53,20 +60,26 @@ export class DatasetModalComponent implements OnInit {
       series: [{
         name: 'Rank',
         type: 'line',
+        color: 'var(--primaryColor)',
         data
       }],
-      annotations: [
-        this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
-        this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
-        this.mostScrobbledDayAnnotation(data),
-      ]
+      responsive: {
+        rules: [{
+          condition: { minWidth: 769 },
+          chartOptions: {
+            annotations: [
+              this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
+              this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
+              this.mostScrobbledDayAnnotation(data),
+            ],}
+        }]
+      }
     }
   }
 
   private circleOption(title: string, value: number): Partial<CircleProgressOptions> {
     return {
       subtitle: title,
-      maxPercent: value,
       titleFormat: (p: number) => Math.round((value / 100) * p)
     };
   }
@@ -90,6 +103,7 @@ export class DatasetModalComponent implements OnInit {
         allowOverlap: true,
         align,
         verticalAlign: align === 'left' ? 'bottom' : 'top',
+        style: { pointerEvents: 'none' },
         point: {
           x, y,
           xAxis: 0,

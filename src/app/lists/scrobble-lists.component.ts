@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {TempStats, Streak} from '../model';
-import {SettingsService} from '../service/settings.service';
-import {StatsBuilderService} from '../service/stats-builder.service';
+import { Component, OnInit } from '@angular/core';
+import { TempStats, Streak } from '../model';
+import { SettingsService } from '../service/settings.service';
+import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
 import { UrlBuilder } from '../util/url-builder';
-import {AbstractListsComponent, Top10Item} from './abstract-lists.component';
+import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
 export interface ScrobbleStats {
   scrobbleStreak: Top10Item[];
@@ -20,8 +20,8 @@ export interface ScrobbleStats {
   styleUrls: ['./lists.component.scss']
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
-    super(builder, settings, route);
+  constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {
+    super(builder, settings, username);
   }
 
   protected doUpdate(stats: TempStats, next: ScrobbleStats): void {

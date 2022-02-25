@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { TempStats, Album } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { UsernameService } from '../service/username.service';
 import { UrlBuilder } from '../util/url-builder';
 import { AbstractListsComponent, Top10Item } from './abstract-lists.component';
 
@@ -21,8 +21,8 @@ export interface AlbumStats {
   styleUrls: ['./lists.component.scss']
 })
 export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
-  constructor(builder: StatsBuilderService, settings: SettingsService, route: ActivatedRoute) {
-    super(builder, settings, route);
+  constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {
+    super(builder, settings, username);
   }
 
   protected doUpdate(stats: TempStats, next: AlbumStats): void {

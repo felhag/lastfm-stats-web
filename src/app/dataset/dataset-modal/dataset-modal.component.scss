@@ -1,3 +1,14 @@
+h2 a {
+  color: currentColor;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+
+  .mat-icon {
+    margin-left: 16px;
+  }
+}
+
 .orb-wrapper {
   display: flex;
   align-items: flex-start;

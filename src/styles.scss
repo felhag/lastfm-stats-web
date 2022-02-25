@@ -1,3 +1,4 @@
+@use 'sass:map';
 @use '@angular/material' as mat;
 
 @include mat.core();
@@ -9,7 +10,6 @@ $light-app-theme: mat.define-light-theme((
     warn:  mat.define-palette(mat.$red-palette)
   )
 ));
-
 $dark-app-theme: mat.define-dark-theme((
   color: (
     primary: mat.define-palette(mat.$cyan-palette),
@@ -23,6 +23,11 @@ $dark-app-theme: mat.define-dark-theme((
   body {
     background-color: #f9f9f9;
   }
+
+  :root {
+    --primaryColor: #{mat.get-color-from-palette(map.get($light-app-theme, primary), 500)};
+    --primaryColorContrast: #{mat.get-color-from-palette(map.get($light-app-theme, primary), 100)};
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +35,11 @@ $dark-app-theme: mat.define-dark-theme((
 
   body {
     background-color: #303030;
+  }
+
+  :root {
+    --primaryColor: #{mat.get-color-from-palette(map.get($dark-app-theme, primary), 500)};
+    --primaryColorContrast: #{mat.get-color-from-palette(map.get($dark-app-theme, primary), 100)};
   }
 }
 
@@ -45,4 +55,5 @@ body {
 a.regular-text {
   color: inherit;
   text-decoration: none;
+
 }
