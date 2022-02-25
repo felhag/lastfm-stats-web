@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Month, TempStats, Artist, Constants, MonthArtist } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -29,7 +29,8 @@ export interface ArtistStats {
 @Component({
   selector: 'app-lists',
   templateUrl: './artist-lists.component.html',
-  styleUrls: ['./lists.component.scss']
+  styleUrls: ['./lists.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> implements OnInit {
   constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {

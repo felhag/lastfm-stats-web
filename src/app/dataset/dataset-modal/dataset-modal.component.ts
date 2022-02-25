@@ -55,8 +55,10 @@ export class DatasetModalComponent implements OnInit {
         categories: Object.values(months).map(m => m.alias)
       },
       yAxis: {
-        reversed: true
+        reversed: true,
+        title: { text: 'Rank' }
       },
+      legend: { enabled: false },
       series: [{
         name: 'Rank',
         type: 'line',
@@ -71,7 +73,8 @@ export class DatasetModalComponent implements OnInit {
               this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
               this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
               this.mostScrobbledDayAnnotation(data),
-            ],}
+            ]
+          }
         }]
       }
     }

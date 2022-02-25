@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TempStats, Track, Constants, Month, MonthItem } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -22,7 +22,8 @@ export interface TrackStats {
 @Component({
   selector: 'app-track-lists',
   templateUrl: './track-lists.component.html',
-  styleUrls: ['./lists.component.scss']
+  styleUrls: ['./lists.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
   constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {

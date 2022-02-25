@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TempStats, Streak } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -17,7 +17,8 @@ export interface ScrobbleStats {
 @Component({
   selector: 'app-scrobble-lists',
   templateUrl: './scrobble-lists.component.html',
-  styleUrls: ['./lists.component.scss']
+  styleUrls: ['./lists.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
   constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {

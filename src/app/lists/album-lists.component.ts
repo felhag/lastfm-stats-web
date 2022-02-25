@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TempStats, Album } from '../model';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -18,7 +18,8 @@ export interface AlbumStats {
 @Component({
   selector: 'app-album-lists',
   templateUrl: './album-lists.component.html',
-  styleUrls: ['./lists.component.scss']
+  styleUrls: ['./lists.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
   constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {
