@@ -42,6 +42,20 @@ export class ArtistScrobbleChart extends AbstractChart {
         click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
       }
     }],
+    exporting: {
+      chartOptions: {
+        plotOptions: {
+          series: {
+            dataLabels: {
+              enabled: true,
+              formatter(): string {
+                return this.point.name;
+              }
+            }
+          }
+        }
+      }
+    },
     responsive: this.responsive()
   };
 

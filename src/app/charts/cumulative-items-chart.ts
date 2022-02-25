@@ -18,6 +18,14 @@ export class CumulativeItemsChart extends ToggleableChart {
         text: 'Scrobbles'
       }
     }],
+    exporting: {
+      sourceHeight: 1024,
+      chartOptions: {
+        legend: {
+          enabled: true
+        }
+      }
+    },
     responsive: this.responsive()
   };
 
