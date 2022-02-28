@@ -1,6 +1,6 @@
 import * as Highcharts from 'highcharts';
 import { Mapper } from '../util/mapper';
-import { TempStats, Month, StreakItem } from '../model';
+import { TempStats, StreakItem } from '../model';
 import { ToggleableChart } from './toggleable-chart';
 
 export class CumulativeItemsChart extends ToggleableChart {
@@ -44,7 +44,7 @@ export class CumulativeItemsChart extends ToggleableChart {
       .slice(0, 25)
       .map((a: StreakItem) => {
         const serie = series.find(s => s.name === a.name);
-        const data = this.cumulativeMonths(months, a);
+        const data = Mapper.cumulativeMonths(this.type, months, a);
         if (serie) {
           serie.setData(data, false, false, false);
           series.splice(series.indexOf(serie), 1);
@@ -60,11 +60,5 @@ export class CumulativeItemsChart extends ToggleableChart {
 
     series.forEach(s => s.remove(false));
     this.chart.update({xAxis: {categories: months.map(m => m.alias)}} as any, true);
-  }
-
-  private cumulativeMonths(months: Month[], item: StreakItem): number[] {
-    const result: number[] = [];
-    months.reduce((acc, cur, idx) => result[idx] = acc + (Mapper.countPerMonth(this.type, cur, item) || 0), 0);
-    return result;
   }
 }

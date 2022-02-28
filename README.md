@@ -20,6 +20,14 @@ npx ng serve
 If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
 
 ## 🐛 Changelog
+3.0 (28-02-2022)
+- added dataset tab
+- added ranking lists for artists, albums and tracks
+- added datalabels/legend when exporting some charts
+- race-chart is a little less epileptic
+- fixed messy export button for charts in light theme
+- fixed matching artists with casing inequalities
+
 2.3 (03-12-2021)
 - artist scrobble chart xaxis starts at 50
 - fixed timeline chart for artists starting with a number

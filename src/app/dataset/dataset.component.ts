@@ -67,7 +67,8 @@ export class DatasetComponent implements OnInit {
   }
 
   private update(): void {
-    this.dataSource.data = Object.values(this.groupedByObj.data()).map(item => {
+    const data = this.groupedByObj.data();
+    this.dataSource.data = Object.values(data).map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
         item,
@@ -76,7 +77,7 @@ export class DatasetComponent implements OnInit {
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
         scrobbles: item.scrobbles.length,
-        rank: item.ranks[item.ranks.length - 1]
+        rank: item.ranks[item.ranks.length - 1] || Object.keys(data).length
       } as DataSetEntry
     });
   }

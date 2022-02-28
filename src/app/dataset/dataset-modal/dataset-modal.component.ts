@@ -22,6 +22,7 @@ export class DatasetModalComponent implements OnInit {
   options: (Partial<CircleProgressOptions> | undefined)[] = [];
   chartOptions: Highcharts.Options = {};
   url?: string;
+  chart?: Highcharts.Chart;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: DataSetEntry,
               private stats: StatsBuilderService,
@@ -36,43 +37,56 @@ export class DatasetModalComponent implements OnInit {
 
     this.url = Mapper.url(this.data.type, this.username.username!, this.data.item);
 
-    const data = [];
+    const ranks = [];
     for (let i = 0; i < this.data.item.ranks.length; i++) {
-      data[i] = this.data.item.ranks[i] || null;
+      ranks[i] = this.data.item.ranks[i] || null;
     }
-
     const months = this.stats.tempStats.value.monthList;
-    const first = data.findIndex(p => p !== null);
+    const scrobbles = Mapper.cumulativeMonths(this.data.type, Object.values(months), this.data.item);
+    const first = ranks.findIndex(p => p !== null);
     const last = Object.keys(months).indexOf(Mapper.getMonthYear(this.last));
 
     this.chartOptions = {
       title: {
-        text: 'Rank',
+        text: ''
       },
       xAxis: {
         type: 'category',
         allowDecimals: false,
         categories: Object.values(months).map(m => m.alias)
       },
-      yAxis: {
+      yAxis: [{
+        min: 1,
         reversed: true,
+        startOnTick: true,
+        allowDecimals: false,
+        gridLineWidth: 0,
         title: { text: 'Rank' }
-      },
+      }, {
+        opposite: true,
+        title: { text: 'Scrobbles' }
+      }],
       legend: { enabled: false },
       series: [{
         name: 'Rank',
         type: 'line',
         color: 'var(--primaryColor)',
-        data
+        data: ranks
+      }, {
+        name: 'Scrobbles',
+        type: 'line',
+        yAxis: 1,
+        color: 'var(--primaryColorContrast)',
+        data: scrobbles
       }],
       responsive: {
         rules: [{
           condition: { minWidth: 769 },
           chartOptions: {
             annotations: [
-              this.annotationOptions(first, data[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
-              this.annotationOptions(last, data[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
-              this.mostScrobbledDayAnnotation(data),
+              this.annotationOptions(first, scrobbles[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
+              this.annotationOptions(last, scrobbles[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
+              this.mostScrobbledDayAnnotation(scrobbles),
             ]
           }
         }]
@@ -87,7 +101,7 @@ export class DatasetModalComponent implements OnInit {
     };
   }
 
-  private mostScrobbledDayAnnotation(data: any[]): Highcharts.AnnotationsOptions {
+  private mostScrobbledDayAnnotation(scrobbles: number[]): Highcharts.AnnotationsOptions {
     const days = this.data.item.scrobbles.reduce(function (rv, x) {
       const key = String(StreakStack.startOfDay(new Date(x)).getTime());
       rv[key] = (rv[key] || 0) + 1;
@@ -96,7 +110,7 @@ export class DatasetModalComponent implements OnInit {
     const max = Object.keys(days).reduce((a, b) => days[parseInt(a)] > days[parseInt(b)] ? a : b);
     const day = new Date(parseInt(max));
     const most = Object.keys(this.stats.tempStats.value.monthList).indexOf(Mapper.getMonthYear(day));
-    return this.annotationOptions(most, data[most], `Most scrobbled day: ${day.toLocaleDateString()} (${days[max]} scrobbles)`, 'left');
+    return this.annotationOptions(most, scrobbles[most], `Most scrobbled day: ${day.toLocaleDateString()} (${days[max]} scrobbles)`, 'left');
   }
 
   private annotationOptions(x: number, y: number, text: string, align: Highcharts.AlignValue): Highcharts.AnnotationsOptions {
@@ -110,9 +124,9 @@ export class DatasetModalComponent implements OnInit {
         point: {
           x, y,
           xAxis: 0,
-          yAxis: 0
+          yAxis: 1
         },
-        text
+        text,
       }]
     }
   }
@@ -123,5 +137,10 @@ export class DatasetModalComponent implements OnInit {
 
   private get last(): Date {
     return new Date(this.data.item.scrobbles[this.data.item.scrobbles.length - 1]);
+  }
+
+  showLabels(checked: boolean): void {
+    this.chartOptions.responsive?.rules![0].chartOptions!.annotations!.forEach(a => a.visible = checked)
+    this.chart?.update(this.chartOptions);
   }
 }

@@ -43,6 +43,12 @@ export class Mapper {
     return this.monthItem(type, month, item)?.count;
   }
 
+  public static cumulativeMonths(type: ItemType, months: Month[], item: StreakItem): number[] {
+    const result: number[] = [];
+    months.reduce((acc, cur, idx) => result[idx] = acc + (Mapper.countPerMonth(type, cur, item) || 0), 0);
+    return result;
+  }
+
   public static getWeekYear(date: Date) {
     return `W${this.getWeekNumber(date)} ${date.getFullYear()}`;
   }
