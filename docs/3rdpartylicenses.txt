@@ -5,7 +5,7 @@ MIT
 MIT
 The MIT License
 
-Copyright (c) 2021 Google LLC.
+Copyright (c) 2022 Google LLC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ MIT
 MIT
 The MIT License
 
-Copyright (c) 2021 Google LLC.
+Copyright (c) 2022 Google LLC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -74,6 +74,12 @@ https://www.highcharts.com/license
 
 highcharts-angular
 SEE LICENSE IN <LICENSE>
+
+ng-circle-progress
+MIT
+
+ng-table-virtual-scroll
+MIT
 
 ngx-csv-parser
 MIT
