@@ -13,13 +13,13 @@ export class Mapper {
       seen: (stats: TempStats) => stats.seenAlbums,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.albums)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Album).artist)?.albums[(track as Album).shortName],
-      url: (username: string, item: StreakItem) => UrlBuilder.album(username, (item as Album).artist, item.name)
+      url: (username: string, item: StreakItem) => UrlBuilder.album(username, (item as Album).artist, (item as Album).shortName)
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.tracks)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Track).artist)?.tracks[(track as Track).shortName],
-      url: (username: string, item: StreakItem) => UrlBuilder.track(username, (item as Track).artist, item.name)
+      url: (username: string, item: StreakItem) => UrlBuilder.track(username, (item as Track).artist, (item as Track).shortName)
     },
   };
 
