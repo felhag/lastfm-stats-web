@@ -5,9 +5,14 @@
                         [options]="c.options"
                         (chartInstance)="c.chart = $event"
       ></highcharts-chart>
-      <button (click)="c.print()" mat-icon-button matTooltip="Download" class="print-button">
-        <mat-icon>download</mat-icon>
-      </button>
+      <div class="button-toolbar">
+        <button (click)="c.fullscreen()" mat-icon-button matTooltip="Full screen">
+          <mat-icon>fullscreen</mat-icon>
+        </button>
+        <button (click)="c.print()" mat-icon-button matTooltip="Download">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

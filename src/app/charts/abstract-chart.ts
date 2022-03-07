@@ -1,10 +1,13 @@
 import { AlignValue } from 'highcharts';
 import * as Highcharts from 'highcharts';
-import {TempStats} from '../model';
+import { TempStats } from '../model';
 import exporting from 'highcharts/modules/exporting';
 import offline from 'highcharts/modules/offline-exporting';
+import fullscreen from 'highcharts/modules/full-screen';
+
 exporting(Highcharts);
 offline(Highcharts);
+fullscreen(Highcharts);
 
 export abstract class AbstractChart {
   abstract options: Highcharts.Options;
@@ -22,7 +25,11 @@ export abstract class AbstractChart {
   }
 
   print(): void {
-    return this.chart?.exportChartLocal();
+    this.chart?.exportChartLocal();
+  }
+
+  fullscreen(): void {
+    this.chart?.fullscreen.toggle();
   }
 
   responsive(yAxis: (AlignValue | undefined)[] = ['left']): any {
