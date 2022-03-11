@@ -5,6 +5,7 @@ import { UrlBuilder } from '../util/url-builder';
 import {AbstractChart} from './abstract-chart';
 
 export class RaceChart extends AbstractChart {
+  private readonly defaultSpeed = 2000;
   colors: {[key: string]: string} = {};
   months: Month[] = [];
   artists: string[] = [];
@@ -14,7 +15,7 @@ export class RaceChart extends AbstractChart {
   button?: HTMLElement;
   input?: HTMLInputElement;
   speedText?: HTMLElement;
-  speed = 1000;
+  speed = this.defaultSpeed;
 
   options: Highcharts.Options = {
     chart: {
@@ -31,8 +32,8 @@ export class RaceChart extends AbstractChart {
             this.input = this.toolbar.querySelector('input') as HTMLInputElement;
             this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
             (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
-            (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(500);
-            (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(-500);
+            (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
+            (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
 
             const chart = event.target as any as Highcharts.Chart;
             chart.container.parentNode!.appendChild(this.toolbar);
@@ -178,10 +179,10 @@ export class RaceChart extends AbstractChart {
     }
   }
 
-  changeSpeed(amount: number): void {
-    this.speed = Math.max(500, this.speed + amount);
+  changeSpeed(modify: () => number): void {
+    this.speed = Math.min(8000, Math.max(500, modify()));
     this.chart?.update({chart: {animation: {duration: this.speed}}});
-    this.speedText!.innerText = String((this.speed / 1000)) + 's';
+    this.speedText!.innerText = String(Math.round(this.defaultSpeed / this.speed * 100) / 100).padEnd(3, '.0');
     if (this.timer) {
       this.pause();
       this.play();

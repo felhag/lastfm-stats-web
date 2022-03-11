@@ -20,6 +20,13 @@ npx ng serve
 If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
 
 ## 🐛 Changelog
+3.1 (tbd)
+- added scrobble scatter chart
+- added fullscreen function for charts
+- added swiping support for tabs
+- clearer race chart toggle (#3)
+- disabled matomo cookies
+
 3.0 (28-02-2022)
 - added dataset tab
 - added ranking lists for artists, albums and tracks
