@@ -19,6 +19,9 @@ import { UsernameService } from '../service/username.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsComponent implements OnInit, OnDestroy {
+  readonly tabs = ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset'];
+  private activeTab: string = 'artists';
+  private start?: [number, number, number];
   progress!: Progress;
   settingCount = new Observable<number>();
 
@@ -77,5 +80,39 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   get username(): string {
     return this.usernameService.username!;
+  }
+
+  swipeStart(ev: TouchEvent): void {
+    this.start = this.getSwipeEventData(ev);
+  }
+
+  swipeEnd(ev: TouchEvent): void {
+    if (!this.start) {
+      return;
+    }
+    const swipe = this.getSwipeEventData(ev);
+    const duration = new Date().getTime() - this.start[0];
+    const distanceX = swipe[1] - this.start[1];
+    const distanceY = swipe[2] - this.start[2];
+    if (duration > 100                                    // Long enough
+      && Math.abs(distanceX) > 100                        // Far enough
+      && Math.abs(distanceX) > Math.abs(distanceY) * 3) { // Horizontal enough
+      const current = this.tabs.indexOf(this.activeTab);
+      const next = this.tabs[current + (distanceX > 0 ? -1 : 1)];
+      if (next) {
+        this.router.navigate(['user', this.username, next]);
+      }
+    }
+  }
+
+  private getSwipeEventData(ev: TouchEvent): [number, number, number] {
+    const touch = ev.changedTouches[0];
+    return [new Date().getTime(), touch.clientX, touch.clientY];
+  }
+
+  activeChange(active: boolean, tab: string) {
+    if (active) {
+      this.activeTab = tab;
+    }
   }
 }

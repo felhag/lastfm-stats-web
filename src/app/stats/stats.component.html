@@ -1,4 +1,4 @@
-<ng-container *ngIf="(progress.state | async) as state">
+<div *ngIf="(progress.state | async) as state">
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADINGUSER'">🔎 Looking for {{username}}...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'CALCULATINGPAGES'">👨‍🔬 {{username}} found, calculating pages...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'USERNOTFOUND'">Username {{username}} not found 😥</mat-card>
@@ -33,12 +33,15 @@
       </mat-card-content>
     </mat-card>
 
-    <nav mat-tab-nav-bar mat-stretch-tabs>
-      <a *ngFor="let tab of ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset']"
-         mat-tab-link [routerLink]="'/user/' + username + '/' + tab" routerLinkActive #link="routerLinkActive" [active]="link.isActive">
-        {{tab | titlecase}}
-      </a>
-    </nav>
-    <router-outlet></router-outlet>
+<!--    <div (swipeleft)="swipe($event, -1)" (swiperight)="swipe($event, 1)">-->
+    <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
+      <nav mat-tab-nav-bar mat-stretch-tabs>
+        <a *ngFor="let tab of tabs" mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
+           routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
+          {{tab | titlecase}}
+        </a>
+      </nav>
+      <router-outlet></router-outlet>
+    </div>
   </ng-container>
-</ng-container>
+</div>
