@@ -38,7 +38,7 @@ export class ScrobbleScatterChart extends AbstractChart {
     tooltip: {
       followPointer: false,
       formatter(): string {
-        return `${this.series.options.custom!.component.nameMap.get(this.x)} ${new Date(this.x).toLocaleString()}`
+        return `${this.series.options.custom!.component.nameMap.get(this.x)} ${new Date(this.x as number).toLocaleString()}`
       }
     },
     series: [{

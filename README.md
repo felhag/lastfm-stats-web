@@ -20,7 +20,7 @@ npx ng serve
 If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
 
 ## 🐛 Changelog
-3.1 (tbd)
+3.1 (20-03-2022)
 - added scrobble scatter chart
 - added fullscreen function for charts
 - added swiping support for tabs

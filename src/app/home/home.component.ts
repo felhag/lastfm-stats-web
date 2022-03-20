@@ -61,7 +61,7 @@ export class HomeComponent {
             this.handleImport(username, scrobbles);
           }
         },
-        error: error => this.importError.next('Can\t parse csv: ' + error.message)
+        error: (error: any) => this.importError.next('Can\t parse csv: ' + error.message)
       });
     } else if (ext === 'json') {
       const reader = new FileReader();

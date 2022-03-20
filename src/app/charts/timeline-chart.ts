@@ -10,7 +10,9 @@ export class TimelineChart extends AbstractChart {
     },
     tooltip: {
       formatter(): string {
-        return new Date(this.x).toLocaleString() + '<br><b>' + this.key + '</b><br><span style="color:' + this.point.color + '">\u25CF</span>' + Highcharts.numberFormat(this.y, 0, '', '.');
+        const date = new Date(this.x as number).toLocaleString();
+        const value = Highcharts.numberFormat(this.y as number, 0, '', '.');
+        return date + '<br><b>' + this.key + '</b><br><span style="color:' + this.point.color + '">\u25CF</span>' + value;
       }
     },
     yAxis: [{
