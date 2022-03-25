@@ -37,6 +37,7 @@
               }
             ],
             "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "projects/spotify-stats/src/styles.scss"
             ],
             "scripts": []
@@ -92,24 +93,6 @@
             "browserTarget": "spotify-stats:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/spotify-stats/src/test.ts",
-            "polyfills": "projects/spotify-stats/src/polyfills.ts",
-            "tsConfig": "projects/spotify-stats/tsconfig.spec.json",
-            "karmaConfig": "projects/spotify-stats/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/spotify-stats/src/favicon.ico",
-              "projects/spotify-stats/src/assets"
-            ],
-            "styles": [
-              "projects/spotify-stats/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -155,6 +138,7 @@
               }
             ],
             "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "projects/lastfm-stats/src/styles.scss"
             ],
             "scripts": []
@@ -208,24 +192,6 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "lastfm-stats:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/lastfm-stats/src/test.ts",
-            "polyfills": "projects/lastfm-stats/src/polyfills.ts",
-            "tsConfig": "projects/lastfm-stats/tsconfig.spec.json",
-            "karmaConfig": "projects/lastfm-stats/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/lastfm-stats/src/favicon.ico",
-              "projects/lastfm-stats/src/assets"
-            ],
-            "styles": [
-              "projects/lastfm-stats/src/styles.scss"
-            ],
-            "scripts": []
           }
         },
         "lint": {
