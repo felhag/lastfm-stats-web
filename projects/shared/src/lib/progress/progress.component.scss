@@ -1,0 +1,40 @@
+:host, .loading {
+  display: flex;
+  align-items: center;
+}
+
+.progress {
+  flex-grow: 1;
+}
+
+@media (min-width: 768px) {
+  .export {
+    padding: 0 48px;
+    margin-left: 24px;
+    border-left: 1px solid #d9dadc;
+    flex-basis: 240px;
+  }
+}
+
+@media (max-width: 767px) {
+  :host {
+    align-items: flex-start;
+    flex-direction: column;
+
+    .export {
+      padding-top: 24px;
+    }
+  }
+}
+
+.mat-spinner {
+  margin-left: 24px;
+}
+.load-stuck {
+  display: flex;
+  align-items: center;
+
+  .mat-icon {
+    margin-right: 8px;
+  }
+}

@@ -106,6 +106,270 @@
           }
         }
       }
+    },
+    "spotify-stats": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "projects/spotify-stats",
+      "sourceRoot": "projects/spotify-stats/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/spotify-stats",
+            "index": "projects/spotify-stats/src/index.html",
+            "main": "projects/spotify-stats/src/main.ts",
+            "polyfills": "projects/spotify-stats/src/polyfills.ts",
+            "tsConfig": "projects/spotify-stats/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/spotify-stats/src/favicon.ico",
+              "projects/spotify-stats/src/assets"
+            ],
+            "styles": [
+              "projects/spotify-stats/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/spotify-stats/src/environments/environment.ts",
+                  "with": "projects/spotify-stats/src/environments/environment.prod.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "spotify-stats:build:production"
+            },
+            "development": {
+              "browserTarget": "spotify-stats:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "spotify-stats:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/spotify-stats/src/test.ts",
+            "polyfills": "projects/spotify-stats/src/polyfills.ts",
+            "tsConfig": "projects/spotify-stats/tsconfig.spec.json",
+            "karmaConfig": "projects/spotify-stats/karma.conf.js",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/spotify-stats/src/favicon.ico",
+              "projects/spotify-stats/src/assets"
+            ],
+            "styles": [
+              "projects/spotify-stats/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/spotify-stats/**/*.ts",
+              "projects/spotify-stats/**/*.html"
+            ]
+          }
+        }
+      }
+    },
+    "lastfm-stats": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "projects/lastfm-stats",
+      "sourceRoot": "projects/lastfm-stats/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/lastfm-stats",
+            "index": "projects/lastfm-stats/src/index.html",
+            "main": "projects/lastfm-stats/src/main.ts",
+            "polyfills": "projects/lastfm-stats/src/polyfills.ts",
+            "tsConfig": "projects/lastfm-stats/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/lastfm-stats/src/favicon.ico",
+              "projects/lastfm-stats/src/assets"
+            ],
+            "styles": [
+              "projects/lastfm-stats/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/lastfm-stats/src/environments/environment.ts",
+                  "with": "projects/lastfm-stats/src/environments/environment.prod.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "lastfm-stats:build:production"
+            },
+            "development": {
+              "browserTarget": "lastfm-stats:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "lastfm-stats:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/lastfm-stats/src/test.ts",
+            "polyfills": "projects/lastfm-stats/src/polyfills.ts",
+            "tsConfig": "projects/lastfm-stats/tsconfig.spec.json",
+            "karmaConfig": "projects/lastfm-stats/karma.conf.js",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/lastfm-stats/src/favicon.ico",
+              "projects/lastfm-stats/src/assets"
+            ],
+            "styles": [
+              "projects/lastfm-stats/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/lastfm-stats/**/*.ts",
+              "projects/lastfm-stats/**/*.html"
+            ]
+          }
+        }
+      }
+    },
+    "shared": {
+      "projectType": "library",
+      "root": "projects/shared",
+      "sourceRoot": "projects/shared/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/shared/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/shared/src/test.ts",
+            "tsConfig": "projects/shared/tsconfig.spec.json",
+            "karmaConfig": "projects/shared/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/shared/**/*.ts",
+              "projects/shared/**/*.html"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "lastfm-stats-web",

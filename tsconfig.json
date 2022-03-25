@@ -14,6 +14,12 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
+    "paths": {
+      "shared": [
+        "dist/shared/shared",
+        "dist/shared"
+      ]
+    },
     "target": "es2015",
     "module": "es2020",
     "lib": [

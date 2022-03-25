@@ -1,0 +1,18 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+app-top10list {
+  margin: 16px;
+  flex: 1;
+  box-sizing: border-box;
+  min-width: 1px;
+  max-width: calc(100% - 32px);
+}
+
+@media (max-width: 767px) {
+  .row {
+    flex-direction: column;
+  }
+}

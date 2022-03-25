@@ -1,0 +1,24 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 75%;
+}
+
+@media screen and (max-height: 992px) {
+  :host {
+    min-height: 100%;
+  }
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+@media screen and (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
+}
