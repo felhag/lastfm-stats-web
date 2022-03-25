@@ -1,3 +1,6 @@
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
@@ -23,10 +26,13 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
     CommonModule,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatListModule,
     MatTooltipModule,
     NgxDropzoneModule,
+    ReactiveFormsModule,
     RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent)),
     SharedModule
   ],

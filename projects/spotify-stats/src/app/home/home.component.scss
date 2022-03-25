@@ -1,5 +1,15 @@
 @import './projects/shared/src/shared-home';
 
+.username-holder {
+  font-size: 16px;
+  padding-top: 24px;
+  width: 100%;
+
+  .mat-form-field {
+    width: 100%;
+  }
+}
+
 .custom-dropzone {
   flex-direction: column;
   justify-content: center;

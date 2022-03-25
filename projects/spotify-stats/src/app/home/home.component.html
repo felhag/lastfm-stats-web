@@ -5,7 +5,13 @@
       <div class="subtext">Enhanced statistics for spotify</div>
     </div>
   </div>
-  <div class="line home-row mw"></div>
+
+  <div class="line username-holder">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput [formControl]="username">
+    </mat-form-field>
+  </div>
 
   <div class="custom-dropzone home-row" ngx-dropzone (change)="onSelect($event)">
     <ngx-dropzone-label *ngIf="(files | async)?.length === 0">

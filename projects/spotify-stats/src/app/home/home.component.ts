@@ -1,6 +1,9 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
 import { Scrobble } from 'projects/shared/src/lib/app/model';
+import { ScrobbleRetrieverService } from 'projects/shared/src/lib/service/scrobble-retriever.service';
 import { BehaviorSubject } from 'rxjs';
 
 interface JSONEntry {
@@ -24,7 +27,11 @@ interface ParsedEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
+  username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
+
+  constructor(private router: Router, private retriever: ScrobbleRetrieverService) {
+  }
 
   onSelect(event: any): void {
     const fileList: File[] = event.addedFiles;
@@ -43,11 +50,14 @@ export class HomeComponent {
   }
 
   private unzip(file: File): void {
-    new JSZip().loadAsync(file).then((zip) => {
+    new JSZip().loadAsync(file).then(zip => {
       Object.keys(zip.files)
-        .filter(z => z.startsWith('MyData/StreamingHistory'))
-        .forEach((filename) => {
-          zip.files[filename].async('string').then(data => this.addJson(filename.substring('MyData/'.length), data));
+        .forEach(filename => {
+          if (filename.startsWith('MyData/StreamingHistory')) {
+            zip.files[filename].async('string').then(data => this.addJson(filename.substring('MyData/'.length), data));
+          } else if (filename.startsWith('MyData/Userdata')) {
+            zip.files[filename].async('string').then(data => this.username.setValue(JSON.parse(data).username));
+          }
         });
     });
   }
@@ -76,6 +86,10 @@ export class HomeComponent {
   }
 
   go(): void {
-
+    const plays = this.files.value.flatMap(f => f.plays);
+    if (this.username.valid && plays.length) {
+      this.retriever.imported = plays;
+      this.router.navigate([`/user/${this.username.value}`]);
+    }
   }
 }
