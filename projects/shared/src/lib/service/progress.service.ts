@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject, combineLatest, filter, map, shareReplay, Observable } from 'rxjs';
-import { Progress, Scrobble, Constants } from 'projects/shared/src/lib/app/model';
-import { State } from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { Progress, Scrobble, Constants, State } from 'projects/shared/src/lib/app/model';
 
 @Injectable({
   providedIn: 'root'

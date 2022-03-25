@@ -1,9 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Progress, Scrobble, Constants, User } from 'projects/shared/src/lib/app/model';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
+import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 import { Observable, forkJoin } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
-import { Progress, Scrobble, Constants, User } from '../app/model';
 
 interface Response {
   recenttracks: RecentTracks;
@@ -34,21 +35,16 @@ interface Track {
   };
 }
 
-export type State =
-  'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' |       // happy flow states
-  'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' |  // initial error states
-  'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';                // completed states
-
 @Injectable({
   providedIn: 'root'
 })
-export class ScrobbleRetrieverService {
+export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
-  imported: Scrobble[] = [];
   artistSanitizer = new Map<string,string>();
 
   constructor(private http: HttpClient, private progress: ProgressService) {
+    super();
   }
 
   retrieveFor(username: string): Progress {
@@ -89,11 +85,7 @@ export class ScrobbleRetrieverService {
         const page = parseInt(response.recenttracks['@attr'].totalPages);
 
         // trigger update for imported scrobbles
-        if (scrobbles.length) {
-          progress.loader.next(scrobbles);
-          progress.first.next(scrobbles[0]);
-          progress.last.next(scrobbles[scrobbles.length - 1]);
-        }
+        this.handleImportedItem(scrobbles, progress);
 
         if (page > 0) {
           progress.state.next('RETRIEVING');

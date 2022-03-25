@@ -5,6 +5,8 @@ import { AppComponent } from 'projects/shared/src/lib/app/app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
+import { SpotifyItemService } from 'projects/spotify-stats/src/app/spotify-item.service';
 import { HomeComponent } from './home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -36,6 +38,9 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
     RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent)),
     SharedModule
   ],
+  providers: [{
+    provide: AbstractItemRetriever, useExisting: SpotifyItemService
+  }],
   bootstrap: [AppComponent]
 })
 export class SpotifyStatsModule { }

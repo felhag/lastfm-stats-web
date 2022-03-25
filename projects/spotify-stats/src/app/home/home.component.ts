@@ -3,7 +3,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
 import { Scrobble } from 'projects/shared/src/lib/app/model';
-import { ScrobbleRetrieverService } from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { BehaviorSubject } from 'rxjs';
 
 interface JSONEntry {
@@ -30,7 +30,7 @@ export class HomeComponent {
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
 
-  constructor(private router: Router, private retriever: ScrobbleRetrieverService) {
+  constructor(private router: Router, private retriever: AbstractItemRetriever) {
   }
 
   onSelect(event: any): void {

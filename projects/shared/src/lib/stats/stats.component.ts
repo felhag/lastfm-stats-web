@@ -2,11 +2,11 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { combineLatest, Observable } from 'rxjs';
 import { map, filter, finalize } from 'rxjs/operators';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
-import { Progress } from 'projects/shared/src/lib/app/model';
-import { ScrobbleRetrieverService, State } from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { Progress, State } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
@@ -25,7 +25,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   progress!: Progress;
   settingCount = new Observable<number>();
 
-  constructor(private retriever: ScrobbleRetrieverService,
+  constructor(private retriever: AbstractItemRetriever,
               private builder: StatsBuilderService,
               public settings: SettingsService,
               private usernameService: UsernameService,

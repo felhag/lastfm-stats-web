@@ -1,7 +1,11 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { State } from 'projects/shared/src/lib/service/scrobble-retriever.service';
 
 export type ItemType = 'artist' | 'album' | 'track';
+
+export type State =
+  'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' |       // happy flow states
+  'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' |  // initial error states
+  'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';                // completed states
 
 export interface User {
   name: string;

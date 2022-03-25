@@ -6,7 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble-retriever.service';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
 import { HomeComponent } from './home/home.component';
 
@@ -24,6 +26,9 @@ import { HomeComponent } from './home/home.component';
     SharedModule,
     RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent))
   ],
+  providers: [{
+    provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService
+  }],
   bootstrap: [AppComponent]
 })
 export class LastfmStatsModule { }
