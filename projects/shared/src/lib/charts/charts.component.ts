@@ -3,6 +3,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as Highcharts from 'highcharts';
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { ArtistScrobbleChart } from 'projects/shared/src/lib/charts/artist-scrobble-chart';
@@ -51,27 +52,31 @@ if (darkMode.matches) {
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [TranslatePipe]
 })
 export class ChartsComponent implements AfterViewInit {
   Highcharts: typeof Highcharts = Highcharts;
-  charts: AbstractChart[] = [
-    new TimelineChart(),
-    new ArtistScrobbleChart(),
-    new ArtistTimelineChart(),
-    new CumulativeItemsChart(),
-    new WordcloudChart(),
-    new PunchcardChart(),
-    new ScrobbleScatterChart(),
-    new ScrobblePerDayChart(),
-    new RaceChart(),
-    new ScrobbleMomentChart('Scrobbled hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
-    new ScrobbleMomentChart('Scrobbled days', Constants.DAYS, s => Object.values(s.days)),
-    new ScrobbleMomentChart('Scrobbled months', Constants.MONTHS, s => Object.values(s.months)),
-  ];
+  charts: AbstractChart[];
 
   constructor(
     private builder: StatsBuilderService,
-    private usernameHolder: UsernameService) {
+    private usernameHolder: UsernameService,
+    private translate: TranslatePipe) {
+
+    this.charts = [
+      new TimelineChart(translate),
+      new ArtistScrobbleChart(translate),
+      new ArtistTimelineChart(translate),
+      new CumulativeItemsChart(translate),
+      new WordcloudChart(),
+      new PunchcardChart(translate),
+      new ScrobbleScatterChart(translate),
+      new ScrobblePerDayChart(translate),
+      new RaceChart(translate),
+      new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
+      new ScrobbleMomentChart(translate, 'days', Constants.DAYS, s => Object.values(s.days)),
+      new ScrobbleMomentChart(translate, 'months', Constants.MONTHS, s => Object.values(s.months)),
+    ];
   }
 
   ngAfterViewInit(): void {

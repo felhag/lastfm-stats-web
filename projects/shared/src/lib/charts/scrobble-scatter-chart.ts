@@ -2,77 +2,83 @@ import { TempStats } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import * as Highcharts from 'highcharts';
 import boost from 'highcharts/modules/boost';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 boost(Highcharts);
 
 export class ScrobbleScatterChart extends AbstractChart {
   nameMap = new Map<number, string>();
-  options: Highcharts.Options = {
-    title: {text: 'All scrobbles'},
-    chart: {
-      type: 'scatter',
-      zoomType: 'xy',
-      alignTicks: false
-    },
-    boost: {
-      useGPUTranslations: true,
-      usePreallocated: true
-    },
-    xAxis: {
-      type: 'datetime',
-      gridLineWidth: 1
-    },
-    yAxis: {
-      min: 0,
-      max: 23 * 60,
-      reversed: true,
-      startOnTick: false,
-      endOnTick: false,
-      title: {text: null},
-      labels: {
-        formatter(): string {
-          return Math.floor(this.value as number / 60).toString().padStart(2, '0') + ':00';
+
+  constructor(translate: TranslatePipe) {
+    super();
+
+    this.options = {
+      title: {text: 'All ' + translate.transform('translate.scrobbles')},
+      chart: {
+        type: 'scatter',
+        zoomType: 'xy',
+        alignTicks: false
+      },
+      boost: {
+        useGPUTranslations: true,
+        usePreallocated: true
+      },
+      xAxis: {
+        type: 'datetime',
+        gridLineWidth: 1
+      },
+      yAxis: {
+        min: 0,
+        max: 23 * 60,
+        reversed: true,
+        startOnTick: false,
+        endOnTick: false,
+        title: {text: null},
+        labels: {
+          formatter(): string {
+            return Math.floor(this.value as number / 60).toString().padStart(2, '0') + ':00';
+          }
         }
-      }
-    },
-    legend: {enabled: false},
-    tooltip: {
-      followPointer: false,
-      formatter(): string {
-        return `${this.series.options.custom!.component.nameMap.get(this.x)} ${new Date(this.x as number).toLocaleString()}`
-      }
-    },
-    series: [{
-      type: 'scatter',
-      data: [],
-      custom: {component: this},
-      marker: {
-        radius: 0.5
-      }
-    }],
-    exporting: {
-      sourceHeight: 1024,
-      sourceWidth: 8096,
-      chartOptions: {
-        title: {text: ''},
-        series: [{
-          type: 'scatter',
-          marker: {
-            radius: 1
+      },
+      legend: {enabled: false},
+      tooltip: {
+        followPointer: false,
+        formatter(): string {
+          return `${this.series.options.custom!.component.nameMap.get(this.x)} ${new Date(this.x as number).toLocaleString()}`
+        }
+      },
+      series: [{
+        type: 'scatter',
+        data: [],
+        custom: {component: this},
+        marker: {
+          radius: 0.5
+        }
+      }],
+      exporting: {
+        sourceHeight: 1024,
+        sourceWidth: 8096,
+        chartOptions: {
+          title: {text: ''},
+          series: [{
+            type: 'scatter',
+            marker: {
+              radius: 1
+            }
+          }]
+        }
+      },
+      responsive: {
+        rules: [{
+          condition: {
+            maxWidth: 768
+          },
+          chartOptions: {
+            yAxis: {title: {text: ''}}
           }
         }]
       }
-    },
-    responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 768
-        },
-        chartOptions: {
-          yAxis: {title: {text: ''}}
-        }
-      }]
-    }
-  };
+    };
+  }
 
   update(stats: TempStats): void {
     if (!this.chart) {

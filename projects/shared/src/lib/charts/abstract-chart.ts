@@ -10,7 +10,7 @@ offline(Highcharts);
 fullscreen(Highcharts);
 
 export abstract class AbstractChart {
-  abstract options: Highcharts.Options;
+  options: Highcharts.Options = {};
   chart?: Highcharts.Chart;
   username = '';
 

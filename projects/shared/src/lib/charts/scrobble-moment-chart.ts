@@ -2,16 +2,17 @@ import {TempStats} from 'projects/shared/src/lib/app/model';
 import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
 import * as Highcharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 more(Highcharts);
 
 export class ScrobbleMomentChart extends AbstractChart {
   options: Highcharts.Options;
 
-  constructor(title: string, categories: string[], private values: (stats: TempStats) => number[]) {
+  constructor(translate: TranslatePipe, title: string, categories: string[], private values: (stats: TempStats) => number[]) {
     super();
 
     this.options = {
-      title: {text: title},
+      title: {text: `${translate.capFirst('translate.scrobbled')} ${title}`},
       chart: {
         polar: true,
         type: 'column'
@@ -20,7 +21,7 @@ export class ScrobbleMomentChart extends AbstractChart {
       yAxis: {visible: false},
       xAxis: {categories},
       series: [{
-        name: 'Scrobbles',
+        name: translate.capFirst('translate.scrobbles'),
         type: 'column',
         data: []
       }],

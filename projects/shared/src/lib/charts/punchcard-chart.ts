@@ -1,5 +1,6 @@
 import * as Highcharts from 'highcharts';
 import {TempStats, Constants, Track} from 'projects/shared/src/lib/app/model';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
 import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
 import heatmap from 'highcharts/modules/heatmap';
@@ -16,93 +17,96 @@ export class PunchcardChart extends AbstractChart {
   last = 0;
   byUser = false;
 
-  options: Highcharts.Options = {
-    series: [{
-      name: 'Scrobbles',
-      type: 'heatmap',
-      data: [],
-      borderWidth: 1,
-      dataLabels: {
-        enabled: true,
-        style: {
-          fontSize: '10px'
-        }
-      },
-      events: {
-        click: event => {
-          const date = PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year);
-          window.open(UrlBuilder.day(this.username, date));
-        }
-      }
-    }],
-    title: {
-      text: 'Number of scrobbles'
-    },
-    tooltip: {
-      formatter(event): string {
-        const year = parseInt((event.chart.container.parentNode!.querySelector('.current') as HTMLElement).innerText);
-        const date = PunchcardChart.parseWeek(this.point.x, this.point.y!, year);
-        return `${date.toLocaleDateString()}: <b>${this.point.value} scrobbles</b>`;
-      }
-    },
-    xAxis: {
-      categories: [...Array(53).keys()].map(k => `W${k}`)
-    },
-    yAxis: {
-      categories: Constants.DAYS,
-      title: undefined,
-      reversed: true
-    },
-    colorAxis: {
-      labels: {style: {color: this.textColor }},
-      min: 0,
-      minColor: '#FFFFFF',
-      maxColor: Highcharts.getOptions().colors![0]
-    },
-    chart: {
-      events: {
-        render: event => {
-          if (!this.toolbar) {
-            this.toolbar = document.getElementById('punchcard-toolbar')!;
-            this.yearLabel = this.toolbar.querySelector('.current') as HTMLElement;
-            this.prevButton = this.toolbar.querySelector('.prev') as HTMLButtonElement;
-            this.nextButton = this.toolbar.querySelector('.next') as HTMLButtonElement;
-
-            this.prevButton.onclick = () => {
-              this.byUser = true;
-              this.year--;
-              this.updateDays(this.data);
-            };
-            this.nextButton.onclick = () => {
-              this.byUser = true;
-              this.year++;
-              this.updateDays(this.data);
-            };
-
-            const chart = event.target as any as Highcharts.Chart;
-            chart.container.parentNode!.appendChild(this.toolbar);
+  constructor(translate: TranslatePipe) {
+    super();
+    this.options = {
+      series: [{
+        name: translate.capFirst('translate.scrobbles'),
+        type: 'heatmap',
+        data: [],
+        borderWidth: 1,
+        dataLabels: {
+          enabled: true,
+          style: {
+            fontSize: '10px'
+          }
+        },
+        events: {
+          click: event => {
+            const date = PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year);
+            window.open(UrlBuilder.day(this.username, date));
           }
         }
-      }
-    },
-    responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 768
-        },
-        // Make the labels less space demanding on mobile
-        chartOptions: {
-          yAxis: {
-            labels: {
-              formatter(): string {
-                return (this.value as string).substr(0, 1);
-              }
-            }
-          },
+      }],
+      title: {
+        text: 'Number of ' + translate.transform('translate.scrobbles')
+      },
+      tooltip: {
+        formatter(event): string {
+          const year = parseInt((event.chart.container.parentNode!.querySelector('.current') as HTMLElement).innerText);
+          const date = PunchcardChart.parseWeek(this.point.x, this.point.y!, year);
+          return `${date.toLocaleDateString()}: <b>${this.point.value} ${translate.transform('translate.scrobbles')}</b>`;
         }
-      }]
-    }
-  };
+      },
+      xAxis: {
+        categories: [...Array(53).keys()].map(k => `W${k}`)
+      },
+      yAxis: {
+        categories: Constants.DAYS,
+        title: undefined,
+        reversed: true
+      },
+      colorAxis: {
+        labels: {style: {color: this.textColor}},
+        min: 0,
+        minColor: '#FFFFFF',
+        maxColor: Highcharts.getOptions().colors![0]
+      },
+      chart: {
+        events: {
+          render: event => {
+            if (!this.toolbar) {
+              this.toolbar = document.getElementById('punchcard-toolbar')!;
+              this.yearLabel = this.toolbar.querySelector('.current') as HTMLElement;
+              this.prevButton = this.toolbar.querySelector('.prev') as HTMLButtonElement;
+              this.nextButton = this.toolbar.querySelector('.next') as HTMLButtonElement;
+
+              this.prevButton.onclick = () => {
+                this.byUser = true;
+                this.year--;
+                this.updateDays(this.data);
+              };
+              this.nextButton.onclick = () => {
+                this.byUser = true;
+                this.year++;
+                this.updateDays(this.data);
+              };
+
+              const chart = event.target as any as Highcharts.Chart;
+              chart.container.parentNode!.appendChild(this.toolbar);
+            }
+          }
+        }
+      },
+      responsive: {
+        rules: [{
+          condition: {
+            maxWidth: 768
+          },
+          // Make the labels less space demanding on mobile
+          chartOptions: {
+            yAxis: {
+              labels: {
+                formatter(): string {
+                  return (this.value as string).substr(0, 1);
+                }
+              }
+            },
+          }
+        }]
+      }
+    };
+  }
 
   update(stats: TempStats): void {
     if (!this.chart || !stats.last) {

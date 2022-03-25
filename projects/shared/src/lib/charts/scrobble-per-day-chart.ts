@@ -1,63 +1,66 @@
-import {TempStats, Constants} from 'projects/shared/src/lib/app/model';
-import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
-import * as Highcharts from 'highcharts';
+import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
+import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 export class ScrobblePerDayChart extends AbstractChart {
-  options: Highcharts.Options = {
-    title: {text: 'Scrobble count per day'},
-    legend: {enabled: false},
-    yAxis: [{
-      allowDecimals: false,
-      title: {
-        text: 'Amount of days'
-      },
-    }, {
-      opposite: true,
-      allowDecimals: false,
-      title: {
-        text: 'Days scrobbled',
-      }
-    }],
-    xAxis: {
-      title: {
-        text: 'Scrobbles'
-      },
-    },
-    series: [{
-      name: 'Scrobbles',
-      type: 'column',
-      data: [],
-      groupPadding: 0,
-      pointPadding: 0,
-      tooltip: {
-        headerFormat: '',
-        pointFormatter(): string {
-          return `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> scrobble${this.name === '1' ? '' : 's'}.`;
+  constructor(translate: TranslatePipe) {
+    super();
+    this.options = {
+      title: {text: translate.capFirst('translate.scrobble') + ' count per day'},
+      legend: {enabled: false},
+      yAxis: [{
+        allowDecimals: false,
+        title: {
+          text: 'Amount of days'
+        },
+      }, {
+        opposite: true,
+        allowDecimals: false,
+        title: {
+          text: 'Days ' + translate.transform('translate.scrobbled'),
         }
-      }
-    }, {
-      type: 'scatter',
-      data: [],
-      yAxis: 1,
-      marker: {
-        radius: 4
+      }],
+      xAxis: {
+        title: {
+          text: translate.capFirst('translate.scrobbles')
+        },
       },
-      dataLabels: {
-        enabled: true,
-        format: '{point.name}',
-        style: {
-          color: this.textColor,
-          textOutline: 0
+      series: [{
+        name: translate.capFirst('translate.scrobbles'),
+        type: 'column',
+        data: [],
+        groupPadding: 0,
+        pointPadding: 0,
+        tooltip: {
+          headerFormat: '',
+          pointFormatter(): string {
+            return `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> ${translate.transform('translate.scrobble')}${this.name === '1' ? '' : 's'}.`;
+          }
+        }
+      }, {
+        type: 'scatter',
+        data: [],
+        yAxis: 1,
+        marker: {
+          radius: 4
+        },
+        dataLabels: {
+          enabled: true,
+          format: '{point.name}',
+          style: {
+            color: this.textColor,
+            textOutline: 0
+          } as any
+        },
+        tooltip: {
+          useHTML: true,
+          headerFormat: '',
+          pointFormat: `{point.name}<br>Average ${translate.capFirst('translate.scrobbles')} per day: <b>{point.avg}</b><br>Days ${translate.capFirst('translate.scrobbled')}:<b style="text-align: right;">{point.y}</b>`
         } as any
-      },
-      tooltip: {
-        useHTML: true,
-        headerFormat: '',
-        pointFormat: '{point.name}<br>Average scrobbles per day: <b>{point.avg}</b><br>Days scrobbled:<b style="text-align: right;">{point.y}</b>'
-      } as any
-    }],
-    responsive: this.responsive(['left', 'right'])
-  };
+      }],
+      responsive: this.responsive(['left', 'right'])
+    };
+  }
 
   update(stats: TempStats): void {
     if (!this.chart || !stats.first) {

@@ -1,33 +1,36 @@
-import * as Highcharts from 'highcharts';
-import { Mapper } from 'projects/shared/src/lib/util/mapper';
 import { TempStats, StreakItem } from 'projects/shared/src/lib/app/model';
 import { ToggleableChart } from 'projects/shared/src/lib/charts/toggleable-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { Mapper } from 'projects/shared/src/lib/util/mapper';
 
 export class CumulativeItemsChart extends ToggleableChart {
-  options: Highcharts.Options = {
-    chart: {
-      zoomType: 'xy',
-      events: this.events
-    },
-    plotOptions: this.plotOptions,
-    title: {text: 'Cumulative scrobbles for top 25'},
-    legend: {enabled: false},
-    xAxis: {type: 'category'},
-    yAxis: [{
-      title: {
-        text: 'Scrobbles'
-      }
-    }],
-    exporting: {
-      sourceHeight: 1024,
-      chartOptions: {
-        legend: {
-          enabled: true
+  constructor(translate: TranslatePipe) {
+    super();
+    this.options = {
+      chart: {
+        zoomType: 'xy',
+        events: this.events
+      },
+      plotOptions: this.plotOptions,
+      title: {text: `Cumulative ${translate.transform('translate.scrobbles')} for top 25`},
+      legend: {enabled: false},
+      xAxis: {type: 'category'},
+      yAxis: [{
+        title: {
+          text: translate.capFirst('translate.scrobbles')
         }
-      }
-    },
-    responsive: this.responsive()
-  };
+      }],
+      exporting: {
+        sourceHeight: 1024,
+        chartOptions: {
+          legend: {
+            enabled: true
+          }
+        }
+      },
+      responsive: this.responsive()
+    };
+  }
 
   update(stats: TempStats): void {
     if (!this.chart) {

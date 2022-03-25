@@ -1,63 +1,68 @@
 import * as Highcharts from 'highcharts';
 import {TempStats} from 'projects/shared/src/lib/app/model';
 import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 export class TimelineChart extends AbstractChart {
-  options: Highcharts.Options = {
-    title: {text: 'Scrobbles, artists and tracks over time'},
-    xAxis: {
-      type: 'datetime'
-    },
-    tooltip: {
-      formatter(): string {
-        const date = new Date(this.x as number).toLocaleString();
-        const value = Highcharts.numberFormat(this.y as number, 0, '', '.');
-        return date + '<br><b>' + this.key + '</b><br><span style="color:' + this.point.color + '">\u25CF</span>' + value;
-      }
-    },
-    yAxis: [{
-      title: {
-        text: 'Scrobbles',
-        style: {
-          color: Highcharts.getOptions().colors![0]
+  constructor(translate: TranslatePipe) {
+    super();
+
+    this.options = {
+      title: {text: translate.capFirst('translate.scrobbles') + ', artists and tracks over time'},
+      xAxis: {
+        type: 'datetime'
+      },
+      tooltip: {
+        formatter(): string {
+          const date = new Date(this.x as number).toLocaleString();
+          const value = Highcharts.numberFormat(this.y as number, 0, '', '.');
+          return date + '<br><b>' + this.key + '</b><br><span style="color:' + this.point.color + '">\u25CF</span>' + value;
         }
-      }
-    }, {
-      gridLineWidth: 0,
-      opposite: true,
-      title: {
-        text: 'Artists',
-        style: {
-          color: Highcharts.getOptions().colors![1]
+      },
+      yAxis: [{
+        title: {
+          text: translate.capFirst('translate.scrobbles'),
+          style: {
+            color: Highcharts.getOptions().colors![0]
+          }
         }
-      }
-    }, {
-      gridLineWidth: 0,
-      opposite: true,
-      title: {
-        text: 'Tracks',
-        style: {
-          color: Highcharts.getOptions().colors![2]
+      }, {
+        gridLineWidth: 0,
+        opposite: true,
+        title: {
+          text: 'Artists',
+          style: {
+            color: Highcharts.getOptions().colors![1]
+          }
         }
-      }
-    }],
-    series: [{
-      name: 'Scrobbles',
-      data: [],
-      type: 'line',
-    }, {
-      name: 'Artists',
-      yAxis: 1,
-      data: [],
-      type: 'line',
-    }, {
-      name: 'Tracks',
-      yAxis: 2,
-      data: [],
-      type: 'line',
-    }],
-    responsive: this.responsive(['left', 'right', undefined])
-  };
+      }, {
+        gridLineWidth: 0,
+        opposite: true,
+        title: {
+          text: 'Tracks',
+          style: {
+            color: Highcharts.getOptions().colors![2]
+          }
+        }
+      }],
+      series: [{
+        name: translate.transform('translate.scrobbles'),
+        data: [],
+        type: 'line',
+      }, {
+        name: 'Artists',
+        yAxis: 1,
+        data: [],
+        type: 'line',
+      }, {
+        name: 'Tracks',
+        yAxis: 2,
+        data: [],
+        type: 'line',
+      }],
+      responsive: this.responsive(['left', 'right', undefined])
+    };
+  }
 
   update(stats: TempStats): void {
     if (!this.chart || !stats.first) {

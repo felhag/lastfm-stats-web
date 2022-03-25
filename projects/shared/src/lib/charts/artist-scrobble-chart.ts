@@ -1,63 +1,68 @@
-import {TempStats, Constants} from 'projects/shared/src/lib/app/model';
+import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
+import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
-import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
-import * as Highcharts from 'highcharts';
 
 export class ArtistScrobbleChart extends AbstractChart {
-  options: Highcharts.Options = {
-    title: {text: 'Tracks per artist'},
-    subtitle: {text: `(${Constants.SCROBBLE_ARTIST_THRESHOLD}+ scrobbles)`},
-    chart: {
-      type: 'scatter',
-      zoomType: 'xy',
-    },
-    xAxis: {
-      title: {
-        text: 'Scrobbles'
+
+  constructor(translate: TranslatePipe) {
+    super();
+    this.options = {
+      title: {text: 'Tracks per artist'},
+      subtitle: {text: `(${Constants.SCROBBLE_ARTIST_THRESHOLD}+ ${translate.transform('translate.scrobbles')})`},
+      chart: {
+        type: 'scatter',
+        zoomType: 'xy',
       },
-      min: 50
-    },
-    yAxis: {
-      title: {
-        text: 'Tracks'
+      xAxis: {
+        title: {
+          text: translate.capFirst('translate.scrobbles')
+        },
+        min: 50
       },
-      min: 0
-    },
-    legend: {
-      enabled: false
-    },
-    plotOptions: {
-      scatter: {
-        tooltip: {
-          headerFormat: '',
-          pointFormat: '<span style="color:{point.color}">\u25CF</span>{point.name}<br>Scrobbles: {point.x}<br>Tracks: {point.y}',
+      yAxis: {
+        title: {
+          text: 'Tracks'
+        },
+        min: 0
+      },
+      legend: {
+        enabled: false
+      },
+      plotOptions: {
+        scatter: {
+          tooltip: {
+            headerFormat: '',
+            pointFormat: '<span style="color:{point.color}">\u25CF</span>{point.name}<br>' + translate.capFirst('translate.scrobbles') + ': {point.x}<br>Tracks: {point.y}',
+          }
         }
-      }
-    },
-    series: [{
-      name: 'Artists',
-      type: 'scatter',
-      data: [],
-      events: {
-        click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
-      }
-    }],
-    exporting: {
-      chartOptions: {
-        plotOptions: {
-          series: {
-            dataLabels: {
-              enabled: true,
-              formatter(): string {
-                return this.point.name;
+      },
+      series: [{
+        name: 'Artists',
+        type: 'scatter',
+        data: [],
+        events: {
+          click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
+        }
+      }],
+      exporting: {
+        chartOptions: {
+          plotOptions: {
+            series: {
+              dataLabels: {
+                enabled: true,
+                formatter(): string {
+                  return this.point.name;
+                }
               }
             }
           }
         }
-      }
-    },
-    responsive: this.responsive()
-  };
+      },
+      responsive: this.responsive()
+    };
+
+  }
 
   update(stats: TempStats): void {
     if (!this.chart) {

@@ -1,6 +1,7 @@
 import {PointOptionsObject} from 'highcharts';
 import * as Highcharts from 'highcharts';
 import {TempStats, Month} from 'projects/shared/src/lib/app/model';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
 import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
 
@@ -17,94 +18,97 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
 
-  options: Highcharts.Options = {
-    chart: {
-      animation: {
-        duration: this.speed
-      },
-      height: 800,
-      events: {
-        render: event => {
-          if (!this.toolbar) {
-            this.toolbar = document.getElementById('race-chart-toolbar')!;
-            this.speedText = this.toolbar.querySelector('.current') as HTMLElement;
-            this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
-            this.input = this.toolbar.querySelector('input') as HTMLInputElement;
-            this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
-            (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
-            (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
-            (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
-
-            const chart = event.target as any as Highcharts.Chart;
-            chart.container.parentNode!.appendChild(this.toolbar);
-          }
-        }
-      }
-    },
-    plotOptions: {
-      series: {
-        animation: false,
-        groupPadding: 0,
-        pointPadding: 0.1,
-        borderWidth: 0
-      } as any
-    },
-    title: {text: 'Artists race chart'},
-    xAxis: {type: 'category'},
-    yAxis: [{
-      opposite: true,
-      title: {
-        text: 'Scrobbles'
-      },
-      tickAmount: 5
-    }],
-    legend: {
-      floating: true,
-      align: 'right',
-      verticalAlign: 'bottom',
-      itemStyle: {
-        fontWeight: 'bold',
-        fontSize: '50px',
-      },
-      symbolHeight: 0.001,
-      symbolWidth: 0.001,
-      symbolRadius: 0.001,
-    },
-    series: [{
-      colorByPoint: true,
-      dataSorting: {
-        enabled: true,
-        matchByName: true
-      },
-      type: 'bar',
-      dataLabels: [{
-        enabled: true,
-        style: {
-          color: this.textColor,
-          textOutline: 0
-        } as any
-      }],
-      name: '',
-      data: [],
-      events: {
-        click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
-      }
-    }],
-    responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 768
+  constructor(translate: TranslatePipe) {
+    super();
+    this.options = {
+      chart: {
+        animation: {
+          duration: this.speed
         },
-        chartOptions: {
-          legend: {
-            itemStyle: {
-              fontSize: '24px',
+        height: 800,
+        events: {
+          render: event => {
+            if (!this.toolbar) {
+              this.toolbar = document.getElementById('race-chart-toolbar')!;
+              this.speedText = this.toolbar.querySelector('.current') as HTMLElement;
+              this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
+              this.input = this.toolbar.querySelector('input') as HTMLInputElement;
+              this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
+              (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
+              (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
+              (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
+
+              const chart = event.target as any as Highcharts.Chart;
+              chart.container.parentNode!.appendChild(this.toolbar);
             }
           }
         }
-      }]
-    }
-  };
+      },
+      plotOptions: {
+        series: {
+          animation: false,
+          groupPadding: 0,
+          pointPadding: 0.1,
+          borderWidth: 0
+        } as any
+      },
+      title: {text: 'Artists race chart'},
+      xAxis: {type: 'category'},
+      yAxis: [{
+        opposite: true,
+        title: {
+          text: translate.capFirst('translate.scrobbles')
+        },
+        tickAmount: 5
+      }],
+      legend: {
+        floating: true,
+        align: 'right',
+        verticalAlign: 'bottom',
+        itemStyle: {
+          fontWeight: 'bold',
+          fontSize: '50px',
+        },
+        symbolHeight: 0.001,
+        symbolWidth: 0.001,
+        symbolRadius: 0.001,
+      },
+      series: [{
+        colorByPoint: true,
+        dataSorting: {
+          enabled: true,
+          matchByName: true
+        },
+        type: 'bar',
+        dataLabels: [{
+          enabled: true,
+          style: {
+            color: this.textColor,
+            textOutline: 0
+          } as any
+        }],
+        name: '',
+        data: [],
+        events: {
+          click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
+        }
+      }],
+      responsive: {
+        rules: [{
+          condition: {
+            maxWidth: 768
+          },
+          chartOptions: {
+            legend: {
+              itemStyle: {
+                fontSize: '24px',
+              }
+            }
+          }
+        }]
+      }
+    };
+  }
 
   update(stats: TempStats): void {
     this.months = Object.values(stats.monthList);
