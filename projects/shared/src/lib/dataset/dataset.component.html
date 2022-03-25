@@ -16,7 +16,7 @@
   <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">
     <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="dataSource" class="full-width">
       <ng-container *ngFor="let col of columns" [matColumnDef]="col">
-        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{(col === 'name' ? groupedBy : col) | titlecase}}</th>
+        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{getHeader(col) | titlecase}}</th>
         <td mat-cell *matCellDef="let element"> {{element[col]}} </td>
       </ng-container>
 

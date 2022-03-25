@@ -4,10 +4,10 @@
     <app-top10list [list]="s.notListenedStreak" title="Not listened streaks"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.mostScrobblesPerDay" title="Most scrobbles per day"></app-top10list>
-    <app-top10list [list]="s.mostScrobblesPerWeek" title="Most scrobbles per week"></app-top10list>
+    <app-top10list [list]="s.mostScrobblesPerDay" title="Most {{'translate.scrobbles' | translate}} per day"></app-top10list>
+    <app-top10list [list]="s.mostScrobblesPerWeek" title="Most {{'translate.scrobbles' | translate}} per week"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.mostScrobbledArtistPerDay" title="Most scrobbled artist on a single day"></app-top10list>
+    <app-top10list [list]="s.mostScrobbledArtistPerDay" title="Most {{'translate.scrobbled' | translate}} artist on a single day"></app-top10list>
   </div>
 </div>

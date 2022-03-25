@@ -1,11 +1,11 @@
 <div *ngIf="stats | async as s" class="container">
   <div class="row">
-    <app-top10list [list]="s.betweenArtists" title="Gaps between artists" explanation="Largest time passed between two scrobbles of the same artist"></app-top10list>
+    <app-top10list [list]="s.betweenArtists" title="Gaps between artists" explanation="Largest time passed between two {{'translate.scrobbles' | translate}} of the same artist"></app-top10list>
     <app-top10list [list]="s.ongoingBetweenArtists" title="Ongoing gaps between artists" explanation="Largest time passed since last time you listened to an artist"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.weeksPerArtist" title="Weeks per artists" explanation="Unique weeks an artist has been scrobbled at least once"></app-top10list>
-    <app-top10list [list]="s.tracksPerArtist" title="Tracks per artists" explanation="Different tracks per artist scrobbled"></app-top10list>
+    <app-top10list [list]="s.weeksPerArtist" title="Weeks per artists" explanation="Unique weeks an artist has been {{'translate.scrobbled' | translate}} at least once"></app-top10list>
+    <app-top10list [list]="s.tracksPerArtist" title="Tracks per artists" explanation="Different tracks per artist {{'translate.scrobbled' | translate}}"></app-top10list>
   </div>
   <div class="row">
     <app-top10list [list]="s.newArtistsPerMonth" title="New artists in a single month"></app-top10list>
@@ -13,23 +13,23 @@
   </div>
   <div class="row">
     <app-top10list [list]="s.uniqueArtists" title="Unique artists in a single month"></app-top10list>
-    <app-top10list [list]="s.avgTrackPerArtist" title="Avg scrobbles per artist"></app-top10list>
+    <app-top10list [list]="s.avgTrackPerArtist" title="Avg {{'translate.scrobbles' | translate}} per artist"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.oneHitWonders" title="One hit wonders" explanation="Most scrobbled artists with just one song scrobbled"></app-top10list>
-    <app-top10list [list]="s.scrobblesPerTrack" title="Avg scrobbles per track" explanation="Average scrobbles per track for artists with at least 50 scrobbles and at least two tracks"></app-top10list>
+    <app-top10list [list]="s.oneHitWonders" title="One hit wonders" explanation="Most {{'translate.scrobbled' | translate}} artists with just one song {{'translate.scrobbled' | translate}}"></app-top10list>
+    <app-top10list [list]="s.scrobblesPerTrack" title="Avg {{'translate.scrobbles' | translate}} per track" explanation="Average {{'translate.scrobbles' | translate}} per track for artists with at least 50 {{'translate.scrobbles' | translate}} and at least two tracks"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average scrobble date for artists with at least 50 scrobbles, sorted ascending"></app-top10list>
-    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average scrobble date for artists with at least 50 scrobbles, sorted descending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.avgDelta" title="Average delta" explanation="Average time between two scrobbles for artists with at least 50 scrobbles, sorted descending"></app-top10list>
+    <app-top10list [list]="s.avgDelta" title="Average delta" explanation="Average time between two {{'translate.scrobbles' | translate}} for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
     <app-top10list [list]="s.latestNew" title="Latest new artist"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to scrobble count)"></app-top10list>
-    <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to scrobble count)"></app-top10list>
+    <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
+    <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
   </div>
   <div class="row">
     <app-top10list [list]="s.artistStreak" title="Artist streaks" explanation="Streaks for playing the same artist in a row."></app-top10list>

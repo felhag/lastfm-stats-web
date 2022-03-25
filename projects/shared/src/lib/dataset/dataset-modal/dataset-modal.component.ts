@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CircleProgressOptions } from 'ng-circle-progress/lib/ng-circle-progress.component';
 import { DataSetEntry, StreakStack } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
 import { Mapper } from 'projects/shared/src/lib/util/mapper';
@@ -15,7 +16,8 @@ annotations(Highcharts);
 @Component({
   selector: 'app-dataset-modal',
   templateUrl: './dataset-modal.component.html',
-  styleUrls: ['./dataset-modal.component.scss']
+  styleUrls: ['./dataset-modal.component.scss'],
+  providers: [TranslatePipe]
 })
 export class DatasetModalComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;
@@ -26,11 +28,13 @@ export class DatasetModalComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: DataSetEntry,
               private stats: StatsBuilderService,
-              private username: UsernameService) { }
+              private username: UsernameService,
+              private translate: TranslatePipe) { }
 
   ngOnInit(): void {
+    const scrobblesTitle = this.translate.transform('translate.scrobbles');
     this.options = [
-      this.circleOption('Scrobbles', this.data.scrobbles),
+      this.circleOption(scrobblesTitle.charAt(0).toUpperCase() + scrobblesTitle.slice(1), this.data.scrobbles),
       this.data.tracks ? this.circleOption('Tracks', this.data.tracks) : undefined,
       this.circleOption('Weeks', this.data.item.weeks.length),
     ];
@@ -64,7 +68,7 @@ export class DatasetModalComponent implements OnInit {
         title: { text: 'Rank' }
       }, {
         opposite: true,
-        title: { text: 'Scrobbles' }
+        title: { text: scrobblesTitle }
       }],
       legend: { enabled: false },
       series: [{
@@ -73,7 +77,7 @@ export class DatasetModalComponent implements OnInit {
         color: 'var(--primaryColor)',
         data: ranks
       }, {
-        name: 'Scrobbles',
+        name: scrobblesTitle,
         type: 'line',
         yAxis: 1,
         color: 'var(--primaryColorContrast)',
@@ -84,8 +88,8 @@ export class DatasetModalComponent implements OnInit {
           condition: { minWidth: 769 },
           chartOptions: {
             annotations: [
-              this.annotationOptions(first, scrobbles[first]!, 'First scrobble: ' + this.first.toLocaleString(), 'right'),
-              this.annotationOptions(last, scrobbles[last]!, 'Last scrobble: ' + this.last.toLocaleString(), 'left'),
+              this.annotationOptions(first, scrobbles[first]!, `First ${this.translate.transform('translate.scrobble')}: ${this.first.toLocaleString()}`, 'right'),
+              this.annotationOptions(last, scrobbles[last]!, `Last ${this.translate.transform('translate.scrobble')}: ${this.last.toLocaleString()}`, 'left'),
               this.mostScrobbledDayAnnotation(scrobbles),
             ]
           }
@@ -110,7 +114,7 @@ export class DatasetModalComponent implements OnInit {
     const max = Object.keys(days).reduce((a, b) => days[parseInt(a)] > days[parseInt(b)] ? a : b);
     const day = new Date(parseInt(max));
     const most = Object.keys(this.stats.tempStats.value.monthList).indexOf(Mapper.getMonthYear(day));
-    return this.annotationOptions(most, scrobbles[most], `Most scrobbled day: ${day.toLocaleDateString()} (${days[max]} scrobbles)`, 'left');
+    return this.annotationOptions(most, scrobbles[most], `Most ${this.translate.transform('translate.scrobbled')} day: ${day.toLocaleDateString()} (${days[max]} ${this.translate.transform('translate.scrobbles')})`, 'left');
   }
 
   private annotationOptions(x: number, y: number, text: string, align: Highcharts.AlignValue): Highcharts.AnnotationsOptions {

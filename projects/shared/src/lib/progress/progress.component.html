@@ -15,8 +15,8 @@
       <span *ngIf="progress.importedScrobbles">, imported <b>{{progress.importedScrobbles | number}}</b> scrobbles. Total scrobbles: <b>{{progress.importedScrobbles + progress.loadScrobbles | number}}</b></span>
     </div>
   </ng-container>
-  <div *ngIf="progress.first | async as f">First scrobble: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
-  <div *ngIf="progress.last | async as l">Last scrobble: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
+  <div *ngIf="progress.first | async as f">First {{'translate.scrobble' | translate}}: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
+  <div *ngIf="progress.last | async as l">Last {{'translate.scrobble' | translate}}: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
 </div>
 <div *ngIf="isLastfm" class="export">
   Save your data to reduce waiting time for your next visit!

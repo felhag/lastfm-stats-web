@@ -33,6 +33,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AlbumListsComponent } from './lists/album-lists.component';
 import { ArtistListsComponent } from './lists/artist-lists.component';
 import { ButtonsComponent } from './buttons/buttons.component';
@@ -61,6 +62,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
     StatsComponent,
     Top10listComponent,
     TrackListsComponent,
+    TranslatePipe
   ],
   imports: [
     BrowserAnimationsModule,

@@ -29,7 +29,12 @@ import { HomeComponent } from './home/home.component';
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService },
-    { provide: App, useValue: App.lastfm }
+    { provide: App, useValue: App.lastfm },
+    { provide: 'translations', useValue: {
+        'translate.scrobble': 'scrobble',
+        'translate.scrobbles': 'scrobbles',
+        'translate.scrobbled': 'scrobbled',
+      }}
   ],
   bootstrap: [AppComponent]
 })

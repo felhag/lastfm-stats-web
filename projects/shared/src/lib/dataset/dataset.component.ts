@@ -4,6 +4,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Subject, debounceTime } from 'rxjs';
 import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
@@ -13,7 +14,8 @@ import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-m
 @Component({
   selector: 'app-dataset',
   templateUrl: './dataset.component.html',
-  styleUrls: ['./dataset.component.scss']
+  styleUrls: ['./dataset.component.scss'],
+  providers: [TranslatePipe]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {
@@ -38,7 +40,8 @@ export class DatasetComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
 
   constructor(private builder: StatsBuilderService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private translate: TranslatePipe) {
   }
 
   ngOnInit(): void {
@@ -99,5 +102,15 @@ export class DatasetComponent implements OnInit {
     const width = window.innerWidth;
     const minWidth = width > 1200 ? 1000 : width - 48;
     this.dialog.open(DatasetModalComponent, {minWidth, data});
+  }
+
+  getHeader(col: string) {
+    if (col === 'name') {
+      return this.groupedBy;
+    } else if (col === 'scrobbles') {
+      return this.translate.transform('translate.scrobbles');
+    } else {
+      return col;
+    }
   }
 }

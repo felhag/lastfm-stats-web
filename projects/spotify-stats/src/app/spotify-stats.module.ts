@@ -41,7 +41,12 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: SpotifyItemService },
-    { provide: App, useValue: App.spotify }
+    { provide: App, useValue: App.spotify },
+    { provide: 'translations', useValue: {
+      'translate.scrobble': 'play',
+      'translate.scrobbles': 'plays',
+      'translate.scrobbled': 'played',
+    }}
   ],
   bootstrap: [AppComponent]
 })
