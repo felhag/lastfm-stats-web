@@ -15,9 +15,16 @@ Setting up a local dev environment:
 git clone https://github.com/felhag/lastfm-stats-web.git
 cd lastfm-stats-web
 npm ci
-npx ng serve
+ng serve
 ```
-If `@angular/cli` is installed globally the `npx` prefix can be left out in the serve command.
+
+Note: angular cli needs to be installed (```npm install -g @angular/cli```)
+
+Running spotify stats (served at port ```4201``` to be able to run both projects simultaneously):
+```
+ng serve spotify-stats
+```
+
 
 ## 🐛 Changelog
 3.1 (20-03-2022)

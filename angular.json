@@ -82,7 +82,8 @@
               "browserTarget": "spotify-stats:build:production"
             },
             "development": {
-              "browserTarget": "spotify-stats:build:development"
+              "browserTarget": "spotify-stats:build:development",
+              "port": 4201
             }
           },
           "defaultConfiguration": "development"
@@ -246,7 +247,7 @@
       }
     }
   },
-  "defaultProject": "lastfm-stats-web",
+  "defaultProject": "lastfm-stats",
   "cli": {
     "defaultCollection": "@angular-eslint/schematics"
   }
