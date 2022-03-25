@@ -192,7 +192,7 @@ export class RaceChart extends AbstractChart {
   private play(): void {
     this.button!.innerHTML = 'pause';
     this.tick(this.current + 1);
-    this.timer = setInterval(() => this.tick(this.current + 1), this.speed * 1.5);
+    this.timer = window.setInterval(() => this.tick(this.current + 1), this.speed * 1.5);
   }
 
   /**

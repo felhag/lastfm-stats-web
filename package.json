@@ -24,9 +24,11 @@
     "@ngneat/until-destroy": "^9.0.0",
     "highcharts": "^10.0.0",
     "highcharts-angular": "^3.0.0",
+    "jszip": "^3.7.1",
     "ng-circle-progress": "^1.6.0",
     "ng-table-virtual-scroll": "^1.4.0",
     "ngx-csv-parser": "0.0.7",
+    "ngx-dropzone": "3.1.0",
     "rxjs": "~7.5.5",
     "tslib": "^2.3.1",
     "zone.js": "~0.11.5"

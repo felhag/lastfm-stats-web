@@ -1,1 +1,35 @@
 @import './projects/shared/src/shared-home';
+
+.custom-dropzone {
+  flex-direction: column;
+  justify-content: center;
+  background: transparent;
+  height: auto;
+  min-height: 140px;
+  min-width: 100%;
+  color: inherit;
+  border-color: #d9dadc;
+  overflow-x: visible;
+  line-height: initial;
+
+  .mat-nav-list {
+    min-width: 100%;
+    padding-top: 0;
+  }
+}
+
+::ng-deep .custom-dropzone .mat-list-item-content {
+  flex-direction: row-reverse !important;
+
+  a {
+    margin-right: 12px;
+  }
+}
+
+ngx-dropzone-preview {
+  min-width: 100%;
+}
+
+.custom-dropzone.ngx-dz-hovered {
+  border: 5px solid rgb(235, 79, 79);
+}

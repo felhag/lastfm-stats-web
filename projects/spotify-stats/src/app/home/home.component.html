@@ -1,11 +1,32 @@
 <mat-card class="home">
   <div class="home-row">
     <img src="../../assets/favicon-192.png" alt="logo" class="logo" height="80" width="80">
-    <div> spotifystats.com <div class="subtext">Enhanced statistics for spotify</div></div>
+    <div> spotifystats.com
+      <div class="subtext">Enhanced statistics for spotify</div>
+    </div>
   </div>
   <div class="line home-row mw"></div>
 
+  <div class="custom-dropzone home-row" ngx-dropzone (change)="onSelect($event)">
+    <ngx-dropzone-label *ngIf="(files | async)?.length === 0">
+      Drop files or click to add
+      <br><br>
+      (Zip files or json files are allowed)
+    </ngx-dropzone-label>
+    <mat-nav-list>
+        <mat-list-item *ngFor="let f of files | async">
+          <a mat-icon-button matTooltip="Remove entry" (click)="onRemove(f, $event)"><mat-icon>delete</mat-icon></a>
+          <div mat-line>{{f.name}} ({{f.plays.length}} entries)</div>
+          <div mat-line>{{ f.first | date}} - {{f.last | date}}</div>
+        </mat-list-item>
+    </mat-nav-list>
+  </div>
 
+  <div class="home-row">
+    <button class="text-button" mat-stroked-button (click)="go()">
+      🧙‍♂️ Let's go!
+    </button>
+  </div>
 
   <app-buttons [showHome]="false"></app-buttons>
 </mat-card>
