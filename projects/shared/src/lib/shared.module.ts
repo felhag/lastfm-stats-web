@@ -1,7 +1,7 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { NgModule, Type } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -28,10 +28,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Routes, RouterModule } from '@angular/router';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TableVirtualScrollModule } from 'ng-table-virtual-scroll';
-import { SharedRoutingModule } from 'projects/shared/src/lib/shared-routing.module';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
 import { AlbumListsComponent } from './lists/album-lists.component';
 import { ArtistListsComponent } from './lists/artist-lists.component';
@@ -40,7 +40,6 @@ import { ChartsComponent } from './charts/charts.component';
 import { ConfComponent } from './conf/conf.component';
 import { DatasetComponent } from './dataset/dataset.component';
 import { DatasetModalComponent } from './dataset/dataset-modal/dataset-modal.component';
-import { HomeComponent } from './home/home.component';
 import { ProgressComponent } from './progress/progress.component';
 import { ScrobbleListsComponent } from './lists/scrobble-lists.component';
 import { StatsComponent } from './stats/stats.component';
@@ -57,7 +56,6 @@ import { TrackListsComponent } from './lists/track-lists.component';
     ConfComponent,
     DatasetComponent,
     DatasetModalComponent,
-    HomeComponent,
     ProgressComponent,
     ScrobbleListsComponent,
     StatsComponent,
@@ -108,7 +106,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
       innerStrokeColor: 'var(--primaryColorContrast)'
     }),
     MatCheckboxModule,
-    SharedRoutingModule
+    RouterModule
   ],
   exports: [
     AppComponent,
@@ -119,7 +117,6 @@ import { TrackListsComponent } from './lists/track-lists.component';
     ConfComponent,
     DatasetComponent,
     DatasetModalComponent,
-    HomeComponent,
     ProgressComponent,
     ScrobbleListsComponent,
     StatsComponent,
@@ -128,4 +125,45 @@ import { TrackListsComponent } from './lists/track-lists.component';
   ],
   bootstrap: [AppComponent]
 })
-export class SharedModule { }
+export class SharedModule {
+  public static getRoutesFor(home: Type<any>): Routes {
+    return [
+      {path: '', component: home},
+      {
+        path: 'user/:username',
+        component: StatsComponent,
+        children: [
+          {
+            path: '',
+            redirectTo: 'artists',
+            pathMatch: 'full'
+          }, {
+            path: 'artists',
+            pathMatch: 'full',
+            component: ArtistListsComponent
+          }, {
+            path: 'albums',
+            pathMatch: 'full',
+            component: AlbumListsComponent
+          }, {
+            path: 'tracks',
+            pathMatch: 'full',
+            component: TrackListsComponent
+          }, {
+            path: 'scrobbles',
+            pathMatch: 'full',
+            component: ScrobbleListsComponent
+          }, {
+            path: 'charts',
+            pathMatch: 'full',
+            component: ChartsComponent
+          }, {
+            path: 'dataset',
+            pathMatch: 'full',
+            component: DatasetComponent
+          }]
+      },
+    ];
+  }
+
+}

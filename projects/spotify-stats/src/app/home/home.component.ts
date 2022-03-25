@@ -1,9 +1,9 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {Router} from '@angular/router';
-import {NgxCsvParser} from 'ngx-csv-parser';
-import {Subject, BehaviorSubject} from 'rxjs';
-import {Export, Scrobble} from 'projects/shared/src/lib/app/model';
-import {ScrobbleRetrieverService} from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
+import { NgxCsvParser } from 'ngx-csv-parser';
+import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
+import { ScrobbleRetrieverService } from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -105,10 +105,5 @@ export class HomeComponent {
       return true;
     }
     return false;
-  }
-
-  get christmas(): boolean {
-    const date = new Date();
-    return date.getMonth() === 11 && [24, 25, 26].indexOf(date.getDate()) >= 0;
   }
 }

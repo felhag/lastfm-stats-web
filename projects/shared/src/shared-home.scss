@@ -26,62 +26,15 @@ $font-size: 32px;
       margin-right: 24px;
     }
 
-    .cm-logo {
-      width: 104px;
-      height: 80px;
-      position: relative;
-      img {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        max-width: 120px;
-      }
-    }
-
     .subtext {
       font-size: 18px;
       line-height: 18px;
     }
   }
 
-  .input-wrap {
-    position: relative;
-
-    .width-machine {
-      visibility: hidden;
-      display: inline-block;
-      min-width: 150px;
-    }
-
-    .input {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      outline: 0;
-      border: 0;
-      background: transparent;
-      font-size: $font-size;
-      font-family: inherit;
-      color: inherit;
-      padding: 0;
-
-      &.invalid::placeholder {
-        color: red;
-        opacity: 1;
-      }
-    }
-  }
-
   .line {
     border-top: 1px solid #d9dadc;
     flex: 1;
-  }
-
-  .or {
-    font-size: .75rem;
-    letter-spacing: 1px;
-    padding: 0 20px;
   }
 
   app-buttons {
