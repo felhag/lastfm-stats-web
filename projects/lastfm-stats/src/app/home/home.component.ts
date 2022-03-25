@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
-import { ScrobbleRetrieverService } from 'projects/shared/src/lib/service/scrobble-retriever.service';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -18,7 +18,7 @@ export class HomeComponent {
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
-              private retriever: ScrobbleRetrieverService) {
+              private retriever: AbstractItemRetriever) {
   }
 
   update(ev: Event): void {

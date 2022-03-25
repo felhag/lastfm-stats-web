@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Export, Progress } from 'projects/shared/src/lib/app/model';
+import { Export, Progress, App } from 'projects/shared/src/lib/app/model';
 import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { ProgressService } from 'projects/shared/src/lib/service/progress.servic
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressComponent {
-  constructor(private service: ProgressService) {
+  constructor(private service: ProgressService, private app: App) {
   }
 
   get progress(): Progress {
@@ -31,6 +31,10 @@ export class ProgressComponent {
   get eta(): string {
     const timeInSeconds = (this.progress.pageLoadTime || 3000) * this.progress.currentPage / 1000;
     return `~ ${Math.ceil(timeInSeconds / 60)} minutes`;
+  }
+
+  get isLastfm(): boolean {
+    return this.app === App.lastfm;
   }
 
   exportJSON(): void {

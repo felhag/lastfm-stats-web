@@ -6,7 +6,7 @@ import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-
 import { combineLatest, Observable } from 'rxjs';
 import { map, filter, finalize } from 'rxjs/operators';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
-import { Progress, State } from 'projects/shared/src/lib/app/model';
+import { Progress, State, App } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
@@ -30,7 +30,9 @@ export class StatsComponent implements OnInit, OnDestroy {
               public settings: SettingsService,
               private usernameService: UsernameService,
               private router: Router,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private app: App) {
+    this.tabs = this.tabs.filter(t => t !== 'albums' || this.app === App.lastfm);
   }
 
   ngOnInit(): void {
@@ -114,5 +116,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     if (active) {
       this.activeTab = tab;
     }
+  }
+
+  get isLastfm(): boolean {
+    return this.app === App.lastfm;
   }
 }

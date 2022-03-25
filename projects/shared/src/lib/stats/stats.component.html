@@ -8,14 +8,14 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          <a [href]="progress.user!.url" class="user-link regular-text">
-            <img [src]="progress.user!.image[0]['#text']">Statistics for {{username}}
+          <a *ngIf="progress.user as user" [href]="user.url" target="_blank" class="user-link regular-text">
+            <img *ngIf="user.image.length" [src]="user.image[0]['#text']">Statistics for {{user.name}}
           </a>
         </mat-card-title>
         <app-buttons></app-buttons>
       </mat-card-header>
       <mat-card-content class="scrobble-header">
-        <mat-card-subtitle>Progress</mat-card-subtitle>
+        <mat-card-subtitle *ngIf="isLastfm">Progress</mat-card-subtitle>
         <app-progress></app-progress>
 
         <div class="conf-row">
@@ -23,17 +23,18 @@
             <mat-icon class="material-icons-outlined">settings</mat-icon>
             Filter data
           </button>
-          <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
-          <mat-slide-toggle (change)="settings.autoUpdate.next($event.checked)" [checked]="settings.autoUpdate.value" color="primary"></mat-slide-toggle>
-          <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
-            <mat-icon>update</mat-icon>
-            Update
-          </button>
+          <ng-container *ngIf="isLastfm">
+            <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
+            <mat-slide-toggle (change)="settings.autoUpdate.next($event.checked)" [checked]="settings.autoUpdate.value" color="primary"></mat-slide-toggle>
+            <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
+              <mat-icon>update</mat-icon>
+              Update
+            </button>
+          </ng-container>
         </div>
       </mat-card-content>
     </mat-card>
 
-<!--    <div (swipeleft)="swipe($event, -1)" (swiperight)="swipe($event, 1)">-->
     <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
       <nav mat-tab-nav-bar mat-stretch-tabs>
         <a *ngFor="let tab of tabs" mat-tab-link [routerLink]="'/user/' + username + '/' + tab"

@@ -1,5 +1,7 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 
+export enum App { 'lastfm', 'spotify'}
+
 export type ItemType = 'artist' | 'album' | 'track';
 
 export type State =
