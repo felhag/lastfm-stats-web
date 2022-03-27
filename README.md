@@ -17,14 +17,18 @@ cd lastfm-stats-web
 npm ci
 ng serve
 ```
-
 Note: angular cli needs to be installed (```npm install -g @angular/cli```)
 
-Running spotify stats (served at port ```4201``` to be able to run both projects simultaneously):
+Default lastfm-stats will be served. To start a dev server for spotify-stats:
 ```
 ng serve spotify-stats
 ```
 
+Running both projects simultaneously:
+```
+npm run both
+```
+This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
 3.1 (20-03-2022)

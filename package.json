@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "both": "concurrently --kill-others \"ng serve --project=\"spotify-stats\" --port 4201\" \"ng serve --project=\"lastfm-stats\"",
     "build": "ng build",
     "lint": "ng lint",
     "deploy": "ng build --configuration production"
@@ -45,6 +46,7 @@
     "@types/node": "^17.0.21",
     "@typescript-eslint/eslint-plugin": "5.15.0",
     "@typescript-eslint/parser": "5.15.0",
+    "concurrently": "^7.0.0",
     "eslint": "^8.11.0",
     "ng-packagr": "^13.0.0",
     "ts-node": "~10.7.0",
