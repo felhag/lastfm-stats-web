@@ -1,9 +1,11 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
 import { Scrobble } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
+import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 
 interface JSONEntry {
@@ -29,8 +31,9 @@ interface ParsedEntry {
 export class HomeComponent {
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
+  submitted = false;
 
-  constructor(private router: Router, private retriever: AbstractItemRetriever) {
+  constructor(private router: Router, private retriever: AbstractItemRetriever, private dialog: MatDialog) {
   }
 
   onSelect(event: any): void {
@@ -68,7 +71,7 @@ export class HomeComponent {
       artist: s.artistName,
       track: s.trackName,
       album: '',
-      date: new Date(s.endTime)
+      date: new Date(s.endTime + ' UTC')
     }));
     const first = plays[0].date;
     const last = plays[plays.length - 1].date;
@@ -90,6 +93,13 @@ export class HomeComponent {
     if (this.username.valid && plays.length) {
       this.retriever.imported = plays;
       this.router.navigate([`/user/${this.username.value}`]);
+    } else {
+      this.submitted = true;
+      this.username.markAsTouched();
     }
+  }
+
+  openInfoDialog(): void {
+    this.dialog.open(InfoDialogComponent);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Export, Progress, App } from 'projects/shared/src/lib/app/model';
+import { Export, Progress, App, Constants } from 'projects/shared/src/lib/app/model';
 import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 
 @Component({
@@ -35,6 +35,13 @@ export class ProgressComponent {
 
   get isLastfm(): boolean {
     return this.app === App.lastfm;
+  }
+
+  get spotifySummary(): string {
+    const plays = this.progress.importedScrobbles;
+    const diff = this.progress.last.value!.date.getTime() - this.progress.first.value!.date.getTime();
+    const days = Math.round(diff / Constants.DAY);
+    return `<b>${plays}</b> plays in <b>${days}</b> days. That's an average of <b>${Math.round(plays / days)}</b> plays per day!`;
   }
 
   exportJSON(): void {

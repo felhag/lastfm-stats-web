@@ -1,8 +1,19 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
 @import './projects/shared/src/shared-home';
+
+.open-dialog-button {
+  width: 100%;
+  margin: 12px 0;
+  cursor: pointer;
+  color: #1DB954;
+  text-decoration: underline;
+  text-align: center;
+}
 
 .username-holder {
   font-size: 16px;
-  padding-top: 24px;
   width: 100%;
 
   .mat-form-field {
@@ -42,4 +53,14 @@ ngx-dropzone-preview {
 
 .custom-dropzone.ngx-dz-hovered {
   border: 5px solid rgb(235, 79, 79);
+}
+
+@mixin color($theme) {
+  $color-config: mat.get-color-config($theme);
+  $warn-palette: map.get($color-config, 'warn');
+  $warn-color: mat.get-color-from-palette($warn-palette, 500);
+  .custom-dropzone.invalid {
+    color: $warn-color !important;
+    border-color: $warn-color !important;
+  }
 }

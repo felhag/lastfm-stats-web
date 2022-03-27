@@ -1,2 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+@use './app/home/home.component' as home;
+
 @import './projects/shared/src/shared-styles';
+
+@media (prefers-color-scheme: light) {
+  @include home.color($light-app-theme);
+}
+
+@media (prefers-color-scheme: dark) {
+  @include home.color($dark-app-theme);
+}

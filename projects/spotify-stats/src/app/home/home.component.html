@@ -7,13 +7,15 @@
   </div>
 
   <div class="line username-holder">
+    <div (click)="openInfoDialog()" class="open-dialog-button">How do I my data?</div>
+
     <mat-form-field appearance="outline">
       <mat-label>Username</mat-label>
       <input matInput [formControl]="username">
     </mat-form-field>
   </div>
 
-  <div class="custom-dropzone home-row" ngx-dropzone (change)="onSelect($event)">
+  <div class="custom-dropzone home-row" ngx-dropzone (change)="onSelect($event)" [class.invalid]="submitted && (files | async)?.length === 0">
     <ngx-dropzone-label *ngIf="(files | async)?.length === 0">
       Drop files or click to add
       <br><br>

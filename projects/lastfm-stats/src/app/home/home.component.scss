@@ -1,3 +1,6 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
 @import './projects/shared/src/shared-home';
 
 $font-size: 32px;
@@ -36,11 +39,15 @@ $font-size: 32px;
       font-family: inherit;
       color: inherit;
       padding: 0;
-
-      &.invalid::placeholder {
-        color: red;
-        opacity: 1;
-      }
     }
+  }
+}
+
+@mixin color($theme) {
+  $color-config: mat.get-color-config($theme);
+  $warn-palette: map.get($color-config, 'warn');
+  .home .input-wrap .input.invalid::placeholder {
+    color: mat.get-color-from-palette($warn-palette, 500);
+    opacity: 1;
   }
 }

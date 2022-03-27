@@ -1,4 +1,5 @@
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
@@ -18,10 +19,12 @@ import { NgModule } from '@angular/core';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
+import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 
 @NgModule({
   declarations: [
-    HomeComponent
+    HomeComponent,
+    InfoDialogComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -29,6 +32,7 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
     CommonModule,
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
