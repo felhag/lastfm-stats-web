@@ -6,7 +6,7 @@ import * as JSZip from 'jszip';
 import { Scrobble } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
 
 interface JSONEntry {
   endTime: string;
@@ -19,6 +19,7 @@ interface ParsedEntry {
   first: Date;
   last: Date;
   name: string;
+  total: number;
   plays: Scrobble[];
 }
 
@@ -31,9 +32,16 @@ interface ParsedEntry {
 export class HomeComponent {
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
+  deduplicated: Observable<number>;
   submitted = false;
 
   constructor(private router: Router, private retriever: AbstractItemRetriever, private dialog: MatDialog) {
+    this.deduplicated = this.files.pipe(
+      throttleTime(0, asyncScheduler, { trailing: true }),
+      map(files => files.flatMap(file => file.plays).map(p => JSON.stringify(p))),
+      map(plays => plays.length - new Set(plays).size),
+      shareReplay(),
+    );
   }
 
   onSelect(event: any): void {
@@ -54,8 +62,7 @@ export class HomeComponent {
 
   private unzip(file: File): void {
     new JSZip().loadAsync(file).then(zip => {
-      Object.keys(zip.files)
-        .forEach(filename => {
+      Object.keys(zip.files).forEach(filename => {
           if (filename.startsWith('MyData/StreamingHistory')) {
             zip.files[filename].async('string').then(data => this.addJson(filename.substring('MyData/'.length), data));
           } else if (filename.startsWith('MyData/Userdata')) {
@@ -76,7 +83,7 @@ export class HomeComponent {
     const first = plays[0].date;
     const last = plays[plays.length - 1].date;
     const current = this.files.value;
-    current.push({name, first, last, plays});
+    current.push({name, first, last, plays, total: plays.length});
     current.sort((a, b) => a.first.getTime() - b.first.getTime());
     this.files.next(current);
   }
@@ -91,7 +98,16 @@ export class HomeComponent {
   go(): void {
     const plays = this.files.value.flatMap(f => f.plays);
     if (this.username.valid && plays.length) {
-      this.retriever.imported = plays;
+      const handled = new Set();
+      this.retriever.imported = plays.filter(p => {
+        const json = JSON.stringify(p);
+        if (handled.has(json)) {
+          return false;
+        } else {
+          handled.add(json);
+          return p;
+        }
+      });
       this.router.navigate([`/user/${this.username.value}`]);
     } else {
       this.submitted = true;

@@ -39,6 +39,12 @@
   }
 }
 
+.deduplicated {
+  font-size: 16px;
+  line-height: 16px;
+  margin-top: 12px;
+}
+
 ::ng-deep .custom-dropzone .mat-list-item-content {
   flex-direction: row-reverse !important;
 
