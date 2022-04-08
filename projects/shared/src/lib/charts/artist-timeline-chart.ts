@@ -1,13 +1,13 @@
 import * as Highcharts from 'highcharts';
 import { PointOptionsType } from 'highcharts';
-import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { Mapper } from 'projects/shared/src/lib/util/mapper';
 import { TempStats } from 'projects/shared/src/lib/app/model';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
 import { ToggleableChart } from 'projects/shared/src/lib/charts/toggleable-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { MapperService } from '../service/mapper.service';
+import { UrlService } from '../service/url.service';
 
 export class ArtistTimelineChart extends ToggleableChart {
-  constructor(translate: TranslatePipe) {
+  constructor(translate: TranslatePipe, url: UrlService, private mapper: MapperService) {
     super();
     this.options = {
       chart: {events: this.events},
@@ -29,7 +29,7 @@ export class ArtistTimelineChart extends ToggleableChart {
         events: {
           click: event => {
             const month = event.point.name.substring(0, event.point.name.indexOf('-') - 1);
-            window.open(UrlBuilder.month(this.username, month))
+            window.open(url.month(month))
           }
         }
       }],
@@ -48,7 +48,7 @@ export class ArtistTimelineChart extends ToggleableChart {
     const colors = Highcharts.getOptions().colors!;
 
     for (const month of Object.values(stats.monthList)) {
-      const items = Mapper.monthItems(this.type, month);
+      const items = this.mapper.monthItems(this.type, month);
       const item = items.reduce((a, b) => a.count > b.count ? a : b);
       if (!colorMap[item.name]) {
         colorMap[item.name] = colors[Object.keys(colorMap).length % colors.length];

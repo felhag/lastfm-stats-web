@@ -1,9 +1,9 @@
-import {PointOptionsObject} from 'highcharts';
 import * as Highcharts from 'highcharts';
-import {TempStats, Month} from 'projects/shared/src/lib/app/model';
+import { PointOptionsObject } from 'highcharts';
+import { TempStats, Month } from 'projects/shared/src/lib/app/model';
+import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
-import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
+import { UrlService } from '../service/url.service';
 
 export class RaceChart extends AbstractChart {
   private readonly defaultSpeed = 2000;
@@ -18,7 +18,7 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
 
-  constructor(translate: TranslatePipe) {
+  constructor(translate: TranslatePipe, url: UrlService) {
     super();
     this.options = {
       chart: {
@@ -90,7 +90,7 @@ export class RaceChart extends AbstractChart {
         name: '',
         data: [],
         events: {
-          click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
+          click: event => window.open(url.artist(event.point.name))
         }
       }],
       responsive: {

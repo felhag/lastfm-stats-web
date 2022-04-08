@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem, ItemStreakStack } from 'projects/shared/src/lib/app/model';
-import { Mapper } from 'projects/shared/src/lib/util/mapper';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
+import { MapperService } from './mapper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import { SettingsService } from 'projects/shared/src/lib/service/settings.servic
 export class StatsBuilderService {
   tempStats = new BehaviorSubject<TempStats>(this.emptyStats());
 
-  constructor(private settings: SettingsService) {
+  constructor(private settings: SettingsService, private mapper: MapperService) {
   }
 
   update(scrobbles: Scrobble[], cumulative: boolean): void {
@@ -21,8 +21,8 @@ export class StatsBuilderService {
         continue;
       }
 
-      const monthYear = Mapper.getMonthYear(scrobble.date);
-      const weekYear = Mapper.getWeekYear(scrobble.date);
+      const monthYear = this.mapper.getMonthYear(scrobble.date);
+      const weekYear = this.mapper.getWeekYear(scrobble.date);
       const sod = StreakStack.startOfDay(scrobble.date);
       const dayOfYear = sod.getTime();
 
@@ -112,7 +112,7 @@ export class StatsBuilderService {
   }
 
   private finishMonth(next: TempStats) {
-    const prev = next.last ? next.monthList[Mapper.getMonthYear(next.last.date)] : undefined;
+    const prev = next.last ? next.monthList[this.mapper.getMonthYear(next.last.date)] : undefined;
     if (prev) {
       const handled = Object.keys(next.monthList).length - 1;
       this.populateRank(next.seenArtists, handled);

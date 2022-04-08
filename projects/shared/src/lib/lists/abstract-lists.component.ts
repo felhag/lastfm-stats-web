@@ -4,8 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { TempStats, Streak, StreakStack, StreakItem, Month } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
-import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
+import { UrlService } from '../service/url.service';
 
 export interface Top10Item {
   name: string;
@@ -22,7 +21,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
 
   protected constructor(private builder: StatsBuilderService,
                         protected settings: SettingsService,
-                        private usernameHolder: UsernameService) {
+                        private urlService: UrlService) {
   }
 
   ngOnInit(): void {
@@ -122,7 +121,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
     const endDate = stats.last?.date || new Date();
     const streak = this.currentStreak(stack, endDate);
-    return this.getStreakTop10(streak, toString, s => UrlBuilder.range(this.username, s.start.date, s.end.date));
+    return this.getStreakTop10(streak, toString, s => this.urlService.range(s.start.date, s.end.date));
   }
 
   protected currentStreak(stack: StreakStack, endDate: Date): Streak[] {
@@ -172,9 +171,5 @@ export abstract class AbstractListsComponent<S> implements OnInit {
       date: month.date,
       url: url(item, month.alias)
     } as Top10Item);
-  }
-
-  get username(): string {
-    return this.usernameHolder.username!;
   }
 }

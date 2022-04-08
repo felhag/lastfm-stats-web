@@ -2,9 +2,8 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TempStats, Track, Constants, Month, MonthItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
-import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { UrlService } from '../service/url.service';
 
 export interface TrackStats {
   betweenTracks: Top10Item[];
@@ -26,12 +25,12 @@ export interface TrackStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, username: UsernameService) {
-    super(builder, settings, username);
+  constructor(builder: StatsBuilderService, settings: SettingsService, private url: UrlService) {
+    super(builder, settings, url);
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, 'track', s => UrlBuilder.track(this.username, s.start.artist, s.start.track));
+    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, 'track', s => this.url.track(s.start.artist, s.start.track));
     next.betweenTracks = gaps[0];
     next.ongoingBetweenTracks = gaps[1];
 
@@ -56,7 +55,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
 
-    const rankings = this.getRankings(stats.seenTracks, monthsValues, (i, m) => UrlBuilder.trackMonth(this.username, i.artist, i.shortName, m));
+    const rankings = this.getRankings(stats.seenTracks, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }
@@ -66,7 +65,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
                         getValue: (k: string) => number,
                         buildName: (item: string, value: number) => string,
                         buildDescription: (item: string, value: number) => string): Top10Item[] {
-    return this.getTop10<string>(tracks, getValue, k => k, buildName, buildDescription, m => UrlBuilder.month(this.username, m), m => months.find(x => x.alias === m)!.date);
+    return this.getTop10<string>(tracks, getValue, k => k, buildName, buildDescription, m => this.url.month(m), m => months.find(x => x.alias === m)!.date);
   }
 
   private getTrackTop10(countMap: { [key: string]: any },
@@ -74,7 +73,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
                         getItem: (k: string) => Track,
                         buildName: (item: Track, value: number) => string,
                         buildDescription: (item: Track, value: number) => string): Top10Item[] {
-    const trackUrl = (item: Track) => UrlBuilder.track(this.username, item.artist, item.shortName);
+    const trackUrl = (item: Track) => this.url.track(item.artist, item.shortName);
     const trackDate = (item: Track) => new Date(item.avgScrobble);
     return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
   }

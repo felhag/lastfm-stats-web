@@ -4,7 +4,6 @@ import * as Highcharts from 'highcharts';
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UsernameService } from 'projects/shared/src/lib/service/username.service';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { ArtistScrobbleChart } from 'projects/shared/src/lib/charts/artist-scrobble-chart';
 import { ArtistTimelineChart } from 'projects/shared/src/lib/charts/artist-timeline-chart';
@@ -16,6 +15,8 @@ import { ScrobblePerDayChart } from 'projects/shared/src/lib/charts/scrobble-per
 import { ScrobbleScatterChart } from 'projects/shared/src/lib/charts/scrobble-scatter-chart';
 import { TimelineChart } from 'projects/shared/src/lib/charts/timeline-chart';
 import { WordcloudChart } from 'projects/shared/src/lib/charts/wordcloud-chart';
+import { MapperService } from '../service/mapper.service';
+import { UrlService } from '../service/url.service';
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkMode.matches) {
@@ -60,19 +61,20 @@ export class ChartsComponent implements AfterViewInit {
 
   constructor(
     private builder: StatsBuilderService,
-    private usernameHolder: UsernameService,
-    private translate: TranslatePipe) {
+    url: UrlService,
+    translate: TranslatePipe,
+    mapper: MapperService) {
 
     this.charts = [
       new TimelineChart(translate),
-      new ArtistScrobbleChart(translate),
-      new ArtistTimelineChart(translate),
-      new CumulativeItemsChart(translate),
+      new ArtistScrobbleChart(translate, url),
+      new ArtistTimelineChart(translate, url, mapper),
+      new CumulativeItemsChart(translate, mapper),
       new WordcloudChart(),
-      new PunchcardChart(translate),
+      new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
-      new RaceChart(translate),
+      new RaceChart(translate, url),
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS, s => Object.values(s.days)),
       new ScrobbleMomentChart(translate, 'months', Constants.MONTHS, s => Object.values(s.months)),
@@ -83,8 +85,6 @@ export class ChartsComponent implements AfterViewInit {
     this.builder.tempStats.pipe(
       untilDestroyed(this),
     ).subscribe(stats => this.updateStats(stats));
-
-    this.charts.forEach(c => c.username = this.usernameHolder.username!);
   }
 
   private updateStats(stats: TempStats): void {

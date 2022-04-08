@@ -12,7 +12,6 @@ fullscreen(Highcharts);
 export abstract class AbstractChart {
   options: Highcharts.Options = {};
   chart?: Highcharts.Chart;
-  username = '';
 
   abstract update(stats: TempStats): void;
 

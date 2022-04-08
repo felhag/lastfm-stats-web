@@ -1,10 +1,10 @@
 import { TempStats, StreakItem } from 'projects/shared/src/lib/app/model';
 import { ToggleableChart } from 'projects/shared/src/lib/charts/toggleable-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { Mapper } from 'projects/shared/src/lib/util/mapper';
+import { MapperService } from '../service/mapper.service';
 
 export class CumulativeItemsChart extends ToggleableChart {
-  constructor(translate: TranslatePipe) {
+  constructor(translate: TranslatePipe, private mapper: MapperService) {
     super();
     this.options = {
       chart: {
@@ -40,14 +40,14 @@ export class CumulativeItemsChart extends ToggleableChart {
 
     const months = [{alias: 'Account created', artists: new Map(), date: new Date()}, ...Object.values(stats.monthList)];
     const series = [...this.chart!.series];
-    const arr = Mapper.seen(this.type, stats);
+    const arr = this.mapper.seen(this.type, stats);
 
     Object.values(arr)
       .sort((a, b) => b.scrobbles.length - a.scrobbles.length)
       .slice(0, 25)
       .map((a: StreakItem) => {
         const serie = series.find(s => s.name === a.name);
-        const data = Mapper.cumulativeMonths(this.type, months, a);
+        const data = this.mapper.cumulativeMonths(this.type, months, a);
         if (serie) {
           serie.setData(data, false, false, false);
           series.splice(series.indexOf(serie), 1);

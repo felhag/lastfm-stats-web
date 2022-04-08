@@ -1,9 +1,10 @@
 import * as Highcharts from 'highcharts';
-import {TempStats, Constants, Track} from 'projects/shared/src/lib/app/model';
-import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
-import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
 import heatmap from 'highcharts/modules/heatmap';
+import { TempStats, Constants, Track } from 'projects/shared/src/lib/app/model';
+import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { UrlService } from '../service/url.service';
+
 heatmap(Highcharts);
 
 export class PunchcardChart extends AbstractChart {
@@ -17,7 +18,7 @@ export class PunchcardChart extends AbstractChart {
   last = 0;
   byUser = false;
 
-  constructor(translate: TranslatePipe) {
+  constructor(translate: TranslatePipe, url: UrlService) {
     super();
     this.options = {
       series: [{
@@ -34,7 +35,7 @@ export class PunchcardChart extends AbstractChart {
         events: {
           click: event => {
             const date = PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year);
-            window.open(UrlBuilder.day(this.username, date));
+            window.open(url.day(date));
           }
         }
       }],

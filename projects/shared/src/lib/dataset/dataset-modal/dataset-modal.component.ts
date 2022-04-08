@@ -1,16 +1,17 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+import * as Highcharts from 'highcharts';
+import annotations from 'highcharts/modules/annotations';
+
 import { CircleProgressOptions } from 'ng-circle-progress/lib/ng-circle-progress.component';
 import { DataSetEntry, StreakStack } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { Mapper } from 'projects/shared/src/lib/util/mapper';
+import { MapperService } from '../../service/mapper.service';
 
-import * as Highcharts from 'highcharts';
-import annotations from 'highcharts/modules/annotations';
 annotations(Highcharts);
 
 @Component({
@@ -29,7 +30,8 @@ export class DatasetModalComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) public data: DataSetEntry,
               private stats: StatsBuilderService,
               private username: UsernameService,
-              private translate: TranslatePipe) { }
+              private translate: TranslatePipe,
+              private mapper: MapperService) { }
 
   ngOnInit(): void {
     this.options = [
@@ -38,16 +40,16 @@ export class DatasetModalComponent implements OnInit {
       this.circleOption('Weeks', this.data.item.weeks.length),
     ];
 
-    this.url = Mapper.url(this.data.type, this.username.username!, this.data.item);
+    this.url = this.mapper.url(this.data.type, this.data.item);
 
     const ranks = [];
     for (let i = 0; i < this.data.item.ranks.length; i++) {
       ranks[i] = this.data.item.ranks[i] || null;
     }
     const months = this.stats.tempStats.value.monthList;
-    const scrobbles = Mapper.cumulativeMonths(this.data.type, Object.values(months), this.data.item);
+    const scrobbles = this.mapper.cumulativeMonths(this.data.type, Object.values(months), this.data.item);
     const first = ranks.findIndex(p => p !== null);
-    const last = Object.keys(months).indexOf(Mapper.getMonthYear(this.last));
+    const last = Object.keys(months).indexOf(this.mapper.getMonthYear(this.last));
     const scrobblesTitle = this.translate.transform('translate.scrobbles');
 
     this.chartOptions = {
@@ -113,7 +115,7 @@ export class DatasetModalComponent implements OnInit {
     }, {} as { [key: string]: number })
     const max = Object.keys(days).reduce((a, b) => days[parseInt(a)] > days[parseInt(b)] ? a : b);
     const day = new Date(parseInt(max));
-    const most = Object.keys(this.stats.tempStats.value.monthList).indexOf(Mapper.getMonthYear(day));
+    const most = Object.keys(this.stats.tempStats.value.monthList).indexOf(this.mapper.getMonthYear(day));
     return this.annotationOptions(most, scrobbles[most], `Most ${this.translate.transform('translate.scrobbled')} day: ${day.toLocaleDateString()} (${days[max]} ${this.translate.transform('translate.scrobbles')})`, 'left');
   }
 

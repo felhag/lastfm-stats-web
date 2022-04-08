@@ -1,11 +1,11 @@
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UrlBuilder } from 'projects/shared/src/lib/util/url-builder';
+import { UrlService } from '../service/url.service';
 
 export class ArtistScrobbleChart extends AbstractChart {
 
-  constructor(translate: TranslatePipe) {
+  constructor(translate: TranslatePipe, url: UrlService) {
     super();
     this.options = {
       title: {text: 'Tracks per artist'},
@@ -42,7 +42,7 @@ export class ArtistScrobbleChart extends AbstractChart {
         type: 'scatter',
         data: [],
         events: {
-          click: event => window.open(UrlBuilder.artist(this.username, event.point.name))
+          click: event => window.open(url.artist(event.point.name))
         }
       }],
       exporting: {
