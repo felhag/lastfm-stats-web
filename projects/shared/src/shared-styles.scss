@@ -31,7 +31,7 @@ $dark-app-theme: mat.define-dark-theme((
 }
 
 @media (prefers-color-scheme: dark) {
-  @include mat.all-component-themes($dark-app-theme);
+  @include mat.all-component-colors($dark-app-theme);
 
   body {
     background-color: #303030;
