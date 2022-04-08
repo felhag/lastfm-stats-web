@@ -7,7 +7,7 @@
     "both": "concurrently --kill-others \"ng serve --project=\"spotify-stats\" --port 4201\" \"ng serve --project=\"lastfm-stats\"",
     "build": "ng build",
     "lint": "ng lint",
-    "deploy": "ng build --configuration production"
+    "deploy": "ng build --configuration production --project \"lastfm-stats\""
   },
   "private": true,
   "dependencies": {

@@ -25,12 +25,12 @@ jobs:
       run: |
         npm install
         npm run-script deploy
-        cp dist/lastfm-stats-web/index.html dist/lastfm-stats-web/404.html
+        cp dist/lastfm-stats/index.html dist/lastfm-stats/404.html
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: gh-pages
-        FOLDER: dist/lastfm-stats-web
+        FOLDER: dist/lastfm-stats
         TARGET_FOLDER: docs
