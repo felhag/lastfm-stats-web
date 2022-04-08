@@ -19,7 +19,7 @@ import { UsernameService } from 'projects/shared/src/lib/service/username.servic
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsComponent implements OnInit, OnDestroy {
-  readonly tabs = ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset'];
+  readonly tabs: string[];
   private activeTab: string = 'artists';
   private start?: [number, number, number];
   progress!: Progress;
@@ -32,7 +32,11 @@ export class StatsComponent implements OnInit, OnDestroy {
               private router: Router,
               private dialog: MatDialog,
               private app: App) {
-    this.tabs = this.tabs.filter(t => t !== 'albums' || this.app === App.lastfm);
+    if (this.app === App.lastfm) {
+      this.tabs = ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset'];
+    } else  {
+      this.tabs = ['artists', 'tracks', 'plays', 'charts', 'dataset'];
+    }
   }
 
   ngOnInit(): void {

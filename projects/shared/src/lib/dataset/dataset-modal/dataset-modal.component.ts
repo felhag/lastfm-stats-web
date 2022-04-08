@@ -34,8 +34,9 @@ export class DatasetModalComponent implements OnInit {
               private mapper: MapperService) { }
 
   ngOnInit(): void {
+    const scrobblesTitle = this.translate.capFirst('translate.scrobbles');
     this.options = [
-      this.circleOption(this.translate.capFirst('translate.scrobbles'), this.data.scrobbles),
+      this.circleOption(scrobblesTitle, this.data.scrobbles),
       this.data.tracks ? this.circleOption('Tracks', this.data.tracks) : undefined,
       this.circleOption('Weeks', this.data.item.weeks.length),
     ];
@@ -50,7 +51,6 @@ export class DatasetModalComponent implements OnInit {
     const scrobbles = this.mapper.cumulativeMonths(this.data.type, Object.values(months), this.data.item);
     const first = ranks.findIndex(p => p !== null);
     const last = Object.keys(months).indexOf(this.mapper.getMonthYear(this.last));
-    const scrobblesTitle = this.translate.transform('translate.scrobbles');
 
     this.chartOptions = {
       title: {

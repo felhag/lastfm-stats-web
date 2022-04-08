@@ -9,3 +9,7 @@
 @media (prefers-color-scheme: dark) {
   @include home.color($dark-app-theme);
 }
+
+#toggleable-scrobbles-toolbar button:nth-of-type(2) {
+  display: none;
+}

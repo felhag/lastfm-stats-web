@@ -33,10 +33,7 @@ export class PunchcardChart extends AbstractChart {
           }
         },
         events: {
-          click: event => {
-            const date = PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year);
-            window.open(url.day(date));
-          }
+          click: event => this.openUrl(url.day(PunchcardChart.parseWeek(event.point.x, event.point.y!, this.year)))
         }
       }],
       title: {

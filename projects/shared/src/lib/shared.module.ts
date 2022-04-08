@@ -128,7 +128,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
   bootstrap: [AppComponent]
 })
 export class SharedModule {
-  public static getRoutesFor(home: Type<any>): Routes {
+  public static getRoutesFor(home: Type<any>, scrobblesRoute: string): Routes {
     return [
       {path: '', component: home},
       {
@@ -152,7 +152,7 @@ export class SharedModule {
             pathMatch: 'full',
             component: TrackListsComponent
           }, {
-            path: 'scrobbles',
+            path: scrobblesRoute,
             pathMatch: 'full',
             component: ScrobbleListsComponent
           }, {

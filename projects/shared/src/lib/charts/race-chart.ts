@@ -90,7 +90,7 @@ export class RaceChart extends AbstractChart {
         name: '',
         data: [],
         events: {
-          click: event => window.open(url.artist(event.point.name))
+          click: event => this.openUrl(url.artist(event.point.name))
         }
       }],
       responsive: {

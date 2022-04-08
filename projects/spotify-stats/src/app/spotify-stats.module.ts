@@ -42,7 +42,7 @@ import { SpotifyUrlService } from './spotify-url.service';
     MatTooltipModule,
     NgxDropzoneModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent)),
+    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent, 'plays')),
     SharedModule
   ],
   providers: [

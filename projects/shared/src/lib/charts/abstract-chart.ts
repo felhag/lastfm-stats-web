@@ -45,6 +45,12 @@ export abstract class AbstractChart {
     };
   }
 
+  protected openUrl(url: string): void {
+    if (url) {
+      window.open(url);
+    }
+  }
+
   private smallAxis(align: AlignValue | undefined): Highcharts.YAxisOptions {
     return {
       visible: !!align,

@@ -1,6 +1,6 @@
 $font-size: 32px;
 
-.home {
+app-home .home {
   height: 100%;
   width: 100%;
   display: flex;
@@ -43,7 +43,7 @@ $font-size: 32px;
 }
 
 @media (max-width: 575px) {
-  .home {
+  app-home .home {
     padding: 16px 0;
     box-shadow: none;
     background: transparent;
@@ -51,10 +51,10 @@ $font-size: 32px;
 }
 
 @media (max-width: 767px) {
-  label {
+  app-home label {
     flex-direction: column;
   }
-  .home .home-row {
+  app-home .home .home-row {
     margin-bottom: 24px;
   }
 }

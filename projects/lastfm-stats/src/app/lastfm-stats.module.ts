@@ -27,7 +27,7 @@ import { LastfmUrlService } from './lastfm-url.service';
     MatCardModule,
     MatIconModule,
     SharedModule,
-    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent))
+    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent, 'scrobbles'))
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService },

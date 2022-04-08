@@ -8,7 +8,7 @@
 
     <mat-radio-group [value]="groupedBy" (change)="groupBy($event)">
       <mat-radio-button value="artist">Artist</mat-radio-button>
-      <mat-radio-button value="album">Album</mat-radio-button>
+      <mat-radio-button *ngIf="showAlbums" value="album">Album</mat-radio-button>
       <mat-radio-button value="track">Track</mat-radio-button>
     </mat-radio-group>
   </mat-card>

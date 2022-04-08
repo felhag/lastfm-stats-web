@@ -6,7 +6,7 @@ import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Subject, debounceTime } from 'rxjs';
-import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType } from 'projects/shared/src/lib/app/model';
+import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 
@@ -41,7 +41,8 @@ export class DatasetComponent implements OnInit {
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
-              private translate: TranslatePipe) {
+              private translate: TranslatePipe,
+              private app: App) {
   }
 
   ngOnInit(): void {
@@ -92,6 +93,10 @@ export class DatasetComponent implements OnInit {
 
   get columns(): string[] {
     return this.groupedByObj.columns;
+  }
+
+  get showAlbums(): boolean {
+    return this.app === App.lastfm;
   }
 
   get groupedByObj(): {columns: string[], data: () => { [key: string]: StreakItem }} {

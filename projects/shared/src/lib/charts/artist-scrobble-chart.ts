@@ -42,7 +42,7 @@ export class ArtistScrobbleChart extends AbstractChart {
         type: 'scatter',
         data: [],
         events: {
-          click: event => window.open(url.artist(event.point.name))
+          click: event => this.openUrl(url.artist(event.point.name))
         }
       }],
       exporting: {

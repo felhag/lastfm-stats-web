@@ -29,7 +29,7 @@ export abstract class ToggleableChart extends AbstractChart {
         const custom = chart.options.plotOptions!.bar!.custom!;
         const component = custom.component as ToggleableChart;
         if (!component.toolbar) {
-          component.toolbar = document.getElementById('cumulative-scrobbles-toolbar')!.cloneNode(true) as HTMLElement;
+          component.toolbar = document.getElementById('toggleable-scrobbles-toolbar')!.cloneNode(true) as HTMLElement;
           component.toggles = component.toolbar.querySelectorAll('.toggle') as NodeListOf<HTMLButtonElement>;
 
           const toggleTypes: ItemType[] = ['artist', 'album', 'track']

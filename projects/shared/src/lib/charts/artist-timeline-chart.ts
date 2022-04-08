@@ -27,10 +27,7 @@ export class ArtistTimelineChart extends ToggleableChart {
         groupPadding: 0,
         pointPadding: 0,
         events: {
-          click: event => {
-            const month = event.point.name.substring(0, event.point.name.indexOf('-') - 1);
-            window.open(url.month(month))
-          }
+          click: event => this.openUrl(url.month(event.point.name.substring(0, event.point.name.indexOf('-') - 1)))
         }
       }],
       responsive: this.responsive()

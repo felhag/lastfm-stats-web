@@ -46,7 +46,7 @@ export class TimelineChart extends AbstractChart {
         }
       }],
       series: [{
-        name: translate.transform('translate.scrobbles'),
+        name: translate.capFirst('translate.scrobbles'),
         data: [],
         type: 'line',
       }, {
