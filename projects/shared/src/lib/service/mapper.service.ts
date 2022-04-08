@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from 'projects/shared/src/lib/app/model';
-import { UrlService } from './url.service';
+import { AbstractUrlService } from './abstract-url.service';
 
 @UntilDestroy()
 @Injectable({
   providedIn: 'root'
 })
 export class MapperService {
-  constructor(private readonly urlService: UrlService) {
+  constructor(private readonly urlService: AbstractUrlService) {
   }
 
   private mappers = {

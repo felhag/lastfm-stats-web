@@ -3,7 +3,7 @@ import { TempStats, Streak } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export interface ScrobbleStats {
   scrobbleStreak: Top10Item[];
@@ -20,7 +20,7 @@ export interface ScrobbleStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, private url: UrlService) {
+  constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }
 

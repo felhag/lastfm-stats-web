@@ -4,10 +4,10 @@ import { TempStats } from 'projects/shared/src/lib/app/model';
 import { ToggleableChart } from 'projects/shared/src/lib/charts/toggleable-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MapperService } from '../service/mapper.service';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export class ArtistTimelineChart extends ToggleableChart {
-  constructor(translate: TranslatePipe, url: UrlService, private mapper: MapperService) {
+  constructor(translate: TranslatePipe, url: AbstractUrlService, private mapper: MapperService) {
     super();
     this.options = {
       chart: {events: this.events},

@@ -16,7 +16,7 @@ import { ScrobbleScatterChart } from 'projects/shared/src/lib/charts/scrobble-sc
 import { TimelineChart } from 'projects/shared/src/lib/charts/timeline-chart';
 import { WordcloudChart } from 'projects/shared/src/lib/charts/wordcloud-chart';
 import { MapperService } from '../service/mapper.service';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkMode.matches) {
@@ -61,7 +61,7 @@ export class ChartsComponent implements AfterViewInit {
 
   constructor(
     private builder: StatsBuilderService,
-    url: UrlService,
+    url: AbstractUrlService,
     translate: TranslatePipe,
     mapper: MapperService) {
 

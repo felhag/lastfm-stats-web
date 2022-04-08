@@ -11,7 +11,9 @@ import { AppComponent } from 'projects/shared/src/lib/app/app.component';
 import { App } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
+import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 import { HomeComponent } from './home/home.component';
+import { LastfmUrlService } from './lastfm-url.service';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,7 @@ import { HomeComponent } from './home/home.component';
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService },
+    { provide: AbstractUrlService, useExisting: LastfmUrlService },
     { provide: App, useValue: App.lastfm },
     { provide: 'translations', useValue: {
         'translate.scrobble': 'scrobble',

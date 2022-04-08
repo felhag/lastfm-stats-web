@@ -3,7 +3,7 @@ import heatmap from 'highcharts/modules/heatmap';
 import { TempStats, Constants, Track } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 heatmap(Highcharts);
 
@@ -18,7 +18,7 @@ export class PunchcardChart extends AbstractChart {
   last = 0;
   byUser = false;
 
-  constructor(translate: TranslatePipe, url: UrlService) {
+  constructor(translate: TranslatePipe, url: AbstractUrlService) {
     super();
     this.options = {
       series: [{

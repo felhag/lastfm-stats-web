@@ -3,7 +3,7 @@ import { TempStats, Album } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export interface AlbumStats {
   betweenAlbums: Top10Item[];
@@ -21,7 +21,7 @@ export interface AlbumStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
-  constructor(builder: StatsBuilderService, settings: SettingsService, private url: UrlService) {
+  constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }
 

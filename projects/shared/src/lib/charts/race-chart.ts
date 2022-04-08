@@ -3,7 +3,7 @@ import { PointOptionsObject } from 'highcharts';
 import { TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export class RaceChart extends AbstractChart {
   private readonly defaultSpeed = 2000;
@@ -18,7 +18,7 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
 
-  constructor(translate: TranslatePipe, url: UrlService) {
+  constructor(translate: TranslatePipe, url: AbstractUrlService) {
     super();
     this.options = {
       chart: {

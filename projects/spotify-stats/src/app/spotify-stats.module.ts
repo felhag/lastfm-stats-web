@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { App } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SpotifyItemService } from 'projects/spotify-stats/src/app/spotify-item.service';
+import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 import { HomeComponent } from './home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +21,7 @@ import { NgxDropzoneModule } from 'ngx-dropzone';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
+import { SpotifyUrlService } from './spotify-url.service';
 
 @NgModule({
   declarations: [
@@ -45,6 +47,7 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: SpotifyItemService },
+    { provide: AbstractUrlService, useExisting: SpotifyUrlService },
     { provide: App, useValue: App.spotify },
     { provide: 'translations', useValue: {
       'translate.scrobble': 'play',

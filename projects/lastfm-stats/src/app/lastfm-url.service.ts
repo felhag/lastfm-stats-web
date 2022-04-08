@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { Constants } from 'projects/shared/src/lib/app/model';
-import { UsernameService } from './username.service';
+import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
+import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
 @UntilDestroy()
 @Injectable({
   providedIn: 'root'
 })
-export class UrlService {
+export class LastfmUrlService extends AbstractUrlService {
   constructor(private readonly usernameService: UsernameService) {
+    super();
   }
 
   artist(artist: string): string {
@@ -55,12 +57,6 @@ export class UrlService {
     start.setDate(dow <= 4 ? start.getDate() - start.getDay() + 1 : start.getDate() + 8 - start.getDay());
     const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
     return this.range(start, end);
-  }
-
-  weekAsDate(weekYear: string): Date {
-    const week = parseInt(weekYear.substring(1, 3));
-    const year = parseInt(weekYear.substring(weekYear.length - 4));
-    return new Date(year, 0, 1 + (week - 1) * 7);
   }
 
   month(month: string, baseUrl?: string): string {

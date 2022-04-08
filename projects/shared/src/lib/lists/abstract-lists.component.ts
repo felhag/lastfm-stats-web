@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { TempStats, Streak, StreakStack, StreakItem, Month } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export interface Top10Item {
   name: string;
@@ -21,7 +21,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
 
   protected constructor(private builder: StatsBuilderService,
                         protected settings: SettingsService,
-                        private urlService: UrlService) {
+                        private urlService: AbstractUrlService) {
   }
 
   ngOnInit(): void {

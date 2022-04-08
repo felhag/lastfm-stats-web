@@ -3,7 +3,7 @@ import { TempStats, Track, Constants, Month, MonthItem } from 'projects/shared/s
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
-import { UrlService } from '../service/url.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
 
 export interface TrackStats {
   betweenTracks: Top10Item[];
@@ -25,7 +25,7 @@ export interface TrackStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
-  constructor(builder: StatsBuilderService, settings: SettingsService, private url: UrlService) {
+  constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }
 
