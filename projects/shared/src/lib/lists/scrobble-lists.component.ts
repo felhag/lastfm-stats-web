@@ -20,6 +20,8 @@ export interface ScrobbleStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
+  protected forcedThreshold = -1;
+
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }

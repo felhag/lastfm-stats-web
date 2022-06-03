@@ -8,8 +8,8 @@
     <app-top10list [list]="s.uniquePerMonth" title="Unique tracks in a single month"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for tracks with at least 10 {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
-    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for tracks with at least 10 {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for tracks with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for tracks with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
   </div>
   <div class="row">
     <app-top10list [list]="s.weeksPerTrack" title="Weeks per track" explanation="Unique weeks a track has been {{'translate.scrobbled' | translate}} at least once"></app-top10list>

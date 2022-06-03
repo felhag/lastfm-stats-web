@@ -25,16 +25,18 @@ export interface TrackStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
+  protected forcedThreshold = Constants.SCROBBLE_TRACK_THRESHOLD;
+
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenTracks, stats.betweenTracks, 'track', s => this.url.track(s.start.artist, s.start.track));
+    const seen = this.seenThreshold(stats.seenTracks);
+    const gaps = this.calculateGaps(stats, seen, stats.betweenTracks, 'track', s => this.url.track(s.start.artist, s.start.track));
     next.betweenTracks = gaps[0];
     next.ongoingBetweenTracks = gaps[1];
 
-    const seen = Object.values(stats.seenTracks);
     const monthsValues = Object.values(stats.monthList);
     const tracks: { [month: string]: { [track: string]: MonthItem } } = {};
     monthsValues.forEach(m => {
@@ -50,12 +52,12 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
       return this.including(Object.fromEntries(Object.entries(tracks[m]).filter(([, value]) => value.new)));
     });
 
-    const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_TRACK_THRESHOLD);
+    const seenThreshold = this.forceThreshold(seen);
     next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
 
-    const rankings = this.getRankings(stats.seenTracks, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
+    const rankings = this.getRankings(seen, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }

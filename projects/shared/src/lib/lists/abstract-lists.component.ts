@@ -86,12 +86,11 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   protected abstract emptyStats(): S;
 
   protected calculateGaps(stats: TempStats,
-                          seenThingies: { [key: string]: StreakItem },
+                          seen: StreakItem[],
                           between: StreakStack,
                           include: 'album' | 'track' | undefined,
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
     const threshold = this.settings.minScrobbles.value || 0;
-    const seen = Object.values(seenThingies).filter(a => a.scrobbles.length >= threshold);
     const seenStrings = seen.map(a => a.name);
     const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
     const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
@@ -134,15 +133,33 @@ export abstract class AbstractListsComponent<S> implements OnInit {
     }
   }
 
+  protected seenThreshold<T extends StreakItem>(seenThingies: { [key: string]: T }): T[] {
+    const threshold = this.threshold;
+    return Object.values(seenThingies).filter(a => a.scrobbles.length >= threshold);
+  }
+
+  protected forceThreshold<T extends StreakItem>(seen: T[]): T[] {
+    return this.threshold > 0 ? seen : seen.filter(s => s.scrobbles.length >= this.forcedThreshold);
+  }
+
+  protected get threshold(): number {
+    return this.settings.minScrobbles.value || 0;
+  }
+
+  protected abstract get forcedThreshold(): number;
+
+  get minimumForcedThreshold(): number {
+    return Math.max(this.threshold, this.forcedThreshold);
+  }
+
   public getRankings<T extends StreakItem>(
-    countMap: { [p: string]: T },
+    seen: T[],
     monthList: Month[],
     url: (item: T, month: string) => string,
-  )
-  : { climbers: Top10Item[]; fallers: Top10Item[] } {
+  ): { climbers: Top10Item[]; fallers: Top10Item[] } {
     const climbers: Top10Item[] = [];
     const fallers: Top10Item[] = [];
-    Object.values(countMap).filter(c => c.ranks.length > 1).forEach(item => {
+    seen.filter(c => c.ranks.length > 1).forEach(item => {
       item.ranks.forEach((rank, idx) => {
         const diff = item.ranks[idx + 1] - rank;
         if (diff < 0) {

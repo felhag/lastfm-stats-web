@@ -17,14 +17,14 @@
   </div>
   <div class="row">
     <app-top10list [list]="s.oneHitWonders" title="One hit wonders" explanation="Most {{'translate.scrobbled' | translate}} artists with just one song {{'translate.scrobbled' | translate}}"></app-top10list>
-    <app-top10list [list]="s.scrobblesPerTrack" title="Avg {{'translate.scrobbles' | translate}} per track" explanation="Average {{'translate.scrobbles' | translate}} per track for artists with at least 50 {{'translate.scrobbles' | translate}} and at least two tracks"></app-top10list>
+    <app-top10list [list]="s.scrobblesPerTrack" title="Avg {{'translate.scrobbles' | translate}} per track" explanation="Average {{'translate.scrobbles' | translate}} per track for artists with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}} and at least two tracks"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
-    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
+    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for artists with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
   </div>
   <div class="row">
-    <app-top10list [list]="s.avgDelta" title="Average delta" explanation="Average time between two {{'translate.scrobbles' | translate}} for artists with at least 50 {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
+    <app-top10list [list]="s.avgDelta" title="Average delta" explanation="Average time between two {{'translate.scrobbles' | translate}} for artists with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
     <app-top10list [list]="s.latestNew" title="Latest new artist"></app-top10list>
   </div>
   <div class="row">

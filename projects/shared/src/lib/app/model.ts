@@ -214,6 +214,7 @@ export class Constants {
   static readonly API_PAGE_SIZE_REDUCED = 500;
   static readonly RETRIES = 2;
   static readonly SCROBBLE_ARTIST_THRESHOLD = 50;
+  static readonly SCROBBLE_ALBUM_THRESHOLD = 30;
   static readonly SCROBBLE_TRACK_THRESHOLD = 10;
   static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

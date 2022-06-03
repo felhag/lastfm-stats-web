@@ -32,12 +32,15 @@ export interface ArtistStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> implements OnInit {
+  protected forcedThreshold = Constants.SCROBBLE_ARTIST_THRESHOLD;
+
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
     super(builder, settings, url);
   }
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
-    const gaps = this.calculateGaps(stats, stats.seenArtists, stats.betweenArtists, undefined, s => this.url.artist(s.start.artist));
+    const seen = this.seenThreshold(stats.seenArtists);
+    const gaps = this.calculateGaps(stats, seen, stats.betweenArtists, undefined, s => this.url.artist(s.start.artist));
     next.betweenArtists = gaps[0];
     next.ongoingBetweenArtists = gaps[1];
 
@@ -61,7 +64,6 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
 
     next.uniqueArtists = this.getMonthTop10(months, m => m.artists.size, k => months[k], (m, k) => `${m.alias} (${k} unique artists)`, (m: Month) => this.including(m.artists));
 
-    const seen = Object.values(stats.seenArtists);
     const arr = Object.values(months)
       .map(m => [...m.artists.values()].filter(a => a.new).map(a => ({artist: a.name, month: m.alias, amount: a.count, date: m.date})))
       .flat();
@@ -73,7 +75,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.weeksPerArtist = this.getArtistTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
     next.tracksPerArtist = this.getArtistTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
 
-    const seenThreshold = seen.filter(s => s.scrobbles.length >= Constants.SCROBBLE_ARTIST_THRESHOLD);
+    const seenThreshold = this.forceThreshold(seen);
     const spt = seenThreshold.filter(s => s.tracks.length > 1);
     const ohw = seen.filter(a => a.tracks.length === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
@@ -92,7 +94,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     next.latestNew = this.getArtistTop10(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
     next.artistStreak = this.consecutiveStreak(stats, stats.artistStreak, s => `${s.start.artist} (${s.length} times)`);
 
-    const rankings = this.getRankings(stats.seenArtists, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
+    const rankings = this.getRankings(seen, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }
