@@ -10,6 +10,8 @@ export interface AlbumStats {
   ongoingBetweenAlbums: Top10Item[];
   weeksPerAlbum: Top10Item[];
   albumStreak: Top10Item[];
+  avgScrobbleDesc: Top10Item [];
+  avgScrobbleAsc: Top10Item[];
   climbers: Top10Item[];
   fallers: Top10Item[];
 }
@@ -38,9 +40,23 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.weeksPerAlbum = this.getTop10<Album>(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`, albumUrl, albumDate);
     next.albumStreak = this.consecutiveStreak(stats, stats.albumStreak, s => `${s.start.artist} - ${s.start.album} (${s.length} times)`);
 
+    const seenThreshold = this.forceThreshold(seen);
+    next.avgScrobbleDesc = this.getAlbumTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
+    next.avgScrobbleAsc = this.getAlbumTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+
     const rankings = this.getRankings(seen, Object.values(stats.monthList), (i, m) => this.url.albumMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
+  }
+
+  private getAlbumTop10(countMap: { [key: string]: any },
+                        getValue: (k: Album) => number,
+                        getItem: (k: string) => Album,
+                        buildName: (item: Album, value: number) => string,
+                        buildDescription: (item: Album, value: number) => string): Top10Item[] {
+    const albumUrl = (item: Album) => this.url.album(item.artist, item.shortName);
+    const albumDate = (item: Album) => new Date(item.avgScrobble);
+    return this.getTop10<Album>(countMap, getValue, getItem, buildName, buildDescription, albumUrl, albumDate);
   }
 
   protected emptyStats(): AlbumStats {
@@ -49,6 +65,8 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
       ongoingBetweenAlbums: [],
       weeksPerAlbum: [],
       albumStreak: [],
+      avgScrobbleDesc: [],
+      avgScrobbleAsc: [],
       climbers: [],
       fallers: [],
     };
