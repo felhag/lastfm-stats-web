@@ -1,8 +1,9 @@
-import { TempStats } from 'projects/shared/src/lib/app/model';
-import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import * as Highcharts from 'highcharts';
 import boost from 'highcharts/modules/boost';
+import { TempStats } from 'projects/shared/src/lib/app/model';
+import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+
 boost(Highcharts);
 
 export class ScrobbleScatterChart extends AbstractChart {
@@ -19,8 +20,7 @@ export class ScrobbleScatterChart extends AbstractChart {
         alignTicks: false
       },
       boost: {
-        useGPUTranslations: true,
-        usePreallocated: true
+        useGPUTranslations: true
       },
       xAxis: {
         type: 'datetime',
@@ -49,10 +49,7 @@ export class ScrobbleScatterChart extends AbstractChart {
       series: [{
         type: 'scatter',
         data: [],
-        custom: {component: this},
-        marker: {
-          radius: 0.5
-        }
+        custom: {component: this}
       }],
       exporting: {
         sourceHeight: 1024,
@@ -67,6 +64,13 @@ export class ScrobbleScatterChart extends AbstractChart {
           }]
         }
       },
+      plotOptions: {
+        scatter: {
+          marker: {
+            radius: .5
+          }
+        }
+      },
       responsive: {
         rules: [{
           condition: {
@@ -74,6 +78,19 @@ export class ScrobbleScatterChart extends AbstractChart {
           },
           chartOptions: {
             yAxis: {title: {text: ''}}
+          }
+        }, {
+          condition: {
+            minWidth: 1200
+          },
+          chartOptions: {
+            plotOptions: {
+              scatter: {
+                marker: {
+                  radius: 1
+                }
+              }
+            }
           }
         }]
       }
@@ -85,9 +102,12 @@ export class ScrobbleScatterChart extends AbstractChart {
       return;
     }
 
+    const keys = Array.from(this.nameMap.keys());
+    keys.sort();
     let min = stats.first?.date.getTime()!;
-    let max = Array.from(this.nameMap.keys()).pop() || 0;
-    Object.values(stats.seenTracks).forEach(track => track.scrobbles.filter(s => s > max).forEach(s => {
+    let max = keys.pop() || 0;
+    let nameMapMin = keys.shift() || 0;
+    Object.values(stats.seenTracks).forEach(track => track.scrobbles.filter(s => s > max || s < nameMapMin).forEach(s => {
       const date = new Date(s);
       this.chart!.series[0].addPoint([s, date.getHours() * 60 + date.getMinutes()], false);
       this.nameMap.set(s, track.name);
