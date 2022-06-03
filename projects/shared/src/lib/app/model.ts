@@ -55,7 +55,6 @@ export interface Month {
   alias: string;
   artists: Map<string, MonthArtist>;
   date: Date;
-  avg?: number;
 }
 
 export interface MonthItem {

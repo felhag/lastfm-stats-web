@@ -37,12 +37,13 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
     next.betweenTracks = gaps[0];
     next.ongoingBetweenTracks = gaps[1];
 
+    const seenNames = seen.map(s => s.name);
     const monthsValues = Object.values(stats.monthList);
     const tracks: { [month: string]: { [track: string]: MonthItem } } = {};
     monthsValues.forEach(m => {
       const curr: { [track: string]: MonthItem } = {};
       tracks[m.alias] = curr;
-      m.artists.forEach(a => Object.values(a.tracks).forEach(t => curr[t.name] = t));
+      m.artists.forEach(a => Object.values(a.tracks).filter(t => seenNames.indexOf(t.name) >= 0).forEach(t => curr[t.name] = t));
     });
 
     next.weeksPerTrack = this.getTrackTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
@@ -67,7 +68,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> impl
                         getValue: (k: string) => number,
                         buildName: (item: string, value: number) => string,
                         buildDescription: (item: string, value: number) => string): Top10Item[] {
-    return this.getTop10<string>(tracks, getValue, k => k, buildName, buildDescription, m => this.url.month(m), m => months.find(x => x.alias === m)!.date);
+    return this.getTop10<string>(tracks, getValue, k => k, buildName, buildDescription, m => this.url.month(m), m => months.find(x => x.alias === m)!.date).filter(m => m.amount > 0);
   }
 
   private getTrackTop10(countMap: { [key: string]: any },
