@@ -10,8 +10,8 @@ export class SettingsService {
   autoUpdate: BehaviorSubject<boolean>;
   listSize: BehaviorSubject<number>;
   minScrobbles: BehaviorSubject<number>;
-  dateRangeStart: BehaviorSubject<Date>;
-  dateRangeEnd: BehaviorSubject<Date>;
+  dateRangeStart: BehaviorSubject<Date | null>;
+  dateRangeEnd: BehaviorSubject<Date | null>;
   artistsInclude: BehaviorSubject<boolean>;
   artists: BehaviorSubject<string[]>;
 
@@ -41,7 +41,7 @@ export class SettingsService {
     return sub;
   }
 
-  private initDate(key: string): BehaviorSubject<Date> {
+  private initDate(key: string): BehaviorSubject<Date | null> {
     return this.init(key, undefined, v => new Date(parseInt(v)), d => d ? String(d.getTime()) : undefined);
   }
 }

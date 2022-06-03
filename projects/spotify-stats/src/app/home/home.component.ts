@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { Validators, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
@@ -30,7 +30,7 @@ interface ParsedEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  username = new UntypedFormControl('', Validators.required);
+  username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
   deduplicated: Observable<number>;
   submitted = false;

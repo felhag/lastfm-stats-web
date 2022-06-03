@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Observable, combineLatest, BehaviorSubject, Subject, of } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
+import { Observable, combineLatest, BehaviorSubject, Subject, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-conf',
@@ -19,8 +19,8 @@ export class ConfComponent implements OnInit {
   allArtists!: Observable<[string, number][]>;
   keyword = new Subject<string>();
 
-  startDateCtrl!: UntypedFormControl;
-  endDateCtrl!: UntypedFormControl;
+  startDateCtrl!: FormControl<Date | null>;
+  endDateCtrl!: FormControl<Date | null>;
   startDate = new Date();
   endDate = new Date();
 
@@ -52,15 +52,15 @@ export class ConfComponent implements OnInit {
     this.endDateCtrl = this.dateControl(this.settings.dateRangeEnd);
   }
 
-  private dateControl(sub: BehaviorSubject<Date>): UntypedFormControl {
-    const ctrl = new UntypedFormControl(sub.value);
+  private dateControl(sub: BehaviorSubject<Date | null>): FormControl<Date | null> {
+    const ctrl = new FormControl<Date | null>(sub.value);
     ctrl.valueChanges.pipe(untilDestroyed(this)).subscribe(v => sub.next(v));
     return ctrl;
   }
 
   clearDate(): void {
-    this.startDateCtrl.setValue(undefined);
-    this.endDateCtrl.setValue(undefined);
+    this.startDateCtrl.setValue(null);
+    this.endDateCtrl.setValue(null);
   }
 
   get filteredArtists(): BehaviorSubject<string[]> {
