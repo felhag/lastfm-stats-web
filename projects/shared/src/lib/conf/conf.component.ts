@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Observable, combineLatest, BehaviorSubject, Subject, of } from 'rxjs';
@@ -19,8 +19,8 @@ export class ConfComponent implements OnInit {
   allArtists!: Observable<[string, number][]>;
   keyword = new Subject<string>();
 
-  startDateCtrl!: FormControl;
-  endDateCtrl!: FormControl;
+  startDateCtrl!: UntypedFormControl;
+  endDateCtrl!: UntypedFormControl;
   startDate = new Date();
   endDate = new Date();
 
@@ -52,8 +52,8 @@ export class ConfComponent implements OnInit {
     this.endDateCtrl = this.dateControl(this.settings.dateRangeEnd);
   }
 
-  private dateControl(sub: BehaviorSubject<Date>): FormControl {
-    const ctrl = new FormControl(sub.value);
+  private dateControl(sub: BehaviorSubject<Date>): UntypedFormControl {
+    const ctrl = new UntypedFormControl(sub.value);
     ctrl.valueChanges.pipe(untilDestroyed(this)).subscribe(v => sub.next(v));
     return ctrl;
   }
