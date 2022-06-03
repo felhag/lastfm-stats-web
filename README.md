@@ -1,5 +1,7 @@
 ## 🎶 Last.fm stats 
-A small project to show some additional statistics for last.fm: https://lastfmstats.com.
+A small project to show some additional statistics for last.fm and spotify: 
+- https://lastfmstats.com
+- https://spotifystats.app
 
 ## 🏆 Features 
 - streaks
@@ -31,6 +33,15 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+4.1 (03-06-2022)
+- added golden oldies and latest discoveries list for albums
+- added min scrobble count option for more lists
+- improved layout scrobble scatter chart
+- updated to angular 14
+
+4.0 (10-04-2022)
+- made project compatible with spotify as well
+
 3.1 (20-03-2022)
 - added scrobble scatter chart
 - added fullscreen function for charts
