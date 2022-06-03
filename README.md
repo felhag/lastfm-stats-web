@@ -33,6 +33,9 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+4.2 (03-06-2022)
+- fixed name and url for month based lists
+
 4.1 (03-06-2022)
 - added golden oldies and latest discoveries list for albums
 - added min scrobble count option for more lists

@@ -99,14 +99,15 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
   private getMonths(stats: TempStats, seen: string[]): { [key: string]: MonthWithAvg } {
     const result: { [key: string]: MonthWithAvg } = {};
     Object.keys(stats.monthList).forEach(m => {
-      const artists = [...stats.monthList[m].artists.values()].filter(a => seen.indexOf(a.name) >= 0);
+      const month = stats.monthList[m];
+      const artists = [...month.artists.values()].filter(a => seen.indexOf(a.name) >= 0);
       const sum = artists.map(a => a.count).reduce((a, b) => a + b, 0);
       const avg = (sum / artists.length) || 0;
       result[m] = {
         avg,
         artists,
-        alias: m,
-        date: stats.monthList[m].date
+        alias: month.alias,
+        date: month.date
       }
     });
     return result;
