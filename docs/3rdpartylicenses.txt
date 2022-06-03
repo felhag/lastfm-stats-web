@@ -312,6 +312,8 @@ Apache-2.0
  
 
 
+shared
+
 tslib
 0BSD
 Copyright (c) Microsoft Corporation.
