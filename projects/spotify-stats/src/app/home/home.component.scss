@@ -35,6 +35,8 @@
 
   .mat-nav-list {
     min-width: 100%;
+    max-height: 288px;
+    overflow-y: auto;
     padding-top: 0;
   }
 }

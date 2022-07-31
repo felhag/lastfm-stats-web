@@ -3,16 +3,25 @@ import { Validators, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
-import { Scrobble } from 'projects/shared/src/lib/app/model';
+import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
 
-interface JSONEntry {
+interface StreamingHistoryEntry {
   endTime: string;
-  artistName: string,
-  trackName: string,
-  msPlayed: number
+  artistName: string;
+  trackName: string;
+  msPlayed: number;
+}
+
+interface EndSongEntry {
+  ts: string;
+  master_metadata_album_artist_name: string;
+  master_metadata_album_album_name: string;
+  master_metadata_track_name: string;
+  ms_played: number;
+  username: string;
 }
 
 interface ParsedEntry {
@@ -30,6 +39,10 @@ interface ParsedEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
+  private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {
+    'StreamingHistory': json => this.parseStreamingHistory(json),
+    'endsong_': json => this.parseEndSong(json)
+  };
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
   deduplicated: Observable<number>;
@@ -52,10 +65,15 @@ export class HomeComponent {
         this.unzip(file);
       } else if (name.endsWith('.json')) {
         const reader = new FileReader();
-        reader.onloadend = () => this.addJson(file.name, reader.result as string);
+        reader.onloadend = () => {
+          const handler = Object.keys(this.fileHandler).find(key => new RegExp(key + '\d*.json', 'i').test(name));
+          const json = JSON.parse(reader.result as string);
+          const parsed = handler ? this.fileHandler[handler](json) : this.guessParse(json);
+          if (parsed) {
+            this.addEntries(file.name, parsed);
+          }
+        }
         reader.readAsText(file);
-      } else {
-        // fail
       }
     });
   }
@@ -63,23 +81,60 @@ export class HomeComponent {
   private unzip(file: File): void {
     new JSZip().loadAsync(file).then(zip => {
       Object.keys(zip.files).forEach(filename => {
-          if (filename.startsWith('MyData/StreamingHistory')) {
-            zip.files[filename].async('string').then(data => this.addJson(filename.substring('MyData/'.length), data));
-          } else if (filename.startsWith('MyData/Userdata')) {
-            zip.files[filename].async('string').then(data => this.username.setValue(JSON.parse(data).username));
-          }
-        });
+        const handler = Object.keys(this.fileHandler).find(key => filename.startsWith('MyData/' + key));
+        if (filename.startsWith('MyData/Userdata')) {
+          zip.files[filename].async('string').then(data => this.username.setValue(JSON.parse(data).username));
+        } else if (handler) {
+          zip.files[filename].async('string').then(data => this.addEntries(filename.substring('MyData/'.length), this.fileHandler[handler](JSON.parse(data))));
+        }
+      });
     });
   }
 
-  private addJson(name: string, json: string): void {
-    const parsed: JSONEntry[] = JSON.parse(json);
-    const plays: Scrobble[] = parsed.map(s => ({
-      artist: s.artistName,
-      track: s.trackName,
-      album: '',
-      date: new Date(s.endTime + ' UTC')
-    }));
+  private parseStreamingHistory(parsed: StreamingHistoryEntry[]): Scrobble[] {
+    return parsed
+      .filter(s => s.msPlayed > Constants.MIN_MS_PLAYED)
+      .map(s => ({
+        artist: s.artistName,
+        track: s.trackName,
+        album: '',
+        date: new Date(s.endTime + ' UTC')
+      }));
+  }
+
+  private parseEndSong(parsed: EndSongEntry[]): Scrobble[] {
+    return parsed
+      .filter(s => s.master_metadata_album_artist_name && s.master_metadata_track_name)
+      .filter(s => s.ms_played > Constants.MIN_MS_PLAYED)
+      .map(s => ({
+        artist: s.master_metadata_album_artist_name,
+        track: s.master_metadata_track_name,
+        album: s.master_metadata_album_album_name,
+        date: new Date(s.ts)
+      }));
+  }
+
+  private guessParse(parsed: any[]): Scrobble[] | undefined {
+    if (!parsed?.length) {
+      return undefined;
+    }
+
+    const first = parsed[0];
+    if (first.hasOwnProperty('master_metadata_album_artist_name')) {
+      if (!this.username.value && parsed.length > 0) {
+        this.username.setValue((parsed[0] as EndSongEntry).username);
+      }
+
+      return this.parseEndSong((parsed as EndSongEntry[]));
+    } else if (first.hasOwnProperty('artistName')) {
+      return this.parseStreamingHistory((parsed as StreamingHistoryEntry[]));
+    } else {
+      return undefined;
+    }
+  }
+
+  private addEntries(name: string, plays: Scrobble[]): void {
+    plays.sort((a, b) => a.date.getTime() - b.date.getTime());
     const first = plays[0].date;
     const last = plays[plays.length - 1].date;
     const current = this.files.value;
@@ -96,7 +151,7 @@ export class HomeComponent {
   }
 
   go(): void {
-    const plays = this.files.value.flatMap(f => f.plays);
+    const plays = this.files.value.flatMap(f => f.plays).sort((a, b) => a.date.getTime() - b.date.getTime());
     if (this.username.valid && plays.length) {
       const handled = new Set();
       this.retriever.imported = plays.filter(p => {

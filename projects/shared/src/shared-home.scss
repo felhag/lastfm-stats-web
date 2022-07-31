@@ -2,7 +2,6 @@ $font-size: 32px;
 
 app-home .home {
   height: 100%;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,6 +15,7 @@ app-home .home {
     justify-content: center;
     width: 100%;
     margin-bottom: 40px;
+    padding: 0 16px;
 
     &.mw {
       max-width: 320px;

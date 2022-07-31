@@ -1,17 +1,16 @@
 <h2 mat-dialog-title>Retrieve data from Spotify</h2>
 
 <div mat-dialog-content>
-  Spotify keeps track of all your plays over the past year. Unfortunately it doesn't provide a decent way to<br>retrieve this data programmatically so you'll have to request this data manually.
+  Spotify keeps track of all your plays. Unfortunately it doesn't provide a decent way to
+  retrieve this data programmatically so you'll have to request this data manually. You can
+  do this on the <a href="https://www.spotify.com/us/account/privacy/" target="_blank">spotify privacy page</a>.<br><br>
 
-  <ol>
-    <li>Login to spotify and go to the <a href="https://www.spotify.com/us/account/privacy/" target="_blank">privacy page</a>.</li>
-    <li>Scroll to the very bottom and click on "Request".</li>
-    <li>Prove you're not a robot and confirm the data request in your mail.</li>
-    <li>Wait. This takes a maximum of 30 days, but mostly you'll receive an e-mail within a week.</li>
-    <li>Download the zip and upload my_spotify_data.zip here.</li>
-  </ol>
+  <strong>Note:</strong> When you use the "Download your data" tool it will only provide streaming history for the <u>past year</u>.
+  If you send an email to <a href="mailto:privacy@spotify.com">privacy@spotify.com</a> it includes <u>all</u> your streaming history!<br><br>
+
+  After you received an email (takes about a week) you can download the zip and upload my_spotify_data.zip here.
 </div>
 
 <div mat-dialog-actions>
-  <button mat-button (click)="dialogRef.close()">👍 Ok</button>
+  <button mat-button cdkFocusInitial (click)="dialogRef.close()">👍 Ok</button>
 </div>
