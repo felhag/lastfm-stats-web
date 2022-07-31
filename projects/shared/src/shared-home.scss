@@ -45,7 +45,7 @@ app-home .home {
 @media (max-width: 575px) {
   app-home .home {
     padding: 16px 0;
-    box-shadow: none;
+    box-shadow: none !important;
     background: transparent;
   }
 }

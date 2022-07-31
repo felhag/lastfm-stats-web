@@ -1,14 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
-import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { Subject, debounceTime } from 'rxjs';
 import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App } from 'projects/shared/src/lib/app/model';
-import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
+import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { debounceTime, combineLatest } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 
 @UntilDestroy()
 @Component({
@@ -35,7 +37,9 @@ export class DatasetComponent implements OnInit {
   groupedBy: ItemType = 'artist';
   height!: number;
   dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
-  filter = new Subject<string>();
+
+  filterArtist = new FormControl<string>('');
+  filterName = new FormControl<string>('');
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
 
@@ -48,16 +52,18 @@ export class DatasetComponent implements OnInit {
   ngOnInit(): void {
     this.height = window.innerHeight - 32;
     this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(() => this.update());
-    this.filter.pipe(
-      untilDestroyed(this),
-      debounceTime(200)
-    ).subscribe(f => this.dataSource.filter = f);
+    combineLatest([
+      this.filterArtist.valueChanges.pipe(startWith('')),
+      this.filterName.valueChanges.pipe(startWith('')),
+    ]).pipe(
+      debounceTime(200),
+      untilDestroyed(this)
+    ).subscribe(f => this.dataSource.filter = f.join());
 
     // @ts-ignore
-    this.dataSource.filterPredicate = ((obj, f) => this.columns.map(col => obj[col])
-      .join(' ')
-      .toLowerCase()
-      .indexOf(f.toLowerCase()) >= 0);
+    this.dataSource.filterPredicate = (obj =>
+      this.filterValue(this.filterArtist.value, this.groupedBy === 'artist' ? obj.name : obj.artist) &&
+      this.filterValue(this.filterName.value, obj.name));
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
@@ -68,6 +74,10 @@ export class DatasetComponent implements OnInit {
         return value;
       }
     };
+  }
+
+  private filterValue(search: string | null, value: string): boolean {
+    return !search || value.toLowerCase().indexOf(search.toLowerCase()) >= 0;
   }
 
   private update(): void {
@@ -88,6 +98,7 @@ export class DatasetComponent implements OnInit {
 
   groupBy(change: MatRadioChange): void {
     this.groupedBy = change.value;
+    this.filterName.setValue('');
     this.update();
   }
 

@@ -103,6 +103,10 @@ export class HomeComponent {
   }
 
   private parseEndSong(parsed: EndSongEntry[]): Scrobble[] {
+    if (!this.username.value && parsed.length > 0) {
+      this.username.setValue(parsed[0].username);
+    }
+
     return parsed
       .filter(s => s.master_metadata_album_artist_name && s.master_metadata_track_name)
       .filter(s => s.ms_played > Constants.MIN_MS_PLAYED)
@@ -121,10 +125,6 @@ export class HomeComponent {
 
     const first = parsed[0];
     if (first.hasOwnProperty('master_metadata_album_artist_name')) {
-      if (!this.username.value && parsed.length > 0) {
-        this.username.setValue((parsed[0] as EndSongEntry).username);
-      }
-
       return this.parseEndSong((parsed as EndSongEntry[]));
     } else if (first.hasOwnProperty('artistName')) {
       return this.parseStreamingHistory((parsed as StreamingHistoryEntry[]));

@@ -1,11 +1,18 @@
 <div class="root">
   <mat-card>
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Search</mat-label>
-      <input matInput placeholder="Search..." (keyup)="filter.next($any($event.target).value)" accesskey="s">
-      <mat-icon matPrefix>search</mat-icon>
-    </mat-form-field>
+    <div class="full-width search-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Search artist</mat-label>
+        <input matInput placeholder="Search artist..." [formControl]="filterArtist" accesskey="s">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
 
+      <mat-form-field *ngIf="groupedBy !== 'artist'" appearance="outline">
+        <mat-label>Search {{groupedBy}}</mat-label>
+        <input matInput placeholder="Search {{groupedBy}}..." [formControl]="filterName" accesskey="n">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
     <mat-radio-group [value]="groupedBy" (change)="groupBy($event)">
       <mat-radio-button value="artist">Artist</mat-radio-button>
       <mat-radio-button *ngIf="showAlbums" value="album">Album</mat-radio-button>

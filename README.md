@@ -33,6 +33,10 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+4.3 (31-07-2022)
+- added support for extended data zip for spotify
+- added option to search for artist OR album/track in dataset
+
 4.2 (03-06-2022)
 - fixed name and url for month based lists
 

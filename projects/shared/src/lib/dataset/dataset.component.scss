@@ -19,3 +19,20 @@
     background-color: rgba(0,0,0,0.1);
   }
 }
+
+.search-fields {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+
+  .mat-form-field {
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .search-fields {
+    flex-direction: column;
+    gap: 0;
+  }
+}
