@@ -8,7 +8,7 @@ export class CumulativeItemsChart extends ToggleableChart {
     super();
     this.options = {
       chart: {
-        zoomType: 'xy',
+        zooming: { type: 'xy' },
         events: this.events
       },
       plotOptions: this.plotOptions,

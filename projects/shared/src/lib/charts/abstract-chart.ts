@@ -51,6 +51,10 @@ export abstract class AbstractChart {
     }
   }
 
+  protected getColors(): string[] {
+    return Highcharts.getOptions().colors! as string[];
+  }
+
   private smallAxis(align: AlignValue | undefined): Highcharts.YAxisOptions {
     return {
       visible: !!align,

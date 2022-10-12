@@ -23,7 +23,7 @@ export class TimelineChart extends AbstractChart {
         title: {
           text: translate.capFirst('translate.scrobbles'),
           style: {
-            color: Highcharts.getOptions().colors![0]
+            color: this.getColors()[0]
           }
         }
       }, {
@@ -32,7 +32,7 @@ export class TimelineChart extends AbstractChart {
         title: {
           text: 'Artists',
           style: {
-            color: Highcharts.getOptions().colors![1]
+            color: this.getColors()[1]
           }
         }
       }, {
@@ -41,7 +41,7 @@ export class TimelineChart extends AbstractChart {
         title: {
           text: 'Tracks',
           style: {
-            color: Highcharts.getOptions().colors![2]
+            color: this.getColors()[2]
           }
         }
       }],

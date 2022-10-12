@@ -1,4 +1,3 @@
-import * as Highcharts from 'highcharts';
 import { PointOptionsType } from 'highcharts';
 import { TempStats } from 'projects/shared/src/lib/app/model';
 import { ToggleableChart } from 'projects/shared/src/lib/charts/toggleable-chart';
@@ -42,7 +41,7 @@ export class ArtistTimelineChart extends ToggleableChart {
 
     const points: PointOptionsType[] = [];
     const colorMap: { [key: string]: string } = {};
-    const colors = Highcharts.getOptions().colors!;
+    const colors = this.getColors();
 
     for (const month of Object.values(stats.monthList)) {
       const items = this.mapper.monthItems(this.type, month);

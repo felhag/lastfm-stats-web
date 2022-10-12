@@ -16,7 +16,7 @@ export class ScrobbleScatterChart extends AbstractChart {
       title: {text: 'All ' + translate.transform('translate.scrobbles')},
       chart: {
         type: 'scatter',
-        zoomType: 'xy',
+        zooming: { type: 'xy' },
         alignTicks: false
       },
       boost: {

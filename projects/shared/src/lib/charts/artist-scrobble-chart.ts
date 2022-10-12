@@ -12,7 +12,7 @@ export class ArtistScrobbleChart extends AbstractChart {
       subtitle: {text: `(${Constants.SCROBBLE_ARTIST_THRESHOLD}+ ${translate.transform('translate.scrobbles')})`},
       chart: {
         type: 'scatter',
-        zoomType: 'xy',
+        zooming: { type: 'xy' }
       },
       xAxis: {
         title: {

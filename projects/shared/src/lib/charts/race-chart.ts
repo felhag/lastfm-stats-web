@@ -139,7 +139,7 @@ export class RaceChart extends AbstractChart {
     if (this.colors[name]) {
       return this.colors[name];
     }
-    const colors = Highcharts.getOptions().colors!;
+    const colors = this.getColors();
     const color = colors[Object.keys(this.colors).length % colors.length];
     this.colors[name] = color;
     return color;
