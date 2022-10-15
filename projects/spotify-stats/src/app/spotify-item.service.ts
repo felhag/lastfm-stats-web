@@ -1,38 +1,33 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Progress } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
-import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
-import { timer, take } from 'rxjs';
+import { take } from 'rxjs';
+import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SpotifyItemService extends AbstractItemRetriever {
 
-  constructor(private progress: ProgressService, private router: Router) {
+  constructor(private scrobbles: ScrobbleStore, private router: Router) {
     super();
   }
 
-  retrieveFor(username: string): Progress {
-    const progress = this.progress.init(this.imported);
-    if (this.imported.length === 0) {
-      this.router.navigate(['/']);
-      return progress;
-    }
+  retrieveFor(username: string): void {
+    this.scrobbles.scrobbles.pipe(take(1)).subscribe(scrobbles => {
+      if (scrobbles.length === 0) {
+        this.router.navigate(['/']);
+        return;
+      }
 
-    progress.user = {
-      name: username,
-      playcount: String(this.imported.length),
-      registered: {unixtime: String(this.imported[0].date.getTime())},
-      url: 'https://open.spotify.com/user/' + username,
-      image: []
-    };
-
-    timer(0).pipe(take(1)).subscribe(() => {
-      this.handleImportedItem(this.imported, progress);
-      progress.state.next('COMPLETED');
+      this.scrobbles.updateUser({
+        name: username,
+        playcount: String(scrobbles.length),
+        registered: {unixtime: String(scrobbles[0].date.getTime())},
+        url: 'https://open.spotify.com/user/' + username,
+        image: []
+      });
+      this.scrobbles.finish('COMPLETED');
     });
-    return progress;
   }
 }

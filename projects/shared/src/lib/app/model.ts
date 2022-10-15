@@ -1,13 +1,11 @@
-import { Subject, BehaviorSubject } from 'rxjs';
-
 export enum App { 'lastfm', 'spotify'}
 
 export type ItemType = 'artist' | 'album' | 'track';
 
-export type State =
-  'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' |       // happy flow states
-  'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND' |  // initial error states
-  'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';                // completed states
+export type ProgressState = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING';
+export type ErrorState = 'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND';
+export type CompleteState = 'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';
+export type State = ProgressState | ErrorState | CompleteState;
 
 export interface User {
   name: string;
@@ -189,21 +187,6 @@ export class ItemStreakStack extends StreakStack {
       }
     }
   }
-}
-
-export interface Progress {
-  user?: User;
-  first: BehaviorSubject<Scrobble | undefined>;
-  last: BehaviorSubject<Scrobble | undefined>;
-  pageSize: number;
-  totalPages: number;
-  loadScrobbles: number;
-  importedScrobbles: number;
-  allScrobbles: Scrobble[];
-  currentPage: number;
-  pageLoadTime?: number;
-  state: BehaviorSubject<State>;
-  loader: Subject<Scrobble[]>;
 }
 
 export class Constants {

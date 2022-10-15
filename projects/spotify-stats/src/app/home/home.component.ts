@@ -4,9 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import * as JSZip from 'jszip';
 import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
-import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
+import { ScrobbleStore } from '../../../../shared/src/lib/service/scrobble.store';
 
 interface StreamingHistoryEntry {
   endTime: string;
@@ -48,7 +48,7 @@ export class HomeComponent {
   deduplicated: Observable<number>;
   submitted = false;
 
-  constructor(private router: Router, private retriever: AbstractItemRetriever, private dialog: MatDialog) {
+  constructor(private router: Router, private scrobbles: ScrobbleStore, private dialog: MatDialog) {
     this.deduplicated = this.files.pipe(
       throttleTime(0, asyncScheduler, { trailing: true }),
       map(files => files.flatMap(file => file.plays).map(p => JSON.stringify(p))),
@@ -154,7 +154,7 @@ export class HomeComponent {
     const plays = this.files.value.flatMap(f => f.plays).sort((a, b) => a.date.getTime() - b.date.getTime());
     if (this.username.valid && plays.length) {
       const handled = new Set();
-      this.retriever.imported = plays.filter(p => {
+      this.scrobbles.start(plays.filter(p => {
         const json = JSON.stringify(p);
         if (handled.has(json)) {
           return false;
@@ -162,7 +162,7 @@ export class HomeComponent {
           handled.add(json);
           return p;
         }
-      });
+      }));
       this.router.navigate([`/user/${this.username.value}`]);
     } else {
       this.submitted = true;

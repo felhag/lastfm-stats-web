@@ -1,4 +1,4 @@
-<div *ngIf="(progress.state | async) as state">
+<div *ngIf="(state$ | async) as state">
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADINGUSER'">🔎 Looking for {{username}}...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'CALCULATINGPAGES'">👨‍🔬 {{username}} found, calculating pages...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'USERNOTFOUND'">Username {{username}} not found 😥</mat-card>
@@ -8,7 +8,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          <a *ngIf="progress.user as user" [href]="user.url" target="_blank" class="user-link regular-text">
+          <a *ngIf="(user$ | async) as user" [href]="user.url" target="_blank" class="user-link regular-text">
             <img *ngIf="user.image.length" [src]="user.image[0]['#text']">Statistics for {{user.name}}
           </a>
         </mat-card-title>

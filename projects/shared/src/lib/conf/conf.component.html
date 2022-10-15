@@ -19,12 +19,12 @@ List size:
 <div class="setting-row">
   <mat-form-field appearance="standard" (focusin)="picker.open()">
     <mat-label>Date range</mat-label>
-    <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
+    <mat-date-range-input [rangePicker]="picker" [min]="startDate | async" [max]="endDate" >
       <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
       <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
     </mat-date-range-input>
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
+    <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate | async"></mat-date-range-picker>
   </mat-form-field>
 </div>
 

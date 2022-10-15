@@ -2,14 +2,15 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
-import { combineLatest, Observable } from 'rxjs';
-import { map, filter, finalize } from 'rxjs/operators';
+import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
-import { Progress, State, App } from 'projects/shared/src/lib/app/model';
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
+import { combineLatest, Observable, take } from 'rxjs';
+import { map, filter, finalize } from 'rxjs/operators';
+import { ScrobbleStore } from '../service/scrobble.store';
 
 @UntilDestroy()
 @Component({
@@ -22,11 +23,13 @@ export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
   private activeTab: string = 'artists';
   private start?: [number, number, number];
-  progress!: Progress;
   settingCount = new Observable<number>();
+  state$!: Observable<State>;
+  user$!: Observable<User | undefined>;
 
   constructor(private retriever: AbstractItemRetriever,
               private builder: StatsBuilderService,
+              private scrobbles: ScrobbleStore,
               public settings: SettingsService,
               private usernameService: UsernameService,
               private router: Router,
@@ -41,8 +44,10 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.builder.update([], false);
-    this.progress = this.retriever.retrieveFor(this.username!);
-    this.progress.loader.pipe(
+    this.retriever.retrieveFor(this.username!);
+    this.state$ = this.scrobbles.state;
+    this.user$ = this.scrobbles.user;
+    this.scrobbles.chunk.pipe(
       untilDestroyed(this),
       filter((s, idx) => idx === 0 || this.settings.autoUpdate.value),
       finalize(() => this.rebuildWithoutAutoUpdate())
@@ -58,11 +63,11 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.progress.state.next('INTERRUPTED');
+    this.scrobbles.finish('INTERRUPTED');
   }
 
   private rebuildWithoutAutoUpdate(): void {
-    if (!this.settings.autoUpdate.value && this.progress.state.value !== 'INTERRUPTED') {
+    if (!this.settings.autoUpdate.value) {
       this.rebuild();
     } else {
       this.builder.finish();
@@ -70,8 +75,10 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   rebuild(): void {
-    this.builder.update(this.progress.allScrobbles, false);
-    this.builder.finish();
+    this.scrobbles.scrobbles.pipe(take(1)).subscribe(scrobbles => {
+      this.builder.update(scrobbles, false);
+      this.builder.finish();
+    });
   }
 
   showContent(state: State): boolean {

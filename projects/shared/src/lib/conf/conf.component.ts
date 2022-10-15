@@ -2,10 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
-import { Observable, combineLatest, BehaviorSubject, Subject, of } from 'rxjs';
+import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { ScrobbleStore } from '../service/scrobble.store';
 
 @Component({
   selector: 'app-conf',
@@ -21,10 +21,10 @@ export class ConfComponent implements OnInit {
 
   startDateCtrl!: FormControl<Date | null>;
   endDateCtrl!: FormControl<Date | null>;
-  startDate = new Date();
+  startDate!: Observable<Date>;
   endDate = new Date();
 
-  constructor(public progress: ProgressService,
+  constructor(private scrobbles: ScrobbleStore,
               public settings: SettingsService) {
   }
 
@@ -34,11 +34,12 @@ export class ConfComponent implements OnInit {
       startWith(''),
       map(a => a.toLowerCase())
     );
-    const all: { [key: string]: number } = this.progress.progress.allScrobbles
+    const all = this.scrobbles.scrobbles.pipe(map(scrobbles => scrobbles
       .map(s => s.artist)
-      .reduce((acc: any, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {});
+      .reduce((acc: any, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {})
+    ));
 
-    this.allArtists = combineLatest([of(all), this.settings.artists, search]).pipe(
+    this.allArtists = combineLatest([all, this.settings.artists, search]).pipe(
       untilDestroyed(this),
       map(args => Object.entries(all)
         .filter(a => !args[2] || a[0].toLowerCase().indexOf(args[2]) >= 0)
@@ -47,7 +48,7 @@ export class ConfComponent implements OnInit {
         .slice(0, 30))
     );
 
-    this.startDate = this.progress.progress.first.value!.date;
+    this.startDate = this.scrobbles.first.pipe(map(scrobble => scrobble.date));
     this.startDateCtrl = this.dateControl(this.settings.dateRangeStart);
     this.endDateCtrl = this.dateControl(this.settings.dateRangeEnd);
   }

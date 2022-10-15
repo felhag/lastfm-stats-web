@@ -3,9 +3,9 @@ import { MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
-import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Subject, BehaviorSubject, Observable, take } from 'rxjs';
 import { DatabaseService, DbUser } from '../../../../shared/src/lib/service/database.service';
+import { ScrobbleStore } from '../../../../shared/src/lib/service/scrobble.store';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +21,7 @@ export class HomeComponent {
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
-              private retriever: AbstractItemRetriever,
+              private scrobbles: ScrobbleStore,
               private database: DatabaseService) {
     this.dbUsers = this.database.getUsers();
   }
@@ -32,7 +32,7 @@ export class HomeComponent {
 
   go(): void {
     if (this.username) {
-      this.router.navigateByUrl(`/user/${this.username.trim().toLowerCase()}`);
+      this.start(this.username.trim().toLowerCase(), []);
     } else {
       this.valid.next(false);
     }
@@ -40,7 +40,7 @@ export class HomeComponent {
 
   goFromDb($event: MatSelectChange): void {
     const user: DbUser = $event.value;
-    this.database.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.handleImport(user.username, scrobbles));
+    this.database.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.start(user.username, scrobbles));
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -66,7 +66,7 @@ export class HomeComponent {
             track: arr[2],
             date: new Date(parseInt(arr[3]))
           }));
-          this.handleImport(username, scrobbles);
+          this.start(username, scrobbles);
         },
         error: (error: any) => this.importError.next('Can\t parse csv: ' + error.message)
       });
@@ -76,7 +76,7 @@ export class HomeComponent {
         const parsed = this.parseJSON(reader.result as string);
         if (parsed) {
           const scrobbles = parsed.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: new Date(s.date)}));
-          this.handleImport(parsed.username, scrobbles);
+          this.start(parsed.username, scrobbles);
         }
       };
       reader.readAsText(file);
@@ -85,8 +85,8 @@ export class HomeComponent {
     }
   }
 
-  private handleImport(username: string, scrobbles: Scrobble[]): void {
-    this.retriever.imported = scrobbles;
+  private start(username: string, scrobbles: Scrobble[]): void {
+    this.scrobbles.start(scrobbles);
     this.router.navigate([`/user/${username}`]);
   }
 
