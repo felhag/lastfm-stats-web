@@ -22,11 +22,15 @@
 <div *ngIf="isLastfm" class="export">
   Save your data to reduce waiting time for your next visit!
   <div>
-    <button mat-flat-button (click)="exportJSON()">
+    <button mat-flat-button (click)="saveInDb()" matTooltip="Save in browser using indexedDB">
+      <mat-icon>system_update</mat-icon>
+      Browser
+    </button>
+    <button mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
       <mat-icon>file_download</mat-icon>
       JSON
     </button>
-    <button mat-flat-button (click)="exportCSV()">
+    <button mat-flat-button (click)="exportCSV()" matTooltip="Download file in CSV format">
       <mat-icon>file_download</mat-icon>
       CSV
     </button>

@@ -1,19 +1,20 @@
+import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
+import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
+import { App } from 'projects/shared/src/lib/app/model';
+import { AppComponent } from 'projects/shared/src/lib/app/app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { HomeComponent } from './home/home.component';
+import { LastfmUrlService } from './lastfm-url.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSelectModule } from '@angular/material/select';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble-retriever.service';
-import { AppComponent } from 'projects/shared/src/lib/app/app.component';
-import { App } from 'projects/shared/src/lib/app/model';
-import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
-import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
-import { HomeComponent } from './home/home.component';
-import { LastfmUrlService } from './lastfm-url.service';
 
 @NgModule({
   declarations: [
@@ -26,8 +27,9 @@ import { LastfmUrlService } from './lastfm-url.service';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatSelectModule,
+    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent, 'scrobbles')),
     SharedModule,
-    RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent, 'scrobbles'))
   ],
   providers: [
     { provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService },

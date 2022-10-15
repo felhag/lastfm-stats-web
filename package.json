@@ -24,6 +24,7 @@
     "@angular/platform-browser-dynamic": "~14.2.6",
     "@angular/router": "~14.2.6",
     "@ngneat/until-destroy": "^9.2.2",
+    "dexie": "^3.2.2",
     "highcharts": "^10.2.1",
     "highcharts-angular": "^3.0.0",
     "jszip": "^3.10.1",

@@ -22,14 +22,20 @@
   </div>
   <div class="home-row mw">
     <div class="line"></div>
-    <div class="or">OR</div>
+    <div class="or">or import from</div>
     <div class="line"></div>
   </div>
-  <div class="home-row">
+  <div class="home-row import-buttons">
     <button mat-flat-button (click)="uploadFile.click()">
-      📁   Import a file
+      📁 File
     </button>
     <input #uploadFile (change)="import($event)" type='file' style="display:none">
+
+    <ng-container *ngIf="dbUsers | async as users">
+      <mat-select *ngIf="users.length" placeholder="🗄️Database" (selectionChange)="goFromDb($event)">
+        <mat-option *ngFor="let user of users" [value]="user">{{user.username}}</mat-option>
+      </mat-select>
+    </ng-container>
   </div>
 
   <app-buttons [showHome]="false"></app-buttons>

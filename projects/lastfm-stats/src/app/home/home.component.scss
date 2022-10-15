@@ -39,6 +39,28 @@
       padding: 0;
     }
   }
+
+  .or {
+    font-size: .75rem;
+    letter-spacing: 1px;
+    padding: 0 20px;
+  }
+
+  .import-buttons {
+    button, mat-select {
+      width: 50%;
+      font-size: 1rem;
+    }
+    .mat-select-value {
+      text-align: center;
+    }
+    .mat-select-placeholder {
+      color: inherit;
+    }
+    .mat-select-arrow-wrapper {
+      display: none;
+    }
+  }
 }
 
 @mixin color($theme) {

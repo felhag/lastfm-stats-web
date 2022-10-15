@@ -1,15 +1,23 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Export, Progress, App, Constants } from 'projects/shared/src/lib/app/model';
 import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
+import { take } from 'rxjs';
+import { db } from '../app/db';
+import { TranslatePipe } from '../service/translate.pipe';
 
 @Component({
   selector: 'app-progress',
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [TranslatePipe],
 })
 export class ProgressComponent {
-  constructor(private service: ProgressService, private app: App) {
+  constructor(private service: ProgressService,
+              private snackbar: MatSnackBar,
+              private translate: TranslatePipe,
+              private app: App) {
   }
 
   get progress(): Progress {
@@ -42,6 +50,12 @@ export class ProgressComponent {
     const diff = this.progress.last.value!.date.getTime() - this.progress.first.value!.date.getTime();
     const days = Math.round(diff / Constants.DAY);
     return `<b>${plays}</b> plays in <b>${days}</b> days. That's an average of <b>${Math.round(plays / days)}</b> plays per day!`;
+  }
+
+  saveInDb(): void {
+    db.addScrobbles(this.progress.user!.name, this.progress.allScrobbles).pipe(take(1)).subscribe(() => {
+      this.snackbar.open(`Saved ${this.progress.allScrobbles.length} ${this.translate.transform('translate.scrobbles')}`, '🪅 Awesome!', {duration: 3000});
+    });
   }
 
   exportJSON(): void {
