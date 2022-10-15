@@ -1,7 +1,8 @@
+import { Injectable } from '@angular/core';
 import Dexie, { Table } from 'dexie';
-import { from, Observable, switchMap, of, combineLatest } from 'rxjs';
+import { Observable, from, switchMap, combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Scrobble } from './model';
+import { App, Scrobble } from '../app/model';
 
 export interface DbUser {
   id?: number;
@@ -13,13 +14,24 @@ export interface DbUserScrobble extends Scrobble {
   userId: number;
 }
 
-export class AppDB extends Dexie {
+class AppDB extends Dexie {
   users!: Table<DbUser, number>;
   scrobbles!: Table<DbUserScrobble, number>;
 
-  constructor() {
-    super('lastfmstats');
-    this.version(1).stores({
+  constructor(databaseName: string) {
+    super(databaseName);
+  }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DatabaseService {
+  private db: AppDB;
+
+  constructor(app: App) {
+    this.db = new AppDB(app === App.lastfm ? 'lastfmstats' : 'spotifystats');
+    this.db.version(1).stores({
       users: '++id,&username',
       scrobbles: '++id,userId,artist,album,track,date',
     });
@@ -27,25 +39,25 @@ export class AppDB extends Dexie {
 
   private findOrCreateUser(input: string): Observable<number> {
     const username = input.trim().toLowerCase();
-    return from(this.transaction('rw', this.users, async () => {
-      return this.users
+    return from(this.db.transaction('rw', this.db.users, async () => {
+      return this.db.users
         .get({username})
         .then(user => {
           if (user?.id) {
             return user.id;
           } else {
-            return this.users.add({username});
+            return this.db.users.add({username});
           }
         })
     }));
   }
 
   getUsers(): Observable<DbUser[]> {
-    return from(this.users.toArray());
+    return from(this.db.users.toArray());
   }
 
   getScrobbles(userId: number): Observable<DbUserScrobble[]> {
-    return from(this.transaction('r', this.scrobbles, async () => this.scrobbles.where('userId').equals(userId).toArray()));
+    return from(this.db.transaction('r', this.db.scrobbles, async () => this.db.scrobbles.where('userId').equals(userId).toArray()));
   }
 
   addScrobbles(username: string, scrobbles: Scrobble[]): Observable<number> {
@@ -54,15 +66,13 @@ export class AppDB extends Dexie {
       switchMap(userId =>
         combineLatest([of(userId), this.getScrobbles(userId).pipe(
           map(scrobbles => scrobbles.map(s => s.id!)),
-          switchMap(ids => from(this.scrobbles.bulkDelete(ids)))
+          switchMap(ids => from(this.db.scrobbles.bulkDelete(ids)))
         )]).pipe(map(([userId]) => userId))),
       // then create new entries for all known scrobbles
       switchMap(userId => {
         const dbScrobbles = scrobbles.map(scrobble => ({...scrobble, userId} as DbUserScrobble));
-        return from(this.scrobbles.bulkAdd(dbScrobbles));
+        return from(this.db.scrobbles.bulkAdd(dbScrobbles));
       })
     );
   }
 }
-
-export const db = new AppDB();

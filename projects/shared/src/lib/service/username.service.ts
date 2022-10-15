@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router, ActivationEnd } from '@angular/router';
-import { UntilDestroy } from '@ngneat/until-destroy';
 import { map, filter } from 'rxjs/operators';
 
-@UntilDestroy()
 @Injectable({
   providedIn: 'root'
 })

@@ -8,7 +8,6 @@
   "files": [
     "src/main.ts",
     "src/polyfills.ts",
-    "../../node_modules/@types/node/globals.d.ts"
   ],
   "include": [
     "src/**/*.d.ts"

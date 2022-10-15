@@ -5,7 +5,7 @@ import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Subject, BehaviorSubject, Observable, take } from 'rxjs';
-import { db, DbUser } from '../../../../shared/src/lib/app/db';
+import { DatabaseService, DbUser } from '../../../../shared/src/lib/service/database.service';
 
 @Component({
   selector: 'app-home',
@@ -21,8 +21,9 @@ export class HomeComponent {
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
-              private retriever: AbstractItemRetriever) {
-    this.dbUsers = db.getUsers();
+              private retriever: AbstractItemRetriever,
+              private database: DatabaseService) {
+    this.dbUsers = this.database.getUsers();
   }
 
   update(ev: Event): void {
@@ -39,7 +40,7 @@ export class HomeComponent {
 
   goFromDb($event: MatSelectChange): void {
     const user: DbUser = $event.value;
-    db.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.handleImport(user.username, scrobbles));
+    this.database.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.handleImport(user.username, scrobbles));
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

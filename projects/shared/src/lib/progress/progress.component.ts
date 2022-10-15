@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Export, Progress, App, Constants } from 'projects/shared/src/lib/app/model';
 import { ProgressService } from 'projects/shared/src/lib/service/progress.service';
 import { take } from 'rxjs';
-import { db } from '../app/db';
+import { DatabaseService } from '../service/database.service';
 import { TranslatePipe } from '../service/translate.pipe';
 
 @Component({
@@ -15,6 +15,7 @@ import { TranslatePipe } from '../service/translate.pipe';
 })
 export class ProgressComponent {
   constructor(private service: ProgressService,
+              private database: DatabaseService,
               private snackbar: MatSnackBar,
               private translate: TranslatePipe,
               private app: App) {
@@ -53,7 +54,7 @@ export class ProgressComponent {
   }
 
   saveInDb(): void {
-    db.addScrobbles(this.progress.user!.name, this.progress.allScrobbles).pipe(take(1)).subscribe(() => {
+    this.database.addScrobbles(this.progress.user!.name, this.progress.allScrobbles).pipe(take(1)).subscribe(() => {
       this.snackbar.open(`Saved ${this.progress.allScrobbles.length} ${this.translate.transform('translate.scrobbles')}`, '🪅 Awesome!', {duration: 3000});
     });
   }
