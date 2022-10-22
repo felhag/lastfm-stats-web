@@ -20,7 +20,7 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
   constructor() {
     super({
       scrobbles: [],
-      state: 'COMPLETED',
+      state: 'LOADINGUSER',
       totalPages: 0,
       loadScrobbles: 0,
       importedScrobbles: 0,
@@ -31,7 +31,6 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
   readonly start = this.updater((data: ScrobbleState, scrobbles: Scrobble[]) => {
     return {
       ...data,
-      state: 'LOADINGUSER',
       scrobbles: [...scrobbles],
       importedScrobbles: scrobbles.length
     };

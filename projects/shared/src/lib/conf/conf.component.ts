@@ -4,7 +4,7 @@ import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, combineLatest} from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Scrobble } from '../app/model';
 
@@ -18,6 +18,7 @@ export class ConfComponent implements OnInit {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;
   private valueSelected = false;
   allArtists!: Observable<[string, number][]>;
+  filteredArtists!: BehaviorSubject<string[]>;
   keyword = new Subject<string>();
 
   startDateCtrl!: FormControl<Date | null>;
@@ -38,11 +39,12 @@ export class ConfComponent implements OnInit {
       .map(s => s.artist)
       .reduce((acc: {[key: string]: number}, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {})
 
-    this.allArtists = search.pipe(
+    this.filteredArtists = new BehaviorSubject<string[]>(this.settings.artists);
+    this.allArtists = combineLatest([search, this.filteredArtists]).pipe(
       untilDestroyed(this),
-      map(keyword => Object.entries(all)
+      map(([keyword, filtered]) => Object.entries(all)
         .filter(a => !keyword || a[0].toLowerCase().indexOf(keyword) >= 0)
-        .filter(a => this.settings.artists.indexOf(a[0]) < 0)
+        .filter(a => filtered.indexOf(a[0]) < 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 30))
     );
@@ -65,14 +67,16 @@ export class ConfComponent implements OnInit {
   }
 
   remove(artist: string): void {
-    const index = this.settings.artists.indexOf(artist);
+    const index = this.filteredArtists.value.indexOf(artist);
+
     if (index >= 0) {
-      this.settings.artists.splice(index, 1);
+      this.filteredArtists.value.splice(index, 1);
+      this.filteredArtists.next(this.filteredArtists.value);
     }
   }
 
   add(artist: string): void {
-    this.settings.artists.push(artist);
+    this.filteredArtists.next([...this.filteredArtists.value, artist]);
     this.valueSelected = true;
   }
 
@@ -95,5 +99,9 @@ export class ConfComponent implements OnInit {
 
   get settings(): Settings {
     return this.data.settings;
+  }
+
+  get closeSettings(): Settings {
+    return {...this.data.settings, artists: this.filteredArtists.value};
   }
 }

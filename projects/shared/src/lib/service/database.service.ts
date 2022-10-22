@@ -52,6 +52,10 @@ export class DatabaseService {
     }));
   }
 
+  findUser(username: string): Observable<DbUser | undefined> {
+    return from(this.db.users.get({username}));
+  }
+
   getUsers(): Observable<DbUser[]> {
     return from(this.db.users.toArray());
   }

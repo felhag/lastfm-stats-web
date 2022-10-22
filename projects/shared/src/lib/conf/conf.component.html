@@ -28,7 +28,7 @@ List size:
   </mat-form-field>
 </div>
 
-<ng-container *ngIf="settings.artists as fa">
+<ng-container *ngIf="filteredArtists | async as fa">
   <div class="setting-row">
     <h3>Filter artists</h3>
     <button mat-button (click)="settings.artists = []" [disabled]="!fa.length" >
@@ -64,5 +64,5 @@ List size:
 </ng-container>
 
 <mat-dialog-actions align="end">
-  <button mat-button [mat-dialog-close]="settings" cdkFocusInitial>Apply</button>
+  <button mat-button [mat-dialog-close]="closeSettings" cdkFocusInitial>Apply</button>
 </mat-dialog-actions>
