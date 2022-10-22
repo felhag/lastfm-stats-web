@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Dexie, { Table } from 'dexie';
-import { Observable, from, switchMap, combineLatest, of } from 'rxjs';
+import { Observable, from, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { App, Scrobble } from '../app/model';
 
@@ -66,16 +66,9 @@ export class DatabaseService {
 
   addScrobbles(username: string, scrobbles: Scrobble[]): Observable<number> {
     return this.findOrCreateUser(username).pipe(
-      // first delete all saved scrobbles from db
-      switchMap(userId =>
-        combineLatest([of(userId), this.getScrobbles(userId).pipe(
-          map(scrobbles => scrobbles.map(s => s.id!)),
-          switchMap(ids => from(this.db.scrobbles.bulkDelete(ids)))
-        )]).pipe(map(([userId]) => userId))),
-      // then create new entries for all known scrobbles
       switchMap(userId => {
-        const dbScrobbles = scrobbles.map(scrobble => ({...scrobble, userId} as DbUserScrobble));
-        return from(this.db.scrobbles.bulkAdd(dbScrobbles));
+        const dbScrobbles = scrobbles.filter(s => !(s as DbUserScrobble).id).map(scrobble => ({...scrobble, userId} as DbUserScrobble));
+        return from(this.db.scrobbles.bulkAdd(dbScrobbles)).pipe(map(() => dbScrobbles.length));
       })
     );
   }

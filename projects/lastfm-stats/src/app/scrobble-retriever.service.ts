@@ -137,7 +137,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     const start = new Date().getTime();
 
     loadingState.store.state.pipe(
-      takeWhile(state => state !== 'INTERRUPTED'),
+      takeWhile(state => state === 'RETRIEVING'),
       take(1),
       switchMap(() => this.get(loadingState))
     ).subscribe({

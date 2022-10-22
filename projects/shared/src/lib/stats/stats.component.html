@@ -1,6 +1,7 @@
 <div *ngIf="(state$ | async) as state">
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADINGUSER'">🔎 Looking for {{username}}...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'CALCULATINGPAGES'">👨‍🔬 {{username}} found, calculating pages...</mat-card>
+  <mat-card class="spinner-wrapper" *ngIf="state === 'SAVING'">🗄️ Saving scrobbles for {{username}} in database...</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'USERNOTFOUND'">Username {{username}} not found 😥</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADFAILEDDUEPRIVACY'">🔏 Your recent listening information is not publicly visible. You can change this&nbsp;<a href="https://last.fm/settings/privacy" target="_blank">here</a>.</mat-card>
   <mat-card class="spinner-wrapper" *ngIf="state === 'LOADFAILED'">⛔ Can't reach lastfm API. Maybe there is an adblocker which is blocking the requests?</mat-card>

@@ -2,7 +2,7 @@ export enum App { 'lastfm', 'spotify'}
 
 export type ItemType = 'artist' | 'album' | 'track';
 
-export type ProgressState = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING';
+export type ProgressState = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING' | 'SAVING';
 export type ErrorState = 'LOADFAILED' | 'LOADFAILEDDUEPRIVACY' | 'USERNOTFOUND';
 export type CompleteState = 'LOADSTUCK' | 'INTERRUPTED' | 'COMPLETED';
 export type State = ProgressState | ErrorState | CompleteState;

@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
-import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
@@ -30,8 +29,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
 
-  constructor(private retriever: AbstractItemRetriever,
-              private builder: StatsBuilderService,
+  constructor(private builder: StatsBuilderService,
               private scrobbles: ScrobbleStore,
               private manager: ScrobbleManager,
               public settings: SettingsService,

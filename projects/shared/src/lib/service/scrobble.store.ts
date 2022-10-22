@@ -64,6 +64,13 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
     }
   });
 
+  readonly saveInDb = this.updater((data: ScrobbleState) => {
+    return {
+      ...data,
+      state: 'SAVING',
+    }
+  });
+
   readonly finish = this.updater((data: ScrobbleState, state: ErrorState | CompleteState) => {
     return {
       ...data,
