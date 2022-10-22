@@ -74,7 +74,9 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   }
 
   protected get listSize(): number {
-    return this.settings.listSize.value;
+    // TODO:
+    return 10;
+    // return this.settings.listSize.value;
   }
 
   protected dateString(date: number): string {
@@ -90,7 +92,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
                           between: StreakStack,
                           include: 'album' | 'track' | undefined,
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
-    const threshold = this.settings.minScrobbles.value || 0;
+    const threshold = this.threshold;
     const seenStrings = seen.map(a => a.name);
     const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
     const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
@@ -143,7 +145,8 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   }
 
   protected get threshold(): number {
-    return this.settings.minScrobbles.value || 0;
+    // TODO:
+    return 0;//this.settings.minScrobbles.value || 0;
   }
 
   protected abstract get forcedThreshold(): number;

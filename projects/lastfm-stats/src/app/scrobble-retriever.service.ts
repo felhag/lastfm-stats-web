@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Scrobble, Constants, User } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
-import { Observable, forkJoin, takeWhile, take, combineLatest } from 'rxjs';
+import { Observable, forkJoin, takeWhile, take } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 
@@ -36,6 +36,7 @@ interface Track {
 }
 
 interface LoadingState {
+  store: ScrobbleStore;
   username: string;
   from: string;
   to: string;
@@ -53,26 +54,26 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   artistSanitizer = new Map<string,string>();
 
-  constructor(private http: HttpClient,
-              private scrobbles: ScrobbleStore) {
+  constructor(private http: HttpClient) {
     super();
   }
 
-  retrieveFor(username: string): void {
+  retrieveFor(username: string, imported: Scrobble[], store: ScrobbleStore): void {
     const to = new Date().toDateString();
 
-    combineLatest([this.scrobbles.scrobbles, this.retrieveUser(username)]).pipe(take(1)).subscribe({
-      next: ([scrobbles, user]) => {
-        this.scrobbles.updateUser(user);
+    this.artistSanitizer.clear();
+    this.retrieveUser(username).subscribe({
+      next: user => {
+        store.updateUser(user);
 
-        const from = String(this.determineFrom(user, scrobbles));
+        const from = String(this.determineFrom(user, imported));
         this.start({
           username: user.name,
           pageSize: Constants.API_PAGE_SIZE,
-          from, to
+          store, from, to
         });
       },
-      error: (e) => this.scrobbles.finish(e.status === 404 ? 'USERNOTFOUND' : 'LOADFAILED')
+      error: (e) => store.finish(e.status === 404 ? 'USERNOTFOUND' : 'LOADFAILED')
     });
   }
 
@@ -94,7 +95,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
         // this.handleImportedItem(scrobbles, progress);
 
         if (page > 0) {
-          this.scrobbles.totals({
+          loadingState.store.totals({
             totalPages: page,
             currentPage: page,
             loadScrobbles: parseInt(response.recenttracks['@attr'].total)
@@ -102,25 +103,24 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
 
           this.iterate({...loadingState, page, totalPages: page});
         } else {
-          this.complete();
+          this.complete(loadingState);
         }
       },
       error: err => {
         if (err.error?.error === 17) {
-          this.scrobbles.finish('LOADFAILEDDUEPRIVACY');
+          loadingState.store.finish('LOADFAILEDDUEPRIVACY');
         } else if (loadingState.pageSize !== Constants.API_PAGE_SIZE_REDUCED) {
           // restart with a lower page size :/
           this.start({...loadingState, pageSize: Constants.API_PAGE_SIZE_REDUCED});
         } else {
-          this.scrobbles.finish('LOADFAILED');
+          loadingState.store.finish('LOADFAILED');
         }
       }
     });
   }
 
-  private complete() {
-    this.scrobbles.finish('COMPLETED');
-    this.artistSanitizer.clear();
+  private complete(loadingState: LoadingState) {
+    loadingState.store.finish('COMPLETED');
   }
 
   private retrieveUser(username: string): Observable<User> {
@@ -136,7 +136,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private iterate(loadingState: LoadingState, retry: number = Constants.RETRIES): void {
     const start = new Date().getTime();
 
-    this.scrobbles.state.pipe(
+    loadingState.store.state.pipe(
       takeWhile(state => state !== 'INTERRUPTED'),
       take(1),
       switchMap(() => this.get(loadingState))
@@ -151,7 +151,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
           loadingState.pageLoadTime = (avgLoadTime + ms) / (handled + 1);
           this.iterate(loadingState);
         } else {
-          this.complete();
+          this.complete(loadingState);
         }
       },
       error: () => {
@@ -169,7 +169,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private retryLowerPageSize(loadingState: LoadingState): void {
     const orgPageSize = loadingState.pageSize!;
 
-    this.scrobbles.state$.pipe(
+    loadingState.store.state$.pipe(
       switchMap(state => {
         const newFrom = String(this.determineFrom(state.user!, state.scrobbles));
         const tempPageSize = loadingState.pageSize === 1000 ? 200 : 125;
@@ -193,7 +193,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
         // restart
         this.iterate(loadingState);
       },
-      error: () => this.scrobbles.finish('LOADSTUCK')
+      error: () => loadingState.store.finish('LOADSTUCK')
     });
   }
 
@@ -213,7 +213,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     // progress.currentPage--;
 
     loadingState.page!--;
-    this.scrobbles.page(tracks);
+    loadingState.store.page(tracks);
   }
 
   private get(loadingState: LoadingState): Observable<Response> {

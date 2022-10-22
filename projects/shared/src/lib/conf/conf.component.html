@@ -1,11 +1,11 @@
 <h2 mat-dialog-title>Configure</h2>
 List size:
-<mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize.value" (change)="settings.listSize.next($event.value || 10)"></mat-slider>
+<mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize" (change)="settings.listSize = $event.value || 10"></mat-slider>
 
 <div class="setting-row">
   <mat-form-field>
     <mat-label>Min {{'translate.scrobbles' | translate}}</mat-label>
-    <input matInput type="number" [value]="settings.minScrobbles | async" (change)="updateMinScrobbles($event)">
+    <input matInput type="number" [value]="settings.minScrobbles" (change)="updateMinScrobbles($event)">
   </mat-form-field>
 </div>
 
@@ -19,27 +19,27 @@ List size:
 <div class="setting-row">
   <mat-form-field appearance="standard" (focusin)="picker.open()">
     <mat-label>Date range</mat-label>
-    <mat-date-range-input [rangePicker]="picker" [min]="startDate | async" [max]="endDate" >
+    <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
       <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
       <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
     </mat-date-range-input>
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate | async"></mat-date-range-picker>
+    <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
   </mat-form-field>
 </div>
 
-<ng-container *ngIf="(filteredArtists | async) as fa">
+<ng-container *ngIf="settings.artists as fa">
   <div class="setting-row">
     <h3>Filter artists</h3>
-    <button mat-button (click)="filteredArtists.next([])" [disabled]="!fa.length" >
+    <button mat-button (click)="settings.artists = []" [disabled]="!fa.length" >
       <mat-icon class="material-icons-outlined">delete</mat-icon>Clear artist filter
     </button>
   </div>
 
   <div class="setting-row">
     <mat-chip-list [disabled]="fa.length === 0">
-      <mat-chip color="primary" [selected]="settings.artistsInclude | async" (click)="settings.artistsInclude.next(true)">Include {{fa.length}} artists</mat-chip>
-      <mat-chip color="warn" [selected]="(settings.artistsInclude | async) === false" (click)="settings.artistsInclude.next(false)">Exclude {{fa.length}} artists</mat-chip>
+      <mat-chip color="primary" [selected]="settings.artistsInclude" (click)="settings.artistsInclude = true">Include {{fa.length}} artists</mat-chip>
+      <mat-chip color="warn" [selected]="settings.artistsInclude === false" (click)="settings.artistsInclude = false">Exclude {{fa.length}} artists</mat-chip>
     </mat-chip-list>
   </div>
 
@@ -54,7 +54,7 @@ List size:
         <input placeholder="Search..." [matAutocomplete]="auto" [matChipInputFor]="chipList" (keyup)="updateKeyword($event)">
       </mat-chip-list>
 
-      <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event)" (closed)="onClose()">
+      <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event.option.value)" (closed)="onClose()">
         <mat-option *ngFor="let option of allArtists | async" [value]="option[0]">
           {{option[0]}} ({{option[1]}} scrobbles)
         </mat-option>
@@ -64,5 +64,5 @@ List size:
 </ng-container>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close cdkFocusInitial>Apply</button>
+  <button mat-button [mat-dialog-close]="settings" cdkFocusInitial>Apply</button>
 </mat-dialog-actions>

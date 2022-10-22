@@ -1,47 +1,69 @@
-import {Injectable} from '@angular/core';
-import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {BehaviorSubject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { ComponentStore } from '@ngrx/component-store';
 
-@UntilDestroy()
+type Setting = keyof Settings;
+type SettingParser = {key: string, default: any, parse: (value: string) => any, toString?: (value: any) => string | undefined};
+export interface Settings {
+  autoUpdate: boolean;
+  listSize: number;
+  minScrobbles: number;
+  dateRangeStart: Date | null;
+  dateRangeEnd: Date | null;
+  artistsInclude: boolean;
+  artists: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
-export class SettingsService {
-  autoUpdate: BehaviorSubject<boolean>;
-  listSize: BehaviorSubject<number>;
-  minScrobbles: BehaviorSubject<number>;
-  dateRangeStart: BehaviorSubject<Date | null>;
-  dateRangeEnd: BehaviorSubject<Date | null>;
-  artistsInclude: BehaviorSubject<boolean>;
-  artists: BehaviorSubject<string[]>;
+export class SettingsService extends ComponentStore<Settings> {
+  private static readonly parsers: { [key in Setting]: SettingParser } = {
+    autoUpdate: {key: 'auto-update', default: true, parse: v => v === 'true'},
+    listSize: {key: 'list-size', default: 10, parse: v => parseInt(v)},
+    minScrobbles: {key: 'min-scrobbles', default: 0, parse: v => parseInt(v)},
+    dateRangeStart: SettingsService.initDate('date-range-start'),
+    dateRangeEnd: SettingsService.initDate('date-range-end'),
+    artistsInclude: {key: 'artists-include', default: true, parse: v => v === 'true'},
+    artists: {key: 'artists', default: [], parse: v => JSON.parse(v), toString: v => JSON.stringify(v)}
+  };
 
   constructor() {
-    this.autoUpdate = this.init('auto-update', true, v => v === 'true');
-    this.listSize = this.init('list-size', 10, v => parseInt(v));
-    this.minScrobbles = this.init('min-scrobbles', 0, v => parseInt(v));
-
-    this.dateRangeStart = this.initDate('date-range-start');
-    this.dateRangeEnd = this.initDate('date-range-end');
-
-    this.artistsInclude = this.init('artists-include', true, v => v === 'true');
-    this.artists = this.init('artists', [], v => JSON.parse(v), v => JSON.stringify(v));
+    super(SettingsService.create());
   }
 
-  private init(key: string, def: any, parse: (value: string) => any, toString: (value: any) => string | undefined = v => String(v)): BehaviorSubject<any> {
-    const value = localStorage.getItem(key);
-    const sub = new BehaviorSubject(value ? parse(value) : def);
-    sub.pipe(untilDestroyed(this)).subscribe(v => {
-      const parsed = toString(v);
-      if (parsed === def) {
-        localStorage.removeItem(key);
-      } else {
-        localStorage.setItem(key, parsed!);
-      }
-    });
-    return sub;
+  private static create(): Settings {
+    return Object.fromEntries(Object.entries(this.parsers).map(([key, parser]) => {
+      const value = localStorage.getItem(parser.key);
+      return [key, value ? parser.parse(value) : parser.default];
+    }) as any[][]);
   }
 
-  private initDate(key: string): BehaviorSubject<Date | null> {
-    return this.init(key, undefined, v => new Date(parseInt(v)), d => d ? String(d.getTime()) : undefined);
+  private static initDate(key: string): SettingParser {
+    return {key, default: null, parse: v => new Date(parseInt(v)), toString: d => d ? String(d.getTime()) : undefined};
+  }
+
+  readonly autoUpdate = this.select(s => s.autoUpdate);
+  readonly listSize = this.select(s => s.listSize);
+  readonly minScrobbles = this.select(s => s.minScrobbles);
+  readonly dateRangeStart = this.select(s => s.dateRangeStart);
+  readonly dateRangeEnd = this.select(s => s.dateRangeEnd);
+  readonly artistsInclude = this.select(s => s.artistsInclude);
+  readonly artists = this.select(s => s.artists);
+
+  readonly update = this.updater((settings: Settings, newSettings: Partial<Settings>) => {
+    Object.entries(newSettings).forEach(([key, value]) => this.updateLocalStorage(SettingsService.parsers[key as Setting], value));
+    return {
+      ...settings,
+      ...newSettings
+    }
+  });
+
+  private updateLocalStorage(parser: SettingParser, value: any) {
+    const parsed = parser.toString ? parser.toString(value) : String(value);
+    if (value === parser.default) {
+      localStorage.removeItem(parser.key);
+    } else {
+      localStorage.setItem(parser.key, parsed!);
+    }
   }
 }

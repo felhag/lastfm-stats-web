@@ -3,9 +3,7 @@ import { Constants } from 'projects/shared/src/lib/app/model';
 import { combineLatest, filter, map, shareReplay, Observable } from 'rxjs';
 import { ScrobbleStore } from './scrobble.store';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DateColorsService {
   gaps!: Observable<number[]>;
 

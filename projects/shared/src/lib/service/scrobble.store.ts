@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
-import { Observable, map, distinctUntilChanged, pairwise, takeUntil, filter } from 'rxjs';
+import { Observable, map, distinctUntilChanged, pairwise, filter, merge } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { Scrobble, State, User, ErrorState, CompleteState } from '../app/model';
 
@@ -15,7 +15,7 @@ export interface ScrobbleState {
   pageLoadTime?: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable()
 export class ScrobbleStore extends ComponentStore<ScrobbleState> {
   constructor() {
     super({
@@ -72,19 +72,24 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
     };
   });
 
-  readonly scrobbles: Observable<Scrobble[]> = this.state$.pipe(
-    map(state => state.scrobbles),
-    distinctUntilChanged()
-  );
-
+  readonly scrobbles: Observable<Scrobble[]> = this.select(state => state.scrobbles);
   readonly first = this.scrobbles.pipe(map(scrobbles => scrobbles[0]), distinctUntilChanged());
   readonly last = this.scrobbles.pipe(map(scrobbles => scrobbles[scrobbles.length - 1]), distinctUntilChanged());
   readonly state = this.select(state => state.state);
   readonly user = this.select(state => state.user);
-  readonly chunk = this.scrobbles.pipe(
+
+  private readonly imported = this.state$.pipe(filter(s => s.state === 'LOADINGUSER'), map(s => s.scrobbles));
+  private readonly pageChunk = this.state$.pipe(
+    filter(state => state.state === 'RETRIEVING'),
+    map(state => state.scrobbles),
     startWith([]),
     pairwise(),
-    takeUntil(this.state.pipe(filter(state => ['LOADINGUSER', 'CALCULATINGPAGES', 'RETRIEVING'].indexOf(state) < 0))),
+    // takeUntil(this.state.pipe(filter(state => ['LOADINGUSER', 'CALCULATINGPAGES', 'RETRIEVING'].indexOf(state) < 0))),
     map(([prev, next]) => next.slice(prev.length)),
+  );
+
+  readonly chunk = merge(
+    this.imported.pipe(map(scrobbles => [scrobbles, false] as [Scrobble[], boolean])),
+    this.pageChunk.pipe(map(scrobbles => [scrobbles, true] as [Scrobble[], boolean]))
   );
 }

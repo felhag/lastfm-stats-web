@@ -1,22 +1,41 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Subject, combineLatest, scan, Observable, switchMap, map, merge, shareReplay, filter, take } from 'rxjs';
 import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem, ItemStreakStack } from 'projects/shared/src/lib/app/model';
-import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
+import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { MapperService } from './mapper.service';
+import { ScrobbleStore } from './scrobble.store';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class StatsBuilderService {
-  tempStats = new BehaviorSubject<TempStats>(this.emptyStats());
+  tempStats: Observable<TempStats>;
+  rebuild = new Subject<void>();
 
-  constructor(private settings: SettingsService, private mapper: MapperService) {
+  constructor(private settings: SettingsService,
+              private mapper: MapperService,
+              private scrobbles: ScrobbleStore) {
+    const completed = combineLatest([
+      this.scrobbles.state$.pipe(filter(s => s.state === 'COMPLETED')),
+      this.settings.state$.pipe(filter(settings => !settings.autoUpdate))
+    ]);
+    const rebuild = merge(this.rebuild, completed).pipe(
+      switchMap(() => combineLatest([
+        this.scrobbles.scrobbles.pipe(take(1)),
+        this.settings.state$
+      ])),
+      map(([scrobbles, settings]) => this.update(scrobbles, settings, this.emptyStats()))
+    );
+    const chunk = combineLatest([
+      this.scrobbles.chunk,
+      this.settings.state$
+    ]).pipe(
+      filter(([, settings]) => settings.autoUpdate),
+      scan((acc, [[scrobbles, cumulative], settings]) => this.update(scrobbles, settings, cumulative ? acc : this.emptyStats()), this.emptyStats()),
+    );
+    this.tempStats = merge(rebuild, chunk).pipe(shareReplay(1));
   }
 
-  update(scrobbles: Scrobble[], cumulative: boolean): void {
-    const next = cumulative ? this.tempStats.value : this.emptyStats();
-    let changed = !cumulative;
-    for (const scrobble of this.filter(scrobbles)) {
+  update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
+    for (const scrobble of this.filterWith(scrobbles, settings)) {
       if (scrobble.date.getFullYear() === 1970) {
         continue;
       }
@@ -26,7 +45,6 @@ export class StatsBuilderService {
       const sod = StreakStack.startOfDay(scrobble.date);
       const dayOfYear = sod.getTime();
 
-      changed = true;
       next.scrobbleCount++;
       next.hours[scrobble.date.getHours()]++;
       next.months[scrobble.date.getMonth()]++;
@@ -61,16 +79,7 @@ export class StatsBuilderService {
       }
       next.last = scrobble;
     }
-
-    if (changed) {
-      this.tempStats.next(next);
-    }
-  }
-
-  finish(): void {
-    const stats = this.tempStats.value;
-    this.finishMonth(stats);
-    this.tempStats.next(stats);
+    return next;
   }
 
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
@@ -238,21 +247,19 @@ export class StatsBuilderService {
     return Object.fromEntries([...Array(keys).keys()].map(k => [k, 0] ));
   }
 
-  private filter(scrobbles: Scrobble[]): Scrobble[] {
-      const start = this.settings.dateRangeStart.value;
-      const end = this.settings.dateRangeEnd.value;
-      const include = this.settings.artistsInclude.value;
-      const artists = this.settings.artists.value || [];
-      return scrobbles.filter(s => {
-        if ((start && s.date < start) || (end && s.date > end)) {
-          return false;
-        }
-        if (artists.length) {
-          const contains = artists.indexOf(s.artist) >= 0;
-          return contains === include;
-        }
-        return true;
-      });
+  private filterWith(scrobbles: Scrobble[], settings: Settings): Scrobble[] {
+    const start = settings.dateRangeStart;
+    const end = settings.dateRangeEnd;
+    return scrobbles.filter(s => {
+      if ((start && s.date < start) || (end && s.date > end)) {
+        return false;
+      }
+      if (settings.artists.length) {
+        const contains = settings.artists.indexOf(s.artist) >= 0;
+        return contains === settings.artistsInclude;
+      }
+      return true;
+    });
   }
 
   private populateRank(data: { [p: string]: StreakItem }, handled: number) {

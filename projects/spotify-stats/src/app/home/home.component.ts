@@ -6,7 +6,7 @@ import * as JSZip from 'jszip';
 import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
-import { ScrobbleStore } from '../../../../shared/src/lib/service/scrobble.store';
+import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 
 interface StreamingHistoryEntry {
   endTime: string;
@@ -48,7 +48,7 @@ export class HomeComponent {
   deduplicated: Observable<number>;
   submitted = false;
 
-  constructor(private router: Router, private scrobbles: ScrobbleStore, private dialog: MatDialog) {
+  constructor(private router: Router, private importer: ScrobbleImporter, private dialog: MatDialog) {
     this.deduplicated = this.files.pipe(
       throttleTime(0, asyncScheduler, { trailing: true }),
       map(files => files.flatMap(file => file.plays).map(p => JSON.stringify(p))),
@@ -154,7 +154,7 @@ export class HomeComponent {
     const plays = this.files.value.flatMap(f => f.plays).sort((a, b) => a.date.getTime() - b.date.getTime());
     if (this.username.valid && plays.length) {
       const handled = new Set();
-      this.scrobbles.start(plays.filter(p => {
+      this.importer.import(plays.filter(p => {
         const json = JSON.stringify(p);
         if (handled.has(json)) {
           return false;

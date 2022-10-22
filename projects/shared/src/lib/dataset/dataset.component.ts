@@ -5,11 +5,11 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
-import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App } from 'projects/shared/src/lib/app/model';
+import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { debounceTime, combineLatest } from 'rxjs';
+import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 
 @UntilDestroy()
@@ -23,18 +23,18 @@ export class DatasetComponent implements OnInit {
   private readonly groups = {
     artist: {
       columns: ['name', 'tracks', 'scrobbles', 'rank'],
-      data: () => this.builder.tempStats.value.seenArtists
+      data: (stats: TempStats) => stats.seenArtists
     },
     album: {
       columns: ['artist', 'name', 'scrobbles', 'rank'],
-      data: () => this.builder.tempStats.value.seenAlbums
+      data: (stats: TempStats) => stats.seenAlbums
     },
     track: {
       columns: ['artist', 'name', 'scrobbles', 'rank'],
-      data: () => this.builder.tempStats.value.seenTracks
+      data: (stats: TempStats) => stats.seenTracks
     },
   };
-  groupedBy: ItemType = 'artist';
+  groupedBy = new BehaviorSubject<ItemType>('artist');
   height!: number;
   dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
 
@@ -51,7 +51,7 @@ export class DatasetComponent implements OnInit {
 
   ngOnInit(): void {
     this.height = window.innerHeight - 32;
-    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(() => this.update());
+    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(untilDestroyed(this)).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
       this.filterName.valueChanges.pipe(startWith('')),
@@ -62,7 +62,7 @@ export class DatasetComponent implements OnInit {
 
     // @ts-ignore
     this.dataSource.filterPredicate = (obj =>
-      this.filterValue(this.filterArtist.value, this.groupedBy === 'artist' ? obj.name : obj.artist) &&
+      this.filterValue(this.filterArtist.value, this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
       this.filterValue(this.filterName.value, obj.name));
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (track, id): string => {
@@ -80,13 +80,13 @@ export class DatasetComponent implements OnInit {
     return !search || value.toLowerCase().indexOf(search.toLowerCase()) >= 0;
   }
 
-  private update(): void {
-    const data = this.groupedByObj.data();
+  private update(tempStats: TempStats): void {
+    const data = this.groupedByObj.data(tempStats);
     this.dataSource.data = Object.values(data).map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
         item,
-        type: this.groupedBy,
+        type: this.groupedBy.value,
         artist: albumOrTrack ? (item as Album | Track).artist : undefined,
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
@@ -97,9 +97,8 @@ export class DatasetComponent implements OnInit {
   }
 
   groupBy(change: MatRadioChange): void {
-    this.groupedBy = change.value;
+    this.groupedBy.next(change.value);
     this.filterName.setValue('');
-    this.update();
   }
 
   get columns(): string[] {
@@ -110,8 +109,8 @@ export class DatasetComponent implements OnInit {
     return this.app === App.lastfm;
   }
 
-  get groupedByObj(): {columns: string[], data: () => { [key: string]: StreakItem }} {
-    return this.groups[this.groupedBy];
+  get groupedByObj(): {columns: string[], data: (stats: TempStats) => { [key: string]: StreakItem }} {
+    return this.groups[this.groupedBy.value];
   }
 
   open(data: DataSetEntry): void {
@@ -122,7 +121,7 @@ export class DatasetComponent implements OnInit {
 
   getHeader(col: string) {
     if (col === 'name') {
-      return this.groupedBy;
+      return this.groupedBy.value;
     } else if (col === 'scrobbles') {
       return this.translate.transform('translate.scrobbles');
     } else {

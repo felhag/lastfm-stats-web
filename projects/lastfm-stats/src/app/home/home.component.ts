@@ -5,7 +5,7 @@ import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { Subject, BehaviorSubject, Observable, take } from 'rxjs';
 import { DatabaseService, DbUser } from '../../../../shared/src/lib/service/database.service';
-import { ScrobbleStore } from '../../../../shared/src/lib/service/scrobble.store';
+import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +21,7 @@ export class HomeComponent {
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
-              private scrobbles: ScrobbleStore,
+              private imporer: ScrobbleImporter,
               private database: DatabaseService) {
     this.dbUsers = this.database.getUsers();
   }
@@ -86,7 +86,7 @@ export class HomeComponent {
   }
 
   private start(username: string, scrobbles: Scrobble[]): void {
-    this.scrobbles.start(scrobbles);
+    this.imporer.import(scrobbles);
     this.router.navigate([`/user/${username}`]);
   }
 

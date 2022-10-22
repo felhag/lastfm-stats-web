@@ -25,7 +25,7 @@
           </button>
           <ng-container *ngIf="isLastfm">
             <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
-            <mat-slide-toggle (change)="settings.autoUpdate.next($event.checked)" [checked]="settings.autoUpdate.value" color="primary"></mat-slide-toggle>
+            <mat-slide-toggle (change)="settings.update({autoUpdate: $event.checked})" [checked]="settings.autoUpdate | async" color="primary"></mat-slide-toggle>
             <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
               <mat-icon>update</mat-icon>
               Update
