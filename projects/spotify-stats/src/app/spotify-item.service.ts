@@ -9,7 +9,7 @@ import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 })
 export class SpotifyItemService extends AbstractItemRetriever {
 
-  constructor(private scrobbles: ScrobbleStore, private router: Router) {
+  constructor(private router: Router) {
     super();
   }
 
@@ -19,13 +19,13 @@ export class SpotifyItemService extends AbstractItemRetriever {
       return;
     }
 
-    this.scrobbles.updateUser({
+    store.updateUser({
       name: username,
       playcount: String(imported.length),
       registered: {unixtime: String(imported[0].date.getTime())},
       url: 'https://open.spotify.com/user/' + username,
       image: []
     });
-    this.scrobbles.finish('COMPLETED');
+    store.finish('COMPLETED');
   }
 }

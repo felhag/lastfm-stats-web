@@ -35,9 +35,11 @@
   </div>
 
   <div class="home-row">
-    <button class="text-button" mat-stroked-button (click)="go()">
-      🧙‍♂️ Let's go!
-    </button>
+    <app-db-load-button>
+      <button class="text-button" mat-stroked-button (click)="go()">
+        🧙‍♂️ Let's go!
+      </button>
+    </app-db-load-button>
   </div>
 
   <app-buttons [showHome]="false"></app-buttons>

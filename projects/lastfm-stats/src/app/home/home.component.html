@@ -25,25 +25,15 @@
     <div class="or">or import from</div>
     <div class="line"></div>
   </div>
-  <div class="home-row import-buttons">
-    <button mat-flat-button (click)="uploadFile.click()">
-      📁 File
-    </button>
-    <input #uploadFile (change)="import($event)" type='file' style="display:none">
-
-    <ng-container *ngIf="dbUsers | async as users">
-      <mat-select *ngIf="users.length" placeholder="🗄️Database" (selectionChange)="goFromDb($event)">
-        <mat-option *ngFor="let user of users" [value]="user">
-          <div class="db-user-option">
-            {{user.username}}
-            <button mat-icon-button matTooltip="Remove from database" (click)="deleteFromDb($event, user.username!)">
-              <mat-icon>clear</mat-icon>
-            </button>
-          </div>
-        </mat-option>
-      </mat-select>
-    </ng-container>
+  <div class="home-row">
+    <app-db-load-button>
+      <button mat-flat-button (click)="uploadFile.click()">
+        📁 File
+      </button>
+      <input #uploadFile (change)="import($event)" type='file' style="display:none">
+    </app-db-load-button>
   </div>
+
 
   <app-buttons [showHome]="false"></app-buttons>
 </mat-card>

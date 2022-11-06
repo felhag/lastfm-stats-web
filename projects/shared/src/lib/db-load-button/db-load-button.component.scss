@@ -1,0 +1,37 @@
+app-db-load-button {
+  display: block;
+  width: 100%;
+}
+
+.buttons {
+  text-align: center;
+
+  .mat-select, button {
+    width: 50%;
+    font-size: 1rem;
+  }
+}
+
+.mat-select {
+  .mat-select-value {
+    text-align: center;
+  }
+
+  .mat-select-placeholder {
+    color: inherit;
+  }
+
+  .mat-select-arrow-wrapper {
+    display: none;
+  }
+}
+
+.mat-option .db-user-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .mat-icon {
+    margin-right: 0;
+  }
+}

@@ -1,0 +1,15 @@
+<div class="buttons">
+  <ng-content></ng-content>
+  <ng-container *ngIf="dbUsers | async as users">
+    <mat-select *ngIf="users.length" placeholder="🗄️Database" (selectionChange)="goFromDb($event)">
+      <mat-option *ngFor="let user of users" [value]="user">
+        <div class="db-user-option">
+          {{user.username}}
+          <button mat-icon-button matTooltip="Remove from database" (click)="deleteFromDb($event, user.username!)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+      </mat-option>
+    </mat-select>
+  </ng-container>
+</div>

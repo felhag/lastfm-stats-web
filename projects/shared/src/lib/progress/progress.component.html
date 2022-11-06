@@ -19,7 +19,7 @@
   <div *ngIf="scrobbles.first | async as f">First {{'translate.scrobble' | translate}}: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
   <div *ngIf="scrobbles.last | async as l">Last {{'translate.scrobble' | translate}}: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
 </div>
-<div *ngIf="isLastfm" class="export">
+<div class="export">
   Save your data to reduce waiting time for your next visit!
   <div>
     <button *ngIf="saveInDb$ | async as save; else saveButton" mat-flat-button disabled>
@@ -29,14 +29,14 @@
     <ng-template #saveButton>
       <button mat-flat-button (click)="saveInDb()" matTooltip="Save in browser using indexedDB">
         <mat-icon>system_update</mat-icon>
-        Browser
+        {{isLastfm ? 'Browser' : 'Save'}}
       </button>
     </ng-template>
-    <button mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
+    <button *ngIf="isLastfm" mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
       <mat-icon>file_download</mat-icon>
       JSON
     </button>
-    <button mat-flat-button (click)="exportCSV()" matTooltip="Download file in CSV format">
+    <button *ngIf="isLastfm" mat-flat-button (click)="exportCSV()" matTooltip="Download file in CSV format">
       <mat-icon>file_download</mat-icon>
       CSV
     </button>

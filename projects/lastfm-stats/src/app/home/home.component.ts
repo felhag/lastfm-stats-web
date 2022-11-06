@@ -1,10 +1,8 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
-import { Subject, BehaviorSubject, Observable, take, switchMap, startWith } from 'rxjs';
-import { DatabaseService, DbUser } from '../../../../shared/src/lib/service/database.service';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 
 @Component({
@@ -17,14 +15,10 @@ export class HomeComponent {
   username?: string;
   valid = new BehaviorSubject(true);
   importError = new Subject<string>();
-  userDeleted = new Subject<string>();
-  dbUsers: Observable<DbUser[]>;
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
-              private imporer: ScrobbleImporter,
-              private database: DatabaseService) {
-    this.dbUsers = this.userDeleted.pipe(startWith(undefined), switchMap(() => this.database.getUsers()));
+              private importer: ScrobbleImporter) {
   }
 
   update(ev: Event): void {
@@ -37,17 +31,6 @@ export class HomeComponent {
     } else {
       this.valid.next(false);
     }
-  }
-
-  goFromDb($event: MatSelectChange): void {
-    const user: DbUser = $event.value;
-    this.database.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.start(user.username, scrobbles));
-  }
-
-  deleteFromDb($event: MouseEvent, username: string): void {
-    $event.preventDefault();
-    $event.stopPropagation();
-    this.database.delete(username).pipe(take(1)).subscribe(() => this.userDeleted.next(username));
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -93,7 +76,7 @@ export class HomeComponent {
   }
 
   private start(username: string, scrobbles: Scrobble[]): void {
-    this.imporer.import(scrobbles);
+    this.importer.import(scrobbles);
     this.router.navigate([`/user/${username}`]);
   }
 

@@ -19,6 +19,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -34,6 +35,7 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import { AppComponent } from 'projects/shared/src/lib/app/app.component';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { DbLoadButtonComponent } from './db-load-button/db-load-button.component';
 import { AlbumListsComponent } from './lists/album-lists.component';
 import { ArtistListsComponent } from './lists/artist-lists.component';
 import { ButtonsComponent } from './buttons/buttons.component';
@@ -57,6 +59,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
     ConfComponent,
     DatasetComponent,
     DatasetModalComponent,
+    DbLoadButtonComponent,
     ProgressComponent,
     ScrobbleListsComponent,
     StatsComponent,
@@ -85,6 +88,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatRadioModule,
+    MatSelectModule,
     MatSlideToggleModule,
     MatSliderModule,
     MatSnackBarModule,
@@ -119,6 +123,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
     ConfComponent,
     DatasetComponent,
     DatasetModalComponent,
+    DbLoadButtonComponent,
     ProgressComponent,
     ScrobbleListsComponent,
     StatsComponent,
