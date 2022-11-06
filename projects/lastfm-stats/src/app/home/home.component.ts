@@ -3,7 +3,7 @@ import { MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
-import { Subject, BehaviorSubject, Observable, take } from 'rxjs';
+import { Subject, BehaviorSubject, Observable, take, switchMap, startWith } from 'rxjs';
 import { DatabaseService, DbUser } from '../../../../shared/src/lib/service/database.service';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 
@@ -17,13 +17,14 @@ export class HomeComponent {
   username?: string;
   valid = new BehaviorSubject(true);
   importError = new Subject<string>();
+  userDeleted = new Subject<string>();
   dbUsers: Observable<DbUser[]>;
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
               private imporer: ScrobbleImporter,
               private database: DatabaseService) {
-    this.dbUsers = this.database.getUsers();
+    this.dbUsers = this.userDeleted.pipe(startWith(undefined), switchMap(() => this.database.getUsers()));
   }
 
   update(ev: Event): void {
@@ -41,6 +42,12 @@ export class HomeComponent {
   goFromDb($event: MatSelectChange): void {
     const user: DbUser = $event.value;
     this.database.getScrobbles(user.id!).pipe(take(1)).subscribe(scrobbles => this.start(user.username, scrobbles));
+  }
+
+  deleteFromDb($event: MouseEvent, username: string): void {
+    $event.preventDefault();
+    $event.stopPropagation();
+    this.database.delete(username).pipe(take(1)).subscribe(() => this.userDeleted.next(username));
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

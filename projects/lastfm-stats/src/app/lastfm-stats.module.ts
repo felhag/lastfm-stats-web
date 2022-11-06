@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble-retriever.service';
@@ -28,6 +29,7 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
     MatCardModule,
     MatIconModule,
     MatSelectModule,
+    MatTooltipModule,
     RouterModule.forRoot(SharedModule.getRoutesFor(HomeComponent, 'scrobbles')),
     SharedModule,
   ],

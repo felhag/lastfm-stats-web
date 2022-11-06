@@ -63,6 +63,16 @@
   }
 }
 
+::ng-deep .mat-option .db-user-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .mat-icon {
+    margin-right: 0;
+  }
+}
+
 @mixin color($theme) {
   $color-config: mat.get-color-config($theme);
   $warn-palette: map.get($color-config, 'warn');

@@ -22,10 +22,16 @@
 <div *ngIf="isLastfm" class="export">
   Save your data to reduce waiting time for your next visit!
   <div>
-    <button mat-flat-button (click)="saveInDb()" matTooltip="Save in browser using indexedDB">
-      <mat-icon>system_update</mat-icon>
-      Browser
+    <button *ngIf="saveInDb$ | async as save; else saveButton" mat-flat-button disabled>
+      <mat-icon>{{save === 100 ? 'download_done' : 'downloading'}}</mat-icon>
+       {{save === 100 ? 'Saved!' : (save | number:'1.2-2') + '%'}}
     </button>
+    <ng-template #saveButton>
+      <button mat-flat-button (click)="saveInDb()" matTooltip="Save in browser using indexedDB">
+        <mat-icon>system_update</mat-icon>
+        Browser
+      </button>
+    </ng-template>
     <button mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
       <mat-icon>file_download</mat-icon>
       JSON

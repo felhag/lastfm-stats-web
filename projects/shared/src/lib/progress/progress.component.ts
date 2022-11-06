@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Export, App, Constants } from 'projects/shared/src/lib/app/model';
-import { take, Observable, map, combineLatest, tap } from 'rxjs';
+import { take, Observable, map, combineLatest, switchMap, Subject } from 'rxjs';
 import { DatabaseService } from '../service/database.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
@@ -15,10 +14,11 @@ import { TranslatePipe } from '../service/translate.pipe';
   providers: [TranslatePipe],
 })
 export class ProgressComponent {
+  saveInDb$ = new Subject<number>();
+
   constructor(public scrobbles: ScrobbleStore,
               private manager: ScrobbleManager,
               private database: DatabaseService,
-              private snackbar: MatSnackBar,
               private translate: TranslatePipe,
               private app: App) {
   }
@@ -52,15 +52,10 @@ export class ProgressComponent {
   }
 
   saveInDb(): void {
-    this.scrobbles.saveInDb();
-    this.scrobbles.state$.pipe(take(1)).subscribe(state => {
-      this.database.addScrobbles(state.user!.name, state.scrobbles).pipe(
-        take(1),
-        tap(() => this.manager.start(state.user!.name)),
-      ).subscribe(amount => {
-        this.snackbar.open(`Saved ${amount} ${this.translate.transform('translate.scrobbles')}`, '🪅 Awesome!', {duration: 3000});
-      });
-    });
+    this.scrobbles.state$.pipe(
+      take(1),
+      switchMap(state => this.database.addScrobbles(state.user!.name, state.scrobbles)),
+    ).subscribe(progress => this.saveInDb$.next(progress));
   }
 
   exportJSON(): void {
