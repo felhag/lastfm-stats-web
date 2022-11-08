@@ -31,7 +31,7 @@
               "projects/spotify-stats/src/manifest.json",
               "projects/spotify-stats/src/assets",
               {
-                "glob": "*.svg",
+                "glob": "**/*",
                 "input": "projects/shared/src/assets",
                 "output": "assets"
               }
@@ -132,7 +132,7 @@
               "projects/lastfm-stats/src/manifest.json",
               "projects/lastfm-stats/src/assets",
               {
-                "glob": "*.svg",
+                "glob": "**/*",
                 "input": "projects/shared/src/assets",
                 "output": "assets"
               }

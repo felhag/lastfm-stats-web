@@ -66,7 +66,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
       next: user => {
         store.updateUser(user);
 
-        const from = String(this.determineFrom(user, imported));
+        const from = String(this.determineFrom(imported));
         this.start({
           username: user.name,
           pageSize: Constants.API_PAGE_SIZE,
@@ -77,11 +77,12 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     });
   }
 
-  private determineFrom(user: User, scrobbles: Scrobble[]): number {
+  private determineFrom(scrobbles: Scrobble[]): number {
     if (scrobbles.length) {
       return scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1;
     } else {
-      return parseInt(user.registered.unixtime) - 1000;
+      // 1 jan 2000. Kinda arbitrary but some user have scrobbles registered before their account creation date.
+      return 946681200;
     }
   }
 
@@ -90,9 +91,6 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     this.get(loadingState).subscribe({
       next: response => {
         const page = parseInt(response.recenttracks['@attr'].totalPages);
-
-        // trigger update for imported scrobbles
-        // this.handleImportedItem(scrobbles, progress);
 
         if (page > 0) {
           loadingState.store.totals({
@@ -170,8 +168,9 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     const orgPageSize = loadingState.pageSize!;
 
     loadingState.store.state$.pipe(
+      take(1),
       switchMap(state => {
-        const newFrom = String(this.determineFrom(state.user!, state.scrobbles));
+        const newFrom = String(this.determineFrom(state.scrobbles));
         const tempPageSize = loadingState.pageSize === 1000 ? 200 : 125;
         const tempState: LoadingState = {...loadingState, from: newFrom, page: 1, pageSize: tempPageSize};
 
@@ -204,13 +203,6 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
       album: t.album['#text'],
       date: new Date(t.date?.uts * 1000)
     })).reverse();
-    // if (!progress.first.value) {
-    //   progress.first.next(tracks[0]);
-    // }
-    // progress.last.next(tracks[tracks.length - 1]);
-    // progress.loader.next(tracks);
-    // progress.allScrobbles.push(...tracks);
-    // progress.currentPage--;
 
     loadingState.page!--;
     loadingState.store.page(tracks);
