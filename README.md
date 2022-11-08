@@ -17,14 +17,16 @@ Setting up a local dev environment:
 git clone https://github.com/felhag/lastfm-stats-web.git
 cd lastfm-stats-web
 npm ci
-ng serve
 ```
-Note: angular cli needs to be installed (```npm install -g @angular/cli```)
 
-Default lastfm-stats will be served. To start a dev server for spotify-stats:
+Running:
+
 ```
+ng serve lastfm-stats
 ng serve spotify-stats
 ```
+
+Note: angular cli needs to be installed (```npm install -g @angular/cli```)
 
 Running both projects simultaneously:
 ```
@@ -33,6 +35,16 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.0
+- added support for indexedDB ([#10][i10])
+- added min length 3 for wordcloud ([#27][i27])
+- added artist/album/track toggle for wordcloud ([#27][i27]) 
+- added toggle to show average for scrobbled days/months
+- added buttons to switch between last.fm stats and spotify stats
+- added possibility to load scrobbles before account creation date
+- removed fallback when importing files without albums
+- fixed issue which filtered out too many characters in wordcloud ([#27][i27])
+
 4.3 (31-07-2022)
 - added support for extended data zip for spotify
 - added option to search for artist OR album/track in dataset
@@ -53,7 +65,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - added scrobble scatter chart
 - added fullscreen function for charts
 - added swiping support for tabs
-- clearer race chart toggle (#3)
+- clearer race chart toggle ([#3][i3])
 - disabled matomo cookies
 
 3.0 (28-02-2022)
@@ -162,3 +174,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 
 0.1 (28-03-2021) 
 - initial version
+
+[i3]: https://github.com/felhag/lastfm-stats-web/issues/3
+[i10]: https://github.com/felhag/lastfm-stats-web/issues/10
+[i27]: https://github.com/felhag/lastfm-stats-web/issues/27

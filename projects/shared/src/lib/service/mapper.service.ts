@@ -14,18 +14,21 @@ export class MapperService {
   private mappers = {
     'artist': {
       seen: (stats: TempStats) => stats.seenArtists,
+      shortName: (artist: StreakItem) => artist.name,
       monthItems: (month: Month) => [...month.artists.values()],
       monthItem: (month: Month, artist: StreakItem) => month.artists.get(artist.name),
       url: (item: StreakItem) => this.urlService.artist(item.name)
     },
     'album': {
       seen: (stats: TempStats) => stats.seenAlbums,
+      shortName: (artist: Track) => artist.shortName,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.albums)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Album).artist)?.albums[(track as Album).shortName],
       url: (item: StreakItem) => this.urlService.album((item as Album).artist, (item as Album).shortName)
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,
+      shortName: (artist: Album) => artist.shortName,
       monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.tracks)),
       monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Track).artist)?.tracks[(track as Track).shortName],
       url: (item: StreakItem) => this.urlService.track((item as Track).artist, (item as Track).shortName)
@@ -46,6 +49,10 @@ export class MapperService {
 
   public url(type: ItemType, item: StreakItem) {
     return this.mappers[type].url(item);
+  }
+
+  public shortName(type: ItemType, item: StreakItem) {
+    return this.mappers[type].shortName(item as any);
   }
 
   public countPerMonth(type: ItemType, month: Month, item: StreakItem): number {

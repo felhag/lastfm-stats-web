@@ -70,14 +70,18 @@ export class ChartsComponent implements AfterViewInit {
       new ArtistScrobbleChart(translate, url),
       new ArtistTimelineChart(translate, url, mapper),
       new CumulativeItemsChart(translate, mapper),
-      new WordcloudChart(),
+      new WordcloudChart(mapper),
       new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
       new RaceChart(translate, url),
-      new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => Object.values(s.hours)),
-      new ScrobbleMomentChart(translate, 'days', Constants.DAYS, s => Object.values(s.days)),
-      new ScrobbleMomentChart(translate, 'months', Constants.MONTHS, s => Object.values(s.months)),
+      new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
+      new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
+          stats => stats.days,
+          (stats, key) => Object.keys(stats.specificDays).filter(d => key === new Date(parseInt(d)).getDay()).length),
+      new ScrobbleMomentChart(translate, 'months', Constants.MONTHS,
+          stats => stats.months,
+        (stats, key) => Object.keys(stats.monthList).filter(month => month.startsWith(key + '-')).length),
     ];
   }
 
