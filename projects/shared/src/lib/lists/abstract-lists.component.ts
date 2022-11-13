@@ -2,7 +2,7 @@ import { OnInit, Directive } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
 import { TempStats, Streak, StreakStack, StreakItem } from 'projects/shared/src/lib/app/model';
-import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
+import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
 
@@ -18,14 +18,16 @@ export interface Top10Item {
 @Directive()
 export abstract class AbstractListsComponent<S> implements OnInit {
   stats = new BehaviorSubject<S>(this.emptyStats());
+  settingsObj?: Settings;
 
   protected constructor(private builder: StatsBuilderService,
-                        protected settings: SettingsService,
+                        private settings: SettingsService,
                         private urlService: AbstractUrlService) {
   }
 
   ngOnInit(): void {
     this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
+    this.settings.state$.pipe(untilDestroyed(this)).subscribe(settings => this.settingsObj = settings);
   }
 
   private update(stats: TempStats): void {
@@ -74,9 +76,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   }
 
   protected get listSize(): number {
-    // TODO:
-    return 10;
-    // return this.settings.listSize.value;
+    return this.settingsObj?.listSize || 10;
   }
 
   protected dateString(date: number): string {
@@ -145,8 +145,7 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   }
 
   protected get threshold(): number {
-    // TODO:
-    return 0;//this.settings.minScrobbles.value || 0;
+    return this.settingsObj?.minScrobbles || 0;
   }
 
   protected abstract get forcedThreshold(): number;

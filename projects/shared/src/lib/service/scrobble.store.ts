@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { Observable, map, distinctUntilChanged, pairwise, filter, merge } from 'rxjs';
-import { startWith } from 'rxjs/operators';
 import { Scrobble, State, User, ErrorState, CompleteState } from '../app/model';
 
 export interface ScrobbleState {
@@ -79,12 +78,9 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
 
   private readonly imported = this.state$.pipe(filter(s => s.state === 'LOADINGUSER'), map(s => s.scrobbles));
   private readonly pageChunk = this.state$.pipe(
-    distinctUntilChanged((prev, curr) => prev.scrobbles !== curr.scrobbles),
     filter(state => state.state === 'RETRIEVING'),
     map(state => state.scrobbles),
-    startWith([]),
     pairwise(),
-    // takeUntil(this.state.pipe(filter(state => ['LOADINGUSER', 'CALCULATINGPAGES', 'RETRIEVING'].indexOf(state) < 0))),
     map(([prev, next]) => next.slice(prev.length)),
   );
 
