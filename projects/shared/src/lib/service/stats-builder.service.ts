@@ -32,6 +32,9 @@ export class StatsBuilderService {
       scan((acc, [[scrobbles, cumulative], settings]) => this.update(scrobbles, settings, cumulative ? acc : this.emptyStats()), this.emptyStats()),
     );
     this.tempStats = merge(rebuild, chunk).pipe(shareReplay(1));
+
+    // TODO: If no scrobbles need to be loaded the tempStats subscriptions are registered after emitting data
+    this.tempStats.pipe(take(1)).subscribe(/* force execution of tempstats observable... */);
   }
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {

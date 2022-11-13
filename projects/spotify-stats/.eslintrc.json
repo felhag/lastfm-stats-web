@@ -10,8 +10,7 @@
       ],
       "parserOptions": {
         "project": [
-          "projects/spotify-stats/tsconfig.app.json",
-          "projects/spotify-stats/tsconfig.spec.json"
+          "projects/spotify-stats/tsconfig.app.json"
         ],
         "createDefaultProgram": true
       },

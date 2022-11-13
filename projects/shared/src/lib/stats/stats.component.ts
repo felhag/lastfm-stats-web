@@ -7,8 +7,7 @@ import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { combineLatest, Observable, take, switchMap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, Observable, take, switchMap, filter } from 'rxjs';
 import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
@@ -25,7 +24,6 @@ export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
   private activeTab: string = 'artists';
   private start?: [number, number, number];
-  settingCount = new Observable<number>();
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
 
@@ -45,18 +43,9 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.rebuild();
     this.manager.start(this.usernameService.username!);
     this.state$ = this.scrobbles.state;
     this.user$ = this.scrobbles.user;
-
-    this.settingCount = combineLatest([
-      this.settings.dateRangeStart,
-      this.settings.dateRangeEnd,
-      this.settings.artists,
-      this.settings.minScrobbles]).pipe(map(([start, end, artists, min]) => {
-      return (start || end ? 1 : 0) + (artists.length ? 1 : 0) + (min ? 1 : 0);
-    }));
   }
 
   ngOnDestroy(): void {
@@ -79,7 +68,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         const minWidth = width > 1200 ? 1000 : width - 48;
         const data = {scrobbles, settings};
         return this.dialog.open(ConfComponent, {minWidth, data}).afterClosed();
-      })
+      }),
+      filter(result => !!result)
     ).subscribe(result => this.settings.update(result));
   }
 

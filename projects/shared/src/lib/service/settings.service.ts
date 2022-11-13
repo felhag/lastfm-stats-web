@@ -49,6 +49,13 @@ export class SettingsService extends ComponentStore<Settings> {
   readonly dateRangeEnd = this.select(s => s.dateRangeEnd);
   readonly artistsInclude = this.select(s => s.artistsInclude);
   readonly artists = this.select(s => s.artists);
+  readonly count = this.select(
+    this.dateRangeStart,
+    this.dateRangeEnd,
+    this.artists,
+    this.minScrobbles,
+    (start, end, artists, min) => (start || end ? 1 : 0) + (artists.length ? 1 : 0) + (min ? 1 : 0)
+  );
 
   readonly update = this.updater((settings: Settings, newSettings: Partial<Settings>) => {
     Object.entries(newSettings).forEach(([key, value]) => this.updateLocalStorage(SettingsService.parsers[key as Setting], value));

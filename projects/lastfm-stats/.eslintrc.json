@@ -10,8 +10,7 @@
       ],
       "parserOptions": {
         "project": [
-          "projects/lastfm-stats/tsconfig.app.json",
-          "projects/lastfm-stats/tsconfig.spec.json"
+          "projects/lastfm-stats/tsconfig.app.json"
         ],
         "createDefaultProgram": true
       },

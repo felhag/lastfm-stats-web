@@ -79,6 +79,7 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
 
   private readonly imported = this.state$.pipe(filter(s => s.state === 'LOADINGUSER'), map(s => s.scrobbles));
   private readonly pageChunk = this.state$.pipe(
+    distinctUntilChanged((prev, curr) => prev.scrobbles !== curr.scrobbles),
     filter(state => state.state === 'RETRIEVING'),
     map(state => state.scrobbles),
     startWith([]),

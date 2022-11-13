@@ -19,7 +19,7 @@
         <app-progress></app-progress>
 
         <div class="conf-row">
-          <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settingCount | async" [matBadgeHidden]="(settingCount | async) === 0">
+          <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
             <mat-icon class="material-icons-outlined">settings</mat-icon>
             Filter data
           </button>

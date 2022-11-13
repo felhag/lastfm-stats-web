@@ -35,7 +35,7 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
-5.0
+5.0 (13-11-2022)
 - added support for indexedDB ([#10][i10])
 - added min length 3 for wordcloud ([#27][i27])
 - added artist/album/track toggle for wordcloud ([#27][i27]) 
