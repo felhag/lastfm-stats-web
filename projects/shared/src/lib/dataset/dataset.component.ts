@@ -5,7 +5,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
 import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
-import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats } from 'projects/shared/src/lib/app/model';
+import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -37,6 +37,7 @@ export class DatasetComponent implements OnInit {
   groupedBy = new BehaviorSubject<ItemType>('artist');
   height!: number;
   dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
+  months: { [p: string]: Month } = {};
 
   filterArtist = new FormControl<string>('');
   filterName = new FormControl<string>('');
@@ -94,6 +95,7 @@ export class DatasetComponent implements OnInit {
         rank: item.ranks[item.ranks.length - 1] || Object.keys(data).length
       } as DataSetEntry
     });
+    this.months = tempStats.monthList;
   }
 
   groupBy(change: MatRadioChange): void {
@@ -113,9 +115,10 @@ export class DatasetComponent implements OnInit {
     return this.groups[this.groupedBy.value];
   }
 
-  open(data: DataSetEntry): void {
+  open(entry: DataSetEntry): void {
     const width = window.innerWidth;
     const minWidth = width > 1200 ? 1000 : width - 48;
+    const data = {entry, months: this.months};
     this.dialog.open(DatasetModalComponent, {minWidth, data});
   }
 
