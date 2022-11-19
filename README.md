@@ -35,6 +35,11 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.2 (19-11-2022)
+- fixed opening dataset modal
+- fixed persisting settings
+- fixed applying settings when switching tabs
+
 5.1 (13-11-2022)
 - fixed issue when loading scrobbles
 - fixed list size option

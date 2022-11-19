@@ -26,8 +26,8 @@ export abstract class AbstractListsComponent<S> implements OnInit {
   }
 
   ngOnInit(): void {
-    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
     this.settings.state$.pipe(untilDestroyed(this)).subscribe(settings => this.settingsObj = settings);
+    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
   }
 
   private update(stats: TempStats): void {

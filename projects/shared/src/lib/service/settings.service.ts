@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 
 type Setting = keyof Settings;
-type SettingParser = {key: string, default: any, parse: (value: string) => any, toString?: (value: any) => string | undefined};
+type SettingParser = {key: string, default: any, parse: (value: string) => any, stringify?: (value: any) => string | undefined};
 export interface Settings {
   autoUpdate: boolean;
   listSize: number;
@@ -24,7 +24,7 @@ export class SettingsService extends ComponentStore<Settings> {
     dateRangeStart: SettingsService.initDate('date-range-start'),
     dateRangeEnd: SettingsService.initDate('date-range-end'),
     artistsInclude: {key: 'artists-include', default: true, parse: v => v === 'true'},
-    artists: {key: 'artists', default: [], parse: v => JSON.parse(v), toString: v => JSON.stringify(v)}
+    artists: {key: 'artists', default: [], parse: v => JSON.parse(v), stringify: v => JSON.stringify(v)}
   };
 
   constructor() {
@@ -39,7 +39,7 @@ export class SettingsService extends ComponentStore<Settings> {
   }
 
   private static initDate(key: string): SettingParser {
-    return {key, default: null, parse: v => new Date(parseInt(v)), toString: d => d ? String(d.getTime()) : undefined};
+    return {key, default: null, parse: v => new Date(parseInt(v)), stringify: d => d ? String(d.getTime()) : undefined};
   }
 
   readonly autoUpdate = this.select(s => s.autoUpdate);
@@ -66,7 +66,7 @@ export class SettingsService extends ComponentStore<Settings> {
   });
 
   private updateLocalStorage(parser: SettingParser, value: any) {
-    const parsed = parser.toString ? parser.toString(value) : String(value);
+    const parsed = parser.stringify ? parser.stringify(value) : String(value);
     if (value === parser.default) {
       localStorage.removeItem(parser.key);
     } else {
