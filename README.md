@@ -39,6 +39,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - fixed opening dataset modal
 - fixed persisting settings
 - fixed applying settings when switching tabs
+- fixed casing issue when loading scrobbles from db
 
 5.1 (13-11-2022)
 - fixed issue when loading scrobbles

@@ -53,7 +53,7 @@ export class DatabaseService {
   }
 
   findUser(username: string): Observable<DbUser | undefined> {
-    return from(this.db.users.get({username}));
+    return from(this.db.users.get({username: username.toLowerCase()}));
   }
 
   getUsers(): Observable<DbUser[]> {
