@@ -1,60 +1,57 @@
 $font-size: 32px;
 
-app-home .home {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  font-size: $font-size;
-  line-height: 48px;
-
-  .home-row {
+app-home {
+  .home, .home-row {
+    width: 100%;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    margin-bottom: 40px;
-    padding: 0 16px;
-
-    &.mw {
-      max-width: 320px;
-    }
-
-    .logo {
-      flex: 0;
-      margin-right: 24px;
-    }
-
-    .subtext {
-      font-size: 18px;
-      line-height: 18px;
-    }
   }
-
-  .line {
-    border-top: 1px solid #d9dadc;
-    flex: 1;
-  }
-
-  app-buttons {
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 575px) {
-  app-home .home {
-    padding: 16px 0;
-    box-shadow: none !important;
-    background: transparent;
-  }
-}
-
-@media (max-width: 767px) {
-  app-home label {
+  .home {
+    height: 100%;
     flex-direction: column;
+    font-size: $font-size;
+    line-height: 48px;
+    .home-row {
+      margin-bottom: 40px;
+      padding: 0 16px;
+
+      .logo {
+        flex: 0;
+        margin-right: 24px;
+      }
+
+      .subtext {
+        font-size: 18px;
+        line-height: 18px;
+      }
+    }
+
+    .line {
+      border-top: 1px solid #d9dadc;
+      flex: 1;
+    }
+
+    app-buttons {
+      align-self: flex-end;
+    }
   }
-  app-home .home .home-row {
-    margin-bottom: 24px;
+
+  @media (max-width: 575px) {
+    app-home .home {
+      padding: 16px 0;
+      box-shadow: none !important;
+      background: transparent;
+    }
+  }
+
+  @media (max-width: 767px) {
+    app-home label {
+      flex-direction: column;
+    }
+    app-home .home .home-row {
+      margin-bottom: 24px;
+    }
   }
 }

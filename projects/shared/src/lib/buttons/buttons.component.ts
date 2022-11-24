@@ -1,6 +1,6 @@
-import {Component, Input} from '@angular/core';
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
+import { Component, Input } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 import { App } from '../app/model';
 
 @Component({
@@ -28,5 +28,9 @@ export class ButtonsComponent {
 
   get isLastFm(): boolean {
     return this.app === App.lastfm;
+  }
+
+  open(url: string) {
+    window.open(url, '_blank');
   }
 }

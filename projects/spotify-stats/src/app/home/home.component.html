@@ -1,46 +1,49 @@
-<mat-card appearance="outlined" class="home">
-  <div class="home-row">
-    <img src="../../assets/favicon-192.png" alt="logo" class="logo" height="80" width="80">
-    <div> spotifystats.app
-      <div class="subtext">Enhanced statistics for spotify</div>
+<mat-card appearance="outlined">
+  <mat-card-header class="home">
+    <div class="home-row">
+      <img src="../../assets/favicon-192.png" alt="logo" class="logo" height="80" width="80">
+      <div>spotifystats.app
+        <div class="subtext">Enhanced statistics for spotify</div>
+      </div>
     </div>
-  </div>
+  </mat-card-header>
+  <mat-card-content class="home">
+    <div class="line username-holder">
+      <div (click)="openInfoDialog()" class="open-dialog-button">Where do I get my data?</div>
 
-  <div class="line username-holder">
-    <div (click)="openInfoDialog()" class="open-dialog-button">Where do I get my data?</div>
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput [formControl]="username">
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Username</mat-label>
-      <input matInput [formControl]="username">
-    </mat-form-field>
-  </div>
+    <div class="custom-dropzone" ngx-dropzone (change)="onSelect($event)" [class.invalid]="submitted && (files | async)?.length === 0">
+      <ngx-dropzone-label *ngIf="(files | async)?.length === 0">
+        Drop files or click to add
+        <br><br>
+        (Zip files or json files are allowed)
+      </ngx-dropzone-label>
+      <mat-nav-list>
+          <mat-list-item *ngFor="let f of files | async">
+            <a matListItemIcon matTooltip="Remove entry" (click)="onRemove(f, $event)"><mat-icon>delete</mat-icon></a>
+            <div matListItemLine>{{f.name}} ({{f.plays.length}} entries)</div>
+            <div matListItemLine>{{ f.first | date}} - {{f.last | date}}</div>
+          </mat-list-item>
+      </mat-nav-list>
+    </div>
 
-  <div class="custom-dropzone" ngx-dropzone (change)="onSelect($event)" [class.invalid]="submitted && (files | async)?.length === 0">
-    <ngx-dropzone-label *ngIf="(files | async)?.length === 0">
-      Drop files or click to add
-      <br><br>
-      (Zip files or json files are allowed)
-    </ngx-dropzone-label>
-    <mat-nav-list>
-        <mat-list-item *ngFor="let f of files | async">
-          <a mat-icon-button matTooltip="Remove entry" (click)="onRemove(f, $event)"><mat-icon>delete</mat-icon></a>
-          <div mat-line>{{f.name}} ({{f.plays.length}} entries)</div>
-          <div mat-line>{{ f.first | date}} - {{f.last | date}}</div>
-        </mat-list-item>
-    </mat-nav-list>
-  </div>
+    <div class="home-row">
+      <span *ngIf="deduplicated | async as amount" class="deduplicated">Deduplicated <strong>{{amount}}</strong> entries</span>
+    </div>
 
-  <div class="home-row">
-    <span *ngIf="deduplicated | async as amount" class="deduplicated">Deduplicated <strong>{{amount}}</strong> entries</span>
-  </div>
+    <div class="home-row">
+      <app-db-load-button>
+        <button class="text-button" mat-stroked-button (click)="go()">
+          🧙‍♂️ Let's go!
+        </button>
+      </app-db-load-button>
+    </div>
 
-  <div class="home-row">
-    <app-db-load-button>
-      <button class="text-button" mat-stroked-button (click)="go()">
-        🧙‍♂️ Let's go!
-      </button>
-    </app-db-load-button>
-  </div>
-
-  <app-buttons [showHome]="false"></app-buttons>
+    <app-buttons [showHome]="false"></app-buttons>
+  </mat-card-content>
 </mat-card>

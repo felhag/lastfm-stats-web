@@ -1,39 +1,42 @@
-<mat-card appearance="outlined" class="home">
-  <div class="home-row">
-    <div *ngIf="christmas" class="cm-logo">
-      <img src="../../assets/favicon-cm.png" alt="logo">
+<mat-card appearance="outlined">
+  <mat-card-header class="home">
+    <div class="home-row">
+      <div *ngIf="christmas" class="cm-logo">
+        <img src="../../assets/favicon-cm.png" alt="logo">
+      </div>
+      <img *ngIf="!christmas" src="../../assets/favicon-192.png" alt="lastfm stats logo" class="logo" height="80" width="80">
+      <div> lastfmstats.com <div class="subtext">Enhanced statistics for last.fm</div></div>
     </div>
-    <img *ngIf="!christmas" src="../../assets/favicon-192.png" alt="lastfm stats logo" class="logo" height="80" width="80">
-    <div> lastfmstats.com <div class="subtext">Enhanced statistics for last.fm</div></div>
-  </div>
-  <div class="line home-row mw"></div>
-
-  <label class="home-row">
-    <span>last.fm/user/</span>
-    <span class="input-wrap">
-      <span class="width-machine" aria-hidden="true" [innerHTML]="username">username</span>
-      <input type="text" placeholder="username" class="input" autofocus (input)="update($event)" (keydown.enter)="go()" [class.invalid]="(valid | async) === false">
-    </span>
-  </label>
-  <div class="home-row">
-    <button class="text-button" mat-stroked-button (click)="go()">
-      🧙‍♂️ Let's go!
-    </button>
-  </div>
-  <div class="home-row mw">
-    <div class="line"></div>
-    <div class="or">or import from</div>
-    <div class="line"></div>
-  </div>
-  <div class="home-row">
-    <app-db-load-button>
-      <button mat-flat-button (click)="uploadFile.click()">
-        📁 File
+  </mat-card-header>
+  <mat-card-content class="home">
+    <div class="home-row"><div class="line"></div></div>
+    <label class="home-row">
+      <span>last.fm/user/</span>
+      <span class="input-wrap">
+        <span class="width-machine" aria-hidden="true" [innerHTML]="username">username</span>
+        <input type="text" placeholder="username" class="input" autofocus (input)="update($event)" (keydown.enter)="go()" [class.invalid]="(valid | async) === false">
+      </span>
+    </label>
+    <div class="home-row">
+      <button class="text-button" mat-stroked-button (click)="go()">
+        🧙‍♂️ Let's go!
       </button>
-      <input #uploadFile (change)="import($event)" type='file' style="display:none">
-    </app-db-load-button>
-  </div>
+    </div>
+    <div class="home-row">
+      <div class="line"></div>
+      <div class="or">or import from</div>
+      <div class="line"></div>
+    </div>
+    <div class="home-row">
+      <app-db-load-button>
+        <button mat-flat-button (click)="uploadFile.click()">
+          📁 File
+        </button>
+        <input #uploadFile (change)="import($event)" type='file' style="display:none">
+      </app-db-load-button>
+    </div>
 
 
-  <app-buttons [showHome]="false"></app-buttons>
+    <app-buttons [showHome]="false"></app-buttons>
+  </mat-card-content>
 </mat-card>

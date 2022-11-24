@@ -1,15 +1,15 @@
-<button mat-icon-button matTooltip="Home" [routerLink]="'/'">
+<button *ngIf="showHome" mat-icon-button matTooltip="Home" [routerLink]="'/'">
   <mat-icon>home</mat-icon>
 </button>
-<a mat-icon-button matTooltip="Github" href="https://github.com/felhag/lastfm-stats-web" target="_blank">
+<button mat-icon-button matTooltip="Github" (click)="open('https://github.com/felhag/lastfm-stats-web')">
   <mat-icon svgIcon="github"></mat-icon>
-</a>
-<a mat-icon-button matTooltip="Reddit" href="https://www.reddit.com/user/TonnyTorpedo" target="_blank">
+</button>
+<button mat-icon-button matTooltip="Reddit" (click)="open('https://www.reddit.com/user/TonnyTorpedo')">
   <mat-icon svgIcon="reddit"></mat-icon>
-</a>
-<a mat-icon-button matTooltip="Buy me a coffee" href="https://ko-fi.com/felhag" target="_blank">
+</button>
+<button mat-icon-button matTooltip="Buy me a coffee" (click)="open('https://ko-fi.com/felhag')">
   <mat-icon svgIcon="ko-fi"></mat-icon>
-</a>
-<a mat-icon-button [matTooltip]="isLastFm ? 'Spotify stats' : 'Last.fm stats'" [href]="isLastFm ? 'https://spotifystats.app' : 'https://lastfmstats.com'" target="_blank">
+</button>
+<button mat-icon-button [matTooltip]="isLastFm ? 'Spotify stats' : 'Last.fm stats'" (click)="open(isLastFm ? 'https://spotifystats.app' : 'https://lastfmstats.com')">
   <img width="24" height="24" src="assets/stats.png" alt="">
-</a>
+</button>

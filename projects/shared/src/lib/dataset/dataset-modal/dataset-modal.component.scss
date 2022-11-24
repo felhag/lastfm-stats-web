@@ -1,10 +1,6 @@
-h2 a {
-  display: flex;
-  align-items: center;
-
-  .mat-icon {
-    margin-left: 16px;
-  }
+h2 a .mat-icon {
+  margin-left: 16px;
+  vertical-align: middle;
 }
 
 .orb-wrapper {

@@ -33,7 +33,7 @@
   overflow-x: visible;
   line-height: initial;
 
-  .mat-nav-list {
+  .mat-mdc-nav-list {
     min-width: 100%;
     max-height: 288px;
     overflow-y: auto;
@@ -45,15 +45,6 @@
   font-size: 16px;
   line-height: 16px;
   margin-top: 12px;
-}
-
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
-::ng-deep .custom-dropzone .mat-list-item-content {
-  flex-direction: row-reverse !important;
-
-  a {
-    margin-right: 12px;
-  }
 }
 
 ngx-dropzone-preview {

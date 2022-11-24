@@ -13,26 +13,24 @@ app-db-load-button {
 }
 
 .mat-mdc-select {
-  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-  .mat-select-value {
+  .mat-mdc-select-value {
     text-align: center;
   }
-  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-  .mat-select-placeholder {
+  .mat-mdc-select-placeholder, mat-mdc-select-value {
     color: inherit;
   }
-  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-  .mat-select-arrow-wrapper {
+  .mat-mdc-select-arrow-wrapper {
     display: none;
   }
 }
 
-.mat-mdc-option .db-user-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .mat-icon {
-    margin-right: 0;
+.mat-mdc-option {
+  .mdc-list-item__primary-text {
+    min-width: calc(100% + 16px);
+  }
+  .db-user-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }

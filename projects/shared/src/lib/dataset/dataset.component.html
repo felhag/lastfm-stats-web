@@ -1,23 +1,25 @@
 <div class="root">
   <mat-card appearance="outlined">
-    <div class="full-width search-fields">
-      <mat-form-field appearance="outline">
-        <mat-label>Search artist</mat-label>
-        <input matInput placeholder="Search artist..." [formControl]="filterArtist" accesskey="s">
-        <mat-icon matPrefix>search</mat-icon>
-      </mat-form-field>
+    <mat-card-content>
+      <div class="full-width search-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Search artist</mat-label>
+          <input matInput placeholder="Search artist..." [formControl]="filterArtist" accesskey="s">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
 
-      <mat-form-field *ngIf="(groupedBy | async) !== 'artist'" appearance="outline">
-        <mat-label>Search {{groupedBy | async}}</mat-label>
-        <input matInput placeholder="Search {{groupedBy | async}}..." [formControl]="filterName" accesskey="n">
-        <mat-icon matPrefix>search</mat-icon>
-      </mat-form-field>
-    </div>
-    <mat-radio-group [value]="groupedBy | async" (change)="groupBy($event)">
-      <mat-radio-button value="artist">Artist</mat-radio-button>
-      <mat-radio-button *ngIf="showAlbums" value="album">Album</mat-radio-button>
-      <mat-radio-button value="track">Track</mat-radio-button>
-    </mat-radio-group>
+        <mat-form-field *ngIf="(groupedBy | async) !== 'artist'" appearance="outline">
+          <mat-label>Search {{groupedBy | async}}</mat-label>
+          <input matInput placeholder="Search {{groupedBy | async}}..." [formControl]="filterName" accesskey="n">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+      </div>
+      <mat-radio-group [value]="groupedBy | async" (change)="groupBy($event)">
+        <mat-radio-button value="artist">Artist</mat-radio-button>
+        <mat-radio-button *ngIf="showAlbums" value="album">Album</mat-radio-button>
+        <mat-radio-button value="track">Track</mat-radio-button>
+      </mat-radio-group>
+    </mat-card-content>
   </mat-card>
 
   <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">

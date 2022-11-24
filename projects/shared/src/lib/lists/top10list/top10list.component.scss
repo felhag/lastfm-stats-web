@@ -14,9 +14,7 @@
   color: #999;
 }
 
-:host ::ng-deep {
-  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
-  .mat-card-header-text {
-    width: 100%;
-  }
+:host ::ng-deep .mat-mdc-card-header-text {
+  width: 100%;
+  margin-left: 16px;
 }
