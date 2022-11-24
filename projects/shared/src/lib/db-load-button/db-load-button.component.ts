@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { MatSelectChange } from '@angular/material/select';
+import { MatLegacySelectChange as MatSelectChange } from '@angular/material/legacy-select';
 import { Router } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
 import { DbUser, DatabaseService } from '../service/database.service';
