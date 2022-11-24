@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { map, Observable } from 'rxjs';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';

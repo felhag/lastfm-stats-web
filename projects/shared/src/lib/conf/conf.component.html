@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Configure</h2>
 List size:
-<mat-slider min="1" max="100" [thumbLabel]="true" color="primary" [value]="settings.listSize" (change)="settings.listSize = $event.value || 10"></mat-slider>
+<mat-slider min="1" max="100" [thumbLabel]="true" color="primary" #ngSlider><input matSliderThumb [value]="settings.listSize" (change)="settings.listSize = {source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}.value || 10" #ngSliderThumb="matSliderThumb" /></mat-slider>
 
 <div class="setting-row">
   <mat-form-field>
@@ -17,7 +17,7 @@ List size:
   </button>
 </div>
 <div class="setting-row">
-  <mat-form-field appearance="standard" (focusin)="picker.open()">
+  <mat-form-field (focusin)="picker.open()">
     <mat-label>Date range</mat-label>
     <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
       <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
@@ -37,22 +37,22 @@ List size:
   </div>
 
   <div class="setting-row">
-    <mat-chip-list [disabled]="fa.length === 0">
-      <mat-chip color="primary" [selected]="settings.artistsInclude" (click)="settings.artistsInclude = true">Include {{fa.length}} artists</mat-chip>
-      <mat-chip color="warn" [selected]="settings.artistsInclude === false" (click)="settings.artistsInclude = false">Exclude {{fa.length}} artists</mat-chip>
-    </mat-chip-list>
+    <mat-chip-listbox [disabled]="fa.length === 0">
+      <mat-chip-option color="primary" [selected]="settings.artistsInclude" (click)="settings.artistsInclude = true">Include {{fa.length}} artists</mat-chip-option>
+      <mat-chip-option color="warn" [selected]="settings.artistsInclude === false" (click)="settings.artistsInclude = false">Exclude {{fa.length}} artists</mat-chip-option>
+    </mat-chip-listbox>
   </div>
 
   <div class="setting-row">
-    <mat-form-field appearance="standard">
+    <mat-form-field>
       <mat-label>Artists</mat-label>
-      <mat-chip-list #chipList aria-label="Fruit selection">
-        <mat-chip *ngFor="let artist of fa" [removable]="true" (removed)="remove(artist)">
+      <mat-chip-grid #chipList aria-label="Fruit selection">
+        <mat-chip-row *ngFor="let artist of fa" [removable]="true" (removed)="remove(artist)">
           {{artist}}
           <mat-icon matChipRemove>cancel</mat-icon>
-        </mat-chip>
+        </mat-chip-row>
         <input placeholder="Search..." [matAutocomplete]="auto" [matChipInputFor]="chipList" (keyup)="updateKeyword($event)">
-      </mat-chip-list>
+      </mat-chip-grid>
 
       <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event.option.value)" (closed)="onClose()">
         <mat-option *ngFor="let option of allArtists | async" [value]="option[0]">

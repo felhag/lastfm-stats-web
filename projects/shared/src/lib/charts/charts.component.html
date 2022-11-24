@@ -1,5 +1,5 @@
 <div *ngFor="let c of charts" class="chart" [class.multiple]="!c.fullWidth">
-  <mat-card>
+  <mat-card appearance="outlined">
     <mat-card-content>
       <highcharts-chart [Highcharts]="Highcharts"
                         [options]="c.options"

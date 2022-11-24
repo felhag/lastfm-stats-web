@@ -6,27 +6,28 @@ app-db-load-button {
 .buttons {
   text-align: center;
 
-  .mat-select, button {
+  .mat-mdc-select, button {
     width: 50%;
     font-size: 1rem;
   }
 }
 
-.mat-select {
+.mat-mdc-select {
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
   .mat-select-value {
     text-align: center;
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
   .mat-select-placeholder {
     color: inherit;
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
   .mat-select-arrow-wrapper {
     display: none;
   }
 }
 
-.mat-option .db-user-option {
+.mat-mdc-option .db-user-option {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -16,7 +16,7 @@
   font-size: 16px;
   width: 100%;
 
-  .mat-form-field {
+  .mat-mdc-form-field {
     width: 100%;
   }
 }
@@ -47,6 +47,7 @@
   margin-top: 12px;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
 ::ng-deep .custom-dropzone .mat-list-item-content {
   flex-direction: row-reverse !important;
 

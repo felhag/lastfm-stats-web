@@ -1,5 +1,5 @@
-.mat-card {
-  .mat-card-title {
+.mat-mdc-card {
+  .mat-mdc-card-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -15,6 +15,7 @@
 }
 
 :host ::ng-deep {
+  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
   .mat-card-header-text {
     width: 100%;
   }

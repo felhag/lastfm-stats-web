@@ -1,10 +1,10 @@
 .root {
   margin: 16px;
 }
-.mat-card {
+.mat-mdc-card {
   margin-bottom: 16px;
 
-  .mat-radio-button {
+  .mat-mdc-radio-button {
     margin-left: 16px;
   }
 }
@@ -12,7 +12,7 @@
   width: 100%;
 }
 
-.mat-row {
+.mat-mdc-row {
   cursor: pointer;
 
   &:hover {
@@ -25,7 +25,7 @@
   justify-content: space-between;
   gap: 16px;
 
-  .mat-form-field {
+  .mat-mdc-form-field {
     flex-grow: 1;
   }
 }
