@@ -20,17 +20,15 @@
   left: 0;
   top: 0;
   right: 0;
-  padding: 16px;
+  padding: 10px 16px;
 
   input {
     width: 100%;
   }
 
   .current {
-    display: inline-block;
-    min-width: 40px;
-    text-align: center;
-    font-weight: bold;
+    font-size: 26px;
+    padding: 12px 0;
   }
 }
 
@@ -46,5 +44,5 @@ highcharts-chart {
 .button-toolbar {
   position: absolute;
   right: 16px;
-  top: 16px;
+  top: 10px;
 }

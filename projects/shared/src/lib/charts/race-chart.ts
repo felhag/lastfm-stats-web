@@ -186,7 +186,7 @@ export class RaceChart extends AbstractChart {
   changeSpeed(modify: () => number): void {
     this.speed = Math.min(8000, Math.max(500, modify()));
     this.chart?.update({chart: {animation: {duration: this.speed}}});
-    this.speedText!.innerText = String(Math.round(this.defaultSpeed / this.speed * 100) / 100).padEnd(3, '.0');
+    this.speedText!.innerText = String(Math.round(this.defaultSpeed / this.speed * 100) / 100);
     if (this.timer) {
       this.pause();
       this.play();
