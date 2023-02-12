@@ -1,6 +1,6 @@
 <div *ngIf="(state$ | async) as state">
   <mat-card *ngIf="!showContent(state)">
-    <mat-card-content [innerHTML]="getContentStateFor(state)"></mat-card-content>
+    <mat-card-content class="content-state" [innerHTML]="getContentStateFor(state)"></mat-card-content>
   </mat-card>
   <ng-container *ngIf="showContent(state)">
     <mat-card appearance="outlined">
@@ -34,12 +34,13 @@
     </mat-card>
 
     <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
-      <nav mat-tab-nav-bar mat-stretch-tabs>
+      <nav mat-tab-nav-bar mat-stretch-tabs [tabPanel]="tabPanel">
         <a *ngFor="let tab of tabs" mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
            routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
           {{tab | titlecase}}
         </a>
       </nav>
+      <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
       <router-outlet></router-outlet>
     </div>
   </ng-container>
