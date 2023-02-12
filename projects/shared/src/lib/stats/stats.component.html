@@ -1,6 +1,12 @@
 <div *ngIf="(state$ | async) as state">
-  <mat-card *ngIf="!showContent(state)">
-    <mat-card-content class="content-state" [innerHTML]="getContentStateFor(state)"></mat-card-content>
+  <mat-card *ngIf="!showContent(state)" class="content-state">
+    <mat-card-content [innerHTML]="getContentStateFor(state)"></mat-card-content>
+    <mat-card-actions *ngIf="isStuck(state)">
+      <button mat-flat-button [routerLink]="'/'">
+        <mat-icon>home</mat-icon>
+        Return to homepage
+      </button>
+    </mat-card-actions>
   </mat-card>
   <ng-container *ngIf="showContent(state)">
     <mat-card appearance="outlined">

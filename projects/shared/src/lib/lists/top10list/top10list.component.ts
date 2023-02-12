@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { map, Observable } from 'rxjs';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
@@ -15,6 +15,7 @@ export class Top10listComponent {
   @Input() title!: string;
   @Input() explanation?: string;
   @Input() list!: Top10Item[];
+  private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
 
   constructor(private snackbar: MatSnackBar, private colors: DateColorsService) {
   }
@@ -32,8 +33,13 @@ export class Top10listComponent {
   }
 
   explain(explanation: string): void {
-    this.snackbar.open(explanation, 'Got it!', {
-      duration: 10000
-    });
+    if (this.openSnackbar) {
+      this.openSnackbar?.dismiss();
+    } else {
+      this.openSnackbar = this.snackbar.open(explanation, 'Got it!', {
+        duration: 10000
+      });
+      this.openSnackbar.afterDismissed().subscribe(() => this.openSnackbar = undefined);
+    }
   }
 }

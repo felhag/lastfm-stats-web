@@ -20,13 +20,13 @@ export class StatsBuilderService {
     const rebuild = merge(this.rebuild, completed).pipe(
       switchMap(() => combineLatest([
         this.scrobbles.scrobbles.pipe(take(1)),
-        this.settings.state$
+        this.settings.state$.pipe(take(1))
       ])),
       map(([scrobbles, settings]) => this.update(scrobbles, settings, this.emptyStats()))
     );
     const chunk = combineLatest([
       this.scrobbles.chunk,
-      this.settings.state$
+      this.settings.state$.pipe(take(1))
     ]).pipe(
       filter(([, settings]) => settings.autoUpdate),
       scan((acc, [[scrobbles, cumulative], settings]) => this.update(scrobbles, settings, cumulative ? acc : this.emptyStats()), this.emptyStats()),

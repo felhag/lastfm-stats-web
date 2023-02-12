@@ -2,7 +2,7 @@
   width: 100%;
 }
 
-.content-state {
+.content-state .mat-mdc-card-content, .mat-mdc-card-actions {
   display: flex;
   justify-content: center;
 }

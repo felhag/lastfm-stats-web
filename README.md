@@ -35,6 +35,12 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.3 (12-02-2023)
+- updated to angular 15
+- prevent invalid page reload when settings are saved
+- added back button to (some) content cards ([#32][i32])
+- toggleable explanation snackbar ([#30][i30])
+
 5.2 (19-11-2022)
 - fixed opening dataset modal
 - fixed persisting settings
@@ -189,3 +195,5 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i3]: https://github.com/felhag/lastfm-stats-web/issues/3
 [i10]: https://github.com/felhag/lastfm-stats-web/issues/10
 [i27]: https://github.com/felhag/lastfm-stats-web/issues/27
+[i30]: https://github.com/felhag/lastfm-stats-web/issues/30
+[i32]: https://github.com/felhag/lastfm-stats-web/issues/32

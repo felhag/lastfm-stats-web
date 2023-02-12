@@ -60,6 +60,10 @@ export class StatsComponent implements OnInit, OnDestroy {
     return state === 'INTERRUPTED' || state === 'COMPLETED' || state === 'RETRIEVING' || state === 'LOADSTUCK';
   }
 
+  isStuck(state: State): boolean {
+    return state === 'USERNOTFOUND' || state === 'LOADFAILEDDUEPRIVACY' || state === 'LOADFAILED';
+  }
+
   openSettings(): void {
     combineLatest([this.scrobbles.scrobbles, this.settings.state$]).pipe(
       take(1),
