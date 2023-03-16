@@ -34,6 +34,12 @@ export class RaceChart extends AbstractChart {
               this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
               this.input = this.toolbar.querySelector('input') as HTMLInputElement;
               this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
+              this.input.onkeyup = (ev: any) => {
+                const { key, target } = ev;
+                if (key === 'ArrowLeft' || key === 'ArrowRight') {
+                    this.tick(parseInt(target.value));
+                }
+              }
               (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
               (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
               (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
