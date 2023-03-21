@@ -33,7 +33,7 @@ export class RaceChart extends AbstractChart {
               this.speedText = this.toolbar.querySelector('.current') as HTMLElement;
               this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
               this.input = this.toolbar.querySelector('input') as HTMLInputElement;
-              this.input.onclick = (ev: any) => this.tick(parseInt(ev.target.value));
+              this.input.onchange = (ev: any) => this.tick(parseInt(ev.target.value));
               (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
               (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
               (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
