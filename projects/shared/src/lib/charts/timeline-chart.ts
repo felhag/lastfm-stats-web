@@ -16,7 +16,7 @@ export class TimelineChart extends AbstractChart {
         formatter(): string {
           const date = new Date(this.x as number).toLocaleString();
           const value = Highcharts.numberFormat(this.y as number, 0, '', '.');
-          return date + '<br><b>' + this.key + '</b><br><span style="color:' + this.point.color + '">\u25CF</span>' + value;
+          return `${date}<br><b>${this.key}</b><br><span style="color:${this.point.color}">\u25CF</span>${value} ${this.series.name.toLowerCase()}`
         }
       },
       yAxis: [{
@@ -30,19 +30,7 @@ export class TimelineChart extends AbstractChart {
         gridLineWidth: 0,
         opposite: true,
         title: {
-          text: 'Artists',
-          style: {
-            color: this.getColors()[1]
-          }
-        }
-      }, {
-        gridLineWidth: 0,
-        opposite: true,
-        title: {
-          text: 'Tracks',
-          style: {
-            color: this.getColors()[2]
-          }
+          text: 'Artists, albums & tracks'
         }
       }],
       series: [{
@@ -56,7 +44,12 @@ export class TimelineChart extends AbstractChart {
         type: 'line',
       }, {
         name: 'Tracks',
-        yAxis: 2,
+        yAxis: 1,
+        data: [],
+        type: 'line',
+      }, {
+        name: 'Albums',
+        yAxis: 1,
         data: [],
         type: 'line',
       }],
@@ -92,6 +85,12 @@ export class TimelineChart extends AbstractChart {
       name: scrobble.artist + ' - ' + scrobble.track
     }));
 
+    const albums = stats.albumMilestones.map((scrobble, idx) => ({
+      x: scrobble.date.getTime(),
+      y: (idx + 1) * 1000,
+      name: scrobble.artist + ' - ' + scrobble.track
+    }));
+
     const tracks = stats.trackMilestones.map((scrobble, idx) => ({
       x: scrobble.date.getTime(),
       y: (idx + 1) * 1000,
@@ -103,10 +102,11 @@ export class TimelineChart extends AbstractChart {
       y: 0,
       name: 'Account created'
     };
-    [scrobbles, uniqueArtists, tracks].forEach(arr => arr.unshift(start));
+    [scrobbles, uniqueArtists, albums, tracks].forEach(arr => arr.unshift(start));
 
     this.chart.series[0].setData(scrobbles);
     this.chart.series[1].setData(uniqueArtists);
     this.chart.series[2].setData(tracks);
+    this.chart.series[3].setData(albums);
   }
 }

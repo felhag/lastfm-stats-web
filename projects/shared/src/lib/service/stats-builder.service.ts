@@ -169,7 +169,13 @@ export class StatsBuilderService {
 
   private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     if (scrobble.album) {
-      this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.album, scrobble, weekYear);
+      const item = this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.album, scrobble, weekYear);
+      if (item.scrobbles.length == 1) {
+        next.albumCount++;
+        if (next.albumCount % 1000 === 0) {
+          next.albumMilestones.push(scrobble);
+        }
+      }
     }
   }
 
@@ -179,9 +185,9 @@ export class StatsBuilderService {
 
   private handleItem<T extends Track | Album>(seen: { [key: string]: T }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): T {
     const fullName = scrobble.artist + ' - ' + item;
-    const seenTrack = seen[fullName];
-    if (seenTrack) {
-      return this.handleStreakItem(seenTrack, between, scrobble, weekYear);
+    const seenItem = seen[fullName];
+    if (seenItem) {
+      return this.handleStreakItem(seenItem, between, scrobble, weekYear);
     } else {
       const result: Track | Album = {
         artist: scrobble.artist,
@@ -242,7 +248,9 @@ export class StatsBuilderService {
       seenTracks: {},
       scrobbleMilestones: [],
       scrobbleCount: 0,
+      albumMilestones: [],
       trackMilestones: [],
+      albumCount: 0,
       trackCount: 0,
     };
   }

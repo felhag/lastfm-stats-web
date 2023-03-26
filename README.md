@@ -35,6 +35,11 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.4 (26-03-2023)
+- added keyboard support for race-chart ([#34][i34], pr by [THeK3nger](https://github.com/THeK3nger))
+- added albums to timeline-chart
+- fixed sticky header dataset tab
+
 5.3 (12-02-2023)
 - updated to angular 15
 - prevent invalid page reload when settings are saved
@@ -105,7 +110,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - fixed an issue where the first scrobble wasn't taken in account for scrobble streaks
 
 2.1 (15-11-2021)
-- added consecutive streak lists (pr by m0nkiii)
+- added consecutive streak lists ([#2][i2], pr by [m0nkiii](https://github.com/m0nkiii))
 - added colors to visualize date occurrence
 - added toggle between artists/albums/tracks for some charts 
 - added drilldown possibility for some charts
@@ -192,8 +197,10 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 0.1 (28-03-2021) 
 - initial version
 
+[i2]: https://github.com/felhag/lastfm-stats-web/pull/2
 [i3]: https://github.com/felhag/lastfm-stats-web/issues/3
 [i10]: https://github.com/felhag/lastfm-stats-web/issues/10
 [i27]: https://github.com/felhag/lastfm-stats-web/issues/27
 [i30]: https://github.com/felhag/lastfm-stats-web/issues/30
 [i32]: https://github.com/felhag/lastfm-stats-web/issues/32
+[i34]: https://github.com/felhag/lastfm-stats-web/pull/34

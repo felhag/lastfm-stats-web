@@ -102,8 +102,10 @@ export interface TempStats {
   betweenAlbums: StreakStack;
   betweenTracks: StreakStack;
   scrobbleMilestones: Scrobble[];
+  albumMilestones: Scrobble[];
   trackMilestones: Scrobble[];
   scrobbleCount: number;
+  albumCount: number;
   trackCount: number;
 }
 
