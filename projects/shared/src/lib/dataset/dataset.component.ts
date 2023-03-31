@@ -83,6 +83,7 @@ export class DatasetComponent implements OnInit {
 
   private update(tempStats: TempStats): void {
     const data = this.groupedByObj.data(tempStats);
+    const length = Object.keys(data).length;
     this.dataSource.data = Object.values(data).map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
@@ -92,7 +93,7 @@ export class DatasetComponent implements OnInit {
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
         scrobbles: item.scrobbles.length,
-        rank: item.ranks[item.ranks.length - 1] || Object.keys(data).length
+        rank: item.ranks[item.ranks.length - 1] || length
       } as DataSetEntry
     });
     this.months = tempStats.monthList;
