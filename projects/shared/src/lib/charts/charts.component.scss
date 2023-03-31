@@ -1,5 +1,6 @@
 .mat-mdc-card {
   margin: 16px;
+  min-height:400px;
 }
 
 .chart {
@@ -32,13 +33,8 @@
   }
 }
 
-highcharts-chart {
+mat-card-content .toolbar {
   display: block;
-  width: 100%;
-
-  .toolbar {
-    display: block;
-  }
 }
 
 .button-toolbar {

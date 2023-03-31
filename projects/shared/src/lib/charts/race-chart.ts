@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import { PointOptionsObject } from 'highcharts';
+import { PointOptionsObject, SeriesOptionsType } from 'highcharts';
 import { TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -117,10 +117,6 @@ export class RaceChart extends AbstractChart {
     if (this.input) {
       this.input.setAttribute('max', String(this.months.length - 1));
     }
-
-    if (this.chart && this.months.length && (this.current === this.months.length || !this.chart.series[0].data.length)) {
-      this.tick(0);
-    }
   }
 
   private getData(month: Month): PointOptionsObject[] {
@@ -160,7 +156,9 @@ export class RaceChart extends AbstractChart {
       return;
     }
     this.current = next;
-    this.input!.value = String(this.current);
+    if (this.input) {
+      this.input.value = String(this.current);
+    }
 
     if (this.current >= maxIdx) { // Auto-pause
       this.pause();
@@ -168,11 +166,12 @@ export class RaceChart extends AbstractChart {
 
     const month = this.months[this.current];
     const data = this.getData(month);
-    this.chart?.series[0].update({
+    const serieData: SeriesOptionsType = {
       type: 'bar',
       name: month.alias,
       data
-    });
+    };
+    this.chart?.series[0].update(serieData);
   }
 
   toggle(): void {
@@ -191,6 +190,11 @@ export class RaceChart extends AbstractChart {
       this.pause();
       this.play();
     }
+  }
+
+  protected load(container: HTMLElement): void {
+    super.load(container);
+    this.tick(0);
   }
 
   private play(): void {

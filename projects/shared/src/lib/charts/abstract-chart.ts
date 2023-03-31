@@ -1,4 +1,4 @@
-import { AlignValue } from 'highcharts';
+import { AlignValue, PointOptionsType } from 'highcharts';
 import * as Highcharts from 'highcharts';
 import exporting from 'highcharts/modules/exporting';
 import offline from 'highcharts/modules/offline-exporting';
@@ -12,6 +12,8 @@ fullscreen(Highcharts);
 export abstract class AbstractChart {
   options: Highcharts.Options = {};
   chart?: Highcharts.Chart;
+
+  private loading = false;
 
   abstract update(stats: TempStats): void;
 
@@ -31,6 +33,22 @@ export abstract class AbstractChart {
     this.chart?.fullscreen.toggle();
   }
 
+  register(container: HTMLElement): boolean {
+    const observer = new IntersectionObserver(entries => {
+      if(entries[0].isIntersecting && !this.loading) {
+        this.loading = true;
+        setTimeout(() => this.load(container), 300);
+      }
+    }, { threshold: [.8] });
+
+    observer.observe(container);
+    return true;
+  }
+
+  protected load(container: HTMLElement): void {
+    this.chart = Highcharts.chart(container, this.options);
+  }
+
   responsive(yAxis: (AlignValue | undefined)[] = ['left']): any {
     return {
       rules: [{
@@ -43,6 +61,24 @@ export abstract class AbstractChart {
         }
       }]
     };
+  }
+
+  protected setData(...data: Array<PointOptionsType>[]) {
+    for (let i = 0; i < data.length; i++) {
+      if (this.chart) {
+        this.chart.series[i].setData(data[i]);
+      } else {
+        (this.options as any).series[i].data = data[i];
+      }
+    }
+  }
+
+  protected updateChart(options: Highcharts.Options) {
+    if (this.chart) {
+      this.chart.update(options, true);
+    } else {
+      Object.assign(this.options, options);
+    }
   }
 
   protected openUrl(url: string): void {

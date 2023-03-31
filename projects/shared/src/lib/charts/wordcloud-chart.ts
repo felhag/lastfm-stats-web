@@ -55,9 +55,6 @@ export class WordcloudChart extends AbstractChart {
   };
 
   update(stats: TempStats): void {
-    if (!this.chart) {
-      return;
-    }
     this.stats = stats;
 
     const words: {[key: string]: number} = {};
@@ -88,7 +85,7 @@ export class WordcloudChart extends AbstractChart {
       };
     });
 
-    this.chart.series[0].setData(serie);
+    this.setData(serie);
   }
 
   changeTypes(types: ItemType[]) {

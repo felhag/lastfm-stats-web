@@ -82,6 +82,7 @@ export class PunchcardChart extends AbstractChart {
 
               const chart = event.target as any as Highcharts.Chart;
               chart.container.parentNode!.appendChild(this.toolbar);
+              this.drawLabels();
             }
           }
         }
@@ -107,7 +108,7 @@ export class PunchcardChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart || !stats.last) {
+    if (!stats.last) {
       return;
     }
 
@@ -120,7 +121,6 @@ export class PunchcardChart extends AbstractChart {
   }
 
   updateDays(specificDays: { [p: number]: Track[] }): void {
-    const serie = this.chart!.series[0];
     const entries = Object.entries(specificDays);
     const fdoy = new Date(this.year, 0, 1);
     if (fdoy.getDay() !== 0) {
@@ -141,17 +141,28 @@ export class PunchcardChart extends AbstractChart {
     }).filter(r => r);
 
     // for some reason clearing the data first is needed after updating to Angular 13...
-    serie.setData([]);
-    serie.setData(data as number[][]);
+    if (this.chart) {
+      const serie = this.chart!.series[0];
+      serie.setData([]);
+      serie.setData(data as number[][]);
+    } else {
+      (this.options.series![0] as any).data = data;
+    }
     this.data = specificDays;
-    this.yearLabel!.innerText = String(this.year);
-    this.prevButton!.style.visibility = this.year <= this.first ? 'hidden' : 'visible';
-    this.nextButton!.style.visibility = this.year >= this.last ? 'hidden' : 'visible';
+    if (this.chart) {
+      this.drawLabels();
+    }
   }
 
   static parseWeek(x: number, y: number, year: number): Date {
     const fdoy = new Date(year, 0, 1).getDay();
     const days = (1 + (x - 1) * 7) + y + (7 - fdoy);
     return new Date(year, 0, days);
+  }
+
+  private drawLabels(): void {
+    this.yearLabel!.innerText = String(this.year);
+    this.prevButton!.style.visibility = this.year <= this.first ? 'hidden' : 'visible';
+    this.nextButton!.style.visibility = this.year >= this.last ? 'hidden' : 'visible';
   }
 }

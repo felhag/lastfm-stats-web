@@ -3,6 +3,7 @@ import boost from 'highcharts/modules/boost';
 import { TempStats } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { SeriesScatterOptions } from 'highcharts';
 
 boost(Highcharts);
 
@@ -98,10 +99,6 @@ export class ScrobbleScatterChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart) {
-      return;
-    }
-
     const keys = Array.from(this.nameMap.keys());
     keys.sort();
     let min = stats.first?.date.getTime()!;
@@ -109,11 +106,16 @@ export class ScrobbleScatterChart extends AbstractChart {
     let nameMapMin = keys.shift() || 0;
     Object.values(stats.seenTracks).forEach(track => track.scrobbles.filter(s => s > max || s < nameMapMin).forEach(s => {
       const date = new Date(s);
-      this.chart!.series[0].addPoint([s, date.getHours() * 60 + date.getMinutes()], false);
+      const point = [s, date.getHours() * 60 + date.getMinutes()];
+      if (this.chart) {
+        this.chart!.series[0].addPoint(point, false);
+      } else {
+        (this.options.series![0] as SeriesScatterOptions).data!.push(point);
+      }
       this.nameMap.set(s, track.name);
     }));
 
     max = Array.from(this.nameMap.keys()).pop()!;
-    this.chart.update({xAxis: {min, max}}, true);
+    this.updateChart({xAxis: {min, max}});
   }
 }

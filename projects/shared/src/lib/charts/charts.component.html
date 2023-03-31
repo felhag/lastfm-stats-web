@@ -1,10 +1,7 @@
 <div *ngFor="let c of charts" class="chart" [class.multiple]="!c.fullWidth">
   <mat-card appearance="outlined">
     <mat-card-content>
-      <highcharts-chart [Highcharts]="Highcharts"
-                        [options]="c.options"
-                        (chartInstance)="c.chart = $event"
-      ></highcharts-chart>
+      <div #container chartLoader [chart]="c"></div>
       <div class="button-toolbar">
         <button (click)="c.fullscreen()" mat-icon-button matTooltip="Full screen">
           <mat-icon>fullscreen</mat-icon>

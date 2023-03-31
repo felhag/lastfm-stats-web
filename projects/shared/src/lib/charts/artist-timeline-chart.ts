@@ -34,9 +34,6 @@ export class ArtistTimelineChart extends ToggleableChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart) {
-      return;
-    }
     super.update(stats);
 
     const points: PointOptionsType[] = [];
@@ -51,6 +48,6 @@ export class ArtistTimelineChart extends ToggleableChart {
       }
       points.push({name: month.alias + ' - ' + item.name, color: colorMap[item.name], y: item.count});
     }
-    this.chart.series[0].setData(points);
+    this.setData(points);
   }
 }

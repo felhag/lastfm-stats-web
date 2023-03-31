@@ -89,17 +89,14 @@ export class ScrobbleMomentChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart) {
-      return;
-    }
     this.stats = stats;
 
     const values = this.values(this.stats!);
     if (this.type === 'total') {
-      this.chart!.series[0].setData(Object.values(values));
+      this.setData(Object.values(values));
     } else {
       const avg = Object.entries(values).map(([key, value]) => value > 0 ? Math.round(value / this.countForKey!(this.stats!, parseInt(key))) : 0);
-      this.chart!.series[0].setData(avg);
+      this.setData(avg);
     }
   }
 

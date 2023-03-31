@@ -58,9 +58,10 @@ export class TimelineChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart || !stats.first) {
+    if (!stats.first) {
       return;
     }
+
     let i = 0;
     const uniqueArtists: Highcharts.PointOptionsObject[] = [];
     for (const month of Object.values(stats.monthList)) {
@@ -104,9 +105,6 @@ export class TimelineChart extends AbstractChart {
     };
     [scrobbles, uniqueArtists, albums, tracks].forEach(arr => arr.unshift(start));
 
-    this.chart.series[0].setData(scrobbles);
-    this.chart.series[1].setData(uniqueArtists);
-    this.chart.series[2].setData(tracks);
-    this.chart.series[3].setData(albums);
+    this.setData(scrobbles, uniqueArtists, tracks, albums);
   }
 }

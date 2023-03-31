@@ -48,6 +48,7 @@ import { ScrobbleListsComponent } from './lists/scrobble-lists.component';
 import { StatsComponent } from './stats/stats.component';
 import { Top10listComponent } from './lists/top10list/top10list.component';
 import { TrackListsComponent } from './lists/track-lists.component';
+import { ChartLoaderDirective } from './directive/chart-loader.directive';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { TrackListsComponent } from './lists/track-lists.component';
     AlbumListsComponent,
     ArtistListsComponent,
     ButtonsComponent,
+    ChartLoaderDirective,
     ChartsComponent,
     ConfComponent,
     DatasetComponent,

@@ -63,7 +63,7 @@ export class ScrobblePerDayChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart || !stats.first) {
+    if (!stats.first) {
       return;
     }
 
@@ -98,9 +98,8 @@ export class ScrobblePerDayChart extends AbstractChart {
       };
     });
 
-    this.chart.update({xAxis: {categories: sorted}} as any, true);
-    this.chart.series[0].setData(Object.entries(counts));
-    this.chart.series[1].setData(yearData);
+    this.updateChart({xAxis: {categories: sorted}} as any);
+    this.setData(Object.entries(counts), yearData);
   }
 
   private getDaysOfYear(year: number, first: Date, last: Date): number {

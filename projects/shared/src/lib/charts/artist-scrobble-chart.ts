@@ -65,10 +65,6 @@ export class ArtistScrobbleChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    if (!this.chart) {
-      return;
-    }
-
     let data = Object.values(stats.seenArtists).filter(a => a.scrobbles.length >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
       x: artist.scrobbles.length,
       y: artist.tracks.length,
@@ -78,6 +74,6 @@ export class ArtistScrobbleChart extends AbstractChart {
       data = data.sort((a, b) => b.x - a.x).slice(0, 499);
     }
 
-    this.chart.series[0].setData(data);
+    this.setData(data);
   }
 }
