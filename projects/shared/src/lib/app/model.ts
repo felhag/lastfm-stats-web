@@ -51,7 +51,9 @@ export interface Track extends StreakItem {
 
 export interface Month {
   alias: string;
-  artists: Map<string, MonthArtist>;
+  artists: Map<string, MonthItem>;
+  albums: Map<string, MonthItem>;
+  tracks: Map<string, MonthItem>;
   date: Date;
 }
 
@@ -59,11 +61,6 @@ export interface MonthItem {
   name: string;
   count: number;
   new?: Scrobble;
-}
-
-export interface MonthArtist extends MonthItem {
-  albums: { [key: string]: MonthItem };
-  tracks: { [key: string]: MonthItem };
 }
 
 export interface Export {

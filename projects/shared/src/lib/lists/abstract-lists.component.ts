@@ -1,7 +1,7 @@
 import { OnInit, Directive } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BehaviorSubject } from 'rxjs';
-import { TempStats, Streak, StreakStack, StreakItem } from 'projects/shared/src/lib/app/model';
+import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
@@ -152,6 +152,11 @@ export abstract class AbstractListsComponent<S> implements OnInit {
 
   get minimumForcedThreshold(): number {
     return Math.max(this.threshold, this.forcedThreshold);
+  }
+
+  protected including(items: MonthItem[]): string {
+    const sorted = [...items.values()].sort((a, b) => b!.count - a!.count);
+    return 'Including ' + sorted.splice(0, 3).map(a => a.name).join(', ');
   }
 
   public getRankings<T extends StreakItem>(

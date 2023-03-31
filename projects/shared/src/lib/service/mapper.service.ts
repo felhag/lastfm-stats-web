@@ -22,15 +22,15 @@ export class MapperService {
     'album': {
       seen: (stats: TempStats) => stats.seenAlbums,
       shortName: (artist: Track) => artist.shortName,
-      monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.albums)),
-      monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Album).artist)?.albums[(track as Album).shortName],
+      monthItems: (month: Month) => [...month.albums.values()],
+      monthItem: (month: Month, track: StreakItem) => month.albums.get(track.name),
       url: (item: StreakItem) => this.urlService.album((item as Album).artist, (item as Album).shortName)
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,
       shortName: (artist: Album) => artist.shortName,
-      monthItems: (month: Month) => [...month.artists.values()].flatMap(a => Object.values(a.tracks)),
-      monthItem: (month: Month, track: StreakItem) => month.artists.get((track as Track).artist)?.tracks[(track as Track).shortName],
+      monthItems: (month: Month) => [...month.tracks.values()],
+      monthItem: (month: Month, track: StreakItem) => month.tracks.get(track.name),
       url: (item: StreakItem) => this.urlService.track((item as Track).artist, (item as Track).shortName)
     },
   };

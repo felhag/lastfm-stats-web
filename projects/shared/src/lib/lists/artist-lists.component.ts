@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { TempStats, Artist, Constants, MonthArtist } from 'projects/shared/src/lib/app/model';
+import { TempStats, Artist, Constants, MonthItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
@@ -9,7 +9,7 @@ type MonthWithAvg = {
   avg: number;
   date: Date;
   alias: string;
-  artists: MonthArtist[],
+  artists: MonthItem[],
 };
 
 export interface ArtistStats {
@@ -136,11 +136,6 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> im
     const result = arr.map((v, i, a) => i === 0 ? 0 : (a[i] - a[i - 1]));
     result.shift();
     return result.reduce((s, n) => s + n) / result.length;
-  }
-
-  private including(artists: MonthArtist[]): string {
-    const sorted = [...artists.values()].sort((a, b) => b!.count - a!.count);
-    return 'Including ' + sorted.splice(0, 3).map(a => a.name).join(', ');
   }
 
   protected emptyStats(): ArtistStats {

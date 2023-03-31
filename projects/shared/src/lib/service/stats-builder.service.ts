@@ -93,35 +93,15 @@ export class StatsBuilderService {
       month = next.monthList[monthYear] = {
         alias: this.monthYearDisplay(scrobble.date),
         artists: new Map(),
+        albums: new Map(),
+        tracks: new Map(),
         date: scrobble.date
       };
     }
 
-    const monthArtist = month.artists.get(scrobble.artist);
-    const newArtist = next.seenArtists[scrobble.artist] ? undefined : scrobble;
-    const newAlbumItem = this.newMonthItem(next, scrobble, scrobble.album, newArtist);
-    const newTrackItem = this.newMonthItem(next, scrobble, scrobble.track, newArtist);
-    if (!monthArtist) {
-      month.artists.set(scrobble.artist, {
-        name: scrobble.artist,
-        new: newArtist,
-        count: 1,
-        albums: {[scrobble.album]: newAlbumItem},
-        tracks: {[scrobble.track]: newTrackItem}
-      });
-    } else {
-      monthArtist.count++;
-      if (!monthArtist.albums[scrobble.album]) {
-        monthArtist.albums[scrobble.album] = newAlbumItem;
-      } else {
-        monthArtist.albums[scrobble.album].count++;
-      }
-      if (!monthArtist.tracks[scrobble.track]) {
-        monthArtist.tracks[scrobble.track] = newTrackItem;
-      } else {
-        monthArtist.tracks[scrobble.track].count++;
-      }
-    }
+    this.handleMonthItem(scrobble, month.artists, next.seenArtists, scrobble.artist);
+    this.handleMonthItem(scrobble, month.albums, next.seenAlbums, scrobble.artist + ' - ' + scrobble.album);
+    this.handleMonthItem(scrobble, month.tracks, next.seenTracks, scrobble.artist + ' - ' + scrobble.track);
   }
 
   private finishMonth(next: TempStats) {
@@ -134,13 +114,17 @@ export class StatsBuilderService {
     }
   }
 
-  private newMonthItem(next: TempStats, scrobble: Scrobble, name: string, newArtist?: Scrobble): MonthItem {
-    const newItem = !newArtist && next.seenArtists[scrobble.artist].tracks.indexOf(name) >= 0 ? undefined : scrobble;
-    return {
-      name: scrobble.artist + ' - ' + name,
-      new: newItem,
-      count: 1
-    };
+  private handleMonthItem(scrobble: Scrobble, map: Map<string, MonthItem>, seen: { [key: string]: StreakItem }, name: string) {
+    const monthItem = map.get(name);
+    if (!monthItem) {
+      map.set(name, {
+        name: name,
+        new: seen[name] ? undefined : scrobble,
+        count: 1,
+      });
+    } else {
+      monthItem.count++;
+    }
   }
 
   private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string): void {
