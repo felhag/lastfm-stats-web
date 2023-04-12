@@ -35,6 +35,12 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.5 (12-04-2023)
+- improved performance tracks list
+- improved performance dataset tab
+- lazy load charts
+- show animation when loading charts
+
 5.4 (26-03-2023)
 - added keyboard support for race-chart ([#34][i34], pr by [THeK3nger](https://github.com/THeK3nger))
 - added albums to timeline-chart
