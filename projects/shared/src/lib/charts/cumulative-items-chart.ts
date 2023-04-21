@@ -12,7 +12,7 @@ export class CumulativeItemsChart extends ToggleableChart {
         events: this.events
       },
       plotOptions: this.plotOptions,
-      title: {text: `Cumulative ${translate.transform('translate.scrobbles')} for top 25`},
+      title: {text: `Cumulative ${translate.transform('translate.scrobbles')}`},
       legend: {enabled: false},
       xAxis: {type: 'category'},
       yAxis: [{

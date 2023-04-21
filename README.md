@@ -35,6 +35,10 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.6 (21-04-2023)
+- improved responsiveness charts
+- fixed xAxis all scrobbles chart ([#35][i35])
+
 5.5 (12-04-2023)
 - improved performance tracks list
 - improved performance dataset tab
@@ -210,3 +214,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i30]: https://github.com/felhag/lastfm-stats-web/issues/30
 [i32]: https://github.com/felhag/lastfm-stats-web/issues/32
 [i34]: https://github.com/felhag/lastfm-stats-web/pull/34
+[i35]: https://github.com/felhag/lastfm-stats-web/issues/35

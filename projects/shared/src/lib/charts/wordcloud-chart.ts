@@ -45,7 +45,7 @@ export class WordcloudChart extends AbstractChart {
       name: 'Occurrences'
     }],
     title: {
-      text: 'Wordcloud of artists and tracks'
+      text: 'Wordcloud'
     },
     tooltip: {
       formatter(): string {
