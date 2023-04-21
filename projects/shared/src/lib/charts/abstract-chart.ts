@@ -1,4 +1,4 @@
-import { AlignValue, PointOptionsType } from 'highcharts';
+import { AlignValue, PointOptionsType, XAxisOptions } from 'highcharts';
 import * as Highcharts from 'highcharts';
 import exporting from 'highcharts/modules/exporting';
 import offline from 'highcharts/modules/offline-exporting';
@@ -73,11 +73,11 @@ export abstract class AbstractChart {
     }
   }
 
-  protected updateChart(options: Highcharts.Options) {
+  protected updateXAxis(xAxis: XAxisOptions) {
     if (this.chart) {
-      this.chart.update(options, true);
+      this.chart.update({xAxis}, true);
     } else {
-      Object.assign(this.options, options);
+      Object.assign(this.options.xAxis as XAxisOptions, xAxis);
     }
   }
 

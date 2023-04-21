@@ -116,6 +116,6 @@ export class ScrobbleScatterChart extends AbstractChart {
     }));
 
     max = Array.from(this.nameMap.keys()).pop()!;
-    this.updateChart({xAxis: {min, max}});
+    this.updateXAxis({min, max});
   }
 }

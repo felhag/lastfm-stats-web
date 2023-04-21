@@ -98,7 +98,7 @@ export class ScrobblePerDayChart extends AbstractChart {
       };
     });
 
-    this.updateChart({xAxis: {categories: sorted}} as any);
+    this.updateXAxis({categories: sorted} as any);
     this.setData(Object.entries(counts), yearData);
   }
 
