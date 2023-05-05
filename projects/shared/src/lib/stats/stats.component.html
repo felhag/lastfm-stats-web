@@ -1,6 +1,6 @@
 <div *ngIf="(state$ | async) as state">
   <mat-card *ngIf="!showContent(state)" class="content-state">
-    <mat-card-content [innerHTML]="getContentStateFor(state)"></mat-card-content>
+    <mat-card-content [innerHTML]="getContentStateFor(state)"/>
     <mat-card-actions *ngIf="isStuck(state)">
       <button mat-flat-button [routerLink]="'/'">
         <mat-icon>home</mat-icon>
@@ -16,11 +16,11 @@
             <img *ngIf="user.image.length" [src]="user.image[0]['#text']">Statistics for {{user.name}}
           </a>
         </mat-card-title>
-        <app-buttons></app-buttons>
+        <app-buttons/>
       </mat-card-header>
       <mat-card-content>
         <mat-card-subtitle *ngIf="isLastfm">Progress</mat-card-subtitle>
-        <app-progress></app-progress>
+        <app-progress/>
 
         <div class="conf-row">
           <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
@@ -47,7 +47,7 @@
         </a>
       </nav>
       <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
-      <router-outlet></router-outlet>
+      <router-outlet/>
     </div>
   </ng-container>
 </div>

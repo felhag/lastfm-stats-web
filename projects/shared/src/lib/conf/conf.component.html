@@ -31,10 +31,10 @@
     </mat-form-field>
   </div>
 
-  <ng-container *ngIf="filteredArtists | async as fa">
+  <ng-container *ngIf="filteredArtists() as fa">
     <div class="setting-row">
       <h3>Filter artists</h3>
-      <button mat-button (click)="filteredArtists.next([])" [disabled]="!fa.length" >
+      <button mat-button (click)="filteredArtists.set([])" [disabled]="!fa.length" >
         <mat-icon class="material-icons-outlined">delete</mat-icon>Clear artist filter
       </button>
     </div>
@@ -42,7 +42,7 @@
     <div class="setting-row">
       <mat-chip-listbox [disabled]="fa.length === 0">
         <mat-chip-option color="primary" [selected]="settings.artistsInclude" (click)="settings.artistsInclude = true">Include {{fa.length}} artists</mat-chip-option>
-        <mat-chip-option color="warn" [selected]="settings.artistsInclude === false" (click)="settings.artistsInclude = false">Exclude {{fa.length}} artists</mat-chip-option>
+        <mat-chip-option color="warn" [selected]="!settings.artistsInclude" (click)="settings.artistsInclude = false">Exclude {{fa.length}} artists</mat-chip-option>
       </mat-chip-listbox>
     </div>
 
@@ -58,7 +58,7 @@
         </mat-chip-grid>
 
         <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event.option.value)" (closed)="onClose()">
-          <mat-option *ngFor="let option of allArtists | async" [value]="option[0]">
+          <mat-option *ngFor="let option of allArtists()" [value]="option[0]">
             {{option[0]}} ({{option[1]}} scrobbles)
           </mat-option>
         </mat-autocomplete>

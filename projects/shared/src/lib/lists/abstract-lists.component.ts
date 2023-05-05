@@ -1,10 +1,10 @@
 import { OnInit, Directive } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, debounce, debounceTime } from 'rxjs';
 import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface Top10Item {
   name: string;
@@ -14,20 +14,16 @@ export interface Top10Item {
   url?: string;
 }
 
-@UntilDestroy()
 @Directive()
-export abstract class AbstractListsComponent<S> implements OnInit {
+export abstract class AbstractListsComponent<S> {
   stats = new BehaviorSubject<S>(this.emptyStats());
   settingsObj?: Settings;
 
   protected constructor(private builder: StatsBuilderService,
                         private settings: SettingsService,
                         private urlService: AbstractUrlService) {
-  }
-
-  ngOnInit(): void {
-    this.settings.state$.pipe(untilDestroyed(this)).subscribe(settings => this.settingsObj = settings);
-    this.builder.tempStats.pipe(untilDestroyed(this)).subscribe(stats => this.update(stats));
+    this.settings.state$.pipe(takeUntilDestroyed()).subscribe(settings => this.settingsObj = settings);
+    this.builder.tempStats.pipe(takeUntilDestroyed(), debounceTime(0)).subscribe(stats => this.update(stats));
   }
 
   private update(stats: TempStats): void {

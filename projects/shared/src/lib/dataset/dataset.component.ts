@@ -1,18 +1,17 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSort } from '@angular/material/sort';
-import { untilDestroyed, UntilDestroy } from '@ngneat/until-destroy';
+import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
 import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
-import { startWith } from 'rxjs/operators';
 
-@UntilDestroy()
 @Component({
   selector: 'app-dataset',
   templateUrl: './dataset.component.html',
@@ -52,13 +51,13 @@ export class DatasetComponent implements OnInit {
 
   ngOnInit(): void {
     this.height = window.innerHeight - 32;
-    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(untilDestroyed(this)).subscribe(([stats]) => this.update(stats));
+    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed()).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
       this.filterName.valueChanges.pipe(startWith('')),
     ]).pipe(
       debounceTime(200),
-      untilDestroyed(this)
+      takeUntilDestroyed()
     ).subscribe(f => this.dataSource.filter = f.join());
 
     // @ts-ignore

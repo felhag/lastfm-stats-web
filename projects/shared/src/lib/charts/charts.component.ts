@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
@@ -47,7 +47,6 @@ if (darkMode.matches) {
   });
 }
 
-@UntilDestroy()
 @Component({
   selector: 'app-charts',
   templateUrl: './charts.component.html',
@@ -55,7 +54,7 @@ if (darkMode.matches) {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TranslatePipe]
 })
-export class ChartsComponent implements AfterViewInit {
+export class ChartsComponent {
   Highcharts: typeof Highcharts = Highcharts;
   charts: AbstractChart[];
 
@@ -83,12 +82,8 @@ export class ChartsComponent implements AfterViewInit {
           stats => stats.months,
         (stats, key) => Object.keys(stats.monthList).filter(month => month.startsWith(key + '-')).length),
     ];
-  }
 
-  ngAfterViewInit(): void {
-    this.builder.tempStats.pipe(
-      untilDestroyed(this),
-    ).subscribe(stats => this.updateStats(stats));
+    this.builder.tempStats.pipe(takeUntilDestroyed()).subscribe(stats => this.updateStats(stats));
   }
 
   private updateStats(stats: TempStats): void {

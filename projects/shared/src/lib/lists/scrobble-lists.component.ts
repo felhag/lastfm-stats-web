@@ -19,7 +19,7 @@ export interface ScrobbleStats {
   styleUrls: ['./lists.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> implements OnInit {
+export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> {
   protected forcedThreshold = -1;
 
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {

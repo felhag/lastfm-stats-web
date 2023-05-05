@@ -38,7 +38,7 @@ export interface ArtistStats {
   styleUrls: ['./lists.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> implements OnInit {
+export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
   protected forcedThreshold = Constants.SCROBBLE_ARTIST_THRESHOLD;
 
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {

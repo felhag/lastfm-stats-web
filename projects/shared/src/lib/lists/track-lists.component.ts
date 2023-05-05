@@ -24,7 +24,7 @@ export interface TrackStats {
   styleUrls: ['./lists.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrackListsComponent extends AbstractListsComponent<TrackStats> implements OnInit {
+export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
   protected forcedThreshold = Constants.SCROBBLE_TRACK_THRESHOLD;
 
   constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {

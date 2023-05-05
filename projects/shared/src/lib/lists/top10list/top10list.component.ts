@@ -12,9 +12,9 @@ import { DateColorsService } from '../../service/date-colors.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Top10listComponent {
-  @Input() title!: string;
-  @Input() explanation?: string;
-  @Input() list!: Top10Item[];
+  @Input({required: true}) title!: string;
+  @Input({required: false}) explanation?: string;
+  @Input({required: true}) list!: Top10Item[];
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
 
   constructor(private snackbar: MatSnackBar, private colors: DateColorsService) {

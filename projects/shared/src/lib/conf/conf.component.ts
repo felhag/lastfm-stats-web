@@ -1,25 +1,22 @@
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, computed, Inject, OnInit, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
-import { Observable, Subject, BehaviorSubject, combineLatest} from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import { Scrobble } from '../app/model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-conf',
   templateUrl: './conf.component.html',
   styleUrls: ['./conf.component.scss']
 })
-@UntilDestroy()
-export class ConfComponent implements OnInit {
+export class ConfComponent {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;
   private valueSelected = false;
-  allArtists!: Observable<[string, number][]>;
-  filteredArtists!: BehaviorSubject<string[]>;
-  keyword = new Subject<string>();
+  allArtists!: Signal<[string, number][]>;
+  filteredArtists!: WritableSignal<string[]>;
+  keyword = signal('');
 
   startDateCtrl!: FormControl<Date | null>;
   endDateCtrl!: FormControl<Date | null>;
@@ -27,37 +24,31 @@ export class ConfComponent implements OnInit {
   endDate = new Date();
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: {scrobbles: Scrobble[], settings: Settings}) {
-  }
-
-  ngOnInit(): void {
-    const search = this.keyword.pipe(
-      untilDestroyed(this),
-      startWith(''),
-      map(a => a.toLowerCase())
-    );
+    const search = computed(() => this.keyword().toLowerCase());
     const all = this.data.scrobbles
-      .map(s => s.artist)
-      .reduce((acc: {[key: string]: number}, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {})
+        .map(s => s.artist)
+        .reduce((acc: {[key: string]: number}, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {})
 
-    this.filteredArtists = new BehaviorSubject<string[]>(this.settings.artists);
-    this.allArtists = combineLatest([search, this.filteredArtists]).pipe(
-      untilDestroyed(this),
-      map(([keyword, filtered]) => Object.entries(all)
-        .filter(a => !keyword || a[0].toLowerCase().indexOf(keyword) >= 0)
-        .filter(a => filtered.indexOf(a[0]) < 0)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 30))
-    );
-
+    this.filteredArtists = signal(this.settings.artists);
+    this.allArtists = computed(() => this.filterArtists(all, search(), this.filteredArtists()));
     this.startDate = this.data.scrobbles[0].date;
     this.dateControl('dateRangeStart', 'startDateCtrl');
     this.dateControl('dateRangeEnd', 'endDateCtrl');
   }
 
+  private filterArtists(all: { [key: string]: number }, keyword: string, filtered: string[]) {
+    return Object.entries(all)
+        .map(([artist, count]) => [artist, count, Math.min(artist.toLowerCase().indexOf(keyword), 1)] as [string, number, number])
+        .filter(([artist,,index]) => index >= 0 && filtered.indexOf(artist) < 0)
+        .sort((a, b) => b[2] === a[2] ? b[1] - a[1] : a[2] - b[2])
+        .map(([artist, count]) => [artist, count] as [string, number])
+        .slice(0, 30);
+  }
+
   private dateControl(setting: keyof Settings, field: keyof ConfComponent): void {
     const settings = this.settings as any;
     const ctrl = new FormControl<Date | null>(settings[setting]);
-    ctrl.valueChanges.pipe(untilDestroyed(this)).subscribe(v => (settings)[setting] = v);
+    ctrl.valueChanges.pipe(takeUntilDestroyed()).subscribe(v => (settings)[setting] = v);
     (this as any)[field] = ctrl;
   }
 
@@ -67,16 +58,16 @@ export class ConfComponent implements OnInit {
   }
 
   remove(artist: string): void {
-    const index = this.filteredArtists.value.indexOf(artist);
+    const index = this.filteredArtists().indexOf(artist);
 
     if (index >= 0) {
-      this.filteredArtists.value.splice(index, 1);
-      this.filteredArtists.next(this.filteredArtists.value);
+      this.filteredArtists().splice(index, 1);
+      this.filteredArtists.set(this.filteredArtists());
     }
   }
 
   add(artist: string): void {
-    this.filteredArtists.next([...this.filteredArtists.value, artist]);
+    this.filteredArtists.set([...this.filteredArtists(), artist]);
     this.valueSelected = true;
   }
 
@@ -90,7 +81,7 @@ export class ConfComponent implements OnInit {
   }
 
   updateKeyword($event: Event): void {
-    this.keyword.next(($event.target as HTMLInputElement).value);
+    this.keyword.set(($event.target as HTMLInputElement).value);
   }
 
   updateMinScrobbles(ev: Event): void {
@@ -102,6 +93,6 @@ export class ConfComponent implements OnInit {
   }
 
   get closeSettings(): Settings {
-    return {...this.data.settings, artists: this.filteredArtists.value};
+    return {...this.data.settings, artists: this.filteredArtists()};
   }
 }
