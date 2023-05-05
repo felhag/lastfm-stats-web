@@ -35,6 +35,13 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.7 (05-05-2023)
+- added count animation race chart
+- removed pause in race chart
+- fixed month slider length race chart
+- improved order artist filter in config dialog
+- updated to angular 16
+
 5.6 (21-04-2023)
 - improved responsiveness charts
 - fixed xAxis all scrobbles chart ([#35][i35])

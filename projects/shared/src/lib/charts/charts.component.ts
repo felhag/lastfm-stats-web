@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
@@ -38,12 +38,14 @@ if (darkMode.matches) {
     },
     colors: Constants.DARK_COLORS,
     plotOptions: { series: { borderColor: '#424242' } },
-    navigation: { buttonOptions: { enabled: false } }
+    navigation: { buttonOptions: { enabled: false } },
+    accessibility: { enabled: false }
   });
 } else {
   Highcharts.setOptions({
     colors: Constants.COLORS,
-    navigation: { buttonOptions: { enabled: false } }
+    navigation: { buttonOptions: { enabled: false } },
+    accessibility: { enabled: false }
   });
 }
 
@@ -73,7 +75,7 @@ export class ChartsComponent {
       new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
-      new RaceChart(translate, url),
+      new RaceChart(url),
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
           stats => stats.days,

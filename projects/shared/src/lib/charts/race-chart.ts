@@ -2,7 +2,6 @@ import * as Highcharts from 'highcharts';
 import { PointOptionsObject, SeriesOptionsType } from 'highcharts';
 import { TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
-import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractUrlService } from '../service/abstract-url.service';
 
 export class RaceChart extends AbstractChart {
@@ -18,13 +17,14 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
 
-  constructor(translate: TranslatePipe, url: AbstractUrlService) {
+  constructor(url: AbstractUrlService) {
     super();
     this.options = {
       chart: {
         animation: {
           duration: this.speed
         },
+        spacingTop: 24,
         height: 800,
         events: {
           render: event => {
@@ -41,6 +41,7 @@ export class RaceChart extends AbstractChart {
               const chart = event.target as any as Highcharts.Chart;
               chart.container.parentNode!.appendChild(this.toolbar);
             }
+            this.updateSlider();
           }
         }
       },
@@ -57,7 +58,7 @@ export class RaceChart extends AbstractChart {
       yAxis: [{
         opposite: true,
         title: {
-          text: translate.capFirst('translate.scrobbles')
+          text: undefined
         },
         tickAmount: 5
       }],
@@ -108,12 +109,17 @@ export class RaceChart extends AbstractChart {
         }]
       }
     };
+
+    this.animateDataLabels();
   }
 
   update(stats: TempStats): void {
     this.months = Object.values(stats.monthList);
     this.artists = Object.keys(stats.seenArtists);
+    this.updateSlider();
+  }
 
+  private updateSlider(): void {
     if (this.input) {
       this.input.setAttribute('max', String(this.months.length - 1));
     }
@@ -193,14 +199,17 @@ export class RaceChart extends AbstractChart {
   }
 
   protected load(container: HTMLElement): void {
+    // Error is thrown when chart is resized when animating
+    // https://github.com/highcharts/highcharts/issues/18950
+    container.style.width = `${container.getBoundingClientRect().width}px`;
     super.load(container);
     this.tick(0);
   }
 
   private play(): void {
     this.button!.innerHTML = 'pause';
+    this.timer = window.setInterval(() => this.tick(this.current + 1), this.speed);
     this.tick(this.current + 1);
-    this.timer = window.setInterval(() => this.tick(this.current + 1), this.speed * 1.5);
   }
 
   /**
@@ -211,5 +220,63 @@ export class RaceChart extends AbstractChart {
     this.button!.innerHTML = 'play_arrow';
     clearTimeout(this.timer);
     this.timer = undefined;
+  }
+
+  private animateDataLabels() {
+    const FLOAT = /^-?\d+\.?\d*$/;
+    const outer = this;
+
+    // Add animated textSetter, just like fill/strokeSetters
+    (Highcharts as any).Fx.prototype.textSetter = function () {
+      let startValue = this.start.replace(/ /g, ''),
+          endValue = this.end.replace(/ /g, ''),
+          currentValue = this.end.replace(/ /g, '');
+
+      if ((startValue || '').match(FLOAT)) {
+        startValue = parseInt(startValue, 10);
+        endValue = parseInt(endValue, 10);
+
+        // No support for float
+        currentValue = Highcharts.numberFormat(
+            Math.round(startValue + (endValue - startValue) * this.pos),
+            0
+        );
+      }
+
+      this.elem.endText = this.end;
+      this.elem.attr(this.prop, currentValue, null, true);
+    };
+
+    // Add textGetter, not supported at all at this moment:
+    (Highcharts as any).SVGElement.prototype.textGetter = function () {
+      const ct = this.text.element.textContent || '';
+      return this.endText ? this.endText : ct.substring(0, ct.length / 2);
+    };
+
+    // Temporary change label.attr() with label.animate():
+    // In core it's simple change attr(...) => animate(...) for text prop
+    (Highcharts as any).wrap(Highcharts.Series.prototype, 'drawDataLabels', function (this: any, proceed: Highcharts.WrapProceedFunction) {
+      const attr = Highcharts.SVGElement.prototype.attr;
+
+      if (this.chart === outer.chart) {
+        this.points.forEach((point: any) =>
+            (point.dataLabels || []).forEach(
+                (label: any) =>
+                    (label.attr = function (hash: any) {
+                      if (hash && hash.text !== undefined) {
+                        const text = hash.text;
+                        hash.text = undefined;
+                        return this.attr(hash).animate({text});
+                      }
+                      return attr.apply(this, [hash]);
+                    })
+            )
+        );
+      }
+
+      const ret = proceed.apply(this, []);
+      this.points.forEach((p: any) => (p.dataLabels || []).forEach((d: any) => (d.attr = attr)));
+      return ret;
+    });
   }
 }
