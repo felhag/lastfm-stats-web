@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UntilDestroy } from '@ngneat/until-destroy';
 
 import * as Highcharts from 'highcharts';
 import annotations from 'highcharts/modules/annotations';
@@ -18,7 +17,6 @@ interface DatasetModalData {
   months: { [key: string]: Month };
 }
 
-@UntilDestroy()
 @Component({
   selector: 'app-dataset-modal',
   templateUrl: './dataset-modal.component.html',

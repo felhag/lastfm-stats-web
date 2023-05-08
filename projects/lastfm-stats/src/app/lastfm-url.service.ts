@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
-@UntilDestroy()
 @Injectable({
   providedIn: 'root'
 })

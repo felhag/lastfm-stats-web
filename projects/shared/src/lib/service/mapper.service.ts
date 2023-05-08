@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
 import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from './abstract-url.service';
 
-@UntilDestroy()
 @Injectable({
   providedIn: 'root'
 })

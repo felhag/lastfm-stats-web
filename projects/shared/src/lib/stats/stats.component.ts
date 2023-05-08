@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { UntilDestroy } from '@ngneat/until-destroy';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
@@ -12,7 +11,6 @@ import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
 
-@UntilDestroy()
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',

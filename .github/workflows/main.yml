@@ -23,7 +23,7 @@ jobs:
 
     - name: Build
       run: |
-        npm install
+        npm install --legacy-peer-deps
         npm run-script deploy
         cp dist/lastfm-stats/index.html dist/lastfm-stats/404.html
 
