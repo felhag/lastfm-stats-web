@@ -66,9 +66,6 @@ MIT
 @angular/router
 MIT
 
-@ngneat/until-destroy
-MIT
-
 @ngrx/component-store
 MIT
 
