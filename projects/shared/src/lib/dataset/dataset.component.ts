@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -42,6 +42,7 @@ export class DatasetComponent implements OnInit {
   filterName = new FormControl<string>('');
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
+  private destroyRef = inject(DestroyRef);
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
@@ -51,13 +52,13 @@ export class DatasetComponent implements OnInit {
 
   ngOnInit(): void {
     this.height = window.innerHeight - 32;
-    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed()).subscribe(([stats]) => this.update(stats));
+    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
       this.filterName.valueChanges.pipe(startWith('')),
     ]).pipe(
       debounceTime(200),
-      takeUntilDestroyed()
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(f => this.dataSource.filter = f.join());
 
     // @ts-ignore
