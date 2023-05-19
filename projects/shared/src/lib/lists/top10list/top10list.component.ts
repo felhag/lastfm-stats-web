@@ -1,15 +1,29 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { map, Observable } from 'rxjs';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { DateColorsService } from '../../service/date-colors.service';
+import { CommonModule } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-top10list',
   templateUrl: './top10list.component.html',
   styleUrls: ['./top10list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatListModule,
+    MatSnackBarModule
+  ]
 })
 export class Top10listComponent {
   @Input({required: true}) title!: string;

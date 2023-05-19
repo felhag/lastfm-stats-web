@@ -134,7 +134,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private iterate(loadingState: LoadingState, retry: number = Constants.RETRIES): void {
     const start = new Date().getTime();
 
-    loadingState.store.state.pipe(
+    loadingState.store.loadingState.pipe(
       takeWhile(state => state === 'RETRIEVING'),
       take(1),
       switchMap(() => this.get(loadingState))

@@ -20,14 +20,9 @@ import { NgModule } from '@angular/core';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
-import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { SpotifyUrlService } from './spotify-url.service';
 
 @NgModule({
-  declarations: [
-    HomeComponent,
-    InfoDialogComponent
-  ],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,

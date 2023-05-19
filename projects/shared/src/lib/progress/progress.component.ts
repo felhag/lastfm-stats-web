@@ -5,13 +5,33 @@ import { DatabaseService } from '../service/database.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
 import { TranslatePipe } from '../service/translate.pipe';
+import { TranslatePipe as TranslatePipe_1 } from 'projects/shared/src/lib/service/translate.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-progress',
-  templateUrl: './progress.component.html',
-  styleUrls: ['./progress.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [TranslatePipe],
+    selector: 'app-progress',
+    templateUrl: './progress.component.html',
+    styleUrls: ['./progress.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [TranslatePipe],
+    standalone: true,
+    imports: [
+        NgIf,
+        MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatIconModule,
+        MatButtonModule,
+        MatTooltipModule,
+        AsyncPipe,
+        DecimalPipe,
+        DatePipe,
+        TranslatePipe_1,
+    ],
 })
 export class ProgressComponent {
   saveInDb$ = new Subject<number>();

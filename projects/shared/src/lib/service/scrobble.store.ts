@@ -73,7 +73,7 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
   readonly scrobbles: Observable<Scrobble[]> = this.select(state => state.scrobbles);
   readonly first = this.scrobbles.pipe(map(scrobbles => scrobbles[0]), distinctUntilChanged());
   readonly last = this.scrobbles.pipe(map(scrobbles => scrobbles[scrobbles.length - 1]), distinctUntilChanged());
-  readonly state = this.select(state => state.state);
+  readonly loadingState = this.select(state => state.state);
   readonly user = this.select(state => state.user);
 
   private readonly imported = this.state$.pipe(filter(s => s.state === 'LOADINGUSER'), map(s => s.scrobbles));

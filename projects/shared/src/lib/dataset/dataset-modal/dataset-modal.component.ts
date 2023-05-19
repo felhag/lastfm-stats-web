@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
 import annotations from 'highcharts/modules/annotations';
@@ -9,6 +9,12 @@ import { DataSetEntry, StreakStack, Month } from 'projects/shared/src/lib/app/mo
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 import { MapperService } from '../../service/mapper.service';
+import { HighchartsChartModule } from 'highcharts-angular';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgCircleProgressModule } from 'ng-circle-progress';
+import { NgFor, NgIf } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 annotations(Highcharts);
 
@@ -18,10 +24,21 @@ interface DatasetModalData {
 }
 
 @Component({
-  selector: 'app-dataset-modal',
-  templateUrl: './dataset-modal.component.html',
-  styleUrls: ['./dataset-modal.component.scss'],
-  providers: [TranslatePipe]
+    selector: 'app-dataset-modal',
+    templateUrl: './dataset-modal.component.html',
+    styleUrls: ['./dataset-modal.component.scss'],
+    providers: [TranslatePipe],
+    standalone: true,
+    imports: [
+      HighchartsChartModule,
+      MatCheckboxModule,
+      MatDialogModule,
+      MatIconModule,
+      MatTooltipModule,
+      NgCircleProgressModule,
+      NgFor,
+      NgIf,
+    ]
 })
 export class DatasetModalComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;

@@ -1,22 +1,31 @@
-import { Component, DestroyRef, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatRadioChange } from '@angular/material/radio';
-import { MatSort } from '@angular/material/sort';
+import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import { TableVirtualScrollDataSource } from 'ng-table-virtual-scroll';
+import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { MatTableModule } from '@angular/material/table';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { NgIf, NgFor, AsyncPipe, TitleCasePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-dataset',
-  templateUrl: './dataset.component.html',
-  styleUrls: ['./dataset.component.scss'],
-  providers: [TranslatePipe]
+    selector: 'app-dataset',
+    templateUrl: './dataset.component.html',
+    styleUrls: ['./dataset.component.scss'],
+    providers: [TranslatePipe],
+    standalone: true,
+    imports: [MatCardModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatIconModule, NgIf, MatRadioModule, CdkVirtualScrollViewport, TableVirtualScrollModule, MatTableModule, MatSortModule, NgFor, AsyncPipe, TitleCasePipe]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {

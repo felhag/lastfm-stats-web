@@ -1,13 +1,24 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { MatSelectChange } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { Router, RouterModule } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
 import { DbUser, DatabaseService } from '../service/database.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
   selector: 'app-db-load-button',
   templateUrl: './db-load-button.component.html',
   styleUrls: ['./db-load-button.component.scss'],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    RouterModule
+  ],
   encapsulation: ViewEncapsulation.None
 })
 export class DbLoadButtonComponent {

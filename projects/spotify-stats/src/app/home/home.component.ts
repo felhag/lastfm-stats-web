@@ -1,12 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Validators, FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Router, RouterModule } from '@angular/router';
 import * as JSZip from 'jszip';
 import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
+import { MatListModule } from '@angular/material/list';
+import { CommonModule, DatePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
 interface StreamingHistoryEntry {
   endTime: string;
@@ -33,10 +42,26 @@ interface ParsedEntry {
 }
 
 @Component({
+  standalone: true,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ButtonsComponent,
+    CommonModule,
+    DatePipe,
+    DbLoadButtonComponent,
+    MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    NgxDropzoneModule,
+    ReactiveFormsModule,
+    RouterModule,
+  ]
 })
 export class HomeComponent {
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {

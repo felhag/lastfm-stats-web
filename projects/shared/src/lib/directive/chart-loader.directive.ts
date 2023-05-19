@@ -2,7 +2,8 @@ import { Directive, ElementRef, Input } from '@angular/core';
 import { AbstractChart } from '../charts/abstract-chart';
 
 @Directive({
-    selector: '[chartLoader]'
+    selector: '[chartLoader]',
+    standalone: true
 })
 export class ChartLoaderDirective {
     constructor(private el: ElementRef) { }

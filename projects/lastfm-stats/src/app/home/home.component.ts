@@ -1,15 +1,30 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgxCsvParser } from 'ngx-csv-parser';
+import { Router, RouterModule } from '@angular/router';
+import { NgxCsvParser, NgxCsvParserModule } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
+import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
 @Component({
+  standalone: true,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    NgxCsvParserModule,
+    RouterModule,
+    DbLoadButtonComponent,
+    ButtonsComponent,
+  ]
 })
 export class HomeComponent {
   username?: string;

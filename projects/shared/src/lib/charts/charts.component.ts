@@ -17,6 +17,12 @@ import { TimelineChart } from 'projects/shared/src/lib/charts/timeline-chart';
 import { WordcloudChart } from 'projects/shared/src/lib/charts/wordcloud-chart';
 import { MapperService } from '../service/mapper.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { ChartLoaderDirective } from '../directive/chart-loader.directive';
+import { MatCardModule } from '@angular/material/card';
+import { NgFor } from '@angular/common';
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkMode.matches) {
@@ -50,11 +56,13 @@ if (darkMode.matches) {
 }
 
 @Component({
-  selector: 'app-charts',
-  templateUrl: './charts.component.html',
-  styleUrls: ['./charts.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [TranslatePipe]
+    selector: 'app-charts',
+    templateUrl: './charts.component.html',
+    styleUrls: ['./charts.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [TranslatePipe],
+    standalone: true,
+    imports: [NgFor, MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule]
 })
 export class ChartsComponent {
   Highcharts: typeof Highcharts = Highcharts;

@@ -35,6 +35,10 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.8 (19-05-2023)
+- fixed dataset tab ([#36][i36])
+- standalone components
+
 5.7 (08-05-2023)
 - added count animation race chart
 - removed pause in race chart
@@ -222,3 +226,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i32]: https://github.com/felhag/lastfm-stats-web/issues/32
 [i34]: https://github.com/felhag/lastfm-stats-web/pull/34
 [i35]: https://github.com/felhag/lastfm-stats-web/issues/35
+[i36]: https://github.com/felhag/lastfm-stats-web/issues/36

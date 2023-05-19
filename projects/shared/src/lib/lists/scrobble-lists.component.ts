@@ -1,9 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TempStats, Streak } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { Top10listComponent } from './top10list/top10list.component';
+import { NgIf, AsyncPipe } from '@angular/common';
 
 export interface ScrobbleStats {
   scrobbleStreak: Top10Item[];
@@ -14,10 +17,12 @@ export interface ScrobbleStats {
 }
 
 @Component({
-  selector: 'app-scrobble-lists',
-  templateUrl: './scrobble-lists.component.html',
-  styleUrls: ['./lists.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-scrobble-lists',
+    templateUrl: './scrobble-lists.component.html',
+    styleUrls: ['./lists.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> {
   protected forcedThreshold = -1;

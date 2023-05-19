@@ -18,13 +18,11 @@ import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
 
 @NgModule({
-  declarations: [
-    HomeComponent
-  ],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
     CommonModule,
+    HomeComponent,
     MatButtonModule,
     MatCardModule,
     MatIconModule,

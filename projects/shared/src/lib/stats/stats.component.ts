@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
@@ -10,13 +10,38 @@ import { combineLatest, Observable, take, switchMap, filter } from 'rxjs';
 import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatBadgeModule } from '@angular/material/badge';
+import { ProgressComponent } from '../progress/progress.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { TitleCasePipe, CommonModule } from '@angular/common';
+import { ButtonsComponent } from '../buttons/buttons.component';
 
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService]
+  providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatBadgeModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    MatTabsModule,
+    ProgressComponent,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    TitleCasePipe,
+    ButtonsComponent
+  ]
 })
 export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
@@ -42,7 +67,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.manager.start(this.usernameService.username!);
-    this.state$ = this.scrobbles.state;
+    this.state$ = this.scrobbles.loadingState;
     this.user$ = this.scrobbles.user;
   }
 

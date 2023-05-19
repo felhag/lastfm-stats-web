@@ -1,15 +1,43 @@
-import { Component, computed, Inject, OnInit, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, computed, Inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteTrigger, MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
 import { Scrobble } from '../app/model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
+import { MatChipsModule } from '@angular/material/chips';
+import { NgIf, NgFor } from '@angular/common';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-conf',
   templateUrl: './conf.component.html',
-  styleUrls: ['./conf.component.scss']
+  styleUrls: ['./conf.component.scss'],
+  standalone: true,
+  imports: [
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatNativeDateModule,
+    MatOptionModule,
+    MatSliderModule,
+    NgFor,
+    NgIf,
+    ReactiveFormsModule,
+    TranslatePipe
+  ]
 })
 export class ConfComponent {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;
