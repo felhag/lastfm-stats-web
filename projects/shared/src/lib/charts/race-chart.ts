@@ -199,9 +199,6 @@ export class RaceChart extends AbstractChart {
   }
 
   protected load(container: HTMLElement): void {
-    // Error is thrown when chart is resized when animating
-    // https://github.com/highcharts/highcharts/issues/18950
-    container.style.width = `${container.getBoundingClientRect().width}px`;
     super.load(container);
     this.tick(0);
   }
@@ -263,7 +260,7 @@ export class RaceChart extends AbstractChart {
             (point.dataLabels || []).forEach(
                 (label: any) =>
                     (label.attr = function (hash: any) {
-                      if (hash && hash.text !== undefined) {
+                      if (hash && hash.text !== undefined && (outer.chart as any).isResizing === 0) {
                         const text = hash.text;
                         hash.text = undefined;
                         return this.attr(hash).animate({text});

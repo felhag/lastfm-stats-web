@@ -6,6 +6,7 @@ import { DbUser, DatabaseService } from '../service/database.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   standalone: true,
@@ -17,7 +18,8 @@ import { CommonModule } from '@angular/common';
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
-    RouterModule
+    RouterModule,
+    MatTooltipModule
   ],
   encapsulation: ViewEncapsulation.None
 })
