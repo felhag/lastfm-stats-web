@@ -60,7 +60,8 @@ export class HomeComponent {
           const headers = csvArray.splice(0, 1)[0];
           const length = headers.length;
           if (!headers || length < 3 || length > 4) {
-            this.importError.next('Expected 3 or 4 columns but found ' + length);
+            this.importError.next(`Expected 4 columns but found ${length}.
+            Only csv's which are exported from this site are allowed.`);
             return;
           }
 

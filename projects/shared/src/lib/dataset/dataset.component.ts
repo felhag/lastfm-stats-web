@@ -13,19 +13,33 @@ import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-build
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatTableModule } from '@angular/material/table';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { NgIf, NgFor, AsyncPipe, TitleCasePipe } from '@angular/common';
+import { NgIf, NgFor, AsyncPipe, TitleCasePipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-    selector: 'app-dataset',
-    templateUrl: './dataset.component.html',
-    styleUrls: ['./dataset.component.scss'],
-    providers: [TranslatePipe],
-    standalone: true,
-    imports: [MatCardModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatIconModule, NgIf, MatRadioModule, CdkVirtualScrollViewport, TableVirtualScrollModule, MatTableModule, MatSortModule, NgFor, AsyncPipe, TitleCasePipe]
+  selector: 'app-dataset',
+  templateUrl: './dataset.component.html',
+  styleUrls: ['./dataset.component.scss'],
+  providers: [TranslatePipe],
+  standalone: true,
+  imports: [
+    CdkVirtualScrollViewport,
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatRadioModule,
+    MatSortModule,
+    MatTableModule,
+    ReactiveFormsModule,
+    TableVirtualScrollModule,
+  ]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {

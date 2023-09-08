@@ -34,7 +34,13 @@ export class ScrobblePerDayChart extends AbstractChart {
         tooltip: {
           headerFormat: '',
           pointFormatter(): string {
-            return `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> ${translate.transform('translate.scrobble')}${this.name === '1' ? '' : 's'}.`;
+            const result = `<b>${this.y}</b> day${this.y === 1 ? '' : 's'} with <b>${this.name}</b> ${translate.transform('translate.scrobble')}${this.name === '1' ? '' : 's'}.`;
+            const eddington = (this as any).custom?.eddington;
+            if (eddington) {
+              // eddington number
+              return `Your Eddington number is <b>${eddington}</b>!<br>This means you have <b>${eddington}</b> days with at least <b>${eddington}</b> scrobbles!<br><br>${result}`;
+            }
+            return result;
           }
         }
       }, {
@@ -98,8 +104,20 @@ export class ScrobblePerDayChart extends AbstractChart {
       };
     });
 
+    const eddington = this.calcEddington(counts);
+    const eddingtonPoint = this.eddingtonDataPoint(counts, eddington);
+    const days = Object.entries(counts).map((count, idx) => {
+      const isEddington = parseInt(count[0]) === eddingtonPoint;
+      return {
+        x: idx,
+        y: count[1],
+        name: count[0],
+        color: isEddington ? 'orange' : undefined,
+        custom: isEddington ? {eddington} : undefined
+      };
+    });
     this.updateXAxis({categories: sorted} as any);
-    this.setData(Object.entries(counts), yearData);
+    this.setData(days, yearData);
   }
 
   private getDaysOfYear(year: number, first: Date, last: Date): number {
@@ -111,5 +129,22 @@ export class ScrobblePerDayChart extends AbstractChart {
       new Date(year, 11, 31, 23, 59, 59);
 
     return Math.ceil((end.getTime() - start.getTime()) / Constants.DAY);
+  }
+
+  private calcEddington(counts: {[key: number]: number}): number {
+    let sum = 0;
+    let eddington = Math.max(...Object.keys(counts).map(c => parseInt(c)));
+    while(eddington >= sum) {
+      sum += counts[eddington] || 0;
+      eddington--;
+    }
+    return eddington;
+  }
+
+  private eddingtonDataPoint(counts: {[key: number]: number}, eddington: number): number {
+    while (!counts[eddington]) {
+      eddington--;
+    }
+    return eddington;
   }
 }

@@ -54,4 +54,12 @@
     color: mat.get-color-from-palette($warn-palette, 500);
     opacity: 1;
   }
+
+  .home-row.error {
+    color: mat.get-color-from-palette($warn-palette, 500);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    white-space: pre-line;
+  }
 }
