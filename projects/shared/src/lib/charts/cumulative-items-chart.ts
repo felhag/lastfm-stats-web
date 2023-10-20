@@ -61,6 +61,7 @@ export class CumulativeItemsChart extends ToggleableChart {
           this.chart?.addSeries({
             name: a.name,
             type: 'line',
+            marker: {enabled: false, symbol: 'circle'},
             data
           }, false);
         }

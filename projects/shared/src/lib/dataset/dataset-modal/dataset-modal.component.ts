@@ -77,7 +77,8 @@ export class DatasetModalComponent implements OnInit {
       xAxis: {
         type: 'category',
         allowDecimals: false,
-        categories: Object.values(months).map(m => m.alias)
+        categories: Object.values(months).map(m => m.alias),
+        crosshair: true
       },
       yAxis: [{
         min: 1,
@@ -91,6 +92,24 @@ export class DatasetModalComponent implements OnInit {
         title: { text: scrobblesTitle }
       }],
       legend: { enabled: false },
+      tooltip: {
+        shared: true,
+        formatter(event): string {
+          const series = event.chart.series;
+          const x = this.point.x;
+          const scrobbles = series[1].data[x].y;
+          const ranks = series[0].data.map(x => x.y as number);
+          const prevRank = ranks[Math.max(x - 1, 0)];
+          const currRank = ranks[x];
+          const diff = currRank - prevRank;
+          const arrow = diff === 0 ?
+            '<span style="font-weight: bold; color: gray; margin: 0 4px;">=</span>' :
+            `<span style="font-weight: bold; transform: rotate(${diff > 0 ? 135 : 45}deg); color: ${diff > 0 ? 'red' : 'green'}; margin: 0 4px;">↑</span>`;
+          const rank = currRank ? `<div style="display: inline-flex;">Rank: ${arrow}<strong>${currRank}</strong></div>` : '';
+          return `<strong>${this.key}</strong><br>Scrobbles: <strong>${scrobbles}</strong><br>${rank}`;
+        },
+        useHTML: true
+      },
       series: [{
         name: 'Rank',
         type: 'line',

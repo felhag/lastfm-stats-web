@@ -35,6 +35,15 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.9 (26-10-2023)
+- added Eddington number to scrobbles per day chart
+- added clear input dataset search fields
+- added support for new spotify export format
+- added trend for rank on dataset modal
+- fixed date indication relative to date filter
+- fixed file import error on home-page
+- fixed race chart resizing
+
 5.8 (19-05-2023)
 - fixed dataset tab ([#36][i36])
 - standalone components

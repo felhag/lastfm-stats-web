@@ -33,28 +33,27 @@ export class TimelineChart extends AbstractChart {
           text: 'Artists, albums & tracks'
         }
       }],
-      series: [{
-        name: translate.capFirst('translate.scrobbles'),
-        data: [],
-        type: 'line',
-      }, {
-        name: 'Artists',
-        yAxis: 1,
-        data: [],
-        type: 'line',
-      }, {
-        name: 'Tracks',
-        yAxis: 1,
-        data: [],
-        type: 'line',
-      }, {
-        name: 'Albums',
-        yAxis: 1,
-        data: [],
-        type: 'line',
-      }],
+      series: [
+        this.serie(translate.capFirst('translate.scrobbles'), 0),
+        this.serie('Artists', 1),
+        this.serie('Tracks', 1),
+        this.serie('Albums', 1)
+      ],
       responsive: this.responsive(['left', 'right', undefined])
     };
+  }
+
+  private serie(name: string, yAxis: number): Highcharts.SeriesOptionsType {
+    return {
+      name,
+      yAxis,
+      data: [],
+      type: 'line',
+      marker: {
+        enabled: false,
+        symbol: 'circle'
+      }
+    }
   }
 
   update(stats: TempStats): void {

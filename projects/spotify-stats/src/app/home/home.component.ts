@@ -66,6 +66,7 @@ interface ParsedEntry {
 export class HomeComponent {
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {
     'StreamingHistory': json => this.parseStreamingHistory(json),
+    'Streaming_History_Audio': json => this.parseEndSong(json),
     'endsong_': json => this.parseEndSong(json)
   };
   username = new FormControl('', Validators.required);
