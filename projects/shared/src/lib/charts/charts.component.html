@@ -1,19 +1,20 @@
-<div *ngFor="let c of charts" class="chart" [class.multiple]="!c.fullWidth">
-  <mat-card appearance="outlined">
-    <mat-card-content>
-      <div #container chartLoader [chart]="c" class="chart-loader"></div>
-      <div class="button-toolbar">
-        <button (click)="c.fullscreen()" mat-icon-button matTooltip="Full screen">
-          <mat-icon>fullscreen</mat-icon>
-        </button>
-        <button (click)="c.print()" mat-icon-button matTooltip="Download">
-          <mat-icon>download</mat-icon>
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
-
+@for (c of charts; track c) {
+  <div class="chart" [class.multiple]="!c.fullWidth">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <div #container chartLoader [chart]="c" class="chart-loader"></div>
+        <div class="button-toolbar">
+          <button (click)="c.fullscreen()" mat-icon-button matTooltip="Full screen">
+            <mat-icon>fullscreen</mat-icon>
+          </button>
+          <button (click)="c.print()" mat-icon-button matTooltip="Download">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
 <div id="race-chart-toolbar" class="toolbar">
   <div>
     <button class="play" mat-icon-button><mat-icon>play_arrow</mat-icon></button>
@@ -23,19 +24,16 @@
   </div>
   <input type="range">
 </div>
-
 <div id="punchcard-toolbar" class="toolbar">
   <button class="prev" mat-icon-button><mat-icon>arrow_back_ios</mat-icon></button>
   <span class="current">1s</span>
   <button class="next" mat-icon-button><mat-icon>arrow_forward_ios</mat-icon></button>
 </div>
-
 <div id="toggleable-scrobbles-toolbar" class="toolbar">
   <button class="toggle" [color]="'primary'" mat-icon-button title="Artists"><mat-icon>star</mat-icon></button>
   <button class="toggle" mat-icon-button title="Albums"><mat-icon>album</mat-icon></button>
   <button class="toggle" mat-icon-button title="Tracks"><mat-icon>audiotrack</mat-icon></button>
 </div>
-
 <div id="scrobble-moment-toolbar" class="toolbar">
   <button class="total" [color]="'primary'" mat-icon-button title="Total"><mat-icon>join_full</mat-icon></button>
   <button class="avg" mat-icon-button title="Average"><mat-icon>join_inner</mat-icon></button>

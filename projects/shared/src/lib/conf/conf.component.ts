@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,11 +33,9 @@ import { MatSliderModule } from '@angular/material/slider';
     MatNativeDateModule,
     MatOptionModule,
     MatSliderModule,
-    NgFor,
-    NgIf,
     ReactiveFormsModule,
     TranslatePipe
-  ]
+]
 })
 export class ConfComponent {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;

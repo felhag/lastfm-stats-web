@@ -6,35 +6,42 @@
           <mat-label>Search artist</mat-label>
           <input matInput placeholder="Search artist..." [formControl]="filterArtist" accesskey="s">
           <mat-icon matPrefix>search</mat-icon>
-          <button *ngIf="filterArtist.value" mat-icon-button matSuffix (click)="filterArtist.setValue('')">
-            <mat-icon matSuffix>clear</mat-icon>
-          </button>
+          @if (filterArtist.value) {
+            <button mat-icon-button matSuffix (click)="filterArtist.setValue('')">
+              <mat-icon matSuffix>clear</mat-icon>
+            </button>
+          }
         </mat-form-field>
-
-        <mat-form-field *ngIf="(groupedBy | async) !== 'artist'" appearance="outline">
-          <mat-label>Search {{groupedBy | async}}</mat-label>
-          <input matInput placeholder="Search {{groupedBy | async}}..." [formControl]="filterName" accesskey="n">
-          <mat-icon matPrefix>search</mat-icon>
-          <button *ngIf="filterName.value" mat-icon-button matSuffix (click)="filterName.setValue('')">
-            <mat-icon matSuffix>clear</mat-icon>
-          </button>
-        </mat-form-field>
+        @if ((groupedBy | async) !== 'artist') {
+          <mat-form-field appearance="outline">
+            <mat-label>Search {{groupedBy | async}}</mat-label>
+            <input matInput placeholder="Search {{groupedBy | async}}..." [formControl]="filterName" accesskey="n">
+            <mat-icon matPrefix>search</mat-icon>
+            @if (filterName.value) {
+              <button mat-icon-button matSuffix (click)="filterName.setValue('')">
+                <mat-icon matSuffix>clear</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        }
       </div>
       <mat-radio-group [value]="groupedBy | async" (change)="groupBy($event)">
         <mat-radio-button value="artist">Artist</mat-radio-button>
-        <mat-radio-button *ngIf="showAlbums" value="album">Album</mat-radio-button>
+        @if (showAlbums) {
+          <mat-radio-button value="album">Album</mat-radio-button>
+        }
         <mat-radio-button value="track">Track</mat-radio-button>
       </mat-radio-group>
     </mat-card-content>
   </mat-card>
-
   <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">
     <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="dataSource" class="full-width">
-      <ng-container *ngFor="let col of columns" [matColumnDef]="col">
-        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{getHeader(col) | titlecase}}</th>
-        <td mat-cell *matCellDef="let element"> {{element[col]}} </td>
-      </ng-container>
-
+      @for (col of columns; track col) {
+        <ng-container [matColumnDef]="col">
+          <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{getHeader(col) | titlecase}}</th>
+          <td mat-cell *matCellDef="let element"> {{element[col]}} </td>
+        </ng-container>
+      }
       <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;" (click)="open(row)"></tr>
     </table>

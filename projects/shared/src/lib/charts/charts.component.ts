@@ -22,7 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCardModule } from '@angular/material/card';
-import { NgFor } from '@angular/common';
+
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkMode.matches) {
@@ -62,7 +62,7 @@ if (darkMode.matches) {
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [TranslatePipe],
     standalone: true,
-    imports: [NgFor, MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule]
+    imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule]
 })
 export class ChartsComponent {
   Highcharts: typeof Highcharts = Highcharts;

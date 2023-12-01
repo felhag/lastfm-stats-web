@@ -1,10 +1,14 @@
 <mat-card appearance="outlined">
   <mat-card-header class="home">
     <div class="home-row">
-      <div *ngIf="christmas" class="cm-logo">
-        <img src="../../assets/favicon-cm.png" alt="logo">
-      </div>
-      <img *ngIf="!christmas" src="../../assets/favicon-192.png" alt="lastfm stats logo" class="logo" height="80" width="80">
+      @if (christmas) {
+        <div class="cm-logo">
+          <img src="../../assets/favicon-cm.png" alt="logo">
+        </div>
+      }
+      @if (!christmas) {
+        <img src="../../assets/favicon-192.png" alt="lastfm stats logo" class="logo" height="80" width="80">
+      }
       <div> lastfmstats.com <div class="subtext">Enhanced statistics for last.fm</div></div>
     </div>
   </mat-card-header>
@@ -38,8 +42,6 @@
     <div class="home-row error">
       {{importError | async}}
     </div>
-
-
     <app-buttons [showHome]="false"></app-buttons>
   </mat-card-content>
 </mat-card>

@@ -13,7 +13,7 @@ import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-build
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatTableModule } from '@angular/material/table';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { NgIf, NgFor, AsyncPipe, TitleCasePipe, CommonModule } from '@angular/common';
+import { AsyncPipe, TitleCasePipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';

@@ -1,6 +1,8 @@
-<button *ngIf="showHome" mat-icon-button matTooltip="Home" [routerLink]="'/'">
-  <mat-icon>home</mat-icon>
-</button>
+@if (showHome) {
+  <button mat-icon-button matTooltip="Home" [routerLink]="'/'">
+    <mat-icon>home</mat-icon>
+  </button>
+}
 <button mat-icon-button matTooltip="Github" (click)="open('https://github.com/felhag/lastfm-stats-web')">
   <mat-icon svgIcon="github"></mat-icon>
 </button>

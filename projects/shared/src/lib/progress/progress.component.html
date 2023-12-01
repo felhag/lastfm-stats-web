@@ -1,44 +1,67 @@
-<div *ngIf="scrobbles.state$ | async as state" class="progress">
-  <ng-container *ngIf="isLastfm">
-    <div *ngIf="state.state === 'RETRIEVING'">
-      <div class="loading">Loading: {{currentPage | async}}/{{state.totalPages}} pages ({{percentage | async | number:'1.2-2'}}%, {{eta | async}}) <mat-spinner [diameter]="24"></mat-spinner></div>
-      <mat-progress-bar mode="determinate" [value]="percentage | async"></mat-progress-bar>
-    </div>
-    <div *ngIf="state.state === 'LOADSTUCK'" class="load-stuck">
-      <mat-icon color="warn">error_outline</mat-icon> Loading got stuck at page {{currentPage | async}}/{{state.totalPages}} 😭.
-    </div>
-    <div *ngIf="state.state === 'COMPLETED' && isLastfm">
-      Loading finished, your statistics are up to date!
-    </div>
-    <div *ngIf="state.state !== 'LOADSTUCK'">
-      <span>{{state.state === 'RETRIEVING' ? 'Retrieving' : 'Retrieved'}} <b>{{state.loadScrobbles| number}}</b> scrobbles</span>
-      <span *ngIf="state.importedScrobbles">, imported <b>{{state.importedScrobbles | number}}</b> scrobbles. Total scrobbles: <b>{{state.importedScrobbles + state.loadScrobbles | number}}</b></span>
-    </div>
-  </ng-container>
-  <div *ngIf="!isLastfm" [innerHTML]="spotifySummary | async"></div>
-  <div *ngIf="scrobbles.first | async as f">First {{'translate.scrobble' | translate}}: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
-  <div *ngIf="scrobbles.last | async as l">Last {{'translate.scrobble' | translate}}: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
-</div>
+@if (scrobbles.state$ | async; as state) {
+  <div class="progress">
+    @if (isLastfm) {
+      @if (state.state === 'RETRIEVING') {
+        <div>
+          <div class="loading">Loading: {{currentPage | async}}/{{state.totalPages}} pages ({{percentage | async | number:'1.2-2'}}%, {{eta | async}}) <mat-spinner [diameter]="24"></mat-spinner></div>
+          <mat-progress-bar mode="determinate" [value]="percentage | async"></mat-progress-bar>
+        </div>
+      }
+      @if (state.state === 'LOADSTUCK') {
+        <div class="load-stuck">
+          <mat-icon color="warn">error_outline</mat-icon> Loading got stuck at page {{currentPage | async}}/{{state.totalPages}} 😭.
+        </div>
+      }
+      @if (state.state === 'COMPLETED' && isLastfm) {
+        <div>
+          Loading finished, your statistics are up to date!
+        </div>
+      }
+      @if (state.state !== 'LOADSTUCK') {
+        <div>
+          <span>{{state.state === 'RETRIEVING' ? 'Retrieving' : 'Retrieved'}} <b>{{state.loadScrobbles| number}}</b> scrobbles</span>
+          @if (state.importedScrobbles) {
+            <span>, imported <b>{{state.importedScrobbles | number}}</b> scrobbles. Total scrobbles: <b>{{state.importedScrobbles + state.loadScrobbles | number}}</b></span>
+          }
+        </div>
+      }
+    }
+    @if (!isLastfm) {
+      <div [innerHTML]="spotifySummary | async"></div>
+    }
+    @if (scrobbles.first | async; as f) {
+      <div>First {{'translate.scrobble' | translate}}: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
+    }
+    @if (scrobbles.last | async; as l) {
+      <div>Last {{'translate.scrobble' | translate}}: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
+    }
+  </div>
+}
 <div class="export">
   Save your data to reduce waiting time for your next visit!
   <div>
-    <button *ngIf="saveInDb$ | async as save; else saveButton" mat-flat-button disabled>
-      <mat-icon>{{save === 100 ? 'download_done' : 'downloading'}}</mat-icon>
-       {{save === 100 ? 'Saved!' : (save | number:'1.2-2') + '%'}}
-    </button>
-    <ng-template #saveButton>
+    @if (saveInDb$ | async; as save) {
+      <button mat-flat-button disabled>
+        <mat-icon>{{save === 100 ? 'download_done' : 'downloading'}}</mat-icon>
+        {{save === 100 ? 'Saved!' : (save | number:'1.2-2') + '%'}}
+      </button>
+    } @else {
       <button mat-flat-button (click)="saveInDb()" matTooltip="Save in browser using indexedDB">
         <mat-icon>system_update</mat-icon>
         {{isLastfm ? 'Browser' : 'Save'}}
       </button>
-    </ng-template>
-    <button *ngIf="isLastfm" mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
-      <mat-icon>file_download</mat-icon>
-      JSON
-    </button>
-    <button *ngIf="isLastfm" mat-flat-button (click)="exportCSV()" matTooltip="Download file in CSV format">
-      <mat-icon>file_download</mat-icon>
-      CSV
-    </button>
+    }
+    @if (isLastfm) {
+      <button mat-flat-button (click)="exportJSON()" matTooltip="Download file in JSON format">
+        <mat-icon>file_download</mat-icon>
+        JSON
+      </button>
+    }
+    @if (isLastfm) {
+      <button mat-flat-button (click)="exportCSV()" matTooltip="Download file in CSV format">
+        <mat-icon>file_download</mat-icon>
+        CSV
+      </button>
+    }
   </div>
 </div>

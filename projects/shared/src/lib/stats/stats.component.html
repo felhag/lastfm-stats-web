@@ -1,53 +1,66 @@
-<div *ngIf="(state$ | async) as state">
-  <mat-card *ngIf="!showContent(state)" class="content-state">
-    <mat-card-content [innerHTML]="getContentStateFor(state)"/>
-    <mat-card-actions *ngIf="isStuck(state)">
-      <button mat-flat-button [routerLink]="'/'">
-        <mat-icon>home</mat-icon>
-        Return to homepage
-      </button>
-    </mat-card-actions>
-  </mat-card>
-  <ng-container *ngIf="showContent(state)">
-    <mat-card appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>
-          <a *ngIf="(user$ | async) as user" [href]="user.url" target="_blank" class="user-link regular-text">
-            <img *ngIf="user.image.length" [src]="user.image[0]['#text']">Statistics for {{user.name}}
-          </a>
-        </mat-card-title>
-        <app-buttons/>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-card-subtitle *ngIf="isLastfm">Progress</mat-card-subtitle>
-        <app-progress/>
-
-        <div class="conf-row">
-          <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
-            <mat-icon class="material-icons-outlined">settings</mat-icon>
-            Filter data
-          </button>
-          <ng-container *ngIf="isLastfm">
-            <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
-            <mat-slide-toggle (change)="settings.update({autoUpdate: $event.checked})" [checked]="settings.autoUpdate | async" color="primary"></mat-slide-toggle>
-            <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
-              <mat-icon>update</mat-icon>
-              Update
+@if ((state$ | async); as state) {
+  <div>
+    @if (!showContent(state)) {
+      <mat-card class="content-state">
+        <mat-card-content [innerHTML]="getContentStateFor(state)"/>
+        @if (isStuck(state)) {
+          <mat-card-actions>
+            <button mat-flat-button [routerLink]="'/'">
+              <mat-icon>home</mat-icon>
+              Return to homepage
             </button>
-          </ng-container>
+          </mat-card-actions>
+        }
+      </mat-card>
+    }
+    @if (showContent(state)) {
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>
+            @if ((user$ | async); as user) {
+              <a [href]="user.url" target="_blank" class="user-link regular-text">
+                @if (user.image.length) {
+                  <img [src]="user.image[0]['#text']">
+                  }Statistics for {{user.name}}
+                </a>
+              }
+            </mat-card-title>
+            <app-buttons/>
+          </mat-card-header>
+          <mat-card-content>
+            @if (isLastfm) {
+              <mat-card-subtitle>Progress</mat-card-subtitle>
+            }
+            <app-progress/>
+            <div class="conf-row">
+              <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
+                <mat-icon class="material-icons-outlined">settings</mat-icon>
+                Filter data
+              </button>
+              @if (isLastfm) {
+                <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
+                <mat-slide-toggle (change)="settings.update({autoUpdate: $event.checked})" [checked]="settings.autoUpdate | async" color="primary"></mat-slide-toggle>
+                <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
+                  <mat-icon>update</mat-icon>
+                  Update
+                </button>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
+          <nav mat-tab-nav-bar mat-stretch-tabs [tabPanel]="tabPanel">
+            @for (tab of tabs; track tab) {
+              <a mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
+                routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
+                {{tab | titlecase}}
+              </a>
+            }
+          </nav>
+          <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+          <router-outlet/>
         </div>
-      </mat-card-content>
-    </mat-card>
-
-    <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
-      <nav mat-tab-nav-bar mat-stretch-tabs [tabPanel]="tabPanel">
-        <a *ngFor="let tab of tabs" mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
-           routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
-          {{tab | titlecase}}
-        </a>
-      </nav>
-      <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
-      <router-outlet/>
+      }
     </div>
-  </ng-container>
-</div>
+  }
+  

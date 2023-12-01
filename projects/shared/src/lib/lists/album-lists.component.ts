@@ -6,7 +6,7 @@ import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 export interface AlbumStats {
   betweenAlbums: Top10Item[];
@@ -25,7 +25,7 @@ export interface AlbumStats {
     styleUrls: ['./lists.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, Top10listComponent, AsyncPipe, TranslatePipe]
+    imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
   protected forcedThreshold = Constants.SCROBBLE_ALBUM_THRESHOLD;

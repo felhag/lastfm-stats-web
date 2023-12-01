@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-progress',
@@ -21,17 +21,16 @@ import { NgIf, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
     providers: [TranslatePipe],
     standalone: true,
     imports: [
-        NgIf,
-        MatProgressSpinnerModule,
-        MatProgressBarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatTooltipModule,
-        AsyncPipe,
-        DecimalPipe,
-        DatePipe,
-        TranslatePipe_1,
-    ],
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    AsyncPipe,
+    DecimalPipe,
+    DatePipe,
+    TranslatePipe_1
+],
 })
 export class ProgressComponent {
   saveInDb$ = new Subject<number>();

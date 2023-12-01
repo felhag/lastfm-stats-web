@@ -13,7 +13,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgCircleProgressModule } from 'ng-circle-progress';
-import { NgFor, NgIf } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 
 annotations(Highcharts);
@@ -30,15 +30,13 @@ interface DatasetModalData {
     providers: [TranslatePipe],
     standalone: true,
     imports: [
-      HighchartsChartModule,
-      MatCheckboxModule,
-      MatDialogModule,
-      MatIconModule,
-      MatTooltipModule,
-      NgCircleProgressModule,
-      NgFor,
-      NgIf,
-    ]
+    HighchartsChartModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatIconModule,
+    MatTooltipModule,
+    NgCircleProgressModule
+]
 })
 export class DatasetModalComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;

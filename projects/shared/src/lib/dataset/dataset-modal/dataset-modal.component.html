@@ -1,14 +1,16 @@
 <h2 mat-dialog-title><a [href]="url" target="_blank" class="regular-text">{{(entry.artist ? entry.artist + ' - ' : '') + entry.name}}<mat-icon>open_in_new</mat-icon></a></h2>
-
 <div mat-dialog-content>
   <div class="orb-wrapper">
-    <div *ngFor="let opt of options">
-      <circle-progress *ngIf="opt" [options]="$any(opt)"></circle-progress>
-    </div>
+    @for (opt of options; track opt) {
+      <div>
+        @if (opt) {
+          <circle-progress [options]="$any(opt)"></circle-progress>
+        }
+      </div>
+    }
     <div class="annotation-toolbar" matTooltip="Show labels">
       <mat-checkbox [checked]="true" (change)="showLabels($event.checked)"></mat-checkbox>
     </div>
   </div>
-
   <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" (chartInstance)="chart = $event"></highcharts-chart>
 </div>

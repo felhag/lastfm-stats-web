@@ -1,18 +1,20 @@
-<div *ngIf="stats | async as s" class="container">
-  <div class="row">
-    <app-top10list [list]="s.betweenAlbums" title="Gaps between albums" explanation="Largest time passed between two {{'translate.scrobbles' | translate}} of the same album"></app-top10list>
-    <app-top10list [list]="s.ongoingBetweenAlbums" title="Ongoing gaps between albums" explanation="Largest time passed since last time you listened to an album"></app-top10list>
+@if (stats | async; as s) {
+  <div class="container">
+    <div class="row">
+      <app-top10list [list]="s.betweenAlbums" title="Gaps between albums" explanation="Largest time passed between two {{'translate.scrobbles' | translate}} of the same album"></app-top10list>
+      <app-top10list [list]="s.ongoingBetweenAlbums" title="Ongoing gaps between albums" explanation="Largest time passed since last time you listened to an album"></app-top10list>
+    </div>
+    <div class="row">
+      <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for albums with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
+      <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for albums with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
+    </div>
+    <div class="row">
+      <app-top10list [list]="s.weeksPerAlbum" title="Weeks per album" explanation="Unique weeks a album has been {{'translate.scrobbled' | translate}} at least once"></app-top10list>
+      <app-top10list [list]="s.albumStreak" title="Album streaks" explanation="Streaks for playing the same album in a row."></app-top10list>
+    </div>
+    <div class="row">
+      <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
+      <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
+    </div>
   </div>
-  <div class="row">
-    <app-top10list [list]="s.avgScrobbleAsc" title="Golden oldies" explanation="Average {{'translate.scrobble' | translate}} date for albums with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted ascending"></app-top10list>
-    <app-top10list [list]="s.avgScrobbleDesc" title="Latest discoveries" explanation="Average {{'translate.scrobble' | translate}} date for albums with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}}, sorted descending"></app-top10list>
-  </div>
-  <div class="row">
-    <app-top10list [list]="s.weeksPerAlbum" title="Weeks per album" explanation="Unique weeks a album has been {{'translate.scrobbled' | translate}} at least once"></app-top10list>
-    <app-top10list [list]="s.albumStreak" title="Album streaks" explanation="Streaks for playing the same album in a row."></app-top10list>
-  </div>
-  <div class="row">
-    <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
-    <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
-  </div>
-</div>
+}
