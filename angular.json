@@ -79,10 +79,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "spotify-stats:build:production"
+              "buildTarget": "spotify-stats:build:production"
             },
             "development": {
-              "browserTarget": "spotify-stats:build:development"
+              "buildTarget": "spotify-stats:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -90,7 +90,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "spotify-stats:build"
+            "buildTarget": "spotify-stats:build"
           }
         },
         "lint": {
@@ -180,10 +180,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "lastfm-stats:build:production"
+              "buildTarget": "lastfm-stats:build:production"
             },
             "development": {
-              "browserTarget": "lastfm-stats:build:development"
+              "buildTarget": "lastfm-stats:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -191,7 +191,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "lastfm-stats:build"
+            "buildTarget": "lastfm-stats:build"
           }
         },
         "lint": {
