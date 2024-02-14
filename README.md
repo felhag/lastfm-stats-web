@@ -35,6 +35,10 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.10 (15-10-2023)
+- added album support for spotify-stats
+- fixed spotify-stats import
+
 5.9 (26-10-2023)
 - added Eddington number to scrobbles per day chart
 - added clear input dataset search fields

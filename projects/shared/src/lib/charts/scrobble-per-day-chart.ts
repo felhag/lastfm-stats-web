@@ -38,7 +38,7 @@ export class ScrobblePerDayChart extends AbstractChart {
             const eddington = (this as any).custom?.eddington;
             if (eddington) {
               // eddington number
-              return `Your Eddington number is <b>${eddington}</b>!<br>This means you have <b>${eddington}</b> days with at least <b>${eddington}</b> scrobbles!<br><br>${result}`;
+              return `Your Eddington number is <b>${eddington}</b>!<br>This means you have <b>${eddington}</b> days with at least <b>${eddington}</b> ${translate.transform('translate.scrobbles')}!<br><br>${result}`;
             }
             return result;
           }

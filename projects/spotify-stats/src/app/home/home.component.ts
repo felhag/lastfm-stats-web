@@ -65,9 +65,10 @@ interface ParsedEntry {
 })
 export class HomeComponent {
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {
-    'StreamingHistory': json => this.parseStreamingHistory(json),
-    'Streaming_History_Audio': json => this.parseEndSong(json),
-    'endsong_': json => this.parseEndSong(json)
+    'MyData/StreamingHistory': json => this.parseStreamingHistory(json),
+    'MyData/Streaming_History_Audio': json => this.parseEndSong(json),
+    'MyData/endsong_': json => this.parseEndSong(json),
+    'Spotify Extended Streaming History/Streaming_History_Audio_': json => this.parseEndSong(json)
   };
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
@@ -107,11 +108,10 @@ export class HomeComponent {
   private unzip(file: File): void {
     new JSZip().loadAsync(file).then(zip => {
       Object.keys(zip.files).forEach(filename => {
-        const handler = Object.keys(this.fileHandler).find(key => filename.startsWith('MyData/' + key));
-        if (filename.startsWith('MyData/Userdata')) {
-          zip.files[filename].async('string').then(data => this.username.setValue(JSON.parse(data).username));
-        } else if (handler) {
-          zip.files[filename].async('string').then(data => this.addEntries(filename.substring('MyData/'.length), this.fileHandler[handler](JSON.parse(data))));
+        const handler = Object.keys(this.fileHandler).find(key => filename.startsWith(key));
+        if (handler) {
+          const file = filename.substring(filename.indexOf('/') + 1);
+          zip.files[filename].async('string').then(data => this.addEntries(file, this.fileHandler[handler](JSON.parse(data))));
         }
       });
     });

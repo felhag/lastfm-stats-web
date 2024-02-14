@@ -19,13 +19,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { TitleCasePipe, CommonModule } from '@angular/common';
 import { ButtonsComponent } from '../buttons/buttons.component';
+import { TranslatePipe } from '../service/translate.pipe';
 
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService],
+  providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
   standalone: true,
   imports: [
     CommonModule,
@@ -57,12 +58,9 @@ export class StatsComponent implements OnInit, OnDestroy {
               private usernameService: UsernameService,
               private router: Router,
               private dialog: MatDialog,
-              private app: App,) {
-    if (this.app === App.lastfm) {
-      this.tabs = ['artists', 'albums', 'tracks', 'scrobbles', 'charts', 'dataset'];
-    } else  {
-      this.tabs = ['artists', 'tracks', 'plays', 'charts', 'dataset'];
-    }
+              private app: App,
+              translate: TranslatePipe) {
+    this.tabs = ['artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset'];
   }
 
   ngOnInit(): void {
