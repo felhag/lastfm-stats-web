@@ -48,3 +48,22 @@ mat-card-content .toolbar {
   right: 16px;
   top: 10px;
 }
+
+.tooltip {
+  line-height: 48px;
+  vertical-align: top;
+}
+
+.toolbar-menu {
+  position: absolute;
+  background-color: var(--mat-menu-container-color);
+
+  &:not(.open) {
+    display: none;
+  }
+
+  h3 {
+    padding: 8px 16px 0 16px;
+    margin: 0;
+  }
+}

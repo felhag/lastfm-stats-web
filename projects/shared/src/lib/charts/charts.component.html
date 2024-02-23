@@ -16,11 +16,17 @@
   </div>
 }
 <div id="race-chart-toolbar" class="toolbar">
-  <div>
-    <button class="play" mat-icon-button><mat-icon>play_arrow</mat-icon></button>
-    <button class="rewind" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_down</mat-icon></button>
-    <button class="current" mat-icon-button disabled>1</button>
-    <button class="forward" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_up</mat-icon></button>
+  <button class="open" mat-icon-button><mat-icon>settings</mat-icon></button>
+  <button class="play" mat-icon-button><mat-icon>play_arrow</mat-icon></button>
+  <span class="tooltip"></span>
+  <div class="toolbar-menu mat-elevation-z8">
+    <h3>Speed:</h3>
+    <div>
+      <button class="rewind" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_down</mat-icon></button>
+      <button class="current" mat-icon-button disabled>1</button>
+      <button class="forward" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_up</mat-icon></button>
+    </div>
+    <h3>Type:</h3>
   </div>
   <input type="range">
 </div>

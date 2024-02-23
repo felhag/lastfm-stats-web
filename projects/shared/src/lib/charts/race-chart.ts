@@ -1,23 +1,29 @@
 import * as Highcharts from 'highcharts';
 import { PointOptionsObject, SeriesOptionsType } from 'highcharts';
-import { TempStats, Month } from 'projects/shared/src/lib/app/model';
+import { TempStats, Month, ItemType, Artist, MonthItem, StreakItem } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { MapperService } from '../service/mapper.service';
 
 export class RaceChart extends AbstractChart {
   private readonly defaultSpeed = 2000;
+
+  protected type: ItemType = 'artist';
+  protected stats?: TempStats;
+
   colors: {[key: string]: string} = {};
   months: Month[] = [];
-  artists: string[] = [];
+  items: string[] = [];
   current = -1;
   timer?: number;
   toolbar?: HTMLElement;
   button?: HTMLElement;
+  tooltip?: HTMLElement;
   input?: HTMLInputElement;
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
 
-  constructor(url: AbstractUrlService) {
+  constructor(url: AbstractUrlService, private mapper: MapperService) {
     super();
     this.options = {
       chart: {
@@ -32,11 +38,27 @@ export class RaceChart extends AbstractChart {
               this.toolbar = document.getElementById('race-chart-toolbar')!;
               this.speedText = this.toolbar.querySelector('.current') as HTMLElement;
               this.button = this.toolbar.querySelector('.play mat-icon') as HTMLElement;
+              this.tooltip = this.toolbar.querySelector('.tooltip') as HTMLElement;
               this.input = this.toolbar.querySelector('input') as HTMLInputElement;
-              this.input.onchange = (ev: any) => this.tick(parseInt(ev.target.value));
+              this.input.onchange = (ev: any) => this.changeRange(parseInt(ev.target.value));
+              this.input.oninput = (ev: any) => this.showTooltip(parseInt(ev.target.value));
+
+              const menu = (this.toolbar!.querySelector('.toolbar-menu') as HTMLButtonElement);
               (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
               (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
               (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
+              (this.toolbar.querySelector('.open') as HTMLButtonElement).onclick = () => menu.classList.toggle('open');
+
+              const toggleToolbar = document.getElementById('toggleable-scrobbles-toolbar')!.cloneNode(true) as HTMLElement;
+              const toggles = toggleToolbar.querySelectorAll('.toggle') as NodeListOf<HTMLButtonElement>;
+              const toggleTypes: ItemType[] = ['artist', 'album', 'track']
+              toggles.forEach((button, idx) => button.onclick = () => {
+                toggles?.forEach(t => t.classList.remove('mat-primary'));
+                button.classList.add('mat-primary');
+                this.changeType(toggleTypes[idx]);
+              });
+              toggleToolbar.classList.remove('toolbar');
+              menu.appendChild(toggleToolbar);
 
               const chart = event.target as any as Highcharts.Chart;
               chart.container.parentNode!.appendChild(this.toolbar);
@@ -53,7 +75,7 @@ export class RaceChart extends AbstractChart {
           borderWidth: 0
         } as any
       },
-      title: {text: 'Artists race chart'},
+      title: {text: 'Race chart'},
       xAxis: {type: 'category'},
       yAxis: [{
         opposite: true,
@@ -114,8 +136,9 @@ export class RaceChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    this.months = Object.values(stats.monthList);
-    this.artists = Object.keys(stats.seenArtists);
+    this.stats = stats;
+    this.months = Object.values(this.stats!.monthList);
+    this.items = Object.keys(this.mapper.seen(this.type, this.stats!));
     this.updateSlider();
   }
 
@@ -126,7 +149,7 @@ export class RaceChart extends AbstractChart {
   }
 
   private getData(month: Month): PointOptionsObject[] {
-    return this.artists
+    return this.items
       .map(a => ({name: a, count: this.cumulativeUntil(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
@@ -148,7 +171,7 @@ export class RaceChart extends AbstractChart {
   }
 
   private cumulativeUntil(until: Month, artist: string): number {
-    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (cur.artists.get(artist)?.count || 0), 0);
+    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, {name: artist} as StreakItem)?.count || 0), 0);
   }
 
   /**
@@ -196,6 +219,22 @@ export class RaceChart extends AbstractChart {
       this.pause();
       this.play();
     }
+  }
+
+  changeType(type: ItemType): void {
+    this.type = type;
+    this.update(this.stats!);
+  }
+
+  changeRange(value: number): void {
+    this.tooltip!.style.display = 'none';
+    this.tick(value);
+  }
+
+  showTooltip(value: number): void {
+    const next = Math.min(value, this.months.length - 1);
+    this.tooltip!.style.display = 'inline';
+    this.tooltip!.innerText = this.months[next].alias;
   }
 
   protected load(container: HTMLElement): void {

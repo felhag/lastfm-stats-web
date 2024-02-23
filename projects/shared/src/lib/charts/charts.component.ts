@@ -22,6 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCardModule } from '@angular/material/card';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -62,7 +63,7 @@ if (darkMode.matches) {
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [TranslatePipe],
     standalone: true,
-    imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule]
+  imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule, MatMenuModule]
 })
 export class ChartsComponent {
   Highcharts: typeof Highcharts = Highcharts;
@@ -83,7 +84,7 @@ export class ChartsComponent {
       new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
-      new RaceChart(url),
+      new RaceChart(url, mapper),
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
           stats => stats.days,
