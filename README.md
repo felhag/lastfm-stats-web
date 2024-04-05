@@ -35,6 +35,12 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.11 (05-04-2024)
+- added threshold for biggest climbers/fallers ([#47][i47])
+- added albums and tracks to race chart ([#40][i40])
+- fixed sorting current month dataset ([#48][i48])
+- improved spotify data retrieval info
+
 5.10 (15-10-2023)
 - added album support for spotify-stats
 - fixed spotify-stats import
@@ -240,3 +246,6 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i34]: https://github.com/felhag/lastfm-stats-web/pull/34
 [i35]: https://github.com/felhag/lastfm-stats-web/issues/35
 [i36]: https://github.com/felhag/lastfm-stats-web/issues/36
+[i40]: https://github.com/felhag/lastfm-stats-web/issues/40
+[i47]: https://github.com/felhag/lastfm-stats-web/issues/47
+[i48]: https://github.com/felhag/lastfm-stats-web/issues/48

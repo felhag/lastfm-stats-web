@@ -13,7 +13,7 @@ import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-build
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatTableModule } from '@angular/material/table';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { AsyncPipe, TitleCasePipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -105,9 +105,8 @@ export class DatasetComponent implements OnInit {
   }
 
   private update(tempStats: TempStats): void {
-    const data = this.groupedByObj.data(tempStats);
-    const length = Object.keys(data).length;
-    this.dataSource.data = Object.values(data).map(item => {
+    const data = Object.values(this.groupedByObj.data(tempStats)).sort((a, b) => b.scrobbles.length - a.scrobbles.length);
+    this.dataSource.data = data.map((item, index) => {
       const albumOrTrack = 'shortName' in item;
       return {
         item,
@@ -116,7 +115,7 @@ export class DatasetComponent implements OnInit {
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
         scrobbles: item.scrobbles.length,
-        rank: item.ranks[item.ranks.length - 1] || length
+        rank: index + 1
       } as DataSetEntry
     });
     this.months = tempStats.monthList;
