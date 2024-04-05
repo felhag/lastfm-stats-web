@@ -57,7 +57,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
 
-    const rankings = this.getRankings(seen, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
+    const rankings = this.getRankings(seenThreshold, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }

@@ -96,7 +96,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     next.latestNew = this.getArtistTop10(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
     next.artistStreak = this.consecutiveStreak(stats, stats.artistStreak, s => `${s.start.artist} (${s.length} times)`);
 
-    const rankings = this.getRankings(seen, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
+    const rankings = this.getRankings(seenThreshold, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }

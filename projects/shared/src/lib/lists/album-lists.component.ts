@@ -49,7 +49,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.avgScrobbleDesc = this.getAlbumTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
     next.avgScrobbleAsc = this.getAlbumTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
 
-    const rankings = this.getRankings(seen, Object.values(stats.monthList), (i, m) => this.url.albumMonth(i.artist, i.shortName, m));
+    const rankings = this.getRankings(seenThreshold, Object.values(stats.monthList), (i, m) => this.url.albumMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
   }

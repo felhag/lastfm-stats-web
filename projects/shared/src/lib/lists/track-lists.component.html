@@ -17,8 +17,8 @@
       <app-top10list [list]="s.trackStreak" title="Track streaks" explanation="Streaks for playing the same track in a row."></app-top10list>
     </div>
     <div class="row">
-      <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
-      <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count)"></app-top10list>
+      <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}})"></app-top10list>
+      <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}})"></app-top10list>
     </div>
   </div>
 }
