@@ -68,7 +68,8 @@ export class HomeComponent {
     'MyData/StreamingHistory': json => this.parseStreamingHistory(json),
     'MyData/Streaming_History_Audio': json => this.parseEndSong(json),
     'MyData/endsong_': json => this.parseEndSong(json),
-    'Spotify Extended Streaming History/Streaming_History_Audio_': json => this.parseEndSong(json)
+    'Spotify Extended Streaming History/Streaming_History_Audio_': json => this.parseEndSong(json),
+    'StreamingHistory_music': json => this.parseStreamingHistory(json)
   };
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
