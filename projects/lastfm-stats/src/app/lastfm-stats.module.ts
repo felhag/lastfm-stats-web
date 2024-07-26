@@ -16,6 +16,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble-retriever.service';
 import { SharedModule } from 'projects/shared/src/lib/shared.module';
+import { environment } from '../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { MockRetrieverService } from './mock-retriever.service';
 
 @NgModule({
   imports: [
@@ -32,7 +35,9 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
     SharedModule,
   ],
   providers: [
-    { provide: AbstractItemRetriever, useExisting: ScrobbleRetrieverService },
+    { provide: AbstractItemRetriever, useFactory: (http: HttpClient) => {
+        return environment.production ? new ScrobbleRetrieverService(http) : new MockRetrieverService(http);
+      }, deps: [HttpClient]},
     { provide: AbstractUrlService, useExisting: LastfmUrlService },
     { provide: App, useValue: App.lastfm },
     { provide: 'translations', useValue: {
