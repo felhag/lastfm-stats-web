@@ -23,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { LetterChart } from './letter-chart';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -81,6 +82,7 @@ export class ChartsComponent {
       new ArtistTimelineChart(translate, url, mapper),
       new CumulativeItemsChart(translate, mapper),
       new WordcloudChart(mapper),
+      new LetterChart(translate, mapper),
       new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
