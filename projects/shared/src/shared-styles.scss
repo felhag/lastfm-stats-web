@@ -3,19 +3,19 @@
 
 @include mat.core();
 
-$light-app-theme: mat.define-light-theme((
-  color: (
-    primary: mat.define-palette(mat.$indigo-palette),
-    accent:  mat.define-palette(mat.$pink-palette),
-    warn:  mat.define-palette(mat.$red-palette)
-  )
+$light-app-theme: mat.m2-define-light-theme((
+        color: (
+                primary: mat.m2-define-palette(mat.$m2-indigo-palette),
+                accent:  mat.m2-define-palette(mat.$m2-pink-palette),
+                warn:  mat.m2-define-palette(mat.$m2-red-palette)
+        )
 ));
-$dark-app-theme: mat.define-dark-theme((
-  color: (
-    primary: mat.define-palette(mat.$cyan-palette),
-    accent: mat.define-palette(mat.$blue-gray-palette),
-    warn: mat.define-palette(mat.$amber-palette)
-  )
+$dark-app-theme: mat.m2-define-dark-theme((
+        color: (
+                primary: mat.m2-define-palette(mat.$m2-cyan-palette),
+                accent: mat.m2-define-palette(mat.$m2-blue-gray-palette),
+                warn: mat.m2-define-palette(mat.$m2-amber-palette)
+        )
 ));
 
 @media (prefers-color-scheme: light) {
@@ -25,8 +25,8 @@ $dark-app-theme: mat.define-dark-theme((
   }
 
   :root {
-    --primaryColor: #{mat.get-color-from-palette(map.get($light-app-theme, primary), 500)};
-    --primaryColorContrast: #{mat.get-color-from-palette(map.get($light-app-theme, primary), 100)};
+    --primaryColor: #{mat.m2-get-color-from-palette(map.get($light-app-theme, primary), 500)};
+    --primaryColorContrast: #{mat.m2-get-color-from-palette(map.get($light-app-theme, primary), 100)};
   }
 }
 
@@ -39,8 +39,8 @@ $dark-app-theme: mat.define-dark-theme((
   }
 
   :root {
-    --primaryColor: #{mat.get-color-from-palette(map.get($dark-app-theme, primary), 500)};
-    --primaryColorContrast: #{mat.get-color-from-palette(map.get($dark-app-theme, primary), 100)};
+    --primaryColor: #{mat.m2-get-color-from-palette(map.get($dark-app-theme, primary), 500)};
+    --primaryColorContrast: #{mat.m2-get-color-from-palette(map.get($dark-app-theme, primary), 100)};
   }
 }
 

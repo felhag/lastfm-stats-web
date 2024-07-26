@@ -56,9 +56,9 @@ ngx-dropzone-preview {
 }
 
 @mixin color($theme) {
-  $color-config: mat.get-color-config($theme);
+  $color-config: mat.m2-get-color-config($theme);
   $warn-palette: map.get($color-config, 'warn');
-  $warn-color: mat.get-color-from-palette($warn-palette, 500);
+  $warn-color: mat.m2-get-color-from-palette($warn-palette, 500);
   .custom-dropzone.invalid {
     color: $warn-color !important;
     border-color: $warn-color !important;

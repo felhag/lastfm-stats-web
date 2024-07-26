@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule, Type } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -21,13 +21,13 @@ import { Top10listComponent } from './lists/top10list/top10list.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { ChartLoaderDirective } from './directive/chart-loader.directive';
 
-@NgModule({
-    declarations: [AppComponent],
-    imports: [
-        BrowserAnimationsModule,
+@NgModule({ declarations: [AppComponent],
+    exports: [
+        AppComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
         BrowserModule,
         CommonModule,
-        HttpClientModule,
         ReactiveFormsModule,
         NgCircleProgressModule.forRoot({
             animationDuration: 1000,
@@ -54,13 +54,7 @@ import { ChartLoaderDirective } from './directive/chart-loader.directive';
         StatsComponent,
         Top10listComponent,
         TrackListsComponent,
-        TranslatePipe
-    ],
-    exports: [
-        AppComponent,
-    ],
-    bootstrap: [AppComponent]
-})
+        TranslatePipe], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class SharedModule {
   public static getRoutesFor(home: Type<any>, scrobblesRoute: string): Routes {
     return [

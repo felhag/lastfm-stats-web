@@ -48,15 +48,15 @@
 }
 
 @mixin color($theme) {
-  $color-config: mat.get-color-config($theme);
+  $color-config: mat.m2-get-color-config($theme);
   $warn-palette: map.get($color-config, 'warn');
   .home .input-wrap .input.invalid::placeholder {
-    color: mat.get-color-from-palette($warn-palette, 500);
+    color: mat.m2-get-color-from-palette($warn-palette, 500);
     opacity: 1;
   }
 
   .home-row.error {
-    color: mat.get-color-from-palette($warn-palette, 500);
+    color: mat.m2-get-color-from-palette($warn-palette, 500);
     font-size: 14px;
     line-height: 1.5;
     text-align: center;
