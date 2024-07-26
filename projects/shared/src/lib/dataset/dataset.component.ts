@@ -105,8 +105,9 @@ export class DatasetComponent implements OnInit {
   }
 
   private update(tempStats: TempStats): void {
-    const data = Object.values(this.groupedByObj.data(tempStats)).sort((a, b) => b.scrobbles.length - a.scrobbles.length);
-    this.dataSource.data = data.map((item, index) => {
+    const data = Object.values(this.groupedByObj.data(tempStats));
+    const ranks = [...data].sort((a, b) => b.scrobbles.length - a.scrobbles.length);
+    this.dataSource.data = data.map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
         item,
@@ -115,7 +116,7 @@ export class DatasetComponent implements OnInit {
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
         scrobbles: item.scrobbles.length,
-        rank: index + 1
+        rank: ranks.indexOf(item) + 1
       } as DataSetEntry
     });
     this.months = tempStats.monthList;

@@ -1,9 +1,9 @@
-## 🎶 Last.fm stats 
-A small project to show some additional statistics for last.fm and spotify: 
+## 🎶 Last.fm stats
+A small project to show some additional statistics for last.fm and spotify:
 - https://lastfmstats.com
 - https://spotifystats.app
 
-## 🏆 Features 
+## 🏆 Features
 - streaks
 - lists
 - charts
@@ -35,6 +35,14 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+5.12 (26-07-2024)
+- added letter chart
+- added testuser data for dev purposes
+- fixed spotify-stats import once again
+- fixed default dataset sorting  ([#49][i49])
+- improved styling spotify-stats import
+- updated to angular 18
+
 5.11 (05-04-2024)
 - added threshold for biggest climbers/fallers ([#47][i47])
 - added albums and tracks to race chart ([#40][i40])
@@ -100,7 +108,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 5.0 (13-11-2022)
 - added support for indexedDB ([#10][i10])
 - added min length 3 for wordcloud ([#27][i27])
-- added artist/album/track toggle for wordcloud ([#27][i27]) 
+- added artist/album/track toggle for wordcloud ([#27][i27])
 - added toggle to show average for scrobbled days/months
 - added buttons to switch between last.fm stats and spotify stats
 - added possibility to load scrobbles before account creation date
@@ -152,7 +160,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 2.1 (15-11-2021)
 - added consecutive streak lists ([#2][i2], pr by [m0nkiii](https://github.com/m0nkiii))
 - added colors to visualize date occurrence
-- added toggle between artists/albums/tracks for some charts 
+- added toggle between artists/albums/tracks for some charts
 - added drilldown possibility for some charts
 - added download button for charts
 - fixed invalid 'does not contain albums' message
@@ -184,7 +192,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - added links to reddit, github and ko-fi
 - added list index when list size is greater than 10
 - added badges to filter and auto update buttons
-- fixed error message when adblocker is bothering 
+- fixed error message when adblocker is bothering
 - fixed first scrobble when it's same date as account creation
 - fixed track per artist if more than 1000 artists have 50+ scrobbles
 
@@ -195,7 +203,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 
 1.0 (24-05-2021)
 - seperate tabs for artists/tracks/scrobbles
-- added (ongoing) gaps between tracks 
+- added (ongoing) gaps between tracks
 - added weeks per track
 - added new/unique tracks in a single month
 - added avg scrobble date lists for tracks
@@ -234,7 +242,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - clickable artists/months in lists page
 - favicon
 
-0.1 (28-03-2021) 
+0.1 (28-03-2021)
 - initial version
 
 [i2]: https://github.com/felhag/lastfm-stats-web/pull/2
@@ -249,3 +257,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i40]: https://github.com/felhag/lastfm-stats-web/issues/40
 [i47]: https://github.com/felhag/lastfm-stats-web/issues/47
 [i48]: https://github.com/felhag/lastfm-stats-web/issues/48
+[i49]: https://github.com/felhag/lastfm-stats-web/issues/49
