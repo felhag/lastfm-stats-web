@@ -42,12 +42,11 @@ export class LetterChart extends ToggleableChart {
     }
 
     const letters = Object.values(this.mapper.seen(this.type, stats))
-      .map(a => this.mapper.shortName(this.type, a)[0].toLowerCase())
-      .reduce((acc: {[key: string]: number}, cur) => {
+      .map(a => this.mapper.shortName(this.type, a)[0].toLowerCase().charCodeAt(0))
+      .reduce((acc: {[key: string]: number}, char) => {
       let key;
-      const char = cur.charCodeAt(0);
       if (char >= 97 && char <= 122) {
-        key = cur;
+        key = String.fromCharCode(char);
       } else if (char >= 48 && char <= 57) {
         key = '0-9';
       } else {
