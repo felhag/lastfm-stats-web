@@ -79,6 +79,7 @@ export class DatasetModalComponent implements OnInit {
         crosshair: true
       },
       yAxis: [{
+        type: 'logarithmic',
         min: 1,
         reversed: true,
         startOnTick: true,
