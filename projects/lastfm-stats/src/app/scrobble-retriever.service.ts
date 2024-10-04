@@ -5,6 +5,7 @@ import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-
 import { Observable, forkJoin, takeWhile, take } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
+import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
 interface Response {
   recenttracks: RecentTracks;
@@ -54,7 +55,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   artistSanitizer = new Map<string,string>();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private username: UsernameService) {
     super();
   }
 
@@ -65,6 +66,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     this.retrieveUser(username).subscribe({
       next: user => {
         store.updateUser(user);
+        this.username.username = user.name;
 
         const from = String(this.determineFrom(imported));
         this.start({

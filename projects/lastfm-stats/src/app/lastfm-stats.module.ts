@@ -19,6 +19,7 @@ import { SharedModule } from 'projects/shared/src/lib/shared.module';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { MockRetrieverService } from './mock-retriever.service';
+import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
 @NgModule({
   imports: [
@@ -35,9 +36,9 @@ import { MockRetrieverService } from './mock-retriever.service';
     SharedModule,
   ],
   providers: [
-    { provide: AbstractItemRetriever, useFactory: (http: HttpClient) => {
-        return environment.production ? new ScrobbleRetrieverService(http) : new MockRetrieverService(http);
-      }, deps: [HttpClient]},
+    { provide: AbstractItemRetriever, useFactory: (http: HttpClient, username: UsernameService) => {
+        return environment.production ? new ScrobbleRetrieverService(http, username) : new MockRetrieverService(http, username);
+      }, deps: [HttpClient, UsernameService]},
     { provide: AbstractUrlService, useExisting: LastfmUrlService },
     { provide: App, useValue: App.lastfm },
     { provide: 'translations', useValue: {
