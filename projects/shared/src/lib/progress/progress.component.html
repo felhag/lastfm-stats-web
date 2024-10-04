@@ -29,12 +29,6 @@
     @if (!isLastfm) {
       <div [innerHTML]="spotifySummary | async"></div>
     }
-    @if (scrobbles.first | async; as f) {
-      <div>First {{'translate.scrobble' | translate}}: {{f.date | date}} ({{f.artist}} - {{f.track}})</div>
-    }
-    @if (scrobbles.last | async; as l) {
-      <div>Last {{'translate.scrobble' | translate}}: {{l.date | date}} ({{l.artist}} - {{l.track}})</div>
-    }
   </div>
 }
 <div class="export">

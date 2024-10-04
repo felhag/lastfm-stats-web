@@ -20,6 +20,7 @@ import { StatsComponent } from './stats/stats.component';
 import { Top10listComponent } from './lists/top10list/top10list.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { ChartLoaderDirective } from './directive/chart-loader.directive';
+import { GeneralComponent } from './general/general.component';
 
 @NgModule({ declarations: [AppComponent],
     exports: [
@@ -65,8 +66,12 @@ export class SharedModule {
         children: [
           {
             path: '',
-            redirectTo: 'artists',
+            redirectTo: 'general',
             pathMatch: 'full'
+          }, {
+            path: 'general',
+            pathMatch: 'full',
+            component: GeneralComponent
           }, {
             path: 'artists',
             pathMatch: 'full',

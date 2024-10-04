@@ -43,7 +43,8 @@ export class CumulativeItemsChart extends ToggleableChart {
       artists: new Map(),
       albums: new Map(),
       tracks: new Map(),
-      date: new Date()
+      date: new Date(),
+      count: 0
     }, ...Object.values(stats.monthList)];
     const series = [...this.chart!.series];
     const arr = this.mapper.seen(this.type, stats);

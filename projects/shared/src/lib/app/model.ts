@@ -54,6 +54,7 @@ export interface Month {
   artists: Map<string, MonthItem>;
   albums: Map<string, MonthItem>;
   tracks: Map<string, MonthItem>;
+  count: number;
   date: Date;
 }
 
@@ -85,6 +86,7 @@ export interface TempStats {
   hours: { [key: number]: number };
   days: { [key: number]: number };
   months: { [key: number]: number };
+  years: { [key: number]: number};
   specificDays: { [key: number]: Track[] };
   specificWeeks: { [key: string]: number };
   seenArtists: { [key: string]: Artist };

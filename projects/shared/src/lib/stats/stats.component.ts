@@ -46,7 +46,7 @@ import { TranslatePipe } from '../service/translate.pipe';
 })
 export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
-  private activeTab: string = 'artists';
+  private activeTab: string = 'general';
   private start?: [number, number, number];
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
@@ -60,7 +60,7 @@ export class StatsComponent implements OnInit, OnDestroy {
               private dialog: MatDialog,
               private app: App,
               translate: TranslatePipe) {
-    this.tabs = ['artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset'];
+    this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset'];
   }
 
   ngOnInit(): void {

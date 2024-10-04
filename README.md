@@ -35,6 +35,12 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.0 (04-10-2024)
+- added general tab
+- logarithmic scale for rank chart ([#55][i55])
+- fixed username casing in urls ([#57][i57])
+- fixed character encoding issue in letter-chart
+
 5.12 (26-07-2024)
 - added letter chart
 - added testuser data for dev purposes
@@ -258,3 +264,5 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i47]: https://github.com/felhag/lastfm-stats-web/issues/47
 [i48]: https://github.com/felhag/lastfm-stats-web/issues/48
 [i49]: https://github.com/felhag/lastfm-stats-web/issues/49
+[i55]: https://github.com/felhag/lastfm-stats-web/issues/55
+[i57]: https://github.com/felhag/lastfm-stats-web/issues/57

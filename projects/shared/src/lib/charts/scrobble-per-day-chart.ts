@@ -1,6 +1,7 @@
 import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
+import { EddingtonUtil } from '../service/eddington.util';
 
 export class ScrobblePerDayChart extends AbstractChart {
   constructor(translate: TranslatePipe) {
@@ -73,16 +74,10 @@ export class ScrobblePerDayChart extends AbstractChart {
       return;
     }
 
-    const counts: {[key: number]: number} = {};
+    const counts = EddingtonUtil.counts(stats);
     const years: {[key: number]: [number, number]} = {};
     Object.entries(stats.specificDays).forEach(([day, tracks]) => {
       const count = tracks.length;
-      if (!counts[count]) {
-        counts[count] = 1;
-      } else {
-        counts[count]++;
-      }
-
       const year = new Date(parseInt(day)).getFullYear();
       if (!years[year]) {
         years[year] = [count, 1];
@@ -104,8 +99,8 @@ export class ScrobblePerDayChart extends AbstractChart {
       };
     });
 
-    const eddington = this.calcEddington(counts);
-    const eddingtonPoint = this.eddingtonDataPoint(counts, eddington);
+    const eddington = EddingtonUtil.calcEddington(counts);
+    const eddingtonPoint = EddingtonUtil.eddingtonDataPoint(counts, eddington);
     const days = Object.entries(counts).map((count, idx) => {
       const isEddington = parseInt(count[0]) === eddingtonPoint;
       return {
@@ -129,22 +124,5 @@ export class ScrobblePerDayChart extends AbstractChart {
       new Date(year, 11, 31, 23, 59, 59);
 
     return Math.ceil((end.getTime() - start.getTime()) / Constants.DAY);
-  }
-
-  private calcEddington(counts: {[key: number]: number}): number {
-    let sum = 0;
-    let eddington = Math.max(...Object.keys(counts).map(c => parseInt(c)));
-    while(eddington >= sum) {
-      sum += counts[eddington] || 0;
-      eddington--;
-    }
-    return eddington;
-  }
-
-  private eddingtonDataPoint(counts: {[key: number]: number}, eddington: number): number {
-    while (!counts[eddington]) {
-      eddington--;
-    }
-    return eddington;
   }
 }

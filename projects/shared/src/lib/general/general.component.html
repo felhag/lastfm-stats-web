@@ -1,0 +1,71 @@
+<mat-card>
+  <mat-card-content>
+    <dl>
+      <dt>Username</dt>
+      <dd>{{ (user$ | async)?.name }}</dd>
+
+      @if (days$ | async; as days) {
+        <dt>Days since first {{ 'translate.scrobble' | translate }}</dt>
+        <dd>{{ days }}</dd>
+      }
+      @if (tempStats$ | async; as stats) {
+        <dt>Days {{ 'translate.scrobbled' | translate }}</dt>
+        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$ | async)!) * 100 | number:'1.0-2' }} %)</dd>
+      }
+      @if (scrobbles.first | async; as first) {
+        <dt>First {{ 'translate.scrobble' | translate }}</dt>
+        <dd>{{ first.date | date }} ({{ first.artist }} - {{ first.track }})</dd>
+      }
+      @if (scrobbles.last | async; as last) {
+        <dt>Last {{ 'translate.scrobble' | translate }}</dt>
+        <dd>{{ last.date | date }} ({{ last.artist }} - {{ last.track }})</dd>
+      }
+    </dl>
+  </mat-card-content>
+</mat-card>
+<!--  <dt>&nbsp;</dt><dd></dd>-->
+
+@if (tempStats$ | async; as stats) {
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        <dt>Artists</dt>
+        <dd>{{ count(stats.seenArtists) }}</dd>
+        <dt>One hit wonders</dt>
+        <dd>{{ oneHitWonders(stats) }}  ({{ oneHitWonders(stats) / (count(stats.seenArtists)) * 100 | number:'1.0-2' }}
+          %)
+        </dd>
+        <dt>Albums</dt>
+        <dd>{{ count(stats.seenAlbums) }}</dd>
+        <dt>Albums per artist</dt>
+        <dd>{{ count(stats.seenAlbums) / count(stats.seenArtists) | number:'1.0-2' }}</dd>
+        <dt>Tracks</dt>
+        <dd>{{ count(stats.seenTracks) }}</dd>
+        <dt>Tracks without album</dt>
+        <dd>{{ tracksWithoutAlbum(stats) }}</dd>
+      </dl>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        <!--    <dt>&nbsp;</dt><dd></dd>-->
+
+        <dt>Eddington number</dt>
+        <dd>{{ getEddington(stats) }}</dd>
+        <dt>Days needed for next Eddington ({{ getEddington(stats) + 1 }})</dt>
+        <dd>{{ nextEddington(stats) }}</dd>
+
+        <dt>Most popular year</dt>
+        @if (max(stats.years); as max) {
+          <dd>{{ max }} ({{ stats.years[max] }} {{ 'translate.scrobbles' | translate }})</dd>
+        }
+        <dt>Most popular month</dt>
+        @if (mostPopularMonth(stats); as month) {
+          <dd>{{ month.alias }} ({{ month.count }} {{ 'translate.scrobbles' | translate }})</dd>
+        }
+      </dl>
+    </mat-card-content>
+  </mat-card>
+}
+<!--</dl>-->

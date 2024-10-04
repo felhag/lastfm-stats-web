@@ -40,7 +40,8 @@ export class StatsBuilderService {
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
     for (const scrobble of this.filterWith(scrobbles, settings)) {
-      if (scrobble.date.getFullYear() === 1970) {
+      const year = scrobble.date.getFullYear();
+      if (year === 1970) {
         continue;
       }
 
@@ -54,6 +55,11 @@ export class StatsBuilderService {
       next.months[scrobble.date.getMonth()]++;
       next.days[scrobble.date.getDay()]++;
       next.specificWeeks[weekYear] = (next.specificWeeks[weekYear] || 0) + 1;
+
+      if (!next.years[year]) {
+        next.years[year] = 0;
+      }
+      next.years[year]++;
 
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
@@ -95,12 +101,16 @@ export class StatsBuilderService {
         artists: new Map(),
         albums: new Map(),
         tracks: new Map(),
-        date: scrobble.date
+        date: scrobble.date,
+        count: 0
       };
     }
+    month.count++;
 
     this.handleMonthItem(scrobble, month.artists, next.seenArtists, scrobble.artist);
-    this.handleMonthItem(scrobble, month.albums, next.seenAlbums, scrobble.artist + ' - ' + scrobble.album);
+    if (scrobble.album) {
+      this.handleMonthItem(scrobble, month.albums, next.seenAlbums, scrobble.artist + ' - ' + scrobble.album);
+    }
     this.handleMonthItem(scrobble, month.tracks, next.seenTracks, scrobble.artist + ' - ' + scrobble.track);
   }
 
@@ -219,6 +229,7 @@ export class StatsBuilderService {
       days: this.scrobbleCountObject(7),
       hours: this.scrobbleCountObject(24),
       months: this.scrobbleCountObject(12),
+      years: {},
       scrobbleStreak: new ScrobbleStreakStack(),
       artistStreak: new ItemStreakStack((a, b) => a.artist === b.artist),
       trackStreak: new ItemStreakStack((a, b) => a.track === b.track && a.artist === b.artist),
