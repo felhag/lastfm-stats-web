@@ -1,43 +1,37 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Export, App, Constants } from 'projects/shared/src/lib/app/model';
-import { take, Observable, map, combineLatest, switchMap, Subject } from 'rxjs';
-import { DatabaseService } from '../service/database.service';
-import { ScrobbleManager } from '../service/scrobble-manager.service';
-import { ScrobbleStore } from '../service/scrobble.store';
-import { TranslatePipe } from '../service/translate.pipe';
-import { TranslatePipe as TranslatePipe_1 } from 'projects/shared/src/lib/service/translate.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {App, Constants, Export} from 'projects/shared/src/lib/app/model';
+import {combineLatest, map, Observable, Subject, switchMap, take} from 'rxjs';
+import {DatabaseService} from '../service/database.service';
+import {ScrobbleStore} from '../service/scrobble.store';
+import {TranslatePipe} from '../service/translate.pipe';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {AsyncPipe, DecimalPipe} from '@angular/common';
 
 @Component({
-    selector: 'app-progress',
-    templateUrl: './progress.component.html',
-    styleUrls: ['./progress.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [TranslatePipe],
-    imports: [
-        MatProgressSpinnerModule,
-        MatProgressBarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatTooltipModule,
-        AsyncPipe,
-        DecimalPipe,
-        DatePipe,
-        TranslatePipe_1
-    ]
+  selector: 'app-progress',
+  templateUrl: './progress.component.html',
+  styleUrls: ['./progress.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [TranslatePipe],
+  imports: [
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    AsyncPipe,
+    DecimalPipe,
+  ]
 })
 export class ProgressComponent {
   saveInDb$ = new Subject<number>();
 
   constructor(public scrobbles: ScrobbleStore,
-              private manager: ScrobbleManager,
               private database: DatabaseService,
-              private translate: TranslatePipe,
               private app: App) {
   }
 

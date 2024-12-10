@@ -1,7 +1,6 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
-
-@import './projects/shared/src/shared-home';
+@use 'projects/shared/src/shared-home.scss' as shared;
 
 .home {
   .cm-logo {
@@ -33,7 +32,7 @@
       outline: 0;
       border: 0;
       background: transparent;
-      font-size: $font-size;
+      font-size: shared.$font-size;
       font-family: inherit;
       color: inherit;
       padding: 0;

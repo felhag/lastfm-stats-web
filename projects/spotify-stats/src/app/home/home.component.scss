@@ -1,7 +1,6 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
-
-@import './projects/shared/src/shared-home';
+@use 'projects/shared/src/shared-home.scss' as shared;
 
 .open-dialog-button {
   width: 100%;

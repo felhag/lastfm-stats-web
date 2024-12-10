@@ -1,6 +1,5 @@
 :host, .loading {
   display: flex;
-  align-items: center;
 }
 
 .progress {
@@ -18,7 +17,6 @@
 
 @media (max-width: 767px) {
   :host {
-    align-items: flex-start;
     flex-direction: column;
 
     .export {

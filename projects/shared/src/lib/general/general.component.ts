@@ -16,7 +16,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         AsyncPipe,
         DatePipe,
         DecimalPipe,
-        JsonPipe,
         MatCard,
         MatCardContent,
         TranslatePipe
