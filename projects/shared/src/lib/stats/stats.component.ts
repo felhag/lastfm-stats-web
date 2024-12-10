@@ -22,27 +22,26 @@ import { ButtonsComponent } from '../buttons/buttons.component';
 import { TranslatePipe } from '../service/translate.pipe';
 
 @Component({
-  selector: 'app-stats',
-  templateUrl: './stats.component.html',
-  styleUrls: ['./stats.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatBadgeModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatTabsModule,
-    ProgressComponent,
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-    TitleCasePipe,
-    ButtonsComponent
-  ]
+    selector: 'app-stats',
+    templateUrl: './stats.component.html',
+    styleUrls: ['./stats.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
+    imports: [
+        CommonModule,
+        MatBadgeModule,
+        MatButtonModule,
+        MatCardModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        MatTabsModule,
+        ProgressComponent,
+        RouterLink,
+        RouterLinkActive,
+        RouterOutlet,
+        TitleCasePipe,
+        ButtonsComponent
+    ]
 })
 export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];

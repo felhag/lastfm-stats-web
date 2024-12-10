@@ -9,19 +9,18 @@ import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  standalone: true,
-  selector: 'app-db-load-button',
-  templateUrl: './db-load-button.component.html',
-  styleUrls: ['./db-load-button.component.scss'],
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    RouterModule,
-    MatTooltipModule
-  ],
-  encapsulation: ViewEncapsulation.None
+    selector: 'app-db-load-button',
+    templateUrl: './db-load-button.component.html',
+    styleUrls: ['./db-load-button.component.scss'],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSelectModule,
+        RouterModule,
+        MatTooltipModule
+    ],
+    encapsulation: ViewEncapsulation.None
 })
 export class DbLoadButtonComponent {
   userDeleted = new Subject<string>();

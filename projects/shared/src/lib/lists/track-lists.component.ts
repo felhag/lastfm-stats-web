@@ -26,7 +26,6 @@ export interface TrackStats {
     templateUrl: './track-lists.component.html',
     styleUrls: ['./lists.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> {

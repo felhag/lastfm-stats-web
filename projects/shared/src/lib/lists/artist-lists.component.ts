@@ -40,7 +40,6 @@ export interface ArtistStats {
     templateUrl: './artist-lists.component.html',
     styleUrls: ['./lists.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {

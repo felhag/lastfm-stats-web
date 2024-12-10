@@ -63,8 +63,7 @@ if (darkMode.matches) {
     styleUrls: ['./charts.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [TranslatePipe],
-    standalone: true,
-  imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule, MatMenuModule]
+    imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule, MatMenuModule]
 })
 export class ChartsComponent {
   Highcharts: typeof Highcharts = Highcharts;

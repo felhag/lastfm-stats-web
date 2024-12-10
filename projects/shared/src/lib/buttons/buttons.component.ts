@@ -8,16 +8,15 @@ import { RouterLink } from '@angular/router';
 
 
 @Component({
-  standalone: true,
-  selector: 'app-buttons',
-  templateUrl: './buttons.component.html',
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    RouterLink
-],
-  styleUrls: ['./buttons.component.scss']
+    selector: 'app-buttons',
+    templateUrl: './buttons.component.html',
+    imports: [
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        RouterLink
+    ],
+    styleUrls: ['./buttons.component.scss']
 })
 export class ButtonsComponent {
   @Input() showHome = true;

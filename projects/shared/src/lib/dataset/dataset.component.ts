@@ -21,25 +21,24 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-dataset',
-  templateUrl: './dataset.component.html',
-  styleUrls: ['./dataset.component.scss'],
-  providers: [TranslatePipe],
-  standalone: true,
-  imports: [
-    CdkVirtualScrollViewport,
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatRadioModule,
-    MatSortModule,
-    MatTableModule,
-    ReactiveFormsModule,
-    TableVirtualScrollModule,
-  ]
+    selector: 'app-dataset',
+    templateUrl: './dataset.component.html',
+    styleUrls: ['./dataset.component.scss'],
+    providers: [TranslatePipe],
+    imports: [
+        CdkVirtualScrollViewport,
+        CommonModule,
+        MatButtonModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatRadioModule,
+        MatSortModule,
+        MatTableModule,
+        ReactiveFormsModule,
+        TableVirtualScrollModule,
+    ]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {

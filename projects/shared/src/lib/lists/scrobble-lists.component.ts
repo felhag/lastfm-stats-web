@@ -21,7 +21,6 @@ export interface ScrobbleStats {
     templateUrl: './scrobble-lists.component.html',
     styleUrls: ['./lists.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> {

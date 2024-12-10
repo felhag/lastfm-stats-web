@@ -28,15 +28,14 @@ interface DatasetModalData {
     templateUrl: './dataset-modal.component.html',
     styleUrls: ['./dataset-modal.component.scss'],
     providers: [TranslatePipe],
-    standalone: true,
     imports: [
-    HighchartsChartModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatIconModule,
-    MatTooltipModule,
-    NgCircleProgressModule
-]
+        HighchartsChartModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatIconModule,
+        MatTooltipModule,
+        NgCircleProgressModule
+    ]
 })
 export class DatasetModalComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;

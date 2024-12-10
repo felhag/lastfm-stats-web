@@ -19,18 +19,17 @@ import { AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
     styleUrls: ['./progress.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [TranslatePipe],
-    standalone: true,
     imports: [
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
-    AsyncPipe,
-    DecimalPipe,
-    DatePipe,
-    TranslatePipe_1
-],
+        MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatIconModule,
+        MatButtonModule,
+        MatTooltipModule,
+        AsyncPipe,
+        DecimalPipe,
+        DatePipe,
+        TranslatePipe_1
+    ]
 })
 export class ProgressComponent {
   saveInDb$ = new Subject<number>();

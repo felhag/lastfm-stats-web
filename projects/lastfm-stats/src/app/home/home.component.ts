@@ -11,20 +11,19 @@ import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
 @Component({
-  standalone: true,
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    NgxCsvParserModule,
-    RouterModule,
-    DbLoadButtonComponent,
-    ButtonsComponent,
-  ]
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatCardModule,
+        NgxCsvParserModule,
+        RouterModule,
+        DbLoadButtonComponent,
+        ButtonsComponent,
+    ]
 })
 export class HomeComponent {
   username?: string;

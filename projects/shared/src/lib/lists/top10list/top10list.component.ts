@@ -11,19 +11,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-top10list',
-  templateUrl: './top10list.component.html',
-  styleUrls: ['./top10list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
-    MatListModule,
-    MatSnackBarModule
-  ]
+    selector: 'app-top10list',
+    templateUrl: './top10list.component.html',
+    styleUrls: ['./top10list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatCardModule,
+        MatIconModule,
+        MatListModule,
+        MatSnackBarModule
+    ]
 })
 export class Top10listComponent {
   @Input({required: true}) title!: string;

@@ -42,26 +42,25 @@ interface ParsedEntry {
 }
 
 @Component({
-  standalone: true,
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ButtonsComponent,
-    CommonModule,
-    DatePipe,
-    DbLoadButtonComponent,
-    MatButtonModule,
-    MatCardModule,
-    MatDialogModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    NgxDropzoneModule,
-    ReactiveFormsModule,
-    RouterModule,
-  ]
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        ButtonsComponent,
+        CommonModule,
+        DatePipe,
+        DbLoadButtonComponent,
+        MatButtonModule,
+        MatCardModule,
+        MatDialogModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        NgxDropzoneModule,
+        ReactiveFormsModule,
+        RouterModule,
+    ]
 })
 export class HomeComponent {
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {

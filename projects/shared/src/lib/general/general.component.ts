@@ -11,20 +11,19 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-general',
-  standalone: true,
-  imports: [
-    AsyncPipe,
-    DatePipe,
-    DecimalPipe,
-    JsonPipe,
-    MatCard,
-    MatCardContent,
-    TranslatePipe
-  ],
-  templateUrl: './general.component.html',
-  styleUrl: './general.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-general',
+    imports: [
+        AsyncPipe,
+        DatePipe,
+        DecimalPipe,
+        JsonPipe,
+        MatCard,
+        MatCardContent,
+        TranslatePipe
+    ],
+    templateUrl: './general.component.html',
+    styleUrl: './general.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeneralComponent {
   readonly user$: Observable<User | undefined>;

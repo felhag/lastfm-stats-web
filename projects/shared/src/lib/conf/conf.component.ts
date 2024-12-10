@@ -17,25 +17,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
-  selector: 'app-conf',
-  templateUrl: './conf.component.html',
-  styleUrls: ['./conf.component.scss'],
-  standalone: true,
-  imports: [
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatOptionModule,
-    MatSliderModule,
-    ReactiveFormsModule,
-    TranslatePipe
-]
+    selector: 'app-conf',
+    templateUrl: './conf.component.html',
+    styleUrls: ['./conf.component.scss'],
+    imports: [
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatChipsModule,
+        MatDatepickerModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatNativeDateModule,
+        MatOptionModule,
+        MatSliderModule,
+        ReactiveFormsModule,
+        TranslatePipe
+    ]
 })
 export class ConfComponent {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;
