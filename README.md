@@ -35,6 +35,13 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.1 (10-12-2024)
+- added highest (monthly) rank to dataset modal
+- added every year artists to general tab
+- fixed date scatter chart
+- fixed testuser for development
+- updated to angular 19
+
 6.0 (04-10-2024)
 - added general tab
 - logarithmic scale for rank chart ([#55][i55])

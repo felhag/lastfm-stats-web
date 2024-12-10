@@ -1,30 +1,51 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { AsyncPipe, DatePipe, DecimalPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
 import { filter, map, Observable } from 'rxjs';
-import { Constants, TempStats, User } from '../app/model';
+import { Artist, Constants, TempStats, User } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { EddingtonUtil } from '../service/eddington.util';
 import { MapperService } from '../service/mapper.service';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle
+} from "@angular/material/dialog";
+import { MatButton } from "@angular/material/button";
+import { MatList, MatListItem } from "@angular/material/list";
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
-    selector: 'app-general',
-    imports: [
-        AsyncPipe,
-        DatePipe,
-        DecimalPipe,
-        MatCard,
-        MatCardContent,
-        TranslatePipe
-    ],
-    templateUrl: './general.component.html',
-    styleUrl: './general.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-general',
+  standalone: true,
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    DecimalPipe,
+    MatButton,
+    MatCard,
+    MatCardContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatIcon,
+    MatList,
+    MatListItem,
+    TranslatePipe,
+  ],
+  templateUrl: './general.component.html',
+  styleUrl: './general.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeneralComponent {
+  @ViewChild('everyYearArtists') everyYearArtistsDialog!: TemplateRef<Artist[]>;
+
   readonly user$: Observable<User | undefined>;
   readonly days$: Observable<number>;
   readonly tempStats$: Observable<TempStats>;
@@ -32,6 +53,7 @@ export class GeneralComponent {
 
   constructor(public scrobbles: ScrobbleStore,
               private mapper: MapperService,
+              private dialog: MatDialog,
               stats: StatsBuilderService) {
     this.days$ = scrobbles.first.pipe(
       takeUntilDestroyed(),
@@ -43,7 +65,26 @@ export class GeneralComponent {
   }
 
   everyYearArtist(stats: TempStats) {
-    stats.years;
+    if (!stats.first || !stats.last) {
+      return [];
+    }
+    let current = stats.first.date.getFullYear();
+    const last = stats.last.date.getFullYear() + 1;
+    const years: number[] = [];
+    while (current <= last) {
+      years.push(new Date(current, 0, 1).getTime())
+      current++
+    }
+    const slice = years.slice(1)
+    return Object
+      .values(stats.seenArtists)
+      .filter(artist => slice.every((year, idx) => artist.scrobbles.some(s => s >= years[idx] && s < year)))
+      .sort((a, b) => b.scrobbles.length - a.scrobbles.length);
+  }
+
+  openEveryYearArist(artists: Artist[]) {
+    const data = {artists};
+    this.dialog.open(this.everyYearArtistsDialog, {data});
   }
 
   oneHitWonders(stats: TempStats) {
@@ -52,8 +93,8 @@ export class GeneralComponent {
 
   tracksWithoutAlbum(stats: TempStats) {
     return Object.values(stats.monthList)
-      .map(m => m.count - this.mapper.monthItems('album', m).reduce((a,b) => a + b.count, 0))
-      .reduce((a,b) => a + b, 0);
+      .map(m => m.count - this.mapper.monthItems('album', m).reduce((a, b) => a + b.count, 0))
+      .reduce((a, b) => a + b, 0);
   }
 
   getEddington(stats: TempStats) {
@@ -70,13 +111,15 @@ export class GeneralComponent {
     return Object.values(stats.monthList).sort(((a, b) => b.count - a.count))[0];
   }
 
-  max(counts: {[key: number]: number}): number {
+  max(counts: { [key: number]: number }): number {
     const keys = Object.keys(counts);
     return keys.length ? keys.reduce((a: any, b: any) => counts[a] > counts[b] ? a : b) as any as number : 0;
   }
 
-  min(counts: {[key: number]: number}): number {
+  min(counts: { [key: number]: number }): number {
     const keys = Object.keys(counts);
     return keys.length ? keys.reduce((a: any, b: any) => counts[a] < counts[b] ? a : b) as any as number : 0;
   }
+
+  protected readonly open = open;
 }

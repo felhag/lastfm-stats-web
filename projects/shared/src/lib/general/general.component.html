@@ -10,7 +10,9 @@
       }
       @if (tempStats$ | async; as stats) {
         <dt>Days {{ 'translate.scrobbled' | translate }}</dt>
-        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$ | async)!) * 100 | number:'1.0-2' }} %)</dd>
+        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$ | async)!) * 100 | number:'1.0-2' }}
+          %)
+        </dd>
       }
       @if (scrobbles.first | async; as first) {
         <dt>First {{ 'translate.scrobble' | translate }}</dt>
@@ -23,7 +25,6 @@
     </dl>
   </mat-card-content>
 </mat-card>
-<!--  <dt>&nbsp;</dt><dd></dd>-->
 
 @if (tempStats$ | async; as stats) {
   <mat-card>
@@ -35,6 +36,13 @@
         <dd>{{ oneHitWonders(stats) }}  ({{ oneHitWonders(stats) / (count(stats.seenArtists)) * 100 | number:'1.0-2' }}
           %)
         </dd>
+        <dt>Every year artists</dt>
+        @if (everyYearArtist(stats); as eya) {
+          <dd class="every-year-artist">
+            {{ eya.length }}
+            <mat-icon (click)="openEveryYearArist(eya)" inline="true">view_list</mat-icon>
+          </dd>
+        }
         <dt>Albums</dt>
         <dd>{{ count(stats.seenAlbums) }}</dd>
         <dt>Albums per artist</dt>
@@ -49,8 +57,6 @@
   <mat-card>
     <mat-card-content>
       <dl>
-        <!--    <dt>&nbsp;</dt><dd></dd>-->
-
         <dt>Eddington number</dt>
         <dd>{{ getEddington(stats) }}</dd>
         <dt>Days needed for next Eddington ({{ getEddington(stats) + 1 }})</dt>
@@ -68,4 +74,17 @@
     </mat-card-content>
   </mat-card>
 }
-<!--</dl>-->
+
+<ng-template let-data #everyYearArtists>
+  <h2 mat-dialog-title> Every year artist </h2>
+  <div mat-dialog-content>
+    <mat-list>
+      @for (artist of data.artists; track artist.name) {
+        <mat-list-item>{{ artist.name }} ({{ artist.scrobbles.length }})</mat-list-item>
+      }
+    </mat-list>
+  </div>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</ng-template>

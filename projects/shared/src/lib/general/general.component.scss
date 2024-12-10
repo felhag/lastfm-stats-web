@@ -8,10 +8,14 @@ dl {
   grid-template-columns: 1fr 1fr;
   margin-top: 0;
 }
-//dt,dd {
-//  border-bottom: 1px solid #424242;
-//}
 dd {
   margin: 0;
   grid-column-start: 2;
+}
+.every-year-artist {
+  display: inline-flex;
+  mat-icon {
+    cursor: pointer;
+    padding-left: 4px;
+  }
 }

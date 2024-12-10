@@ -29,7 +29,7 @@ export class ScrobbleScatterChart extends AbstractChart {
       },
       yAxis: {
         min: 0,
-        max: 23 * 60,
+        max: 24 * 60,
         reversed: true,
         startOnTick: false,
         endOnTick: false,

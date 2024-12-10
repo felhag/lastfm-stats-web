@@ -50,19 +50,30 @@ export class DatasetModalComponent implements OnInit {
 
   ngOnInit(): void {
     const scrobblesTitle = this.translate.capFirst('translate.scrobbles');
-    this.options = [
-      this.circleOption(scrobblesTitle, this.entry.scrobbles),
-      this.entry.tracks ? this.circleOption('Tracks', this.entry.tracks) : undefined,
-      this.circleOption('Weeks', this.entry.item.weeks.length),
-    ];
-
-    this.url = this.mapper.url(this.entry.type, this.entry.item);
-
+    const months = this.data.months;
+    const highestMonthly = Math.min(
+      ...Object.values(months)
+        .map(m => this.mapper
+          .monthItems(this.entry.type, m)
+          .sort((a, b) => a.count > b.count ? -1 : 1)
+          .findIndex(m => m.name === this.data.entry.item.name) + 1)
+        .filter(idx => idx > 0)
+    )
     const ranks = [];
     for (let i = 0; i < this.entry.item.ranks.length; i++) {
       ranks[i] = this.entry.item.ranks[i] || null;
     }
-    const months = this.data.months;
+
+    this.options = [
+      this.circleOption(scrobblesTitle, this.entry.scrobbles),
+      this.entry.tracks ? this.circleOption('Tracks', this.entry.tracks) : undefined,
+      this.circleOption('Weeks', this.entry.item.weeks.length),
+      this.circleOption('Highest rank', Math.min(...ranks.filter(r => r).map(r => r!))),
+      this.circleOption('Highest monthly', highestMonthly)
+    ];
+
+    this.url = this.mapper.url(this.entry.type, this.entry.item);
+
     const scrobbles = this.mapper.cumulativeMonths(this.entry.type, Object.values(months), this.entry.item);
     const first = ranks.findIndex(p => p !== null);
     const last = Object.keys(months).indexOf(this.mapper.getMonthYear(this.last));

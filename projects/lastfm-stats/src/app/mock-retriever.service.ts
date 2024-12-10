@@ -15,6 +15,7 @@ export class MockRetrieverService extends ScrobbleRetrieverService {
     if (username.toLowerCase() !== 'testuser') {
       super.retrieveFor(username, imported, store);
     } else {
+      store.page(this.data.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: new Date(s.date)})));
       store.updateUser({
         name: username,
         url: 'https://www.last.fm/user/' + username,
@@ -22,7 +23,6 @@ export class MockRetrieverService extends ScrobbleRetrieverService {
         registered: {unixtime: "1083442051"},
         image: []
       });
-      store.page(this.data.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: new Date(s.date)})));
       store.finish('COMPLETED');
     }
   }
