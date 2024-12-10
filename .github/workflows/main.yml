@@ -25,12 +25,12 @@ jobs:
       run: |
         npm install --legacy-peer-deps
         npm run-script deploy
-        cp dist/lastfm-stats/index.html dist/lastfm-stats/404.html
+        cp dist/lastfm-stats/browser/index.html dist/lastfm-stats/browser/404.html
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.6.8
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: gh-pages
-        folder: dist/lastfm-stats
+        folder: dist/lastfm-stats/browser
         target-folder: docs
