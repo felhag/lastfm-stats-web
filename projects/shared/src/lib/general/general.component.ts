@@ -19,6 +19,8 @@ import {
 import { MatButton } from "@angular/material/button";
 import { MatList, MatListItem } from "@angular/material/list";
 import { MatIcon } from "@angular/material/icon";
+import { MatChipListbox, MatChipOption } from "@angular/material/chips";
+import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
 
 @Component({
   selector: 'app-general',
@@ -27,9 +29,12 @@ import { MatIcon } from "@angular/material/icon";
     AsyncPipe,
     DatePipe,
     DecimalPipe,
+    FilterByYearPipe,
     MatButton,
     MatCard,
     MatCardContent,
+    MatChipListbox,
+    MatChipOption,
     MatDialogActions,
     MatDialogClose,
     MatDialogContent,
@@ -45,9 +50,10 @@ import { MatIcon } from "@angular/material/icon";
 })
 export class GeneralComponent {
   @ViewChild('everyYearArtists') everyYearArtistsDialog!: TemplateRef<Artist[]>;
-
+  readonly values: (seen: { [key: string]: Artist }) => Artist[] = Object.values;
   readonly user$: Observable<User | undefined>;
   readonly days$: Observable<number>;
+  readonly years$: Observable<[number, number, number, boolean][]>;
   readonly tempStats$: Observable<TempStats>;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
 
@@ -62,28 +68,19 @@ export class GeneralComponent {
     );
     this.user$ = scrobbles.user;
     this.tempStats$ = stats.tempStats;
+    this.years$ = this.tempStats$.pipe(
+      filter(stats => !!stats.first && !!stats.last),
+      map(stats => {
+        const first = stats.first!.date.getFullYear();
+        return [...Array(stats.last!.date.getFullYear() - first + 1).keys()]
+          .map(i => i + first)
+          .map(year => [year, new Date(year, 0, 1).getTime(), new Date(year, 11, 31).getTime(), true]);
+      })
+    );
   }
 
-  everyYearArtist(stats: TempStats) {
-    if (!stats.first || !stats.last) {
-      return [];
-    }
-    let current = stats.first.date.getFullYear();
-    const last = stats.last.date.getFullYear() + 1;
-    const years: number[] = [];
-    while (current <= last) {
-      years.push(new Date(current, 0, 1).getTime())
-      current++
-    }
-    const slice = years.slice(1)
-    return Object
-      .values(stats.seenArtists)
-      .filter(artist => slice.every((year, idx) => artist.scrobbles.some(s => s >= years[idx] && s < year)))
-      .sort((a, b) => b.scrobbles.length - a.scrobbles.length);
-  }
-
-  openEveryYearArist(artists: Artist[]) {
-    const data = {artists};
+  openEveryYearArist(stats: TempStats) {
+    const data = {stats};
     this.dialog.open(this.everyYearArtistsDialog, {data});
   }
 
@@ -122,4 +119,15 @@ export class GeneralComponent {
   }
 
   protected readonly open = open;
+
+  missing(artist: Artist, years: [number, number, number, boolean][]) {
+    const deselected = years.filter(year => !year[3])
+    if (!deselected.length) {
+      return undefined;
+    }
+    return deselected
+      .filter(year => !artist.scrobbles.some(s => s >= year[1] && s < year[2]))
+      .map(year => year[0])
+      .join(', ');
+  }
 }

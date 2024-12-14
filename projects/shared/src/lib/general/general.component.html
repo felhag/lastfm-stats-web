@@ -37,11 +37,13 @@
           %)
         </dd>
         <dt>Every year artists</dt>
-        @if (everyYearArtist(stats); as eya) {
-          <dd class="every-year-artist">
-            {{ eya.length }}
-            <mat-icon (click)="openEveryYearArist(eya)" inline="true">view_list</mat-icon>
-          </dd>
+        @if (years$ | async; as years) {
+          @if (values(stats.seenArtists) | filterByYear : years; as eya) {
+            <dd class="every-year-artist">
+              {{ eya.length }}
+              <mat-icon (click)="openEveryYearArist(stats)" inline="true">view_list</mat-icon>
+            </dd>
+          }
         }
         <dt>Albums</dt>
         <dd>{{ count(stats.seenAlbums) }}</dd>
@@ -75,14 +77,27 @@
   </mat-card>
 }
 
-<ng-template let-data #everyYearArtists>
+<ng-template #everyYearArtists>
   <h2 mat-dialog-title> Every year artist </h2>
   <div mat-dialog-content>
-    <mat-list>
-      @for (artist of data.artists; track artist.name) {
-        <mat-list-item>{{ artist.name }} ({{ artist.scrobbles.length }})</mat-list-item>
+    @if (years$ | async; as years) {
+      <mat-chip-listbox multiple>
+        @for (year of years; track year[0]) {
+          <mat-chip-option selected [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
+        }
+      </mat-chip-listbox>
+      @if (values((tempStats$ | async)?.seenArtists || {}) | filterByYear: years; as artists) {
+        Found {{ artists.length }} arists which you listened to in all selected years
+        <mat-list>
+          @for (artist of artists; track artist.name) {
+            <mat-list-item>
+              {{ artist.name }} ({{ artist.scrobbles.length }}
+              {{ 'translate.scrobbles' | translate }}@if (missing(artist, years); as missing) {<i>, missing {{missing}}</i>})
+            </mat-list-item>
+          }
+        </mat-list>
       }
-    </mat-list>
+    }
   </div>
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Close</button>
