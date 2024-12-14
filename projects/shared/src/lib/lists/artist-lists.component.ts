@@ -51,12 +51,11 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
     const seen = this.seenThreshold(stats.seenArtists);
-    const seenNames = seen.map(s => s.name);
     const gaps = this.calculateGaps(stats, seen, stats.betweenArtists, undefined, s => this.url.artist(s.start.artist));
     next.betweenArtists = gaps[0];
     next.ongoingBetweenArtists = gaps[1];
 
-    const months = this.getMonths(stats, seenNames);
+    const months = this.getMonths(stats);
 
     next.newArtistsPerMonth = this.getMonthTop10(months, m => m.artists.filter(a => a.new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, m => {
       // only show new artists in Including... text
@@ -100,11 +99,11 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     next.fallers = rankings.fallers;
   }
 
-  private getMonths(stats: TempStats, seen: string[]): { [key: string]: MonthWithAvg } {
+  private getMonths(stats: TempStats): { [key: string]: MonthWithAvg } {
     const result: { [key: string]: MonthWithAvg } = {};
     Object.keys(stats.monthList).forEach(m => {
       const month = stats.monthList[m];
-      const artists = [...month.artists.values()].filter(a => seen.indexOf(a.name) >= 0);
+      const artists = [...month.artists.values()];
       const sum = artists.map(a => a.count).reduce((a, b) => a + b, 0);
       const avg = (sum / artists.length) || 0;
       result[m] = {
