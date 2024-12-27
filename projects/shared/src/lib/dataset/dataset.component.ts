@@ -7,7 +7,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
-import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, App, TempStats, Month } from 'projects/shared/src/lib/app/model';
+import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, TempStats, Month } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -68,8 +68,7 @@ export class DatasetComponent implements OnInit {
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
-              private translate: TranslatePipe,
-              private app: App) {
+              private translate: TranslatePipe) {
   }
 
   ngOnInit(): void {
@@ -128,10 +127,6 @@ export class DatasetComponent implements OnInit {
 
   get columns(): string[] {
     return this.groupedByObj.columns;
-  }
-
-  get showAlbums(): boolean {
-    return this.app === App.lastfm;
   }
 
   get groupedByObj(): {columns: string[], data: (stats: TempStats) => { [key: string]: StreakItem }} {

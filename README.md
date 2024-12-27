@@ -35,6 +35,9 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.3 (27-12-2024)
+- added albums to dataset tabs for spotify stats
+
 6.2 (14-12-2024)
 - added filter possibility for every year artists
 - improved performance artists tab
