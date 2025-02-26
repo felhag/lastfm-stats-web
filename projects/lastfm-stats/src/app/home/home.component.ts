@@ -9,21 +9,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatCardModule,
-        NgxCsvParserModule,
-        RouterModule,
-        DbLoadButtonComponent,
-        ButtonsComponent,
-    ]
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    NgxCsvParserModule,
+    RouterModule,
+    DbLoadButtonComponent,
+    ButtonsComponent,
+    MatIcon,
+  ]
 })
 export class HomeComponent {
   username?: string;
@@ -58,18 +60,20 @@ export class HomeComponent {
         next: (csvArray: any) => {
           const headers = csvArray.splice(0, 1)[0];
           const length = headers.length;
-          if (!headers || length < 3 || length > 4) {
-            this.importError.next(`Expected 4 columns but found ${length}.
+          if (!headers || length < 4 || length > 5) {
+            this.importError.next(`Expected 4 or 5 columns but found ${length}.
             Only csv's which are exported from this site are allowed.`);
             return;
           }
 
+          const hasAlbumId = headers.includes('AlbumId');
           const username = headers[length - 1].substr(headers[length - 1].indexOf('#') + 1);
           const scrobbles = (csvArray as any[]).map(arr => ({
             artist: arr[0],
             album: arr[1],
-            track: arr[2],
-            date: new Date(parseInt(arr[3]))
+            albumId: hasAlbumId ? arr[2] : undefined,
+            track: arr[hasAlbumId ? 3 : 2],
+            date: new Date(parseInt(arr[hasAlbumId ? 4 : 3]))
           }));
           this.start(username, scrobbles);
         },
@@ -80,7 +84,7 @@ export class HomeComponent {
       reader.onloadend = () => {
         const parsed = this.parseJSON(reader.result as string);
         if (parsed) {
-          const scrobbles = parsed.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: new Date(s.date)}));
+          const scrobbles = parsed.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, albumId: s.albumId, date: new Date(s.date)}));
           this.start(parsed.username, scrobbles);
         }
       };
@@ -102,5 +106,9 @@ export class HomeComponent {
   get christmas(): boolean {
     const date = new Date();
     return date.getMonth() === 11 && [24, 25, 26].indexOf(date.getDate()) >= 0;
+  }
+
+  get showInfo(): boolean {
+    return new Date() < new Date(2025, 3, 1);
   }
 }

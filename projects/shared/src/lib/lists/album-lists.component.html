@@ -16,8 +16,11 @@
       <app-top10list [list]="s.climbers" title="Biggest climbers" explanation="Gained most ranks in a single month (according to {{'translate.scrobble' | translate}} count with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}})"></app-top10list>
       <app-top10list [list]="s.fallers" title="Biggest fallers" explanation="Lost most ranks in a single month (according to {{'translate.scrobble' | translate}} count with at least {{minimumForcedThreshold}} {{'translate.scrobbles' | translate}})"></app-top10list>
     </div>
-    <div class="row">
-      <app-top10list [list]="s.withoutAlbum" title="Tracks without album" explanation="Tracks most {{'translate.scrobbled' | translate}} without an album"></app-top10list>
-    </div>
+    @if (isLastFm) {
+      <div class="row">
+        <app-top10list [list]="s.differentArtists" title="Albums with most artists" explanation="Albums with the most different artists"></app-top10list>
+        <app-top10list [list]="s.withoutAlbum" title="Tracks without album" explanation="Tracks most {{'translate.scrobbled' | translate}} without an album"></app-top10list>
+      </div>
+    }
   </div>
 }

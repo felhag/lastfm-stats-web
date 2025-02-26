@@ -21,8 +21,8 @@ export class MapperService {
       seen: (stats: TempStats) => stats.seenAlbums,
       shortName: (artist: Track) => artist.shortName,
       monthItems: (month: Month) => [...month.albums.values()],
-      monthItem: (month: Month, track: StreakItem) => month.albums.get(track.name),
-      url: (item: StreakItem) => this.urlService.album((item as Album).artist, (item as Album).shortName)
+      monthItem: (month: Month, item: StreakItem) => month.albums.get((item as Album).id),
+      url: (item: StreakItem) => (item as Album).artists.length === 1 ? this.urlService.album((item as Album).artists[0], (item as Album).shortName) : ''
     },
     'track': {
       seen: (stats: TempStats) => stats.seenTracks,

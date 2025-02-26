@@ -14,6 +14,14 @@
   </mat-card-header>
   <mat-card-content class="home">
     <div class="home-row"><div class="line"></div></div>
+
+    @if (showInfo) {
+      <div class="info-message">
+        <mat-icon>lightbulb_2</mat-icon>
+        I added support for artists with various artists.<br>Fully reload your scrobbles to use this function.
+      </div>
+    }
+
     <label class="home-row">
       <span>last.fm/user/</span>
       <span class="input-wrap">

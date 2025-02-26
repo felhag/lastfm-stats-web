@@ -1,6 +1,6 @@
 import * as Highcharts from 'highcharts';
 import { PointOptionsObject, SeriesOptionsType } from 'highcharts';
-import { TempStats, Month, ItemType, Artist, MonthItem, StreakItem } from 'projects/shared/src/lib/app/model';
+import { TempStats, Month, ItemType, StreakItem } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { MapperService } from '../service/mapper.service';
@@ -13,7 +13,7 @@ export class RaceChart extends AbstractChart {
 
   colors: {[key: string]: string} = {};
   months: Month[] = [];
-  items: string[] = [];
+  items: { [p: string]: StreakItem } = {};
   current = -1;
   timer?: number;
   toolbar?: HTMLElement;
@@ -138,7 +138,7 @@ export class RaceChart extends AbstractChart {
   update(stats: TempStats): void {
     this.stats = stats;
     this.months = Object.values(this.stats!.monthList);
-    this.items = Object.keys(this.mapper.seen(this.type, this.stats!));
+    this.items = this.mapper.seen(this.type, this.stats!);
     this.updateSlider();
   }
 
@@ -149,8 +149,8 @@ export class RaceChart extends AbstractChart {
   }
 
   private getData(month: Month): PointOptionsObject[] {
-    return this.items
-      .map(a => ({name: a, count: this.cumulativeUntil(month, a)}))
+    return Object.values(this.items)
+      .map(a => ({name: a.name, count: this.cumulativeUntil(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
       .map(a => ({
@@ -170,8 +170,8 @@ export class RaceChart extends AbstractChart {
     return color;
   }
 
-  private cumulativeUntil(until: Month, artist: string): number {
-    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, {name: artist} as StreakItem)?.count || 0), 0);
+  private cumulativeUntil(until: Month, item: StreakItem): number {
+    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
   }
 
   /**

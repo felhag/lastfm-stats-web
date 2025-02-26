@@ -74,7 +74,7 @@ export class ProgressComponent {
     this.scrobbles.state$.pipe(take(1)).subscribe(state => {
       const data: Export = {
         username: state.user!.name,
-        scrobbles: state.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, date: s.date.getTime()}))
+        scrobbles: state.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, albumId: s.albumId, date: s.date.getTime()}))
       };
       this.export(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8;'}), 'json', state.user!.name);
     });
@@ -82,11 +82,11 @@ export class ProgressComponent {
 
   exportCSV(): void {
     this.scrobbles.state$.pipe(take(1)).subscribe(state => {
-      const hasAlbums = state.scrobbles.some(r => r.album);
-      const headers = `Artist;${hasAlbums ? 'Album;' : ''}Track;Date#${state.user!.name}\n`;
+      const headers = `Artist;Album;AlbumId;Track;Date#${state.user!.name}\n`;
       const data = state.scrobbles.map(s =>
         this.csvEntry(s.artist) +
-        (hasAlbums ? this.csvEntry(s.album || '') : '') +
+        this.csvEntry(s.album || '') +
+        this.csvEntry(s.albumId || '') +
         this.csvEntry(s.track) +
         `"${s.date.getTime()}"`).join('\n');
       this.export(new Blob(['\ufeff' + headers + data], {type: 'text/csv;charset=utf-8;'}), 'csv', state.user!.name);

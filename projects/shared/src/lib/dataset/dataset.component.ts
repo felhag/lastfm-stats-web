@@ -110,7 +110,7 @@ export class DatasetComponent implements OnInit {
       return {
         item,
         type: this.groupedBy.value,
-        artist: albumOrTrack ? (item as Album | Track).artist : undefined,
+        artist: this.getArtistName(item),
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
         scrobbles: item.scrobbles.length,
@@ -147,6 +147,17 @@ export class DatasetComponent implements OnInit {
       return this.translate.transform('translate.scrobbles');
     } else {
       return col;
+    }
+  }
+
+  private getArtistName(item: StreakItem) {
+    if ((item as Track).artist) {
+      return (item as Track).artist;
+    } else if ((item as Album).artists) {
+      const artists = (item as Album).artists;
+      return artists.length > 1 ? `Various artists (${artists.length})` : artists[0];
+    } else {
+      return undefined;
     }
   }
 }

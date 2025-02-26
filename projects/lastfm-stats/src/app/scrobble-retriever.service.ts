@@ -27,6 +27,7 @@ interface Track {
   };
   album: {
     '#text': string;
+    mbid: string;
   };
   date: {
     uts: number;
@@ -203,6 +204,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
       track: t.name,
       artist: this.sanitizeArtist(t.artist['#text']),
       album: t.album['#text'],
+      albumId: t.album.mbid,
       date: new Date(t.date?.uts * 1000)
     })).reverse();
 

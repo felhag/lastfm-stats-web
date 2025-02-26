@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Subject, combineLatest, scan, Observable, switchMap, map, merge, shareReplay, filter, take } from 'rxjs';
-import { TempStats, Scrobble, StreakStack, ScrobbleStreakStack, Constants, StreakItem, Track, Album, MonthItem, ItemStreakStack } from 'projects/shared/src/lib/app/model';
-import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
+import { combineLatest, filter, map, merge, Observable, scan, shareReplay, Subject, switchMap, take } from 'rxjs';
+import {
+  Constants,
+  ItemStreakStack,
+  MonthItem,
+  Scrobble,
+  ScrobbleStreakStack,
+  StreakItem,
+  StreakStack,
+  TempStats,
+  Track
+} from 'projects/shared/src/lib/app/model';
+import { Settings, SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { MapperService } from './mapper.service';
 import { ScrobbleStore } from './scrobble.store';
 
@@ -109,7 +119,9 @@ export class StatsBuilderService {
 
     this.handleMonthItem(scrobble, month.artists, next.seenArtists, scrobble.artist);
     if (scrobble.album) {
-      this.handleMonthItem(scrobble, month.albums, next.seenAlbums, scrobble.artist + ' - ' + scrobble.album);
+      const fullName = scrobble.artist + ' - ' + scrobble.album;
+      const key = scrobble.albumId || fullName;
+      this.handleMonthItem(scrobble, month.albums, next.seenAlbums, fullName, key);
     }
     this.handleMonthItem(scrobble, month.tracks, next.seenTracks, scrobble.artist + ' - ' + scrobble.track);
   }
@@ -124,12 +136,12 @@ export class StatsBuilderService {
     }
   }
 
-  private handleMonthItem(scrobble: Scrobble, map: Map<string, MonthItem>, seen: { [key: string]: StreakItem }, name: string) {
-    const monthItem = map.get(name);
+  private handleMonthItem(scrobble: Scrobble, map: Map<string, MonthItem>, seen: { [key: string]: StreakItem }, name: string, key: string = name) {
+    const monthItem = map.get(key);
     if (!monthItem) {
-      map.set(name, {
-        name: name,
-        new: seen[name] ? undefined : scrobble,
+      map.set(key, {
+        name,
+        new: seen[key] ? undefined : scrobble,
         count: 1,
       });
     } else {
@@ -163,8 +175,24 @@ export class StatsBuilderService {
 
   private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     if (scrobble.album) {
-      const item = this.handleItem(next.seenAlbums, next.betweenAlbums, scrobble.album, scrobble, weekYear);
-      if (item.scrobbles.length == 1) {
+      const fullName = scrobble.artist + ' - ' + scrobble.album;
+      const id = scrobble.albumId || fullName;
+      const seenItem = next.seenAlbums[id];
+      if (seenItem) {
+        const handled = this.handleStreakItem(seenItem, next.betweenAlbums, scrobble, weekYear);
+        if (!handled.artists.includes(scrobble.artist)) {
+          handled.artists.push(scrobble.artist);
+          if (handled.artists.length === 2) {
+            handled.name = handled.name.replace(handled.artists[0] + ' - ', 'Various artists - ');
+          }
+        }
+      } else {
+        next.seenAlbums[id] = {
+          ...this.createStreakItem(fullName, weekYear, scrobble),
+          id,
+          artists: [scrobble.artist],
+          shortName: scrobble.album,
+        };
         next.albumCount++;
         if (next.albumCount % 1000 === 0) {
           next.albumMilestones.push(scrobble);
@@ -174,30 +202,33 @@ export class StatsBuilderService {
   }
 
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
-    const track = this.handleItem(next.seenTracks, next.betweenTracks, scrobble.track, scrobble, weekYear);
-    track.withAlbum = (track.withAlbum ?? 0) + (scrobble.album ? 1 : 0);
-    return track;
+    const fullName = scrobble.artist + ' - ' + scrobble.track;
+    const seenItem = next.seenTracks[fullName];
+    if (seenItem) {
+      const handled = this.handleStreakItem(seenItem, next.betweenTracks, scrobble, weekYear);
+      handled.withAlbum = handled.withAlbum + (scrobble.album ? 1 : 0);
+      return handled;
+    } else {
+      const result: Track = {
+        ...this.createStreakItem(fullName, weekYear, scrobble),
+        artist: scrobble.artist,
+        shortName: scrobble.track,
+        withAlbum: scrobble.album ? 1 : 0
+      };
+      next.seenTracks[fullName] = result;
+      return result;
+    }
   }
 
-  private handleItem<T extends Track | Album>(seen: { [key: string]: T }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): T {
-    const fullName = scrobble.artist + ' - ' + item;
-    const seenItem = seen[fullName];
-    if (seenItem) {
-      return this.handleStreakItem(seenItem, between, scrobble, weekYear);
-    } else {
-      const result: Track | Album = {
-        artist: scrobble.artist,
-        shortName: item,
-        name: fullName,
-        weeks: [weekYear],
-        betweenStreak: {start: scrobble, end: scrobble},
-        avgScrobble: scrobble.date.getTime(),
-        scrobbles: [scrobble.date.getTime()],
-        ranks: []
-      };
-      seen[fullName] = result as T;
-      return result as T;
-    }
+  private createStreakItem(name: string, weekYear: string, scrobble: Scrobble): StreakItem {
+    return {
+      name,
+      weeks: [weekYear],
+      betweenStreak: {start: scrobble, end: scrobble},
+      avgScrobble: scrobble.date.getTime(),
+      scrobbles: [scrobble.date.getTime()],
+      ranks: []
+    };
   }
 
   private handleStreakItem<T extends StreakItem>(seen: T, stack: StreakStack, scrobble: Scrobble, weekYear: string): T {

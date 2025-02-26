@@ -22,6 +22,7 @@ export interface User {
 export interface Scrobble {
   artist: string;
   album: string;
+  albumId?: string;
   track: string;
   date: Date;
 }
@@ -40,7 +41,8 @@ export interface Artist extends StreakItem {
 }
 
 export interface Album extends StreakItem {
-  artist: string;
+  id: string;
+  artists: string[];
   shortName: string;
 }
 
@@ -67,7 +69,7 @@ export interface MonthItem {
 
 export interface Export {
   username: string;
-  scrobbles: { artist: string, album: string, track: string, date: number }[];
+  scrobbles: { artist: string, album: string, albumId?: string, track: string, date: number }[];
 }
 
 export interface DataSetEntry {
