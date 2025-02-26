@@ -32,10 +32,10 @@
       <dl>
         <dt>Artists</dt>
         <dd>{{ count(stats.seenArtists) }}</dd>
-        <dt>One hit wonders</dt>
-        <dd>{{ oneHitWonders(stats) }}  ({{ oneHitWonders(stats) / (count(stats.seenArtists)) * 100 | number:'1.0-2' }}
-          %)
-        </dd>
+        @if (oneHitWonders(stats); as owh) {
+          <dt>One hit wonders</dt>
+          <dd>{{ owh }}  ({{ owh / (count(stats.seenArtists)) * 100 | number:'1.0-2' }} %)
+        }
         <dt>Every year artists</dt>
         @if (years$ | async; as years) {
           @if (values(stats.seenArtists) | filterByYear : years; as eya) {
@@ -51,8 +51,14 @@
         <dd>{{ count(stats.seenAlbums) / count(stats.seenArtists) | number:'1.0-2' }}</dd>
         <dt>Tracks</dt>
         <dd>{{ count(stats.seenTracks) }}</dd>
-        <dt>Tracks without album</dt>
-        <dd>{{ tracksWithoutAlbum(stats) }}</dd>
+        @if (tracksWithoutAlbum(stats); as twa) {
+          <dt>Tracks without album</dt>
+          <dd>{{ twa }}  ({{ twa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
+        }
+        @if (scrobblesWithoutAlbum(stats); as swa) {
+          <dt>Scrobbles without album</dt>
+          <dd>{{ swa }}  ({{ swa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
+        }
       </dl>
     </mat-card-content>
   </mat-card>

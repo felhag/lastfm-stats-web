@@ -174,7 +174,9 @@ export class StatsBuilderService {
   }
 
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
-    return this.handleItem(next.seenTracks, next.betweenTracks, scrobble.track, scrobble, weekYear);
+    const track = this.handleItem(next.seenTracks, next.betweenTracks, scrobble.track, scrobble, weekYear);
+    track.withAlbum = (track.withAlbum ?? 0) + (scrobble.album ? 1 : 0);
+    return track;
   }
 
   private handleItem<T extends Track | Album>(seen: { [key: string]: T }, between: StreakStack, item: string, scrobble: Scrobble, weekYear: string): T {

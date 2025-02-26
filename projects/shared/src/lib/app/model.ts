@@ -47,6 +47,7 @@ export interface Album extends StreakItem {
 export interface Track extends StreakItem {
   artist: string;
   shortName: string;
+  withAlbum: number;
 }
 
 export interface Month {

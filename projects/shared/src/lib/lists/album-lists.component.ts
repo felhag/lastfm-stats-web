@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { TempStats, Album, Constants } from 'projects/shared/src/lib/app/model';
+import { TempStats, Album, Constants, Track, StreakItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
@@ -17,6 +17,7 @@ export interface AlbumStats {
   avgScrobbleAsc: Top10Item[];
   climbers: Top10Item[];
   fallers: Top10Item[];
+  withoutAlbum: Top10Item[];
 }
 
 @Component({
@@ -37,7 +38,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     const seen = this.seenThreshold(stats.seenAlbums);
     const gaps = this.calculateGaps(stats, seen, stats.betweenAlbums, 'album', s => this.url.album(s.start.artist, s.start.album));
     const albumUrl = (item: Album) => this.url.album(item.artist, item.shortName);
-    const albumDate = (item: Album) => new Date(item.avgScrobble);
+    const albumDate = (item: StreakItem) => new Date(item.avgScrobble);
 
     next.betweenAlbums = gaps[0];
     next.ongoingBetweenAlbums = gaps[1];
@@ -51,6 +52,9 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     const rankings = this.getRankings(seenThreshold, Object.values(stats.monthList), (i, m) => this.url.albumMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
+
+    const tracks = this.seenThreshold(stats.seenTracks);
+    next.withoutAlbum = this.getTop10<Track>(seen, s => s.scrobbles.length - s.withAlbum, k => tracks[+k], a => a.name, (i, v) => `${v} times`, t => this.url.track(t.artist, t.shortName), albumDate);
   }
 
   private getAlbumTop10(countMap: { [key: string]: any },
@@ -73,6 +77,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
       avgScrobbleAsc: [],
       climbers: [],
       fallers: [],
+      withoutAlbum: [],
     };
   }
 }

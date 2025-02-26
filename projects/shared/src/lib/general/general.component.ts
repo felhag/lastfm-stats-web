@@ -89,8 +89,14 @@ export class GeneralComponent {
   }
 
   tracksWithoutAlbum(stats: TempStats) {
-    return Object.values(stats.monthList)
-      .map(m => m.count - this.mapper.monthItems('album', m).reduce((a, b) => a + b.count, 0))
+    return Object.values(stats.seenTracks)
+      .filter(t => t.withAlbum < t.scrobbles.length)
+      .length;
+  }
+
+  scrobblesWithoutAlbum(stats: TempStats) {
+    return Object.values(stats.seenTracks)
+      .map(t => t.scrobbles.length - t.withAlbum)
       .reduce((a, b) => a + b, 0);
   }
 
