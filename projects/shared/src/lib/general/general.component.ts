@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
 import { filter, map, Observable } from 'rxjs';
 import { Artist, Constants, TempStats, User } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { EddingtonUtil } from '../service/eddington.util';
-import { MapperService } from '../service/mapper.service';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -16,11 +15,12 @@ import {
   MatDialogContent,
   MatDialogTitle
 } from "@angular/material/dialog";
-import { MatButton } from "@angular/material/button";
+import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatList, MatListItem } from "@angular/material/list";
 import { MatIcon } from "@angular/material/icon";
 import { MatChipListbox, MatChipOption } from "@angular/material/chips";
 import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-general',
@@ -43,6 +43,8 @@ import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
     MatList,
     MatListItem,
     TranslatePipe,
+    MatIconButton,
+    NgTemplateOutlet,
   ],
   templateUrl: './general.component.html',
   styleUrl: './general.component.scss',
@@ -57,9 +59,11 @@ export class GeneralComponent {
   readonly tempStats$: Observable<TempStats>;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
 
+  private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
+
   constructor(public scrobbles: ScrobbleStore,
-              private mapper: MapperService,
               private dialog: MatDialog,
+              private snackbar: MatSnackBar,
               stats: StatsBuilderService) {
     this.days$ = scrobbles.first.pipe(
       takeUntilDestroyed(),
@@ -110,6 +114,16 @@ export class GeneralComponent {
     return (counts[eddington] || 0) + 1;
   }
 
+  cutOver(stats: TempStats) {
+    const counts = Object.values(stats.seenArtists).map(a => a.scrobbles.length).sort((a, b) => b - a);
+    for (let i = 0; i < counts.length; i++) {
+      if (i >= counts[i]) {
+        return i
+      }
+    }
+    return -1;
+  }
+
   mostPopularMonth(stats: TempStats) {
     return Object.values(stats.monthList).sort(((a, b) => b.count - a.count))[0];
   }
@@ -135,5 +149,16 @@ export class GeneralComponent {
       .filter(year => !artist.scrobbles.some(s => s >= year[1] && s < year[2]))
       .map(year => year[0])
       .join(', ');
+  }
+
+  openExplanation(explanation: string): void {
+    if (this.openSnackbar) {
+      this.openSnackbar?.dismiss();
+    } else {
+      this.openSnackbar = this.snackbar.open(explanation, 'Got it!', {
+        duration: 10000
+      });
+      this.openSnackbar.afterDismissed().subscribe(() => this.openSnackbar = undefined);
+    }
   }
 }

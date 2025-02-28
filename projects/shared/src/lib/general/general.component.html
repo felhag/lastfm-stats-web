@@ -53,7 +53,7 @@
         <dd>{{ count(stats.seenTracks) }}</dd>
         @if (tracksWithoutAlbum(stats); as twa) {
           <dt>Tracks without album</dt>
-          <dd>{{ twa }}  ({{ twa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
+          <dd>{{ twa }}  ({{ twa / count(stats.seenTracks) * 100 | number:'1.0-2' }} %)
         }
         @if (scrobblesWithoutAlbum(stats); as swa) {
           <dt>Scrobbles without album</dt>
@@ -65,10 +65,23 @@
   <mat-card>
     <mat-card-content>
       <dl>
-        <dt>Eddington number</dt>
-        <dd>{{ getEddington(stats) }}</dd>
-        <dt>Days needed for next Eddington ({{ getEddington(stats) + 1 }})</dt>
-        <dd>{{ nextEddington(stats) }}</dd>
+        @if (getEddington(stats); as eddington) {
+          <dt>Eddington number</dt>
+          <dd>
+            {{ eddington }}
+            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+          </dd>
+          <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
+          <dd>{{ nextEddington(stats) }}</dd>
+        }
+
+        @if (cutOver(stats); as cutOver) {
+          <dt>Artist cut over point</dt>
+          <dd>
+            {{ cutOver }}
+            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + cutOver + ' artists with at least ' + cutOver + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+          </dd>
+        }
 
         <dt>Most popular year</dt>
         @if (max(stats.years); as max) {
@@ -108,4 +121,10 @@
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Close</button>
   </mat-dialog-actions>
+</ng-template>
+
+<ng-template #explain let-explanation="explanation">
+  <button class="explain" mat-icon-button (click)="openExplanation(explanation)">
+    <mat-icon>info_outline</mat-icon>
+  </button>
 </ng-template>

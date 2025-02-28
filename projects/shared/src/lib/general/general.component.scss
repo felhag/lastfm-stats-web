@@ -19,3 +19,16 @@ dd {
     padding-left: 4px;
   }
 }
+.explain {
+  --mdc-icon-button-state-layer-size: 18px;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  & > *[role=img] {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+  }
+}

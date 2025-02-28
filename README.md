@@ -35,6 +35,11 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.5 (28-02-2025)
+- added artist cut over point
+- fixed label info message on home page
+- fixed percentage tracks without album
+
 6.4 (26-02-2025)
 - added support for albums with various artists
 - added top 10 for albums with various artists
@@ -43,7 +48,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 - fixed label scrobbles without album on general tab
 
 6.3 (27-12-2024)
-- added albums to dataset tabs for spotify stats
+- added albums to dataset tabs for spotify stats ([#65][i65])
 
 6.2 (14-12-2024)
 - added filter possibility for every year artists
@@ -287,3 +292,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i49]: https://github.com/felhag/lastfm-stats-web/issues/49
 [i55]: https://github.com/felhag/lastfm-stats-web/issues/55
 [i57]: https://github.com/felhag/lastfm-stats-web/issues/57
+[i65]: https://github.com/felhag/lastfm-stats-web/issues/65
