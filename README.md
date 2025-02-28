@@ -37,6 +37,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 ## 🐛 Changelog
 6.5 (28-02-2025)
 - added artist cut over point
+- improved artist sanitized ([#62][i62])
 - fixed label info message on home page
 - fixed percentage tracks without album
 
@@ -292,4 +293,5 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i49]: https://github.com/felhag/lastfm-stats-web/issues/49
 [i55]: https://github.com/felhag/lastfm-stats-web/issues/55
 [i57]: https://github.com/felhag/lastfm-stats-web/issues/57
+[i62]: https://github.com/felhag/lastfm-stats-web/issues/62
 [i65]: https://github.com/felhag/lastfm-stats-web/issues/65

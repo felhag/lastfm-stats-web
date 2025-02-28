@@ -54,7 +54,7 @@ interface LoadingState {
 export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
-  artistSanitizer = new Map<string,string>();
+  artistSanitizer = new ArtistSanitizer();
 
   constructor(private http: HttpClient, private username: UsernameService) {
     super();
@@ -202,7 +202,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private updateTracks(loadingState: LoadingState, response: Track[]): void {
     const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
       track: t.name,
-      artist: this.sanitizeArtist(t.artist['#text']),
+      artist: this.artistSanitizer.sanitize(t.artist['#text']),
       album: t.album['#text'],
       albumId: t.album.mbid,
       date: new Date(t.date?.uts * 1000)
@@ -225,14 +225,40 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
 
     return this.http.get<Response>(this.API, {params});
   }
+}
 
-  private sanitizeArtist(artist: string): string {
-    const result = this.artistSanitizer.get(artist.toLowerCase());
-    if (result) {
-      return result;
-    } else {
-      this.artistSanitizer.set(artist.toLowerCase(), artist);
-      return artist;
+class ArtistSanitizer {
+  private readonly sanitized = new Map<string,string>();
+  private readonly target = new Map<string,string>();
+
+  sanitize(artist: string): string {
+    const existing = this.sanitized.get(artist);
+    if (existing) {
+      return this.target.get(existing)!;
     }
+    const sanitized = artist.toLowerCase()
+      .replaceAll(/[à-å]/gi, 'a')
+      .replaceAll(/[è-ë]/gi, 'e')
+      .replaceAll(/[ì-ï]/gi, 'i')
+      .replaceAll(/[ò-öø]/gi, 'o')
+      .replaceAll(/[ù-ü]/gi, 'u')
+      .replaceAll(/[ýÿ]/gi, 'y')
+      .replaceAll(/ç/gi, 'c')
+      .replaceAll(/ñ/gi, 'n')
+      .replaceAll(/[_-]/g, ' ')
+      .replaceAll(/[\/.]/g, '');
+
+    this.sanitized.set(artist, sanitized);
+    const tar = this.target.get(sanitized);
+    if (tar) {
+      return tar;
+    }
+
+    this.target.set(sanitized, artist);
+    return artist;
+  }
+
+  clear() {
+    this.sanitized.clear();
   }
 }
