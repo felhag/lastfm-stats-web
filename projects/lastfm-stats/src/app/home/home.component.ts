@@ -9,13 +9,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
-import { MatIcon } from "@angular/material/icon";
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MatButtonModule,
@@ -24,7 +23,6 @@ import { MatIcon } from "@angular/material/icon";
     RouterModule,
     DbLoadButtonComponent,
     ButtonsComponent,
-    MatIcon,
   ]
 })
 export class HomeComponent {
@@ -106,9 +104,5 @@ export class HomeComponent {
   get christmas(): boolean {
     const date = new Date();
     return date.getMonth() === 11 && [24, 25, 26].indexOf(date.getDate()) >= 0;
-  }
-
-  get showInfo(): boolean {
-    return new Date() < new Date(2025, 3, 1);
   }
 }

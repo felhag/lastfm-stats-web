@@ -10,6 +10,13 @@ A small project to show some additional statistics for last.fm and spotify:
 - custom date range
 - import/export
 
+## 🚀 Run locally
+```
+docker build -t lastfm-stats .
+docker run -p 4200:4200 lastfm-stats
+```
+This will serve lastfm-stats on http://localhost:4200
+
 ## 🔨 Development
 
 Setting up a local dev environment:
@@ -35,6 +42,12 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.6 (16-04-2025)
+- added trend line to tracks per artist chart  ([#71][i71])
+- added "all" option to punch card chart
+- added Dockerfile ([#72][i72])
+- fixed rounding issue number of days scrobble stat
+
 6.5 (28-02-2025)
 - added artist cut over point
 - improved artist sanitized ([#62][i62])
@@ -295,3 +308,5 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i57]: https://github.com/felhag/lastfm-stats-web/issues/57
 [i62]: https://github.com/felhag/lastfm-stats-web/issues/62
 [i65]: https://github.com/felhag/lastfm-stats-web/issues/65
+[i71]: https://github.com/felhag/lastfm-stats-web/issues/71
+[i72]: https://github.com/felhag/lastfm-stats-web/issues/72

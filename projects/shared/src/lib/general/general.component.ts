@@ -68,7 +68,7 @@ export class GeneralComponent {
     this.days$ = scrobbles.first.pipe(
       takeUntilDestroyed(),
       filter(f => !!f),
-      map(f => Math.ceil((new Date().getTime() - f.date.getTime()) / Constants.DAY))
+      map(f => Math.ceil((new Date().setHours(23,59,59,59) - f.date.getTime()) / Constants.DAY))
     );
     this.user$ = scrobbles.user;
     this.tempStats$ = stats.tempStats;
