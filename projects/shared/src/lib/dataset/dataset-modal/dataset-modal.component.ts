@@ -4,7 +4,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
 import annotations from 'highcharts/modules/annotations';
 
-import { CircleProgressOptions } from 'ng-circle-progress/lib/ng-circle-progress.component';
 import { DataSetEntry, StreakStack, Month } from 'projects/shared/src/lib/app/model';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
@@ -12,7 +11,7 @@ import { MapperService } from '../../service/mapper.service';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgCircleProgressModule } from 'ng-circle-progress';
+import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
 
 import { MatIconModule } from '@angular/material/icon';
 
