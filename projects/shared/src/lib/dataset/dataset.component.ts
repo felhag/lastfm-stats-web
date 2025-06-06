@@ -7,7 +7,16 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
-import { StreakItem, Album, Track, Artist, DataSetEntry, ItemType, TempStats, Month } from 'projects/shared/src/lib/app/model';
+import {
+  StreakItem,
+  Album,
+  Track,
+  Artist,
+  DataSetEntry,
+  ItemType,
+  TempStats,
+  Month
+} from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -19,39 +28,44 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltip } from "@angular/material/tooltip";
+import { ExportService } from "../service/export-service";
+
+export type DataSetKeys = (keyof DataSetEntry)[]
 
 @Component({
-    selector: 'app-dataset',
-    templateUrl: './dataset.component.html',
-    styleUrls: ['./dataset.component.scss'],
-    providers: [TranslatePipe],
-    imports: [
-        CdkVirtualScrollViewport,
-        CommonModule,
-        MatButtonModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatRadioModule,
-        MatSortModule,
-        MatTableModule,
-        ReactiveFormsModule,
-        TableVirtualScrollModule,
-    ]
+  selector: 'app-dataset',
+  templateUrl: './dataset.component.html',
+  styleUrls: ['./dataset.component.scss'],
+  providers: [TranslatePipe],
+  imports: [
+    CdkVirtualScrollViewport,
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatRadioModule,
+    MatSortModule,
+    MatTableModule,
+    MatTooltip,
+    ReactiveFormsModule,
+    TableVirtualScrollModule,
+  ]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {
     artist: {
-      columns: ['name', 'tracks', 'scrobbles', 'rank'],
+      columns: ['name', 'tracks', 'scrobbles', 'rank'] as DataSetKeys,
       data: (stats: TempStats) => stats.seenArtists
     },
     album: {
-      columns: ['artist', 'name', 'scrobbles', 'rank'],
+      columns: ['artist', 'name', 'scrobbles', 'rank'] as DataSetKeys,
       data: (stats: TempStats) => stats.seenAlbums
     },
     track: {
-      columns: ['artist', 'name', 'scrobbles', 'rank'],
+      columns: ['artist', 'name', 'scrobbles', 'rank'] as DataSetKeys,
       data: (stats: TempStats) => stats.seenTracks
     },
   };
@@ -63,12 +77,13 @@ export class DatasetComponent implements OnInit {
   filterArtist = new FormControl<string>('');
   filterName = new FormControl<string>('');
 
-  @ViewChild(MatSort, { static: true }) sort!: MatSort;
+  @ViewChild(MatSort, {static: true}) sort!: MatSort;
   private destroyRef = inject(DestroyRef);
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
-              private translate: TranslatePipe) {
+              private translate: TranslatePipe,
+              private exportService: ExportService) {
   }
 
   ngOnInit(): void {
@@ -125,11 +140,11 @@ export class DatasetComponent implements OnInit {
     this.filterName.setValue('');
   }
 
-  get columns(): string[] {
+  get columns(): DataSetKeys {
     return this.groupedByObj.columns;
   }
 
-  get groupedByObj(): {columns: string[], data: (stats: TempStats) => { [key: string]: StreakItem }} {
+  get groupedByObj(): { columns: DataSetKeys, data: (stats: TempStats) => { [key: string]: StreakItem } } {
     return this.groups[this.groupedBy.value];
   }
 
@@ -148,6 +163,14 @@ export class DatasetComponent implements OnInit {
     } else {
       return col;
     }
+  }
+
+  download() {
+    this.exportService.exportCSV(
+      this.columns.map(col => col[0].toUpperCase() + col.substring(1)),
+      this.dataSource.filteredData.map(entry => this.columns.map(col => String(entry[col]))),
+      `lastfmstats-${this.groupedBy.value}s-export.csv`
+    )
   }
 
   private getArtistName(item: StreakItem) {

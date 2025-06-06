@@ -25,11 +25,15 @@
           </mat-form-field>
         }
       </div>
-      <mat-radio-group [value]="groupedBy | async" (change)="groupBy($event)">
-        <mat-radio-button value="artist">Artist</mat-radio-button>
-        <mat-radio-button value="album">Album</mat-radio-button>
-        <mat-radio-button value="track">Track</mat-radio-button>
-      </mat-radio-group>
+      <div class="button-bar">
+        <mat-radio-group [value]="groupedBy | async" (change)="groupBy($event)">
+          <mat-radio-button value="artist">Artist</mat-radio-button>
+          <mat-radio-button value="album">Album</mat-radio-button>
+          <mat-radio-button value="track">Track</mat-radio-button>
+        </mat-radio-group>
+
+        <button mat-icon-button matTooltip="Download" (click)="download()"><mat-icon>download</mat-icon></button>
+      </div>
     </mat-card-content>
   </mat-card>
   <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">

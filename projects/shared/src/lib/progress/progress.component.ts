@@ -10,6 +10,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AsyncPipe, DecimalPipe} from '@angular/common';
+import { ExportService } from "../service/export-service";
 
 @Component({
   selector: 'app-progress',
@@ -32,6 +33,7 @@ export class ProgressComponent {
 
   constructor(public scrobbles: ScrobbleStore,
               private database: DatabaseService,
+              private exportService: ExportService,
               private app: App) {
   }
 
@@ -76,34 +78,17 @@ export class ProgressComponent {
         username: state.user!.name,
         scrobbles: state.scrobbles.map(s => ({track: s.track, artist: s.artist, album: s.album, albumId: s.albumId, date: s.date.getTime()}))
       };
-      this.export(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8;'}), 'json', state.user!.name);
+      this.exportService.exportJSON(data, `lastfmstats-${state.user!.name}.json`)
     });
   }
 
   exportCSV(): void {
     this.scrobbles.state$.pipe(take(1)).subscribe(state => {
-      const headers = `Artist;Album;AlbumId;Track;Date#${state.user!.name}\n`;
-      const data = state.scrobbles.map(s =>
-        this.csvEntry(s.artist) +
-        this.csvEntry(s.album || '') +
-        this.csvEntry(s.albumId || '') +
-        this.csvEntry(s.track) +
-        `"${s.date.getTime()}"`).join('\n');
-      this.export(new Blob(['\ufeff' + headers + data], {type: 'text/csv;charset=utf-8;'}), 'csv', state.user!.name);
+      this.exportService.exportCSV(
+        ['Artist', 'Album', 'AlbumId', 'Track', `Date#${state.user!.name}`],
+        state.scrobbles.map(s => [s.artist, s.album, s.albumId, s.track, s.date.getTime().toString()]),
+        `lastfmstats-${state.user!.name}.csv`
+      );
     });
-  }
-
-  private csvEntry(input: string): string {
-    return `"${input.replaceAll('"', '""')}";`;
-  }
-
-  private export(blob: Blob, ext: string, user: string): void {
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `lastfmstats-${user}.${ext}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 }
