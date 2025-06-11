@@ -4,6 +4,7 @@ import { TempStats, Month, ItemType, StreakItem } from 'projects/shared/src/lib/
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { MapperService } from '../service/mapper.service';
+import { ExportService } from "../service/export-service";
 
 export class RaceChart extends AbstractChart {
   private readonly defaultSpeed = 2000;
@@ -22,8 +23,9 @@ export class RaceChart extends AbstractChart {
   input?: HTMLInputElement;
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
+  recorder?: MediaRecorder;
 
-  constructor(url: AbstractUrlService, private mapper: MapperService) {
+  constructor(url: AbstractUrlService, private mapper: MapperService, private exportService: ExportService) {
     super();
     this.options = {
       chart: {
@@ -191,6 +193,7 @@ export class RaceChart extends AbstractChart {
 
     if (this.current >= maxIdx) { // Auto-pause
       this.pause();
+      this.recorder?.stop();
     }
 
     const month = this.months[this.current];
@@ -314,5 +317,46 @@ export class RaceChart extends AbstractChart {
       this.points.forEach((p: any) => (p.dataLabels || []).forEach((d: any) => (d.attr = attr)));
       return ret;
     });
+  }
+
+  async print(): Promise<void> {
+    if (!navigator.mediaDevices.getDisplayMedia){
+      super.print();
+    }
+
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: false,
+      mediaSource: "screen",
+      selfBrowserSurface: "include",
+      preferCurrentTab: true
+    } as any);
+
+    const track = stream.getVideoTracks()[0];
+    track.onended = () => this.recorder!.stop();
+
+    this.recorder = new MediaRecorder(stream, {});
+
+    const chunks: BlobPart[] = [];
+    this.recorder.ondataavailable = (event: BlobEvent) =>{
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+
+    this.recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: (chunks[0] as any).type });
+      this.exportService.downloadFile(blob, 'lastfmstats-race-chart')
+
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      this.recorder = undefined;
+    };
+
+    this.fullscreen();
+    if (!this.timer) {
+      this.play();
+    }
+    this.recorder.start();
   }
 }

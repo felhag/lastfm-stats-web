@@ -42,6 +42,11 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.7 (11-06-2025)
+- improved race chart export
+- added export button dataset tab
+- updated to angular 20
+
 6.6 (16-04-2025)
 - added trend line to tracks per artist chart  ([#71][i71])
 - added "all" option to punch card chart

@@ -24,6 +24,7 @@ import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { LetterChart } from './letter-chart';
+import { ExportService } from "../service/export-service";
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -73,7 +74,8 @@ export class ChartsComponent {
     private builder: StatsBuilderService,
     url: AbstractUrlService,
     translate: TranslatePipe,
-    mapper: MapperService) {
+    mapper: MapperService,
+    exportService: ExportService) {
 
     this.charts = [
       new TimelineChart(translate),
@@ -85,7 +87,7 @@ export class ChartsComponent {
       new PunchcardChart(translate, url),
       new ScrobbleScatterChart(translate),
       new ScrobblePerDayChart(translate),
-      new RaceChart(url, mapper),
+      new RaceChart(url, mapper, exportService),
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
           stats => stats.days,
