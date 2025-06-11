@@ -1,13 +1,9 @@
 import { AlignValue, PointOptionsType, XAxisOptions } from 'highcharts';
 import * as Highcharts from 'highcharts';
-import exporting from 'highcharts/modules/exporting';
-import offline from 'highcharts/modules/offline-exporting';
-import fullscreen from 'highcharts/modules/full-screen';
+import 'highcharts/modules/exporting';
+import 'highcharts/modules/offline-exporting';
+import 'highcharts/modules/full-screen';
 import { TempStats } from 'projects/shared/src/lib/app/model';
-
-exporting(Highcharts);
-offline(Highcharts);
-fullscreen(Highcharts);
 
 export abstract class AbstractChart {
   options: Highcharts.Options = {};

@@ -66,7 +66,7 @@ export class ArtistScrobbleChart extends AbstractChart {
               dataLabels: {
                 enabled: true,
                 formatter(): string {
-                  return this.point.name;
+                  return (this as any).point.name;
                 }
               }
             }
@@ -85,7 +85,7 @@ export class ArtistScrobbleChart extends AbstractChart {
     }));
     const trend = this.getTrendLine(data);
     if (data.length > 500) {
-      data = data.sort((a, b) => b.x! - a.x!).slice(0, 499);
+      data = data.sort((a, b) => b.x as number - (a.x as number)).slice(0, 499);
     }
 
     this.setData(data, trend);
@@ -96,7 +96,7 @@ export class ArtistScrobbleChart extends AbstractChart {
 
     // Calculate the sums needed for linear regression
     const [sumX, sumY, sumXY, sumX2] = data.reduce(((obj, val) => {
-      const x = val.x!;
+      const x = val.x as number;
       const y = val.y!;
       return [obj[0] + x, obj[1] + y, obj[2] + x * y, obj[3] + x ** 2];
     }), [0, 0, 0, 0]);
@@ -106,8 +106,8 @@ export class ArtistScrobbleChart extends AbstractChart {
     const intercept = (sumY - slope * sumX) / n;
 
     // Find the minimum and maximum x-values from the scatter plot data
-    const minX = Math.min(...data.map((obj) => obj.x!));
-    const maxX = Math.max(...data.map((obj) => obj.x!));
+    const minX = Math.min(...data.map((obj) => obj.x as number));
+    const maxX = Math.max(...data.map((obj) => obj.x as number));
 
     // Calculate the corresponding y-values for the trend line using the slope and intercept
     return [

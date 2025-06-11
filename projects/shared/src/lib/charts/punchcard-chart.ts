@@ -1,11 +1,10 @@
 import * as Highcharts from 'highcharts';
-import heatmap from 'highcharts/modules/heatmap';
+import 'highcharts/modules/heatmap';
 import { TempStats, Constants, Track } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractUrlService } from '../service/abstract-url.service';
 
-heatmap(Highcharts);
 
 export class PunchcardChart extends AbstractChart {
   yearLabel?: HTMLElement;
@@ -46,10 +45,11 @@ export class PunchcardChart extends AbstractChart {
       tooltip: {
         formatter(event): string {
           const selected = (event.chart.container.parentNode!.querySelector('.current') as HTMLElement).innerText;
+          const point = (this as any).point
           const date = selected === 'all' ?
-            `${Constants.MONTHS[this.point.y!]} ${this.point.x}` :
-            PunchcardChart.parseWeek(this.point.x, this.point.y!, parseInt(selected)).toLocaleDateString();
-          return `${date}: <b>${this.point.value} ${translate.transform('translate.scrobbles')}</b>`;
+            `${Constants.MONTHS[point.y!]} ${point.x}` :
+            PunchcardChart.parseWeek(point.x, point.y!, parseInt(selected)).toLocaleDateString();
+          return `${date}: <b>${point.value} ${translate.transform('translate.scrobbles')}</b>`;
         }
       },
       xAxis: {

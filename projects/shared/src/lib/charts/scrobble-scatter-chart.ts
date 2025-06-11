@@ -1,11 +1,8 @@
-import * as Highcharts from 'highcharts';
-import boost from 'highcharts/modules/boost';
+import 'highcharts/modules/boost';
 import { TempStats } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { SeriesScatterOptions } from 'highcharts';
-
-boost(Highcharts);
 
 export class ScrobbleScatterChart extends AbstractChart {
   nameMap = new Map<number, string>();

@@ -24,7 +24,7 @@
     "@angular/router": "^20.0.1",
     "@ngrx/component-store": "^19.2.1",
     "dexie": "^4.0.11",
-    "highcharts": "^11.4.8",
+    "highcharts": "^12.2.0",
     "highcharts-angular": "^4.0.1",
     "jszip": "^3.10.1",
     "ng-circle-progress": "^1.7.1",

@@ -2,8 +2,7 @@ import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { MapperService } from '../service/mapper.service';
 import { TempStats, ItemType } from 'projects/shared/src/lib/app/model';
 import * as Highcharts from 'highcharts';
-import wordcloud from 'highcharts/modules/wordcloud';
-wordcloud(Highcharts);
+import 'highcharts/modules/wordcloud';
 
 export class WordcloudChart extends AbstractChart {
   constructor(private mapper: MapperService) {
@@ -49,7 +48,7 @@ export class WordcloudChart extends AbstractChart {
     },
     tooltip: {
       formatter(): string {
-        return this.key + '<br><span style="color:' + this.point.color + '">\u25CF</span>' + this.y;
+        return this.key + '<br><span style="color:' + (this as any).point.color + '">\u25CF</span>' + this.y;
       }
     }
   };

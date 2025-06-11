@@ -1,9 +1,8 @@
 import {TempStats} from 'projects/shared/src/lib/app/model';
 import {AbstractChart} from 'projects/shared/src/lib/charts/abstract-chart';
 import * as Highcharts from 'highcharts';
-import more from 'highcharts/highcharts-more';
+import 'highcharts/highcharts-more';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-more(Highcharts);
 
 export class ScrobbleMomentChart extends AbstractChart {
   toolbar?: HTMLElement;

@@ -16,7 +16,7 @@ export class TimelineChart extends AbstractChart {
         formatter(): string {
           const date = new Date(this.x as number).toLocaleString();
           const value = Highcharts.numberFormat(this.y as number, 0, '', '.');
-          return `${date}<br><b>${this.key}</b><br><span style="color:${this.point.color}">\u25CF</span>${value} ${this.series.name.toLowerCase()}`
+          return `${date}<br><b>${this.key}</b><br><span style="color:${(this as any).point.color}">\u25CF</span>${value} ${this.series.name.toLowerCase()}`
         }
       },
       yAxis: [{

@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
-import annotations from 'highcharts/modules/annotations';
+import 'highcharts/modules/annotations';
 
 import { DataSetEntry, StreakStack, Month } from 'projects/shared/src/lib/app/model';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -14,8 +14,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
 
 import { MatIconModule } from '@angular/material/icon';
-
-annotations(Highcharts);
 
 interface DatasetModalData {
   entry: DataSetEntry;
@@ -104,7 +102,7 @@ export class DatasetModalComponent implements OnInit {
         shared: true,
         formatter(event): string {
           const series = event.chart.series;
-          const x = this.point.x;
+          const x = (this as any).point.x;
           const scrobbles = series[1].data[x].y;
           const ranks = series[0].data.map(x => x.y as number);
           const prevRank = ranks[Math.max(x - 1, 0)];
