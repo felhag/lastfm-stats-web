@@ -1,7 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {Router, NavigationEnd} from '@angular/router';
-
-declare const _paq: any[];
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-root',
@@ -12,14 +9,4 @@ declare const _paq: any[];
 })
 export class AppComponent {
   title = 'lastfm-stats-web';
-
-  constructor(router: Router) {
-    router.events.subscribe(val => {
-      if (val instanceof NavigationEnd) {
-        _paq.push(['setCustomUrl', window.location.pathname]);
-        _paq.push(['setDocumentTitle', window.location.pathname]);
-        _paq.push(['trackPageView']);
-      }
-    });
-  }
 }

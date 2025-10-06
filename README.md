@@ -42,6 +42,10 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.8 (06-11-2025)
+- fixed typo ([#76][i76], pr by [morgannmccarty](https://github.com/morgannmccarty))
+- removed matomo
+
 6.7 (11-06-2025)
 - improved race chart export
 - added export button dataset tab
@@ -315,3 +319,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i65]: https://github.com/felhag/lastfm-stats-web/issues/65
 [i71]: https://github.com/felhag/lastfm-stats-web/issues/71
 [i72]: https://github.com/felhag/lastfm-stats-web/issues/72
+[i76]: https://github.com/felhag/lastfm-stats-web/issues/76
