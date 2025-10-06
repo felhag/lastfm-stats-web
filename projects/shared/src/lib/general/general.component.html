@@ -106,7 +106,7 @@
         }
       </mat-chip-listbox>
       @if (values((tempStats$ | async)?.seenArtists || {}) | filterByYear: years; as artists) {
-        Found {{ artists.length }} arists which you listened to in all selected years
+        Found {{ artists.length }} artists which you listened to in all selected years
         <mat-list>
           @for (artist of artists; track artist.name) {
             <mat-list-item>
