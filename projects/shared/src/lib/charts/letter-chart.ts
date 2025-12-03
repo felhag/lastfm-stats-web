@@ -14,7 +14,7 @@ export class LetterChart extends ToggleableChart {
       title: {text: `Starting letters`},
       legend: {enabled: false},
       xAxis: {type: 'category', labels: { rotation: 0 }},
-      yAxis: {title: {text: null}},
+      yAxis: {title: {text: undefined}},
       series: [{
         name: translate.capFirst('translate.scrobbles'),
         type: 'column',

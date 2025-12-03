@@ -24,5 +24,5 @@
       <mat-checkbox [checked]="true" (change)="showLabels($event.checked)"></mat-checkbox>
     </div>
   </div>
-  <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" (chartInstance)="chart = $event"></highcharts-chart>
+  <highcharts-chart [options]="chartOptions" (chartInstance)="chart = $event"></highcharts-chart>
 </div>

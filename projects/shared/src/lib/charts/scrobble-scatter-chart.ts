@@ -30,7 +30,7 @@ export class ScrobbleScatterChart extends AbstractChart {
         reversed: true,
         startOnTick: false,
         endOnTick: false,
-        title: {text: null},
+        title: {text: undefined},
         labels: {
           formatter(): string {
             return Math.floor(this.value as number / 60).toString().padStart(2, '0') + ':00';

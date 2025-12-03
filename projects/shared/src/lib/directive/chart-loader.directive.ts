@@ -3,7 +3,6 @@ import { AbstractChart } from '../charts/abstract-chart';
 
 @Directive({
     selector: '[chartLoader]',
-    standalone: true
 })
 export class ChartLoaderDirective {
     constructor(private el: ElementRef) { }

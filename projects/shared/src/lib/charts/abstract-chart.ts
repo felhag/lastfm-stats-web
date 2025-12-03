@@ -22,7 +22,7 @@ export abstract class AbstractChart {
   }
 
   print(): void {
-    this.chart?.exportChartLocal();
+    this.chart?.exporting.exportChart();
   }
 
   fullscreen(): void {

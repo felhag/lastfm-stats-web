@@ -8,7 +8,7 @@ import { DataSetEntry, StreakStack, Month } from 'projects/shared/src/lib/app/mo
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 import { MapperService } from '../../service/mapper.service';
-import { HighchartsChartModule } from 'highcharts-angular';
+import { HighchartsChartComponent } from 'highcharts-angular';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
@@ -26,7 +26,7 @@ interface DatasetModalData {
     styleUrls: ['./dataset-modal.component.scss'],
     providers: [TranslatePipe],
     imports: [
-        HighchartsChartModule,
+        HighchartsChartComponent,
         MatCheckboxModule,
         MatDialogModule,
         MatIconModule,
@@ -35,7 +35,6 @@ interface DatasetModalData {
     ]
 })
 export class DatasetModalComponent implements OnInit {
-  Highcharts: typeof Highcharts = Highcharts;
   options: (Partial<CircleProgressOptions> | undefined)[] = [];
   chartOptions: Highcharts.Options = {};
   url?: string;
@@ -56,10 +55,12 @@ export class DatasetModalComponent implements OnInit {
           .findIndex(m => m.name === this.data.entry.item.name) + 1)
         .filter(idx => idx > 0)
     )
-    const ranks = [];
+    const ranks: (number | null)[] = [];
     for (let i = 0; i < this.entry.item.ranks.length; i++) {
       ranks[i] = this.entry.item.ranks[i] || null;
     }
+    // add current month rank
+    ranks.push(this.entry.rank);
 
     this.options = [
       this.circleOption(scrobblesTitle, this.entry.scrobbles),
