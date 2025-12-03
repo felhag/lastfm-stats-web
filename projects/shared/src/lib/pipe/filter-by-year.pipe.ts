@@ -3,7 +3,6 @@ import { Artist } from "../app/model";
 
 @Pipe({
     name: 'filterByYear',
-    standalone: true
 })
 export class FilterByYearPipe implements PipeTransform {
   transform(artists: Artist[], years: [number, number, number, boolean][]): Artist[] {

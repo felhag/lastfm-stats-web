@@ -2,7 +2,6 @@ import { Pipe, PipeTransform, Inject } from '@angular/core';
 
 @Pipe({
     name: 'translate',
-    standalone: true
 })
 export class TranslatePipe implements PipeTransform {
   constructor(@Inject('translations') private translations: {[key: string]: string}) {
