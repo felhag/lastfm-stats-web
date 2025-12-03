@@ -3,7 +3,7 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
 import { DbUser, DatabaseService } from '../service/database.service';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,7 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     imports: [
         CommonModule,
         MatButtonModule,
-        MatIconModule,
+        MatIcon,
         MatSelectModule,
         RouterModule,
         MatTooltipModule

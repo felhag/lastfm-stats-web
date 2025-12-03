@@ -6,7 +6,7 @@ import { Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.componen
 import { DateColorsService } from '../../service/date-colors.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
@@ -19,7 +19,7 @@ import { MatCardModule } from '@angular/material/card';
         CommonModule,
         MatButtonModule,
         MatCardModule,
-        MatIconModule,
+        MatIcon,
         MatListModule,
         MatSnackBarModule
     ]

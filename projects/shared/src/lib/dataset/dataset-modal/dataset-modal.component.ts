@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
 import 'highcharts/modules/annotations';
@@ -9,11 +9,11 @@ import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 
 import { MapperService } from '../../service/mapper.service';
 import { HighchartsChartComponent } from 'highcharts-angular';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatTooltip } from '@angular/material/tooltip';
 import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
 
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 
 interface DatasetModalData {
   entry: DataSetEntry;
@@ -21,18 +21,19 @@ interface DatasetModalData {
 }
 
 @Component({
-    selector: 'app-dataset-modal',
-    templateUrl: './dataset-modal.component.html',
-    styleUrls: ['./dataset-modal.component.scss'],
-    providers: [TranslatePipe],
-    imports: [
-        HighchartsChartComponent,
-        MatCheckboxModule,
-        MatDialogModule,
-        MatIconModule,
-        MatTooltipModule,
-        NgCircleProgressModule
-    ]
+  selector: 'app-dataset-modal',
+  templateUrl: './dataset-modal.component.html',
+  styleUrls: ['./dataset-modal.component.scss'],
+  providers: [TranslatePipe],
+  imports: [
+    HighchartsChartComponent,
+    MatCheckbox,
+    MatIcon,
+    MatTooltip,
+    NgCircleProgressModule,
+    MatDialogContent,
+    MatDialogTitle
+  ]
 })
 export class DatasetModalComponent implements OnInit {
   options: (Partial<CircleProgressOptions> | undefined)[] = [];

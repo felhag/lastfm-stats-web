@@ -1,12 +1,10 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgxCsvParser, NgxCsvParserModule } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
-import { Subject, BehaviorSubject } from 'rxjs';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
@@ -16,19 +14,19 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
+    MatButton,
+    MatCard,
     NgxCsvParserModule,
-    RouterModule,
     DbLoadButtonComponent,
     ButtonsComponent,
+    MatCardHeader,
+    MatCardContent,
   ]
 })
 export class HomeComponent {
   username?: string;
-  valid = new BehaviorSubject(true);
-  importError = new Subject<string>();
+  valid = signal(true);
+  importError = signal("");
 
   constructor(private router: Router,
               private ngxCsvParser: NgxCsvParser,
@@ -43,7 +41,7 @@ export class HomeComponent {
     if (this.username) {
       this.start(this.username.trim().toLowerCase(), []);
     } else {
-      this.valid.next(false);
+      this.valid.set(false);
     }
   }
 
@@ -59,7 +57,7 @@ export class HomeComponent {
           const headers = csvArray.splice(0, 1)[0];
           const length = headers.length;
           if (!headers || length < 4 || length > 5) {
-            this.importError.next(`Expected 4 or 5 columns but found ${length}.
+            this.importError.set(`Expected 4 or 5 columns but found ${length}.
             Only csv's which are exported from this site are allowed.`);
             return;
           }
@@ -75,7 +73,7 @@ export class HomeComponent {
           }));
           this.start(username, scrobbles);
         },
-        error: (error: any) => this.importError.next('Can\t parse csv: ' + error.message)
+        error: (error: any) => this.importError.set('Can\t parse csv: ' + error.message)
       });
     } else if (ext === 'json') {
       const reader = new FileReader();
@@ -88,7 +86,7 @@ export class HomeComponent {
       };
       reader.readAsText(file);
     } else {
-      this.importError.next('Only csv and json are supported.');
+      this.importError.set('Only csv and json are supported.');
     }
   }
 

@@ -1,20 +1,13 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Signal, TemplateRef, ViewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { AsyncPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
-import { filter, map, Observable } from 'rxjs';
-import { Artist, Constants, TempStats, User } from '../app/model';
+import { Artist, Constants, TempStats } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { EddingtonUtil } from '../service/eddington.util';
 import { MatCard, MatCardContent } from '@angular/material/card';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle
-} from "@angular/material/dialog";
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from "@angular/material/dialog";
 import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatList, MatListItem } from "@angular/material/list";
 import { MatIcon } from "@angular/material/icon";
@@ -24,9 +17,7 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material
 
 @Component({
   selector: 'app-general',
-  standalone: true,
   imports: [
-    AsyncPipe,
     DatePipe,
     DecimalPipe,
     FilterByYearPipe,
@@ -40,11 +31,11 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material
     MatDialogContent,
     MatDialogTitle,
     MatIcon,
+    MatIconButton,
     MatList,
     MatListItem,
-    TranslatePipe,
-    MatIconButton,
     NgTemplateOutlet,
+    TranslatePipe,
   ],
   templateUrl: './general.component.html',
   styleUrl: './general.component.scss',
@@ -53,35 +44,35 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material
 export class GeneralComponent {
   @ViewChild('everyYearArtists') everyYearArtistsDialog!: TemplateRef<Artist[]>;
   readonly values: (seen: { [key: string]: Artist }) => Artist[] = Object.values;
-  readonly user$: Observable<User | undefined>;
-  readonly days$: Observable<number>;
-  readonly years$: Observable<[number, number, number, boolean][]>;
-  readonly tempStats$: Observable<TempStats>;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
 
-  private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
+  private readonly scrobbles = inject(ScrobbleStore);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackbar = inject(MatSnackBar);
+  private readonly stats = inject(StatsBuilderService);
 
-  constructor(public scrobbles: ScrobbleStore,
-              private dialog: MatDialog,
-              private snackbar: MatSnackBar,
-              stats: StatsBuilderService) {
-    this.days$ = scrobbles.first.pipe(
-      takeUntilDestroyed(),
-      filter(f => !!f),
-      map(f => Math.ceil((new Date().setHours(23,59,59,59) - f.date.getTime()) / Constants.DAY))
-    );
-    this.user$ = scrobbles.user;
-    this.tempStats$ = stats.tempStats;
-    this.years$ = this.tempStats$.pipe(
-      filter(stats => !!stats.first && !!stats.last),
-      map(stats => {
-        const first = stats.first!.date.getFullYear();
-        return [...Array(stats.last!.date.getFullYear() - first + 1).keys()]
-          .map(i => i + first)
-          .map(year => [year, new Date(year, 0, 1).getTime(), new Date(year, 11, 31).getTime(), true]);
-      })
-    );
-  }
+  readonly user$ = toSignal(this.scrobbles.user);
+  readonly tempStats$ = toSignal(this.stats.tempStats);
+  readonly first = computed(() => this.tempStats$()?.first);
+  readonly last = computed(() => this.tempStats$()?.last);
+  readonly days$ = computed(() => {
+    const first = this.first();
+    return first ? Math.ceil((new Date().setHours(23,59,59,59) - first.date.getTime()) / Constants.DAY) : 0;
+  });
+
+  readonly years$: Signal<[number, number, number, boolean][]> = computed(() => {
+    const stats = this.tempStats$();
+    if (!stats?.first || !stats.last) {
+      return [];
+    }
+
+    const first = stats.first!.date.getFullYear();
+    return [...Array(stats.last!.date.getFullYear() - first + 1).keys()]
+      .map(i => i + first)
+      .map(year => [year, new Date(year, 0, 1).getTime(), new Date(year, 11, 31).getTime(), true]);
+  });
+
+  private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
 
   openEveryYearArist(stats: TempStats) {
     const data = {stats};

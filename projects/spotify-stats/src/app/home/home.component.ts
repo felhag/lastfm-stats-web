@@ -13,7 +13,7 @@ import { NgxDropzoneModule } from 'ngx-dropzone';
 import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule, DatePipe } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
@@ -54,7 +54,7 @@ interface ParsedEntry {
         MatButtonModule,
         MatCardModule,
         MatDialogModule,
-        MatIconModule,
+        MatIcon,
         MatInputModule,
         MatListModule,
         NgxDropzoneModule,

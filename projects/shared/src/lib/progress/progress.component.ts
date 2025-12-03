@@ -6,7 +6,7 @@ import {ScrobbleStore} from '../service/scrobble.store';
 import {TranslatePipe} from '../service/translate.pipe';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
+import {MatIcon} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AsyncPipe, DecimalPipe} from '@angular/common';
@@ -21,7 +21,7 @@ import { ExportService } from "../service/export-service";
   imports: [
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatIconModule,
+    MatIcon,
     MatButtonModule,
     MatTooltipModule,
     AsyncPipe,

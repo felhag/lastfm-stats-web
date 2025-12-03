@@ -2,32 +2,23 @@ import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { debounceTime, combineLatest, BehaviorSubject } from 'rxjs';
+import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
-import {
-  StreakItem,
-  Album,
-  Track,
-  Artist,
-  DataSetEntry,
-  ItemType,
-  TempStats,
-  Month
-} from 'projects/shared/src/lib/app/model';
+import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { MatTableModule } from '@angular/material/table';
+import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable } from '@angular/material/table';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+import { AsyncPipe, TitleCasePipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput, MatLabel, MatSuffix } from '@angular/material/input';
+import { MatFormField } from '@angular/material/form-field';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from "@angular/material/tooltip";
 import { ExportService } from "../service/export-service";
 
@@ -39,19 +30,34 @@ export type DataSetKeys = (keyof DataSetEntry)[]
   styleUrls: ['./dataset.component.scss'],
   providers: [TranslatePipe],
   imports: [
+    AsyncPipe,
     CdkVirtualScrollViewport,
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatRadioModule,
-    MatSortModule,
-    MatTableModule,
+    MatCard,
+    MatCardContent,
+    MatCell,
+    MatCellDef,
+    MatColumnDef,
+    MatFormField,
+    MatHeaderCell,
+    MatHeaderCellDef,
+    MatHeaderRow,
+    MatHeaderRowDef,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatLabel,
+    MatRadioButton,
+    MatRadioGroup,
+    MatRow,
+    MatRowDef,
+    MatSort,
+    MatSortHeader,
+    MatSuffix,
+    MatTable,
     MatTooltip,
     ReactiveFormsModule,
     TableVirtualScrollModule,
+    TitleCasePipe,
   ]
 })
 export class DatasetComponent implements OnInit {

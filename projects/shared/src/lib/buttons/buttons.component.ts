@@ -1,21 +1,21 @@
 import { Component, Input } from '@angular/core';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { MatIcon, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { App } from '../app/model';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 
 
 @Component({
-    selector: 'app-buttons',
-    templateUrl: './buttons.component.html',
-    imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatTooltipModule,
-        RouterLink
-    ],
+  selector: 'app-buttons',
+  templateUrl: './buttons.component.html',
+  imports: [
+    MatIcon,
+    MatTooltip,
+    RouterLink,
+    MatIconButton
+  ],
     styleUrls: ['./buttons.component.scss']
 })
 export class ButtonsComponent {

@@ -2,23 +2,23 @@
   <mat-card-content>
     <dl>
       <dt>Username</dt>
-      <dd>{{ (user$ | async)?.name }}</dd>
+      <dd>{{ user$()?.name }}</dd>
 
-      @if (days$ | async; as days) {
+      @if (days$(); as days) {
         <dt>Days since first {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ days }}</dd>
       }
-      @if (tempStats$ | async; as stats) {
+      @if (tempStats$(); as stats) {
         <dt>Days {{ 'translate.scrobbled' | translate }}</dt>
-        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$ | async)!) * 100 | number:'1.0-2' }}
+        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$())!) * 100 | number:'1.0-2' }}
           %)
         </dd>
       }
-      @if (scrobbles.first | async; as first) {
+      @if (first(); as first) {
         <dt>First {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ first.date | date }} ({{ first.artist }} - {{ first.track }})</dd>
       }
-      @if (scrobbles.last | async; as last) {
+      @if (last(); as last) {
         <dt>Last {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ last.date | date }} ({{ last.artist }} - {{ last.track }})</dd>
       }
@@ -26,7 +26,7 @@
   </mat-card-content>
 </mat-card>
 
-@if (tempStats$ | async; as stats) {
+@if (tempStats$(); as stats) {
   <mat-card>
     <mat-card-content>
       <dl>
@@ -37,7 +37,7 @@
           <dd>{{ owh }}  ({{ owh / (count(stats.seenArtists)) * 100 | number:'1.0-2' }} %)
         }
         <dt>Every year artists</dt>
-        @if (years$ | async; as years) {
+        @if (years$(); as years) {
           @if (values(stats.seenArtists) | filterByYear : years; as eya) {
             <dd class="every-year-artist">
               {{ eya.length }}
@@ -99,13 +99,13 @@
 <ng-template #everyYearArtists>
   <h2 mat-dialog-title> Every year artist </h2>
   <div mat-dialog-content>
-    @if (years$ | async; as years) {
+    @if (years$(); as years) {
       <mat-chip-listbox multiple>
         @for (year of years; track year[0]) {
           <mat-chip-option selected [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
         }
       </mat-chip-listbox>
-      @if (values((tempStats$ | async)?.seenArtists || {}) | filterByYear: years; as artists) {
+      @if (values((tempStats$())?.seenArtists || {}) | filterByYear: years; as artists) {
         Found {{ artists.length }} artists which you listened to in all selected years
         <mat-list>
           @for (artist of artists; track artist.name) {

@@ -14,7 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ProgressComponent } from '../progress/progress.component';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { TitleCasePipe, CommonModule } from '@angular/common';
@@ -32,7 +32,7 @@ import { TranslatePipe } from '../service/translate.pipe';
         MatBadgeModule,
         MatButtonModule,
         MatCardModule,
-        MatIconModule,
+        MatIcon,
         MatSlideToggleModule,
         MatTabsModule,
         ProgressComponent,

@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
-import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
+import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
@@ -17,12 +17,11 @@ import { TimelineChart } from 'projects/shared/src/lib/charts/timeline-chart';
 import { WordcloudChart } from 'projects/shared/src/lib/charts/wordcloud-chart';
 import { MapperService } from '../service/mapper.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button';
 import { ChartLoaderDirective } from '../directive/chart-loader.directive';
-import { MatCardModule } from '@angular/material/card';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { LetterChart } from './letter-chart';
 import { ExportService } from "../service/export-service";
 
@@ -59,15 +58,14 @@ if (darkMode.matches) {
 }
 
 @Component({
-    selector: 'app-charts',
-    templateUrl: './charts.component.html',
-    styleUrls: ['./charts.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [TranslatePipe],
-    imports: [MatCardModule, ChartLoaderDirective, MatButtonModule, MatTooltipModule, MatIconModule, MatMenuModule]
+  selector: 'app-charts',
+  templateUrl: './charts.component.html',
+  styleUrls: ['./charts.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [TranslatePipe],
+  imports: [MatCard, ChartLoaderDirective, MatTooltip, MatIcon, MatCardContent, MatIconButton]
 })
 export class ChartsComponent {
-  Highcharts: typeof Highcharts = Highcharts;
   charts: AbstractChart[];
 
   constructor(
