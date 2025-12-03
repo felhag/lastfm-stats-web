@@ -42,6 +42,11 @@ npm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.9 (03-12-2025)
+- fixed various artist album streak ([#81][i81])
+- show current month for rank in dataset modal
+- updated to angular 21
+
 6.8 (06-11-2025)
 - fixed typo ([#76][i76], pr by [morgannmccarty](https://github.com/morgannmccarty))
 - removed matomo
@@ -320,3 +325,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i71]: https://github.com/felhag/lastfm-stats-web/issues/71
 [i72]: https://github.com/felhag/lastfm-stats-web/issues/72
 [i76]: https://github.com/felhag/lastfm-stats-web/issues/76
+[i81]: https://github.com/felhag/lastfm-stats-web/issues/81

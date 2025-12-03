@@ -180,15 +180,37 @@ export class ItemStreakStack extends StreakStack {
   }
 
   push(scrobble: Scrobble): void {
-    if (!this.current) {
-      this.create(scrobble);
-    } else {
+    if (this.hasCurrent()) {
       if (this.compare(this.current.start, scrobble)) {
-        this.current.length!++;
-        this.current.end = scrobble;
+        this.extendStreak(scrobble);
       } else {
         this.finish(scrobble);
       }
+    } else {
+      this.create(scrobble);
+    }
+  }
+
+  protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {
+    this.current!.length!++;
+    this.current!.end = scrobble;
+  }
+
+  private hasCurrent(): this is { current: Streak } {
+    return this.current !== undefined && this.current !== null;
+  }
+}
+
+export class AlbumStreakStack extends ItemStreakStack {
+  constructor() {
+    super((a, b) => (a.albumId && a.albumId === b.albumId) || a.albumId === b.albumId && a.artist === b.artist);
+  }
+
+  protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {
+    super.extendStreak(scrobble);
+    const startArtist = this.current.start.artist;
+    if (startArtist !== 'Various Artists' && startArtist !== scrobble.artist) {
+      this.current.start = {...this.current.start, artist: 'Various Artists'};
     }
   }
 }

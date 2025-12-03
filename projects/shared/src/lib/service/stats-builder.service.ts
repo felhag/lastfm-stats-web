@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { combineLatest, filter, map, merge, Observable, scan, shareReplay, Subject, switchMap, take } from 'rxjs';
 import {
+  AlbumStreakStack,
   Constants,
   ItemStreakStack,
   MonthItem,
@@ -266,7 +267,7 @@ export class StatsBuilderService {
       scrobbleStreak: new ScrobbleStreakStack(),
       artistStreak: new ItemStreakStack((a, b) => a.artist === b.artist),
       trackStreak: new ItemStreakStack((a, b) => a.track === b.track && a.artist === b.artist),
-      albumStreak: new ItemStreakStack((a, b) => a.album === b.album && a.artist === b.artist),
+      albumStreak: new AlbumStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),
