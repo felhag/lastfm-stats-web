@@ -223,10 +223,10 @@ export class RaceChart extends AbstractChart {
    * Update the chart. This happens either on updating (moving) the range input,
    * or from a timer when the timeline is playing.
    */
-  tick(target: number): void {
+  tick(target: number, force = false): void {
     const maxIdx = this.months.length - 1;
     const next = Math.min(target, maxIdx);
-    if (next === this.current) {
+    if (next === this.current && !force) {
       return;
     }
     this.current = next;
@@ -275,14 +275,14 @@ export class RaceChart extends AbstractChart {
   changeWindowMode(mode: 'cumulative' | 'rolling'): void {
     this.windowMode = mode;
     this.updateTitle();
-    this.tick(this.current);
+    this.tick(this.current, true);
   }
 
   changeWindowSize(size: number): void {
     this.windowSize = Math.max(1, Math.min(size, 120));
     this.updateTitle();
     if (this.windowMode === 'rolling') {
-      this.tick(this.current);
+      this.tick(this.current, true);
     }
   }
 
