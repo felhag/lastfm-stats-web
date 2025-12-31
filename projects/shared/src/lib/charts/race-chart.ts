@@ -49,6 +49,8 @@ export class RaceChart extends AbstractChart {
 
               const menu = (this.toolbar!.querySelector('.toolbar-menu') as HTMLButtonElement);
               (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
+              (this.toolbar.querySelector('.step-back') as HTMLButtonElement).onclick = () => this.tick(Math.max(0, this.current - 1));
+              (this.toolbar.querySelector('.step-forward') as HTMLButtonElement).onclick = () => this.tick(this.current + 1);
               (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
               (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
               (this.toolbar.querySelector('.open') as HTMLButtonElement).onclick = () => menu.classList.toggle('open');
