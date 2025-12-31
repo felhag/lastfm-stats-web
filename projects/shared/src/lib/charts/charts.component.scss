@@ -67,3 +67,27 @@ mat-card-content .toolbar {
     margin: 0;
   }
 }
+
+.window-mode-toggles {
+  display: flex;
+  padding: 0 8px;
+}
+
+.window-config {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.window-size-control {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+
+  .window-size-value {
+    min-width: 32px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
