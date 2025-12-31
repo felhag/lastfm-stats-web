@@ -27,6 +27,23 @@
       <button class="forward" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_up</mat-icon></button>
     </div>
     <h3>Type:</h3>
+    <h3>Mode:</h3>
+    <div class="window-mode-toggles">
+      <button class="mode-cumulative" mat-icon-button title="Cumulative (all time)">
+        <mat-icon>trending_up</mat-icon>
+      </button>
+      <button class="mode-rolling mat-primary" mat-icon-button title="Rolling window">
+        <mat-icon>date_range</mat-icon>
+      </button>
+    </div>
+    <div class="window-config">
+      <h3>Window (months):</h3>
+      <div class="window-size-control">
+        <button class="window-decrease" mat-icon-button><mat-icon>remove</mat-icon></button>
+        <span class="window-size-value">12</span>
+        <button class="window-increase" mat-icon-button><mat-icon>add</mat-icon></button>
+      </div>
+    </div>
   </div>
   <input type="range">
 </div>

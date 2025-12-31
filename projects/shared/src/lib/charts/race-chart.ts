@@ -24,6 +24,8 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
   recorder?: MediaRecorder;
+  windowMode: 'cumulative' | 'rolling' = 'rolling';
+  windowSize = 12;
 
   constructor(url: AbstractUrlService, private mapper: MapperService, private exportService: ExportService) {
     super();
@@ -62,6 +64,36 @@ export class RaceChart extends AbstractChart {
               toggleToolbar.classList.remove('toolbar');
               menu.appendChild(toggleToolbar);
 
+              // Window mode controls
+              const modeCumulativeBtn = menu.querySelector('.mode-cumulative') as HTMLButtonElement;
+              const modeRollingBtn = menu.querySelector('.mode-rolling') as HTMLButtonElement;
+              const windowConfigDiv = menu.querySelector('.window-config') as HTMLElement;
+              const windowSizeSpan = menu.querySelector('.window-size-value') as HTMLElement;
+
+              modeCumulativeBtn.onclick = () => {
+                modeCumulativeBtn.classList.add('mat-primary');
+                modeRollingBtn.classList.remove('mat-primary');
+                windowConfigDiv.style.display = 'none';
+                this.changeWindowMode('cumulative');
+              };
+
+              modeRollingBtn.onclick = () => {
+                modeRollingBtn.classList.add('mat-primary');
+                modeCumulativeBtn.classList.remove('mat-primary');
+                windowConfigDiv.style.display = 'block';
+                this.changeWindowMode('rolling');
+              };
+
+              (menu.querySelector('.window-decrease') as HTMLButtonElement).onclick = () => {
+                this.changeWindowSize(this.windowSize - 1);
+                windowSizeSpan.innerText = String(this.windowSize);
+              };
+
+              (menu.querySelector('.window-increase') as HTMLButtonElement).onclick = () => {
+                this.changeWindowSize(this.windowSize + 1);
+                windowSizeSpan.innerText = String(this.windowSize);
+              };
+
               const chart = event.target as any as Highcharts.Chart;
               chart.container.parentNode!.appendChild(this.toolbar);
             }
@@ -77,7 +109,7 @@ export class RaceChart extends AbstractChart {
           borderWidth: 0
         } as any
       },
-      title: {text: 'Race chart'},
+      title: {text: 'Race chart (12 months)'},
       xAxis: {type: 'category'},
       yAxis: [{
         opposite: true,
@@ -152,7 +184,7 @@ export class RaceChart extends AbstractChart {
 
   private getData(month: Month): PointOptionsObject[] {
     return Object.values(this.items)
-      .map(a => ({name: a.name, count: this.cumulativeUntil(month, a)}))
+      .map(a => ({name: a.name, count: this.getCountForItem(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
       .map(a => ({
@@ -172,8 +204,17 @@ export class RaceChart extends AbstractChart {
     return color;
   }
 
-  private cumulativeUntil(until: Month, item: StreakItem): number {
-    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
+  private getCountForItem(currentMonth: Month, item: StreakItem): number {
+    const currentIdx = this.months.indexOf(currentMonth);
+
+    if (this.windowMode === 'cumulative') {
+      return this.months.slice(0, currentIdx + 1)
+        .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
+    } else {
+      const startIdx = Math.max(0, currentIdx - this.windowSize + 1);
+      return this.months.slice(startIdx, currentIdx + 1)
+        .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
+    }
   }
 
   /**
@@ -227,6 +268,27 @@ export class RaceChart extends AbstractChart {
   changeType(type: ItemType): void {
     this.type = type;
     this.update(this.stats!);
+  }
+
+  changeWindowMode(mode: 'cumulative' | 'rolling'): void {
+    this.windowMode = mode;
+    this.updateTitle();
+    this.tick(this.current);
+  }
+
+  changeWindowSize(size: number): void {
+    this.windowSize = Math.max(1, Math.min(size, 120));
+    this.updateTitle();
+    if (this.windowMode === 'rolling') {
+      this.tick(this.current);
+    }
+  }
+
+  private updateTitle(): void {
+    const titleText = this.windowMode === 'cumulative'
+      ? 'Race chart'
+      : `Race chart (${this.windowSize} month${this.windowSize > 1 ? 's' : ''})`;
+    this.chart?.setTitle({text: titleText});
   }
 
   changeRange(value: number): void {
