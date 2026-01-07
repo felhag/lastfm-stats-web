@@ -5,7 +5,6 @@ import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractUrlService } from '../service/abstract-url.service';
 
-
 export class PunchcardChart extends AbstractChart {
   yearLabel?: HTMLElement;
   prevButton?: HTMLButtonElement;
@@ -52,14 +51,7 @@ export class PunchcardChart extends AbstractChart {
           return `${date}: <b>${point.value} ${translate.transform('translate.scrobbles')}</b>`;
         }
       },
-      xAxis: {
-        categories: [...Array(53).keys()].map(k => `W${k}`)
-      },
-      yAxis: {
-        categories: Constants.DAYS,
-        title: undefined,
-        reversed: true
-      },
+      ...PunchcardChart.getAxisForYear(),
       colorAxis: {
         labels: {style: {color: this.textColor}},
         min: 0,
@@ -129,9 +121,9 @@ export class PunchcardChart extends AbstractChart {
   updateDays(specificDays: { [p: number]: Track[] }): void {
     const data = this.getData(specificDays);
     if (this.year === 'all') {
-      this.chart?.update({xAxis: {categories: [...Array(31).keys()].map(k => k.toString())}, yAxis: {categories: Constants.MONTHS}}, false);
+      this.chart?.update(PunchcardChart.getAxisForAll(), false);
     } else {
-      this.chart?.update({xAxis: {categories: [...Array(53).keys()].map(k => `W${k}`)}, yAxis: {categories: Constants.DAYS}}, false);
+      this.chart?.update(PunchcardChart.getAxisForYear(), false);
     }
 
     // for some reason clearing the data first is needed after updating to Angular 13...
@@ -191,5 +183,37 @@ export class PunchcardChart extends AbstractChart {
     this.yearLabel!.innerText = String(this.year);
     this.prevButton!.style.visibility = this.year !== 'all' && this.year <= this.first ? 'hidden' : 'visible';
     this.nextButton!.style.visibility = this.year === 'all' ? 'hidden' : 'visible';
+  }
+
+  private static getAxisForYear() {
+    return {
+      xAxis: {
+        categories: [...Array(53).keys()].map(k => `W${k + 1}`),
+        min: 0,
+        max: 52,
+      },
+      yAxis: PunchcardChart.getYAxis(Constants.DAYS)
+    }
+  }
+
+  private static getAxisForAll() {
+    return {
+      xAxis: {
+        categories: [...Array(31).keys()].map(k => k.toString()),
+        min: 1,
+        max: 31,
+      },
+      yAxis: PunchcardChart.getYAxis(Constants.MONTHS)
+    }
+  }
+
+  private static getYAxis(categories: string[]) {
+    return {
+      categories,
+      title: undefined,
+      reversed: true,
+      min: 0,
+      max: categories.length - 1,
+    }
   }
 }

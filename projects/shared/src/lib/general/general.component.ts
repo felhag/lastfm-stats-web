@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, Signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Signal, TemplateRef, viewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
@@ -42,7 +42,7 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeneralComponent {
-  @ViewChild('everyYearArtists') everyYearArtistsDialog!: TemplateRef<Artist[]>;
+  readonly everyYearArtistsDialog = viewChild<TemplateRef<Artist[]>>('everyYearArtists');
   readonly values: (seen: { [key: string]: Artist }) => Artist[] = Object.values;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
 
@@ -52,7 +52,7 @@ export class GeneralComponent {
   private readonly stats = inject(StatsBuilderService);
 
   readonly user$ = toSignal(this.scrobbles.user);
-  readonly tempStats$ = toSignal(this.stats.tempStats);
+  readonly tempStats$ = toSignal(this.stats.tempStats, {equal: () => false});
   readonly first = computed(() => this.tempStats$()?.first);
   readonly last = computed(() => this.tempStats$()?.last);
   readonly days$ = computed(() => {
@@ -76,7 +76,7 @@ export class GeneralComponent {
 
   openEveryYearArist(stats: TempStats) {
     const data = {stats};
-    this.dialog.open(this.everyYearArtistsDialog, {data});
+    this.dialog.open(this.everyYearArtistsDialog()!, {data});
   }
 
   oneHitWonders(stats: TempStats) {
