@@ -208,15 +208,9 @@ export class RaceChart extends AbstractChart {
 
   private getCountForItem(currentMonth: Month, item: StreakItem): number {
     const currentIdx = this.months.indexOf(currentMonth);
-
-    if (this.windowMode === 'cumulative') {
-      return this.months.slice(0, currentIdx + 1)
-        .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
-    } else {
-      const startIdx = Math.max(0, currentIdx - this.windowSize + 1);
-      return this.months.slice(startIdx, currentIdx + 1)
-        .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
-    }
+    const startIdx = this.windowMode === 'cumulative' ? 0 : Math.max(0, currentIdx - this.windowSize + 1);
+    return this.months.slice(startIdx, currentIdx + 1)
+      .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
   }
 
   /**
