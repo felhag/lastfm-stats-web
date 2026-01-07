@@ -24,7 +24,7 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
   recorder?: MediaRecorder;
-  windowMode: 'cumulative' | 'rolling' = 'rolling';
+  windowMode: 'cumulative' | 'rolling' = 'cumulative';
   windowSize = 12;
 
   constructor(url: AbstractUrlService, private mapper: MapperService, private exportService: ExportService) {
@@ -111,7 +111,7 @@ export class RaceChart extends AbstractChart {
           borderWidth: 0
         } as any
       },
-      title: {text: 'Race chart (12 months)'},
+      title: {text: 'Race chart'},
       xAxis: {type: 'category'},
       yAxis: [{
         opposite: true,
