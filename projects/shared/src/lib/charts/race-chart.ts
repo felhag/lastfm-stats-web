@@ -264,6 +264,7 @@ export class RaceChart extends AbstractChart {
   changeType(type: ItemType): void {
     this.type = type;
     this.update(this.stats!);
+    this.tick(this.current, true);
   }
 
   changeWindowMode(mode: 'cumulative' | 'rolling'): void {
