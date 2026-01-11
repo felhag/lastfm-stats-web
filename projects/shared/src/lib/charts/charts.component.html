@@ -17,7 +17,9 @@
 }
 <div id="race-chart-toolbar" class="toolbar">
   <button class="open" mat-icon-button><mat-icon>settings</mat-icon></button>
+  <button class="step-back" mat-icon-button><mat-icon>skip_previous</mat-icon></button>
   <button class="play" mat-icon-button><mat-icon>play_arrow</mat-icon></button>
+  <button class="step-forward" mat-icon-button><mat-icon>skip_next</mat-icon></button>
   <span class="tooltip"></span>
   <div class="toolbar-menu mat-elevation-z8">
     <h3>Speed:</h3>
@@ -25,6 +27,23 @@
       <button class="rewind" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_down</mat-icon></button>
       <button class="current" mat-icon-button disabled>1</button>
       <button class="forward" mat-icon-button><mat-icon class="material-icons-outlined">keyboard_double_arrow_up</mat-icon></button>
+    </div>
+    <h3>Mode:</h3>
+    <div class="window-mode-toggles">
+      <button class="mode-cumulative mat-primary" mat-icon-button title="Cumulative (all time)">
+        <mat-icon>trending_up</mat-icon>
+      </button>
+      <button class="mode-rolling" mat-icon-button title="Rolling window">
+        <mat-icon>date_range</mat-icon>
+      </button>
+    </div>
+    <div class="window-config" style="display: none">
+      <h3>Window (months):</h3>
+      <div class="window-size-control">
+        <button class="window-decrease" mat-icon-button><mat-icon>remove</mat-icon></button>
+        <span class="window-size-value">12</span>
+        <button class="window-increase" mat-icon-button><mat-icon>add</mat-icon></button>
+      </div>
     </div>
     <h3>Type:</h3>
   </div>

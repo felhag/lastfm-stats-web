@@ -24,6 +24,8 @@ export class RaceChart extends AbstractChart {
   speedText?: HTMLElement;
   speed = this.defaultSpeed;
   recorder?: MediaRecorder;
+  windowMode: 'cumulative' | 'rolling' = 'cumulative';
+  windowSize = 12;
 
   constructor(url: AbstractUrlService, private mapper: MapperService, private exportService: ExportService) {
     super();
@@ -47,6 +49,8 @@ export class RaceChart extends AbstractChart {
 
               const menu = (this.toolbar!.querySelector('.toolbar-menu') as HTMLButtonElement);
               (this.toolbar.querySelector('.play') as HTMLButtonElement).onclick = () => this.toggle();
+              (this.toolbar.querySelector('.step-back') as HTMLButtonElement).onclick = () => this.tick(Math.max(0, this.current - 1));
+              (this.toolbar.querySelector('.step-forward') as HTMLButtonElement).onclick = () => this.tick(this.current + 1);
               (this.toolbar.querySelector('.rewind') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed * 2);
               (this.toolbar.querySelector('.forward') as HTMLButtonElement).onclick = () => this.changeSpeed(() => this.speed / 2);
               (this.toolbar.querySelector('.open') as HTMLButtonElement).onclick = () => menu.classList.toggle('open');
@@ -61,6 +65,36 @@ export class RaceChart extends AbstractChart {
               });
               toggleToolbar.classList.remove('toolbar');
               menu.appendChild(toggleToolbar);
+
+              // Window mode controls
+              const modeCumulativeBtn = menu.querySelector('.mode-cumulative') as HTMLButtonElement;
+              const modeRollingBtn = menu.querySelector('.mode-rolling') as HTMLButtonElement;
+              const windowConfigDiv = menu.querySelector('.window-config') as HTMLElement;
+              const windowSizeSpan = menu.querySelector('.window-size-value') as HTMLElement;
+
+              modeCumulativeBtn.onclick = () => {
+                modeCumulativeBtn.classList.add('mat-primary');
+                modeRollingBtn.classList.remove('mat-primary');
+                windowConfigDiv.style.display = 'none';
+                this.changeWindowMode('cumulative');
+              };
+
+              modeRollingBtn.onclick = () => {
+                modeRollingBtn.classList.add('mat-primary');
+                modeCumulativeBtn.classList.remove('mat-primary');
+                windowConfigDiv.style.display = 'block';
+                this.changeWindowMode('rolling');
+              };
+
+              (menu.querySelector('.window-decrease') as HTMLButtonElement).onclick = () => {
+                this.changeWindowSize(this.windowSize - 1);
+                windowSizeSpan.innerText = String(this.windowSize);
+              };
+
+              (menu.querySelector('.window-increase') as HTMLButtonElement).onclick = () => {
+                this.changeWindowSize(this.windowSize + 1);
+                windowSizeSpan.innerText = String(this.windowSize);
+              };
 
               const chart = event.target as any as Highcharts.Chart;
               chart.container.parentNode!.appendChild(this.toolbar);
@@ -152,7 +186,7 @@ export class RaceChart extends AbstractChart {
 
   private getData(month: Month): PointOptionsObject[] {
     return Object.values(this.items)
-      .map(a => ({name: a.name, count: this.cumulativeUntil(month, a)}))
+      .map(a => ({name: a.name, count: this.getCountForItem(month, a)}))
       .sort((a, b) => b.count - a.count)
       .slice(0, 25)
       .map(a => ({
@@ -172,18 +206,21 @@ export class RaceChart extends AbstractChart {
     return color;
   }
 
-  private cumulativeUntil(until: Month, item: StreakItem): number {
-    return this.months.slice(0, this.months.indexOf(until) + 1).reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
+  private getCountForItem(currentMonth: Month, item: StreakItem): number {
+    const currentIdx = this.months.indexOf(currentMonth);
+    const startIdx = this.windowMode === 'cumulative' ? 0 : Math.max(0, currentIdx - this.windowSize + 1);
+    return this.months.slice(startIdx, currentIdx + 1)
+      .reduce((acc, cur) => acc + (this.mapper.monthItem(this.type, cur, item)?.count || 0), 0);
   }
 
   /**
    * Update the chart. This happens either on updating (moving) the range input,
    * or from a timer when the timeline is playing.
    */
-  tick(target: number): void {
+  tick(target: number, force = false): void {
     const maxIdx = this.months.length - 1;
     const next = Math.min(target, maxIdx);
-    if (next === this.current) {
+    if (next === this.current && !force) {
       return;
     }
     this.current = next;
@@ -227,6 +264,28 @@ export class RaceChart extends AbstractChart {
   changeType(type: ItemType): void {
     this.type = type;
     this.update(this.stats!);
+    this.tick(this.current, true);
+  }
+
+  changeWindowMode(mode: 'cumulative' | 'rolling'): void {
+    this.windowMode = mode;
+    this.updateTitle();
+    this.tick(this.current, true);
+  }
+
+  changeWindowSize(size: number): void {
+    this.windowSize = Math.max(1, Math.min(size, 120));
+    this.updateTitle();
+    if (this.windowMode === 'rolling') {
+      this.tick(this.current, true);
+    }
+  }
+
+  private updateTitle(): void {
+    const titleText = this.windowMode === 'cumulative'
+      ? 'Race chart'
+      : `Race chart (${this.windowSize} month${this.windowSize > 1 ? 's' : ''})`;
+    this.chart?.setTitle({text: titleText});
   }
 
   changeRange(value: number): void {
