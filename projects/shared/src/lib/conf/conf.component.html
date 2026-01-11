@@ -23,7 +23,7 @@
         <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
         <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
       </mat-date-range-input>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
     </mat-form-field>
   </div>

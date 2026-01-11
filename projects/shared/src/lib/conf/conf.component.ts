@@ -1,40 +1,53 @@
 import { Component, computed, Inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteTrigger, MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
 import { Scrobble } from '../app/model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatOption, provideNativeDateAdapter } from '@angular/material/core';
+import { MatChipGrid, MatChipInput, MatChipListbox, MatChipOption, MatChipRow } from '@angular/material/chips';
 
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
+import { MatInput, MatLabel } from '@angular/material/input';
+import { MatFormField } from '@angular/material/form-field';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from "@angular/material/datepicker";
 
 @Component({
-    selector: 'app-conf',
-    templateUrl: './conf.component.html',
-    styleUrls: ['./conf.component.scss'],
-    imports: [
-        MatAutocompleteModule,
-        MatButtonModule,
-        MatChipsModule,
-        MatDatepickerModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatNativeDateModule,
-        MatOptionModule,
-        MatSliderModule,
-        ReactiveFormsModule,
-        TranslatePipe
-    ]
+  selector: 'app-conf',
+  templateUrl: './conf.component.html',
+  styleUrls: ['./conf.component.scss'],
+  imports: [
+    MatAutocomplete,
+    MatAutocompleteTrigger,
+    MatButton,
+    MatChipGrid,
+    MatChipInput,
+    MatChipListbox,
+    MatChipOption,
+    MatChipRow,
+    MatDateRangeInput,
+    MatStartDate,
+    MatEndDate,
+    MatDateRangePicker,
+    MatDatepickerToggle,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatLabel,
+    MatOption,
+    MatSlider,
+    MatSliderThumb,
+    ReactiveFormsModule,
+    TranslatePipe,
+  ],
+  providers: [provideNativeDateAdapter()],
 })
 export class ConfComponent {
   @ViewChild(MatAutocompleteTrigger) autocomplete?: MatAutocompleteTrigger;
