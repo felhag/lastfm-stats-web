@@ -28,7 +28,7 @@ jobs:
         cp dist/lastfm-stats/browser/index.html dist/lastfm-stats/browser/404.html
 
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@v4.7.6
+      uses: JamesIves/github-pages-deploy-action@v4.8.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: gh-pages
