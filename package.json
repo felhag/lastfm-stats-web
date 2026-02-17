@@ -40,9 +40,11 @@
     "@angular/build": "^21.0.5",
     "@angular/cli": "^21.0.5",
     "@angular/compiler-cli": "^21.0.8",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^25.0.6",
     "concurrently": "^9.2.1",
     "ng-packagr": "^21.0.1",
+    "playwright": "^1.58.2",
     "ts-node": "~10.9.2",
     "typescript": "~5.9.3"
   },
