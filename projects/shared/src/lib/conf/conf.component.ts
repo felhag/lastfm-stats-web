@@ -14,6 +14,7 @@ import { MatButton } from '@angular/material/button';
 import { MatInput, MatLabel } from '@angular/material/input';
 import { MatFormField } from '@angular/material/form-field';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate, MatStartDate } from "@angular/material/datepicker";
 
 @Component({
@@ -44,6 +45,7 @@ import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate,
     MatOption,
     MatSlider,
     MatSliderThumb,
+    MatSlideToggle,
     ReactiveFormsModule,
     TranslatePipe,
   ],

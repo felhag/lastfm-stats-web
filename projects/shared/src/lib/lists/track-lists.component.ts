@@ -4,6 +4,7 @@ import { SettingsService } from 'projects/shared/src/lib/service/settings.servic
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { sanitizeName } from '../service/sanitize-name';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
@@ -37,7 +38,8 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
     const seen = this.seenThreshold(stats.seenTracks);
-    const gaps = this.calculateGaps(stats, seen, stats.betweenTracks, 'track', s => this.url.track(s.start.artist, s.start.track));
+    const norm = this.settingsObj?.filterRemasters ? sanitizeName : (n: string) => n;
+    const gaps = this.calculateGaps(stats, seen, stats.betweenTracks, 'track', s => this.url.track(s.start.artist, norm(s.start.track)));
     next.betweenTracks = gaps[0];
     next.ongoingBetweenTracks = gaps[1];
 
@@ -54,7 +56,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
     const seenThreshold = this.forceThreshold(seen);
     next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
     next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
-    next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
+    next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${norm(s.start.track)} (${s.length} times)`);
 
     const rankings = this.getRankings(seenThreshold, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
     next.climbers = rankings.climbers;

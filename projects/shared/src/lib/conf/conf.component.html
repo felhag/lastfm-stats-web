@@ -11,6 +11,11 @@
     </mat-form-field>
   </div>
   <div class="setting-row">
+    <mat-slide-toggle [checked]="settings.filterRemasters" (change)="settings.filterRemasters = $event.checked" color="primary">
+      Filter remasters
+    </mat-slide-toggle>
+  </div>
+  <div class="setting-row">
     <h3>Filter dates</h3>
     <button mat-button (click)="clearDate()" [disabled]="!startDateCtrl.value && !endDateCtrl.value">
       <mat-icon class="material-icons-outlined">delete</mat-icon>Clear date filter
