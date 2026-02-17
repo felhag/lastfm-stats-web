@@ -61,6 +61,26 @@ describe('normalizeName', () => {
     it('strips "[2007 Remaster]"', () => {
       expect(normalizeName('Changes [2007 Remaster]')).toBe('Changes');
     });
+
+    it('strips "[2011 - Remaster]"', () => {
+      expect(normalizeName('Song [2011 - Remaster]')).toBe('Song');
+    });
+
+    it('strips " - Digitally Remastered"', () => {
+      expect(normalizeName('Song - Digitally Remastered')).toBe('Song');
+    });
+
+    it('strips "(Digitally Remastered)"', () => {
+      expect(normalizeName('Song (Digitally Remastered)')).toBe('Song');
+    });
+
+    it('strips "(2018 Remastering)"', () => {
+      expect(normalizeName('Song (2018 Remastering)')).toBe('Song');
+    });
+
+    it('strips " - Remastering"', () => {
+      expect(normalizeName('Song - Remastering')).toBe('Song');
+    });
   });
 
   // ── Deluxe patterns ────────────────────────────────────────────────
@@ -173,6 +193,59 @@ describe('normalizeName', () => {
     it('strips "(Album Version)"', () => {
       expect(normalizeName('Karma Police (Album Version)')).toBe('Karma Police');
     });
+
+    it('strips " - Edit"', () => {
+      expect(normalizeName('Song - Edit')).toBe('Song');
+    });
+
+    it('strips "[Edit]"', () => {
+      expect(normalizeName('Song [Edit]')).toBe('Song');
+    });
+
+    it('strips "(Edit)"', () => {
+      expect(normalizeName('Song (Edit)')).toBe('Song');
+    });
+
+    it('strips " - Original Version"', () => {
+      expect(normalizeName('Song - Original Version')).toBe('Song');
+    });
+
+    it('strips "(Original Version)"', () => {
+      expect(normalizeName('Song (Original Version)')).toBe('Song');
+    });
+
+    it('strips " - Original"', () => {
+      expect(normalizeName('Song - Original')).toBe('Song');
+    });
+
+    it('strips "(Album V)"', () => {
+      expect(normalizeName('Song (Album V)')).toBe('Song');
+    });
+
+    it('strips " - Album V"', () => {
+      expect(normalizeName('Song - Album V')).toBe('Song');
+    });
+
+    it('strips " - Extended Edit"', () => {
+      expect(normalizeName('Song - Extended Edit')).toBe('Song');
+    });
+
+    it('strips "(Extended Edit)"', () => {
+      expect(normalizeName('Song (Extended Edit)')).toBe('Song');
+    });
+
+    it('strips " - Alternate Version"', () => {
+      expect(normalizeName('Song - Alternate Version')).toBe('Song');
+    });
+
+    it('strips "(Alternate Version)"', () => {
+      expect(normalizeName('Song (Alternate Version)')).toBe('Song');
+    });
+
+    it('strips " - Extended Version"', () => {
+      expect(normalizeName('Song - Extended Version')).toBe('Song');
+    });
+
   });
 
   // ── Recording variant patterns ─────────────────────────────────────
@@ -269,6 +342,26 @@ describe('normalizeName', () => {
     it('strips "(Live from Madison Square Garden)"', () => {
       expect(normalizeName('Purple Rain (Live from Madison Square Garden)')).toBe('Purple Rain');
     });
+
+    it('strips " - Live at Very Long Venue Name Here"', () => {
+      expect(normalizeName('Song - Live at The Royal Albert Hall London 2019')).toBe('Song');
+    });
+  });
+
+  // ── Soundtrack patterns ───────────────────────────────────────────
+
+  describe('soundtrack suffixes', () => {
+    it('strips " - from The Lion King Soundtrack"', () => {
+      expect(normalizeName('Circle of Life - from The Lion King Soundtrack')).toBe('Circle of Life');
+    });
+
+    it('strips "(from Frozen Soundtrack)"', () => {
+      expect(normalizeName('Let It Go (from Frozen Soundtrack)')).toBe('Let It Go');
+    });
+
+    it('strips " - from Motion Picture Soundtrack"', () => {
+      expect(normalizeName('Song - from Motion Picture Soundtrack')).toBe('Song');
+    });
   });
 
   // ── Bonus track patterns ──────────────────────────────────────────
@@ -352,6 +445,34 @@ describe('normalizeName', () => {
 
     it('strips remaster combined with feat suffix', () => {
       expect(normalizeName('Song - Remastered (feat. Artist)')).toBe('Song');
+    });
+
+    it('strips "[feat. Artist]"', () => {
+      expect(normalizeName('Song [feat. Artist]')).toBe('Song');
+    });
+
+    it('strips "[ft. Artist]"', () => {
+      expect(normalizeName('Song [ft. Artist]')).toBe('Song');
+    });
+
+    it('strips "[featuring Artist]"', () => {
+      expect(normalizeName('Song [featuring Artist Name]')).toBe('Song');
+    });
+
+    it('strips "(with Artist)"', () => {
+      expect(normalizeName('Song (with Artist)')).toBe('Song');
+    });
+
+    it('strips "[with Artist]"', () => {
+      expect(normalizeName('Song [with Artist]')).toBe('Song');
+    });
+
+    it('strips "(w/ Artist)"', () => {
+      expect(normalizeName('Song (w/ Artist Name)')).toBe('Song');
+    });
+
+    it('strips "(With Multiple Artists)"', () => {
+      expect(normalizeName('Song (With Artist One & Artist Two)')).toBe('Song');
     });
   });
 
@@ -472,6 +593,46 @@ describe('normalizeName', () => {
 
     it('strips " - Mix"', () => {
       expect(normalizeName('Song - Mix')).toBe('Song');
+    });
+
+    it('strips " - 1991 Remix"', () => {
+      expect(normalizeName('Little Saint Nick - 1991 Remix')).toBe('Little Saint Nick');
+    });
+
+    it('strips "(1991 Remix)"', () => {
+      expect(normalizeName('Little Saint Nick (1991 Remix)')).toBe('Little Saint Nick');
+    });
+
+    it('strips "(Album Mix)"', () => {
+      expect(normalizeName('Song (Album Mix)')).toBe('Song');
+    });
+
+    it('strips " - Album Mix"', () => {
+      expect(normalizeName('Song - Album Mix')).toBe('Song');
+    });
+
+    it('strips " - Club Remix"', () => {
+      expect(normalizeName('Song - Club Remix')).toBe('Song');
+    });
+
+    it('strips "(Club Remix)"', () => {
+      expect(normalizeName('Song (Club Remix)')).toBe('Song');
+    });
+
+    it('strips " - Extended Remix"', () => {
+      expect(normalizeName('Song - Extended Remix')).toBe('Song');
+    });
+
+    it('strips " - Dub Mix"', () => {
+      expect(normalizeName('Song - Dub Mix')).toBe('Song');
+    });
+
+    it('strips "(Hot Mix)"', () => {
+      expect(normalizeName('Song (Hot Mix)')).toBe('Song');
+    });
+
+    it('strips " - Someone Radio Edit"', () => {
+      expect(normalizeName('Prayer in C - Robin Schulz Radio Edit')).toBe('Prayer in C');
     });
   });
 
@@ -637,6 +798,46 @@ describe('normalizeName', () => {
 
     it('track with remix suffix', () => {
       expect(normalizeName('Blue Monday - Remix')).toBe('Blue Monday');
+    });
+
+    it('Beach Boys - Little Saint Nick 1991 Remix', () => {
+      expect(normalizeName('Little Saint Nick - 1991 Remix')).toBe('Little Saint Nick');
+    });
+
+    it('track with digitally remastered', () => {
+      expect(normalizeName('Song - Digitally Remastered')).toBe('Song');
+    });
+
+    it('track with [2011 - Remaster]', () => {
+      expect(normalizeName('Song [2011 - Remaster]')).toBe('Song');
+    });
+
+    it('track with [Edit]', () => {
+      expect(normalizeName('Song [Edit]')).toBe('Song');
+    });
+
+    it('track with Album V', () => {
+      expect(normalizeName('Song (Album V)')).toBe('Song');
+    });
+
+    it('track with 2018 Remastering', () => {
+      expect(normalizeName('Song (2018 Digital Remastering)')).toBe('Song');
+    });
+
+    it('track from soundtrack', () => {
+      expect(normalizeName('Song - from Guardians of the Galaxy Soundtrack')).toBe('Song');
+    });
+
+    it('track with original version', () => {
+      expect(normalizeName('Song - Original Version')).toBe('Song');
+    });
+
+    it('track with (with Artist)', () => {
+      expect(normalizeName('Under Pressure (with David Bowie)')).toBe('Under Pressure');
+    });
+
+    it('track with (w/ Artist)', () => {
+      expect(normalizeName('Song (w/ Someone)')).toBe('Song');
     });
   });
 });
