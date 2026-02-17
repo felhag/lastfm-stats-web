@@ -4,6 +4,7 @@ import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/
 import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
+import { normalizeName } from '../service/normalize-name';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface Top10Item {
@@ -90,7 +91,8 @@ export abstract class AbstractListsComponent<S> {
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
     const threshold = this.threshold;
     const seenStrings = seen.map(a => a.name);
-    const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
+    const norm = this.settingsObj?.filterRemasters ? normalizeName : (n: string) => n;
+    const toString = (s: Streak) => s.start.artist + (include ? ' - ' + norm(s.start[include]) : '');
     const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
     const endDate = stats.last?.date || new Date();
     const betweenResult = this.getStreakTop10(ba, s => `${toString(s)} (${s.length! - 1} days)`, url);
