@@ -15,13 +15,13 @@ import {
 import { Settings, SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { MapperService } from './mapper.service';
 import { ScrobbleStore } from './scrobble.store';
-import { normalizeName } from './normalize-name';
+import { sanitizeName } from './sanitize-name';
 
 @Injectable()
 export class StatsBuilderService {
   tempStats: Observable<TempStats>;
   rebuild = new Subject<void>();
-  private normalize: (name: string) => string = (n) => n;
+  private sanitize: (name: string) => string = (n) => n;
   private toKey: (name: string) => string = (n) => n;
 
   constructor(private settings: SettingsService,
@@ -53,7 +53,7 @@ export class StatsBuilderService {
   }
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
-    this.normalize = settings.filterRemasters ? normalizeName : (n) => n;
+    this.sanitize = settings.filterRemasters ? sanitizeName : (n) => n;
     this.toKey = settings.filterRemasters ? (n: string) => n.toLowerCase() : (n) => n;
     for (const scrobble of this.filterWith(scrobbles, settings)) {
       const year = scrobble.date.getFullYear();
@@ -125,11 +125,11 @@ export class StatsBuilderService {
 
     this.handleMonthItem(scrobble, month.artists, next.seenArtists, scrobble.artist, this.toKey(scrobble.artist));
     if (scrobble.album) {
-      const albumDisplay = scrobble.artist + ' - ' + this.normalize(scrobble.album);
+      const albumDisplay = scrobble.artist + ' - ' + this.sanitize(scrobble.album);
       const albumKey = scrobble.albumId || this.toKey(albumDisplay);
       this.handleMonthItem(scrobble, month.albums, next.seenAlbums, albumDisplay, albumKey);
     }
-    const trackDisplay = scrobble.artist + ' - ' + this.normalize(scrobble.track);
+    const trackDisplay = scrobble.artist + ' - ' + this.sanitize(scrobble.track);
     this.handleMonthItem(scrobble, month.tracks, next.seenTracks, trackDisplay, this.toKey(trackDisplay));
   }
 
@@ -159,7 +159,7 @@ export class StatsBuilderService {
   private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     const seen = next.seenArtists;
     const artistKey = this.toKey(scrobble.artist);
-    const trackKey = this.toKey(this.normalize(scrobble.track));
+    const trackKey = this.toKey(this.sanitize(scrobble.track));
     const seenArtist = seen[artistKey];
     if (seenArtist) {
       this.handleStreakItem(seenArtist, next.betweenArtists, scrobble, weekYear);
@@ -184,7 +184,7 @@ export class StatsBuilderService {
 
   private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
     if (scrobble.album) {
-      const fullName = scrobble.artist + ' - ' + this.normalize(scrobble.album);
+      const fullName = scrobble.artist + ' - ' + this.sanitize(scrobble.album);
       const id = scrobble.albumId || this.toKey(fullName);
       const seenItem = next.seenAlbums[id];
       if (seenItem) {
@@ -200,7 +200,7 @@ export class StatsBuilderService {
           ...this.createStreakItem(fullName, weekYear, scrobble),
           id,
           artists: [scrobble.artist],
-          shortName: this.normalize(scrobble.album),
+          shortName: this.sanitize(scrobble.album),
         };
         next.albumCount++;
         if (next.albumCount % 1000 === 0) {
@@ -211,7 +211,7 @@ export class StatsBuilderService {
   }
 
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
-    const fullName = scrobble.artist + ' - ' + this.normalize(scrobble.track);
+    const fullName = scrobble.artist + ' - ' + this.sanitize(scrobble.track);
     const key = this.toKey(fullName);
     const seenItem = next.seenTracks[key];
     if (seenItem) {
@@ -222,7 +222,7 @@ export class StatsBuilderService {
       const result: Track = {
         ...this.createStreakItem(fullName, weekYear, scrobble),
         artist: scrobble.artist,
-        shortName: this.normalize(scrobble.track),
+        shortName: this.sanitize(scrobble.track),
         withAlbum: scrobble.album ? 1 : 0
       };
       next.seenTracks[key] = result;
@@ -275,7 +275,7 @@ export class StatsBuilderService {
       years: {},
       scrobbleStreak: new ScrobbleStreakStack(),
       artistStreak: new ItemStreakStack((a, b) => this.toKey(a.artist) === this.toKey(b.artist)),
-      trackStreak: new ItemStreakStack((a, b) => this.toKey(this.normalize(a.track)) === this.toKey(this.normalize(b.track)) && this.toKey(a.artist) === this.toKey(b.artist)),
+      trackStreak: new ItemStreakStack((a, b) => this.toKey(this.sanitize(a.track)) === this.toKey(this.sanitize(b.track)) && this.toKey(a.artist) === this.toKey(b.artist)),
       albumStreak: new AlbumStreakStack(),
       notListenedStreak: new StreakStack(),
       betweenArtists: new StreakStack(),

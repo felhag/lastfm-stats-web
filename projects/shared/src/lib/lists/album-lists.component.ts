@@ -4,7 +4,7 @@ import { SettingsService } from 'projects/shared/src/lib/service/settings.servic
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
-import { normalizeName } from '../service/normalize-name';
+import { sanitizeName } from '../service/sanitize-name';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
@@ -42,7 +42,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
 
   protected doUpdate(stats: TempStats, next: AlbumStats): void {
     const seen = this.seenThreshold(stats.seenAlbums);
-    const norm = this.settingsObj?.filterRemasters ? normalizeName : (n: string) => n;
+    const norm = this.settingsObj?.filterRemasters ? sanitizeName : (n: string) => n;
     const gaps = this.calculateGaps(stats, seen, stats.betweenAlbums, 'album', s => this.url.album(s.start.artist, norm(s.start.album)));
     const albumDate = (item: StreakItem) => new Date(item.avgScrobble);
     const scrobbles = this.translate.transform('translate.scrobbles');
