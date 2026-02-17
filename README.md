@@ -23,7 +23,7 @@ Setting up a local dev environment:
 ```
 git clone https://github.com/felhag/lastfm-stats-web.git
 cd lastfm-stats-web
-npm ci
+pnpm install
 ```
 
 Running:
@@ -33,11 +33,11 @@ ng serve lastfm-stats
 ng serve spotify-stats
 ```
 
-Note: angular cli needs to be installed (```npm install -g @angular/cli```)
+Note: angular cli needs to be installed (```pnpm install -g @angular/cli```)
 
 Running both projects simultaneously:
 ```
-npm run both
+pnpm run both
 ```
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 

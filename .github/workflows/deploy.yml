@@ -1,0 +1,32 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/main.yml
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: dist/lastfm-stats/browser
+
+    - name: Copy 404 page
+      run: cp dist/lastfm-stats/browser/index.html dist/lastfm-stats/browser/404.html
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4.8.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
+        folder: dist/lastfm-stats/browser
+        target-folder: docs
