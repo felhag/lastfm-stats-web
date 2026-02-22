@@ -8,7 +8,7 @@ import { MapperService } from '../service/mapper.service';
 
 export class ZScoreChart extends ToggleableChart {
   constructor(
-    translate: TranslatePipe,
+    private translate: TranslatePipe,
     url: AbstractUrlService,
     private mapper: MapperService,
     private zscoreService: ZScoreService
@@ -18,6 +18,7 @@ export class ZScoreChart extends ToggleableChart {
       chart: {events: this.events},
       plotOptions: this.plotOptions,
       title: {text: 'Most statistically unlikely per month'},
+      subtitle: {text: ''},
       legend: {enabled: false},
       tooltip: {
         useHTML: true,
@@ -27,16 +28,20 @@ export class ZScoreChart extends ToggleableChart {
           const plays = point.plays;
           const mean = point.mean;
           const std = point.std;
-          const [month, artist] = point.name.split(/ - (.*)/s);
+          const artist = point.artist;
+          const itemName = point.itemName;
+          const [month] = point.name.split(/ - (.*)/s);
+          // Display "artist - name" for albums/tracks, just name for artists
+          const displayName = artist !== itemName ? `${artist} - ${itemName}` : artist;
           return `
             <div style="display:flex;align-items:center;gap:10px;">
               <div>
                 <strong>${month}</strong><br/>
-                Most unusual: <b>${artist}</b><br/>
+                Most unusual: <b>${displayName}</b><br/>
                 Z-score: <b>${z.toFixed(2)}</b><br/>
                 ${translate.capFirst('translate.scrobbles')}: <b>${plays}</b><br/>
-                Average: <b>${mean.toFixed(1)}</b><br/>
-                Std Dev: <b>${std.toFixed(1)}</b>
+                Average: <b>${mean.toFixed(2)}</b><br/>
+                Std Dev: <b>${std.toFixed(2)}</b>
               </div>
             </div>
           `;
@@ -65,12 +70,22 @@ export class ZScoreChart extends ToggleableChart {
   update(stats: TempStats): void {
     super.update(stats);
 
+    // Update subtitle based on current type threshold
+    const threshold = this.getMinAverageThreshold();
+    const subtitleText = `(≥${threshold} ${this.translate.transform('translate.scrobbles')}/month avg)`;
+    this.chart?.update({
+      subtitle: { text: subtitleText }
+    } as any, false);
+
     const points: PointOptionsObject[] = [];
     const colorMap: { [key: string]: string } = {};
     const colors = this.getColors();
 
     // Compute z-scores for all months
     const zscoreMap = this.zscoreService.compute(stats, this.type);
+
+    // Get minimum average threshold for current type
+    const minAverage = this.getMinAverageThreshold();
 
     // Get months in chronological order
     const months = Object.values(stats.monthList).sort((a, b) =>
@@ -85,28 +100,46 @@ export class ZScoreChart extends ToggleableChart {
 
       const entries = zscoreMap.get(yearMonth);
       if (entries && entries.length > 0) {
-        // Find entry with highest z-score
-        const maxEntry = entries.reduce((a, b) => a.z > b.z ? a : b);
+        // Filter entries by minimum average threshold
+        const filteredEntries = entries.filter(entry => entry.mean >= minAverage);
 
-        if (maxEntry.z > 0) {
-          // Assign consistent color per item
-          if (!colorMap[maxEntry.name]) {
-            colorMap[maxEntry.name] = colors[Object.keys(colorMap).length % colors.length];
+        if (filteredEntries.length > 0) {
+          // Find entry with highest z-score
+          const maxEntry = filteredEntries.reduce((a, b) => a.z > b.z ? a : b);
+
+          if (maxEntry.z > 0) {
+            // Assign consistent color per item
+            if (!colorMap[maxEntry.name]) {
+              colorMap[maxEntry.name] = colors[Object.keys(colorMap).length % colors.length];
+            }
+
+            points.push({
+              name: month.alias + ' - ' + maxEntry.name,
+              artist: maxEntry.artist,
+              itemName: maxEntry.name,
+              color: colorMap[maxEntry.name],
+              y: maxEntry.z,
+              z: maxEntry.z,
+              plays: maxEntry.plays,
+              mean: maxEntry.mean,
+              std: maxEntry.std
+            } as PointOptionsObject);
           }
-
-          points.push({
-            name: month.alias + ' - ' + maxEntry.name,
-            color: colorMap[maxEntry.name],
-            y: maxEntry.z,
-            z: maxEntry.z,
-            plays: maxEntry.plays,
-            mean: maxEntry.mean,
-            std: maxEntry.std
-          } as PointOptionsObject);
         }
       }
     }
 
     this.setData(points);
+  }
+
+  private getMinAverageThreshold(): number {
+    switch (this.type) {
+      case 'artist':
+        return 1.0;
+      case 'album':
+        return 0.5;
+      case 'track':
+        return 0.2;
+    }
   }
 }
