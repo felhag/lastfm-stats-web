@@ -67,6 +67,17 @@ export interface MonthItem {
   new?: Scrobble;
 }
 
+export interface ZScoreEntry {
+  key: string;
+  artist: string;
+  name: string;
+  plays: number;
+  mean: number;
+  std: number;
+  z: number;
+  historyCount: number;
+}
+
 export interface Export {
   username: string;
   scrobbles: { artist: string, album: string, albumId?: string, track: string, date: number }[];
