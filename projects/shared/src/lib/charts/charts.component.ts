@@ -24,6 +24,8 @@ import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { LetterChart } from './letter-chart';
 import { ExportService } from "../service/export-service";
+import { ZScoreChart } from './zscore-chart';
+import { ZScoreService } from '../service/zscore.service';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -73,12 +75,14 @@ export class ChartsComponent {
     url: AbstractUrlService,
     translate: TranslatePipe,
     mapper: MapperService,
+    zscoreService: ZScoreService,
     exportService: ExportService) {
 
     this.charts = [
       new TimelineChart(translate),
       new ArtistScrobbleChart(translate, url),
       new ArtistTimelineChart(translate, url, mapper),
+      new ZScoreChart(translate, url, mapper, zscoreService),
       new CumulativeItemsChart(translate, mapper),
       new WordcloudChart(mapper),
       new LetterChart(translate, mapper),
