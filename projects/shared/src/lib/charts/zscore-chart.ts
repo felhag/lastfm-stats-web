@@ -18,7 +18,7 @@ export class ZScoreChart extends ToggleableChart {
       chart: {events: this.events},
       plotOptions: this.plotOptions,
       title: {text: 'Most statistically unlikely per month'},
-      subtitle: {text: ''},
+      subtitle: {text: `(≥1 ${translate.transform('translate.scrobbles')}/month avg)`}, //suitable for default artist display
       legend: {enabled: false},
       tooltip: {
         useHTML: true,
