@@ -11,6 +11,7 @@ export interface Settings {
   dateRangeEnd: Date | null;
   artistsInclude: boolean;
   artists: string[];
+  filterRemasters: boolean;
 }
 
 @Injectable({
@@ -24,7 +25,8 @@ export class SettingsService extends ComponentStore<Settings> {
     dateRangeStart: SettingsService.initDate('date-range-start'),
     dateRangeEnd: SettingsService.initDate('date-range-end'),
     artistsInclude: {key: 'artists-include', default: true, parse: v => v === 'true'},
-    artists: {key: 'artists', default: [], parse: v => JSON.parse(v), stringify: v => JSON.stringify(v)}
+    artists: {key: 'artists', default: [], parse: v => JSON.parse(v), stringify: v => JSON.stringify(v)},
+    filterRemasters: {key: 'filter-remasters', default: false, parse: v => v === 'true'}
   };
 
   constructor() {
@@ -49,12 +51,14 @@ export class SettingsService extends ComponentStore<Settings> {
   readonly dateRangeEnd = this.select(s => s.dateRangeEnd);
   readonly artistsInclude = this.select(s => s.artistsInclude);
   readonly artists = this.select(s => s.artists);
+  readonly filterRemasters = this.select(s => s.filterRemasters);
   readonly count = this.select(
     this.dateRangeStart,
     this.dateRangeEnd,
     this.artists,
     this.minScrobbles,
-    (start, end, artists, min) => (start || end ? 1 : 0) + (artists.length ? 1 : 0) + (min ? 1 : 0)
+    this.filterRemasters,
+    (start, end, artists, min, filterRemasters) => (start || end ? 1 : 0) + (artists.length ? 1 : 0) + (min ? 1 : 0) + (filterRemasters ? 1 : 0)
   );
 
   readonly update = this.updater((settings: Settings, newSettings: Partial<Settings>) => {
