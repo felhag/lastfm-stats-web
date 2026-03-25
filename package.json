@@ -6,6 +6,7 @@
     "start": "ng serve",
     "both": "concurrently --kill-others \"ng serve spotify-stats --port 4201\" \"ng serve lastfm-stats --port 4200\"",
     "build": "ng build",
+    "test": "vitest",
     "lint": "ng lint",
     "deploy": "ng build --configuration production --project \"lastfm-stats\""
   },
@@ -46,7 +47,8 @@
     "ng-packagr": "^21.1.0",
     "playwright": "^1.58.2",
     "ts-node": "~10.9.2",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
   },
   "overrides": {
     "@ngrx/component-store": {
