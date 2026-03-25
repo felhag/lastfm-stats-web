@@ -42,6 +42,11 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.11 (25-03-2026)
+- added most unlikely chart ([#94][i94], pr by [donovanrichardson](https://github.com/donovanrichardson))
+- minor performance improvements
+- fixed highest month calculation ([#99][i99])
+
 6.10 (11-01-2026)
 - added rolling window for race chart ([#87][i87], pr by [skywinder](https://github.com/skywinder))
 - improved tooltip artist-timeline chart ([#86][i86])
@@ -334,4 +339,6 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i76]: https://github.com/felhag/lastfm-stats-web/issues/76
 [i81]: https://github.com/felhag/lastfm-stats-web/issues/81
 [i86]: https://github.com/felhag/lastfm-stats-web/issues/86
-[i87]: https://github.com/felhag/lastfm-stats-web/pulls/87
+[i87]: https://github.com/felhag/lastfm-stats-web/pull/87
+[i94]: https://github.com/felhag/lastfm-stats-web/pull/94
+[i99]: https://github.com/felhag/lastfm-stats-web/issues/99
