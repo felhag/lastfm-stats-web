@@ -89,9 +89,9 @@ export abstract class AbstractListsComponent<S> {
                           include: 'album' | 'track' | undefined,
                           url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
     const threshold = this.threshold;
-    const seenStrings = seen.map(a => a.name);
+    const seenSet = new Set(seen.map(a => a.name));
     const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
-    const ba = between.streaks.filter(s => !threshold || seenStrings.indexOf(toString(s)) >= 0);
+    const ba = between.streaks.filter(s => !threshold || seenSet.has(toString(s)));
     const endDate = stats.last?.date || new Date();
     const betweenResult = this.getStreakTop10(ba, s => `${toString(s)} (${s.length! - 1} days)`, url);
     const ongoingResult = this.getStreakTop10(

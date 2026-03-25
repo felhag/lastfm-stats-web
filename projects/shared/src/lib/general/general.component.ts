@@ -80,7 +80,7 @@ export class GeneralComponent {
   }
 
   oneHitWonders(stats: TempStats) {
-    return Object.values(stats.seenArtists).filter(a => a.tracks.length === 1).length;
+    return Object.values(stats.seenArtists).filter(a => a.tracks.size === 1).length;
   }
 
   tracksWithoutAlbum(stats: TempStats) {

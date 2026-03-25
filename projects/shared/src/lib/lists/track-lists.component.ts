@@ -44,7 +44,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
     const months = stats.monthList;
     const monthsValues = Object.values(stats.monthList);
 
-    next.weeksPerTrack = this.getTrackTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
+    next.weeksPerTrack = this.getTrackTop10(seen, s => s.weeks.size, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
     next.uniquePerMonth = this.getMonthTop10(months, m => m.tracks.size, (m, k) => `${m.alias} (${k} unique tracks)`, m => this.including([...m.tracks.values()]));
     next.newPerMonth = this.getMonthTop10(months, m => [...m.tracks.values()].filter(a => a.new).length, (m, k) => `${m.alias} (${k} tracks)`, m => {
       // only show new artists in Including... text

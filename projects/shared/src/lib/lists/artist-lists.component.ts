@@ -72,15 +72,15 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     next.avgTrackPerArtist = this.getMonthTop10(months, m => m.avg!, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.artists));
     next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes, a => this.url.artistMonth(a.artist, a.month), i => i.date);
 
-    next.weeksPerArtist = this.getArtistTop10(seen, s => s.weeks.length, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
-    next.tracksPerArtist = this.getArtistTop10(seen, s => s.tracks.length, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
+    next.weeksPerArtist = this.getArtistTop10(seen, s => s.weeks.size, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
+    next.tracksPerArtist = this.getArtistTop10(seen, s => s.tracks.size, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
 
     const seenThreshold = this.forceThreshold(seen);
-    const spt = seenThreshold.filter(s => s.tracks.length > 1);
-    const ohw = seen.filter(a => a.tracks.length === 1);
-    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.length} track${a.tracks.length > 1 ? 's' : ''})`;
-    next.oneHitWonders = this.getArtistTop10(ohw, s => s.scrobbles.length, k => ohw[+k], a => a.name + ' - ' + a.tracks[0], xTimes);
-    next.scrobblesPerTrack = this.getArtistTop10(spt, s => s.scrobbles.length / s.tracks.length, k => spt[+k], a => a.name, sptDescription);
+    const spt = seenThreshold.filter(s => s.tracks.size > 1);
+    const ohw = seen.filter(a => a.tracks.size === 1);
+    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.size} track${a.tracks.size > 1 ? 's' : ''})`;
+    next.oneHitWonders = this.getArtistTop10(ohw, s => s.scrobbles.length, k => ohw[+k], a => a.name + ' - ' + a.tracks.values().next().value, xTimes);
+    next.scrobblesPerTrack = this.getArtistTop10(spt, s => s.scrobbles.length / s.tracks.size, k => spt[+k], a => a.name, sptDescription);
 
     next.avgScrobbleDesc = this.getArtistTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
     next.avgScrobbleAsc = this.getArtistTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(Math.abs(v)));

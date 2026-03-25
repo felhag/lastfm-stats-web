@@ -155,18 +155,18 @@ export class StatsBuilderService {
     const seenArtist = seen[scrobble.artist];
     if (seenArtist) {
       this.handleStreakItem(seenArtist, next.betweenArtists, scrobble, weekYear);
-      if (seenArtist.tracks.indexOf(scrobble.track) < 0) {
-        seenArtist.tracks.push(scrobble.track);
+      if (!seenArtist.tracks.has(scrobble.track)) {
+        seenArtist.tracks.add(scrobble.track);
         this.uniqueTrackAdded(next, scrobble);
       }
     } else {
       seen[scrobble.artist] = {
-        weeks: [weekYear],
+        weeks: new Set([weekYear]),
         name: scrobble.artist,
         betweenStreak: {start: scrobble, end: scrobble},
         avgScrobble: scrobble.date.getTime(),
         scrobbles: [scrobble.date.getTime()],
-        tracks: [scrobble.track],
+        tracks: new Set([scrobble.track]),
         ranks: []
       };
 
@@ -224,7 +224,7 @@ export class StatsBuilderService {
   private createStreakItem(name: string, weekYear: string, scrobble: Scrobble): StreakItem {
     return {
       name,
-      weeks: [weekYear],
+      weeks: new Set([weekYear]),
       betweenStreak: {start: scrobble, end: scrobble},
       avgScrobble: scrobble.date.getTime(),
       scrobbles: [scrobble.date.getTime()],
@@ -238,9 +238,7 @@ export class StatsBuilderService {
     seen.betweenStreak = {start: scrobble, end: scrobble};
     seen.avgScrobble = ((seen.avgScrobble * seen.scrobbles.length) + scrobble.date.getTime()) / (seen.scrobbles.length + 1);
     seen.scrobbles.push(scrobble.date.getTime());
-    if (seen.weeks.indexOf(weekYear) < 0) {
-      seen.weeks.push(weekYear);
-    }
+    seen.weeks.add(weekYear);
     return seen;
   }
 
@@ -291,13 +289,18 @@ export class StatsBuilderService {
   private filterWith(scrobbles: Scrobble[], settings: Settings): Scrobble[] {
     const start = settings.dateRangeStart;
     const end = settings.dateRangeEnd;
+    const hasDateFilter = start || end;
+    const hasArtistFilter = settings.artists.length > 0;
+    if (!hasDateFilter && !hasArtistFilter) {
+      return scrobbles;
+    }
+    const artistSet = hasArtistFilter ? new Set(settings.artists) : undefined;
     return scrobbles.filter(s => {
-      if ((start && s.date < start) || (end && s.date > end)) {
+      if (hasDateFilter && ((start && s.date < start) || (end && s.date > end))) {
         return false;
       }
-      if (settings.artists.length) {
-        const contains = settings.artists.indexOf(s.artist) >= 0;
-        return contains === settings.artistsInclude;
+      if (artistSet) {
+        return artistSet.has(s.artist) === settings.artistsInclude;
       }
       return true;
     });

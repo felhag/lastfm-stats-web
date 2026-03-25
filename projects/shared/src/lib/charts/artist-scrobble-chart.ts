@@ -80,7 +80,7 @@ export class ArtistScrobbleChart extends AbstractChart {
   update(stats: TempStats): void {
     let data: PointOptionsObject[] = Object.values(stats.seenArtists).filter(a => a.scrobbles.length >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
       x: artist.scrobbles.length,
-      y: artist.tracks.length,
+      y: artist.tracks.size,
       name: artist.name
     }));
     const trend = this.getTrendLine(data);

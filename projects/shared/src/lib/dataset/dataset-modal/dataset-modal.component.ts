@@ -66,7 +66,7 @@ export class DatasetModalComponent implements OnInit {
     this.options = [
       this.circleOption(scrobblesTitle, this.entry.scrobbles),
       this.entry.tracks ? this.circleOption('Tracks', this.entry.tracks) : undefined,
-      this.circleOption('Weeks', this.entry.item.weeks.length),
+      this.circleOption('Weeks', this.entry.item.weeks.size),
       this.circleOption('Highest rank', Math.min(...ranks.filter(r => r).map(r => r!))),
       this.circleOption('Highest monthly', highestMonthly)
     ];
