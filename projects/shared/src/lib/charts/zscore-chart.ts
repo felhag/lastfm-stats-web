@@ -4,13 +4,11 @@ import { ToggleableChart } from './toggleable-chart';
 import { TranslatePipe } from '../service/translate.pipe';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { ZScoreService } from '../service/zscore.service';
-import { MapperService } from '../service/mapper.service';
 
 export class ZScoreChart extends ToggleableChart {
   constructor(
     private translate: TranslatePipe,
     url: AbstractUrlService,
-    private mapper: MapperService,
     private zscoreService: ZScoreService
   ) {
     super();
@@ -28,11 +26,8 @@ export class ZScoreChart extends ToggleableChart {
           const plays = point.plays;
           const mean = point.mean;
           const std = point.std;
-          const artist = point.artist;
-          const itemName = point.itemName;
-          const [month] = point.name.split(/ - (.*)/s);
-          // Display "artist - name" for albums/tracks, just name for artists
-          const displayName = artist !== itemName ? `${artist} - ${itemName}` : artist;
+          const month = point.month;
+          const displayName = point.name;
           return `
             <div style="display:flex;align-items:center;gap:10px;">
               <div>
@@ -60,7 +55,7 @@ export class ZScoreChart extends ToggleableChart {
         groupPadding: 0,
         pointPadding: 0,
         events: {
-          click: event => this.openUrl(url.month(event.point.name.substring(0, event.point.name.indexOf('-') - 1)))
+          click: event => this.openUrl(url.month((event.point as any).month))
         }
       }],
       responsive: this.responsive()
@@ -87,18 +82,9 @@ export class ZScoreChart extends ToggleableChart {
     // Get minimum average threshold for current type
     const minAverage = this.getMinAverageThreshold();
 
-    // Get months in chronological order
-    const months = Object.values(stats.monthList).sort((a, b) =>
-      a.date.getTime() - b.date.getTime()
-    );
-
     // For each month, find the entry with highest z-score
-    for (const month of months) {
-      const year = month.date.getFullYear();
-      const monthNum = month.date.getMonth() + 1;
-      const yearMonth = `${year}-${String(monthNum).padStart(2, '0')}`;
-
-      const entries = zscoreMap.get(yearMonth);
+    for (const month of Object.values(stats.monthList)) {
+      const entries = zscoreMap.get(month.alias);
       if (entries && entries.length > 0) {
         // Filter entries by minimum average threshold
         const filteredEntries = entries.filter(entry => entry.mean >= minAverage);
@@ -114,9 +100,8 @@ export class ZScoreChart extends ToggleableChart {
             }
 
             points.push({
-              name: month.alias + ' - ' + maxEntry.name,
-              artist: maxEntry.artist,
-              itemName: maxEntry.name,
+              name: maxEntry.name,
+              month: month.alias,
               color: colorMap[maxEntry.name],
               y: maxEntry.z,
               z: maxEntry.z,

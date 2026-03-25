@@ -82,7 +82,7 @@ export class ChartsComponent {
       new TimelineChart(translate),
       new ArtistScrobbleChart(translate, url),
       new ArtistTimelineChart(translate, url, mapper),
-      new ZScoreChart(translate, url, mapper, zscoreService),
+      new ZScoreChart(translate, url, zscoreService),
       new CumulativeItemsChart(translate, mapper),
       new WordcloudChart(mapper),
       new LetterChart(translate, mapper),
