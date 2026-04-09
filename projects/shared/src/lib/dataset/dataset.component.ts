@@ -6,13 +6,12 @@ import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
 import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable } from '@angular/material/table';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable, MatTableDataSource } from '@angular/material/table';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput, MatLabel, MatSuffix } from '@angular/material/input';
@@ -31,7 +30,6 @@ export type DataSetKeys = (keyof DataSetEntry)[]
   providers: [TranslatePipe],
   imports: [
     AsyncPipe,
-    CdkVirtualScrollViewport,
     MatCard,
     MatCardContent,
     MatCell,
@@ -56,7 +54,7 @@ export type DataSetKeys = (keyof DataSetEntry)[]
     MatTable,
     MatTooltip,
     ReactiveFormsModule,
-    TableVirtualScrollModule,
+    ScrollingModule,
     TitleCasePipe,
   ]
 })
@@ -76,8 +74,7 @@ export class DatasetComponent implements OnInit {
     },
   };
   groupedBy = new BehaviorSubject<ItemType>('artist');
-  height!: number;
-  dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
+  dataSource = new MatTableDataSource<DataSetEntry>();
   months: { [p: string]: Month } = {};
 
   filterArtist = new FormControl<string>('');
@@ -93,7 +90,6 @@ export class DatasetComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.height = window.innerHeight - 32;
     combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
@@ -162,6 +158,10 @@ export class DatasetComponent implements OnInit {
     const minWidth = width > 1200 ? 1000 : width - 48;
     const data = {entry, months: this.months};
     this.dialog.open(DatasetModalComponent, {minWidth, data});
+  }
+
+  trackBy(_index: number, entry: DataSetEntry): string {
+    return `${entry.type}-${entry.artist}-${entry.name}`;
   }
 
   getHeader(col: string) {

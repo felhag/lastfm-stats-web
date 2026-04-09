@@ -29,7 +29,6 @@
     "highcharts-angular": "^5.4.0",
     "jszip": "^3.10.1",
     "ng-circle-progress": "^1.7.1",
-    "ng-table-virtual-scroll": "^1.6.1",
     "ngx-csv-parser": "2.0.0",
     "ngx-dropzone": "3.1.0",
     "rxjs": "~7.8.2",

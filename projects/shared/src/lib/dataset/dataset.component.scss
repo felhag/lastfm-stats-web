@@ -1,5 +1,12 @@
 .root {
   margin: 16px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px);
+}
+
+cdk-virtual-scroll-viewport {
+  flex: 1;
 }
 .mat-mdc-card {
   margin-bottom: 16px;

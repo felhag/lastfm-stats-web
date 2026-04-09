@@ -36,8 +36,8 @@
       </div>
     </mat-card-content>
   </mat-card>
-  <cdk-virtual-scroll-viewport tvsItemSize [style.height]="height + 'px'">
-    <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="dataSource" class="full-width">
+  <cdk-virtual-scroll-viewport [itemSize]="52" [minBufferPx]="400" [maxBufferPx]="1200">
+    <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="dataSource" [trackBy]="trackBy" class="full-width">
       @for (col of columns; track col) {
         <ng-container [matColumnDef]="col">
           <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{getHeader(col) | titlecase}}</th>
