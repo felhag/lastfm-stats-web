@@ -36,15 +36,26 @@
       </div>
     </mat-card-content>
   </mat-card>
-  <cdk-virtual-scroll-viewport [itemSize]="52" [minBufferPx]="400" [maxBufferPx]="1200">
-    <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="dataSource" [trackBy]="trackBy" class="full-width">
+  <div class="header-wrapper">
+    <table mat-table matSort matSortActive="rank" matSortDirection="asc" [dataSource]="[]" [fixedLayout]="true" class="full-width header-table">
       @for (col of columns; track col) {
         <ng-container [matColumnDef]="col">
           <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col">{{getHeader(col) | titlecase}}</th>
+          <td mat-cell *matCellDef="let element"></td>
+        </ng-container>
+      }
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+  </div>
+  <cdk-virtual-scroll-viewport [itemSize]="52" [minBufferPx]="400" [maxBufferPx]="1200">
+    <table mat-table [dataSource]="dataSource" [trackBy]="trackBy" [fixedLayout]="true" class="full-width body-table">
+      @for (col of columns; track col) {
+        <ng-container [matColumnDef]="col">
+          <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element"> {{element[col]}} </td>
         </ng-container>
       }
-      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;" (click)="open(row)"></tr>
     </table>
   </cdk-virtual-scroll-viewport>

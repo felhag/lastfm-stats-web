@@ -42,6 +42,9 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+6.12 (22-04-2026)
+- fixed virtual scroll dataset tab ([#101][i101])
+
 6.11 (25-03-2026)
 - added most unlikely chart ([#94][i94], pr by [donovanrichardson](https://github.com/donovanrichardson))
 - minor performance improvements
@@ -342,3 +345,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i87]: https://github.com/felhag/lastfm-stats-web/pull/87
 [i94]: https://github.com/felhag/lastfm-stats-web/pull/94
 [i99]: https://github.com/felhag/lastfm-stats-web/issues/99
+[i101]: https://github.com/felhag/lastfm-stats-web/issues/101

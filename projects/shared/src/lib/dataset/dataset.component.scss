@@ -2,11 +2,22 @@
   margin: 16px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 32px);
+  height: calc(100vh - 350px);
+}
+
+.header-wrapper {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  background-color: var(--mat-table-background-color);
+}
+
+.header-table .mat-mdc-row {
+  display: none;
 }
 
 cdk-virtual-scroll-viewport {
   flex: 1;
+  scrollbar-gutter: stable;
 }
 .mat-mdc-card {
   margin-bottom: 16px;
