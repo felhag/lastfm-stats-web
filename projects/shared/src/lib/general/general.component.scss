@@ -2,6 +2,26 @@
   margin: 16px;
 }
 
+.anniv-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.empty {
+  opacity: 0.6;
+  font-style: italic;
+}
+
 dl {
   display: grid;
   grid-gap: 4px 16px;

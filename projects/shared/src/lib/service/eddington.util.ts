@@ -16,8 +16,12 @@ export class EddingtonUtil {
   }
 
   public static calcEddington(counts: {[key: number]: number}): number {
+    const keys = Object.keys(counts);
+    if (!keys.length) {
+      return 0;
+    }
     let sum = 0;
-    let eddington = Math.max(...Object.keys(counts).map(c => parseInt(c)));
+    let eddington = Math.max(...keys.map(c => parseInt(c)));
     while(eddington >= sum) {
       sum += counts[eddington] || 0;
       eddington--;

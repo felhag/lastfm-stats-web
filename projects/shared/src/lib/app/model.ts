@@ -229,6 +229,7 @@ export class AlbumStreakStack extends ItemStreakStack {
 export class Constants {
   static readonly DAY = 24 * 60 * 60 * 1000;
   static readonly TWO_DAYS = 2 * Constants.DAY;
+  static readonly ANNIVERSARY_WINDOW_DAYS = 14;
   static readonly API_PAGE_SIZE = 1000;
   static readonly API_PAGE_SIZE_REDUCED = 500;
   static readonly RETRIES = 2;

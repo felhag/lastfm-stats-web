@@ -65,35 +65,63 @@
   <mat-card>
     <mat-card-content>
       <dl>
-        @if (getEddington(stats); as eddington) {
-          <dt>Eddington number</dt>
-          <dd>
-            {{ eddington }}
-            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
-          </dd>
-          <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
-          <dd>{{ nextEddington(stats) }}</dd>
-        }
+        @let eddington = getEddington(stats);
+        <dt>Eddington number</dt>
+        <dd>
+          {{ eddington }}
+          <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+        </dd>
+        <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
+        <dd>{{ nextEddington(stats) }}</dd>
 
-        @if (cutOver(stats); as cutOver) {
-          <dt>Artist cut over point</dt>
-          <dd>
-            {{ cutOver }}
-            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + cutOver + ' artists with at least ' + cutOver + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
-          </dd>
-        }
+        @let cutOverPoint = cutOver(stats);
+        <dt>Artist cut over point</dt>
+        <dd>
+          {{ cutOverPoint }}
+          <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + cutOverPoint + ' artists with at least ' + cutOverPoint + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+        </dd>
 
         <dt>Most popular year</dt>
         @if (max(stats.years); as max) {
           <dd>{{ max }} ({{ stats.years[max] }} {{ 'translate.scrobbles' | translate }})</dd>
+        } @else {
+          <dd>-</dd>
         }
         <dt>Most popular month</dt>
         @if (mostPopularMonth(stats); as month) {
           <dd>{{ month.alias }} ({{ month.count }} {{ 'translate.scrobbles' | translate }})</dd>
+        } @else {
+          <dd>-</dd>
         }
       </dl>
     </mat-card-content>
   </mat-card>
+  @if (anniversaries$(); as anniv) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Anniversaries 🎂</mat-card-title>
+        <mat-card-subtitle>Since first scrobble</mat-card-subtitle>
+      </mat-card-header>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Past</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.past, withDate: true }"></ng-container>
+      </mat-expansion-panel>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Today</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.today, withDate: false }"></ng-container>
+      </mat-expansion-panel>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Upcoming</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.upcoming, withDate: true }"></ng-container>
+      </mat-expansion-panel>
+    </mat-card>
+  }
 }
 
 <ng-template #everyYearArtists>
@@ -121,6 +149,23 @@
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Close</button>
   </mat-dialog-actions>
+</ng-template>
+
+<ng-template #annivList let-items="items" let-withDate="withDate">
+  @if (items.length) {
+    <div class="anniv-table">
+      @for (a of items; track a.artist.name) {
+        <span class="name">{{ a.artist.name }}</span>
+        <span class="meta">
+          <span class="years">{{ a.years }} year{{ a.years === 1 ? '' : 's' }}</span>
+          <span class="scrobbles">{{ a.artist.scrobbles.length | number }} {{ 'translate.scrobbles' | translate }}</span>
+          <span class="date">{{ a.date | date:'MMM d' }}</span>
+        </span>
+      }
+    </div>
+  } @else {
+    <span class="empty">None</span>
+  }
 </ng-template>
 
 <ng-template #explain let-explanation="explanation">

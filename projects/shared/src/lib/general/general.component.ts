@@ -5,7 +5,7 @@ import { TranslatePipe } from '../service/translate.pipe';
 import { Artist, Constants, TempStats } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { EddingtonUtil } from '../service/eddington.util';
-import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from "@angular/material/dialog";
 import { MatButton, MatIconButton } from "@angular/material/button";
@@ -14,6 +14,13 @@ import { MatIcon } from "@angular/material/icon";
 import { MatChipListbox, MatChipOption } from "@angular/material/chips";
 import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material/snack-bar";
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
+
+interface Anniversary {
+  artist: Artist;
+  years: number;
+  date: Date;
+}
 
 @Component({
   selector: 'app-general',
@@ -30,12 +37,18 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material
     MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
     MatIcon,
     MatIconButton,
     MatList,
     MatListItem,
     NgTemplateOutlet,
     TranslatePipe,
+    MatCardTitle,
+    MatCardHeader,
+    MatCardSubtitle,
   ],
   templateUrl: './general.component.html',
   styleUrl: './general.component.scss',
@@ -70,6 +83,57 @@ export class GeneralComponent {
     return [...Array(stats.last!.date.getFullYear() - first + 1).keys()]
       .map(i => i + first)
       .map(year => [year, new Date(year, 0, 1).getTime(), new Date(year, 11, 31).getTime(), true]);
+  });
+
+  readonly anniversaries$: Signal<{ today: Anniversary[], upcoming: Anniversary[], past: Anniversary[] }> = computed(() => {
+    const stats = this.tempStats$();
+    if (!stats) {
+      return { today: [], upcoming: [], past: [] };
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayMs = todayStart.getTime();
+    const buckets = { today: [] as Anniversary[], upcoming: [] as Anniversary[], past: [] as Anniversary[] };
+
+    for (const artist of Object.values(stats.seenArtists)) {
+      const firstMs = artist.scrobbles[0];
+      if (!firstMs) {
+        continue;
+      }
+      const firstDate = new Date(firstMs);
+
+      let best: { date: Date, daysDiff: number, years: number } | null = null;
+      for (const offset of [-1, 0, 1]) {
+        const annivYear = todayStart.getFullYear() + offset;
+        const years = annivYear - firstDate.getFullYear();
+        if (years < 1) {
+          continue;
+        }
+        const date = new Date(annivYear, firstDate.getMonth(), firstDate.getDate());
+        const daysDiff = Math.round((date.getTime() - todayMs) / Constants.DAY);
+        if (!best || Math.abs(daysDiff) < Math.abs(best.daysDiff)) {
+          best = { date, daysDiff, years };
+        }
+      }
+      if (!best) {
+        continue;
+      }
+
+      const item: Anniversary = { artist, years: best.years, date: best.date };
+      if (best.daysDiff === 0) {
+        buckets.today.push(item);
+      } else if (best.daysDiff > 0 && best.daysDiff <= Constants.ANNIVERSARY_WINDOW_DAYS) {
+        buckets.upcoming.push(item);
+      } else if (best.daysDiff < 0 && best.daysDiff >= -Constants.ANNIVERSARY_WINDOW_DAYS) {
+        buckets.past.push(item);
+      }
+    }
+
+    const top3 = (arr: Anniversary[]) => arr
+      .sort((a, b) => b.artist.scrobbles.length - a.artist.scrobbles.length)
+      .slice(0, 3);
+    return { today: top3(buckets.today), upcoming: top3(buckets.upcoming), past: top3(buckets.past) };
   });
 
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
@@ -112,7 +176,7 @@ export class GeneralComponent {
         return i
       }
     }
-    return -1;
+    return 0;
   }
 
   mostPopularMonth(stats: TempStats) {
