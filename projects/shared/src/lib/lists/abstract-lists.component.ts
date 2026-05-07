@@ -1,10 +1,19 @@
-import { OnInit, Directive } from '@angular/core';
-import { BehaviorSubject, debounce, debounceTime } from 'rxjs';
-import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
-import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
-import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
-import { AbstractUrlService } from '../service/abstract-url.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OnInit, Directive } from "@angular/core";
+import { BehaviorSubject, debounce, debounceTime } from "rxjs";
+import {
+  TempStats,
+  Streak,
+  StreakStack,
+  StreakItem,
+  MonthItem,
+} from "projects/shared/src/lib/app/model";
+import {
+  SettingsService,
+  Settings,
+} from "projects/shared/src/lib/service/settings.service";
+import { StatsBuilderService } from "projects/shared/src/lib/service/stats-builder.service";
+import { AbstractUrlService } from "../service/abstract-url.service";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 export interface Top10Item {
   name: string;
@@ -19,11 +28,17 @@ export abstract class AbstractListsComponent<S> {
   stats = new BehaviorSubject<S>(this.emptyStats());
   settingsObj?: Settings;
 
-  protected constructor(private builder: StatsBuilderService,
-                        private settings: SettingsService,
-                        private urlService: AbstractUrlService) {
-    this.settings.state$.pipe(takeUntilDestroyed()).subscribe(settings => this.settingsObj = settings);
-    this.builder.tempStats.pipe(takeUntilDestroyed(), debounceTime(0)).subscribe(stats => this.update(stats));
+  protected constructor(
+    private builder: StatsBuilderService,
+    private settings: SettingsService,
+    private urlService: AbstractUrlService,
+  ) {
+    this.settings.state$
+      .pipe(takeUntilDestroyed())
+      .subscribe((settings) => (this.settingsObj = settings));
+    this.builder.tempStats
+      .pipe(takeUntilDestroyed(), debounceTime(0))
+      .subscribe((stats) => this.update(stats));
   }
 
   private update(stats: TempStats): void {
@@ -32,15 +47,19 @@ export abstract class AbstractListsComponent<S> {
     this.stats.next(next);
   }
 
-  getTop10<T>(countMap: { [key: string]: any },
-              getValue: (k: T) => number,
-              getItem: (k: string) => T,
-              buildName: (item: T, value: number) => string,
-              buildDescription: (item: T, value: number) => string,
-              buildUrl?: (t: T) => string,
-              buildDate?: (t: T) => Date,
+  getTop10<T>(
+    countMap: { [key: string]: any },
+    getValue: (k: T) => number,
+    getItem: (k: string) => T,
+    buildName: (item: T, value: number) => string,
+    buildDescription: (item: T, value: number) => string,
+    buildUrl?: (t: T) => string,
+    buildDate?: (t: T) => Date,
   ): Top10Item[] {
-    const keys: [string, number][] = Object.keys(countMap).map(k => [k, getValue(getItem(k))]);
+    const keys: [string, number][] = Object.keys(countMap).map((k) => [
+      k,
+      getValue(getItem(k)),
+    ]);
     keys.sort((a, b) => b[1] - a[1]);
     return keys.splice(0, this.listSize).map(([k, val]) => {
       const item = getItem(k);
@@ -54,19 +73,26 @@ export abstract class AbstractListsComponent<S> {
     });
   }
 
-  getStreakTop10(streaks: Streak[], buildName: (s: Streak) => string, buildUrl?: (item: Streak) => string): Top10Item[] {
+  getStreakTop10(
+    streaks: Streak[],
+    buildName: (s: Streak) => string,
+    buildUrl?: (item: Streak) => string,
+  ): Top10Item[] {
     const keys = Object.keys(streaks);
     keys.sort((a, b) => streaks[+b].length! - streaks[+a].length!);
-    return keys.splice(0, this.listSize).map(k => {
+    return keys.splice(0, this.listSize).map((k) => {
       const streak = streaks[+k];
       const start = streak.start.date;
       const end = streak.end.date;
       return {
         amount: streak.length!,
         name: buildName(streak),
-        description: start.toLocaleDateString() + ' - ' + (streak.ongoing ? '?' : end.toLocaleDateString()),
+        description:
+          start.toLocaleDateString() +
+          " - " +
+          (streak.ongoing ? "?" : end.toLocaleDateString()),
         url: buildUrl ? buildUrl(streak) : undefined,
-        date: new Date( start.getTime() + (end.getTime() - start.getTime()) / 2),
+        date: new Date(start.getTime() + (end.getTime() - start.getTime()) / 2),
       };
     });
   }
@@ -83,28 +109,41 @@ export abstract class AbstractListsComponent<S> {
 
   protected abstract emptyStats(): S;
 
-  protected calculateGaps(stats: TempStats,
-                          seen: StreakItem[],
-                          between: StreakStack,
-                          include: 'album' | 'track' | undefined,
-                          url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
+  protected calculateGaps(
+    stats: TempStats,
+    seen: StreakItem[],
+    between: StreakStack,
+    include: "album" | "track" | undefined,
+    url: (s: Streak) => string,
+  ): [Top10Item[], Top10Item[]] {
     const threshold = this.threshold;
-    const seenSet = new Set(seen.map(a => a.name));
-    const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
-    const ba = between.streaks.filter(s => !threshold || seenSet.has(toString(s)));
+    const seenSet = new Set(seen.map((a) => a.name));
+    const toString = (s: Streak) =>
+      s.start.artist + (include ? " - " + s.start[include] : "");
+    const ba = between.streaks.filter(
+      (s) => !threshold || seenSet.has(toString(s)),
+    );
     const endDate = stats.last?.date || new Date();
-    const betweenResult = this.getStreakTop10(ba, s => `${toString(s)} (${s.length! - 1} days)`, url);
+    const betweenResult = this.getStreakTop10(
+      ba,
+      (s) => `${toString(s)} (${s.length! - 1} days)`,
+      url,
+    );
     const ongoingResult = this.getStreakTop10(
       seen
-        .map(a => a.betweenStreak)
-        .map(a => ({start: a.start, end: {
-          artist: a.start.artist,
-          album: include === 'album' ? a.start.album : '?',
-          track: include === 'track' ? a.start.track : '?',
-          date: endDate}}))
-        .map(a => this.ongoingStreak(between, a)),
-      s => `${toString(s)} (${s.length} days)`,
-      url
+        .map((a) => a.betweenStreak)
+        .map((a) => ({
+          start: a.start,
+          end: {
+            artist: a.start.artist,
+            album: include === "album" ? a.start.album : "?",
+            track: include === "track" ? a.start.track : "?",
+            date: endDate,
+          },
+        }))
+        .map((a) => this.ongoingStreak(between, a)),
+      (s) => `${toString(s)} (${s.length} days)`,
+      url,
     );
     return [betweenResult, ongoingResult];
   }
@@ -115,29 +154,45 @@ export abstract class AbstractListsComponent<S> {
     return a;
   }
 
-  protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
+  protected consecutiveStreak(
+    stats: TempStats,
+    stack: StreakStack,
+    toString: (s: Streak) => string,
+  ): Top10Item[] {
     const endDate = stats.last?.date || new Date();
     const streak = this.currentStreak(stack, endDate);
-    return this.getStreakTop10(streak, toString, s => this.urlService.range(s.start.date, s.end.date));
+    return this.getStreakTop10(streak, toString, (s) =>
+      this.urlService.range(s.start.date, s.end.date),
+    );
   }
 
   protected currentStreak(stack: StreakStack, endDate: Date): Streak[] {
     const current = stack.current;
     if (current && current.length! > 1) {
-      const currentStreak = this.ongoingStreak(stack, {start: current.start, end: {artist: '?', album: '?', track: '?', date: endDate}, length: current.length});
+      const currentStreak = this.ongoingStreak(stack, {
+        start: current.start,
+        end: { artist: "?", album: "?", track: "?", date: endDate },
+        length: current.length,
+      });
       return [...stack.streaks, currentStreak];
     } else {
       return stack.streaks;
     }
   }
 
-  protected seenThreshold<T extends StreakItem>(seenThingies: { [key: string]: T }): T[] {
+  protected seenThreshold<T extends StreakItem>(seenThingies: {
+    [key: string]: T;
+  }): T[] {
     const threshold = this.threshold;
-    return Object.values(seenThingies).filter(a => a.scrobbles.length >= threshold);
+    return Object.values(seenThingies).filter(
+      (a) => a.scrobbles.length >= threshold,
+    );
   }
 
   protected forceThreshold<T extends StreakItem>(seen: T[]): T[] {
-    return this.threshold > 0 ? seen : seen.filter(s => s.scrobbles.length >= this.forcedThreshold);
+    return this.threshold > 0
+      ? seen
+      : seen.filter((s) => s.scrobbles.length >= this.forcedThreshold);
   }
 
   protected get threshold(): number {
@@ -152,30 +207,82 @@ export abstract class AbstractListsComponent<S> {
 
   protected including(items: MonthItem[]): string {
     const sorted = [...items.values()].sort((a, b) => b!.count - a!.count);
-    return 'Including ' + sorted.splice(0, 3).map(a => a.name).join(', ');
+    return (
+      "Including " +
+      sorted
+        .splice(0, 3)
+        .map((a) => a.name)
+        .join(", ")
+    );
+  }
+
+  private countScrobblesUpTo(
+    sortedTimestamps: number[],
+    cutoff: number,
+  ): number {
+    let lo = 0;
+    let hi = sortedTimestamps.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (sortedTimestamps[mid] <= cutoff) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
   }
 
   public getRankings<T extends StreakItem>(
     seen: T[],
-    monthList: {alias: string, date: Date}[],
+    monthList: { alias: string; date: Date }[],
     url: (item: T, month: string) => string,
   ): { climbers: Top10Item[]; fallers: Top10Item[] } {
     const climbers: Top10Item[] = [];
     const fallers: Top10Item[] = [];
-    seen.filter(c => c.ranks.length > 1).forEach(item => {
-      item.ranks.forEach((rank, idx) => {
-        const diff = item.ranks[idx + 1] - rank;
-        if (diff < 0) {
-          this.addGap(climbers, Math.abs(diff), item, monthList[idx + 1], url);
-        } else if (diff > 0) {
-          this.addGap(fallers, diff, item, monthList[idx + 1], url);
-        }
+    seen
+      .filter((c) => c.ranks.length > 1)
+      .forEach((item) => {
+        item.ranks.forEach((rank, idx) => {
+          const diff = item.ranks[idx + 1] - rank;
+          if (diff < 0) {
+            const count = this.countScrobblesUpTo(
+              item.scrobbles,
+              monthList[idx + 1].date.getTime(),
+            );
+            if (count >= this.minimumForcedThreshold) {
+              this.addGap(
+                climbers,
+                Math.abs(diff),
+                item,
+                monthList[idx + 1],
+                url,
+              );
+            }
+          } else if (diff > 0) {
+            const count = this.countScrobblesUpTo(
+              item.scrobbles,
+              monthList[idx + 1].date.getTime(),
+            );
+            if (count >= this.minimumForcedThreshold) {
+              this.addGap(fallers, diff, item, monthList[idx + 1], url);
+            }
+          }
+        });
       });
-    });
-    return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
+    return {
+      fallers: fallers.splice(0, this.listSize),
+      climbers: climbers.splice(0, this.listSize),
+    };
   }
 
-  private addGap<T extends StreakItem>(gaps: Top10Item[], diff: number, item: T, month: {alias: string, date: Date}, url: (item: T, month: string) => string): void {
+  private addGap<T extends StreakItem>(
+    gaps: Top10Item[],
+    diff: number,
+    item: T,
+    month: { alias: string; date: Date },
+    url: (item: T, month: string) => string,
+  ): void {
     let i = 0;
     while (gaps[i]?.amount > diff && i < 10) {
       i++;
@@ -189,7 +296,7 @@ export abstract class AbstractListsComponent<S> {
       amount: Math.abs(diff),
       description: month.alias,
       date: month.date,
-      url: url(item, month.alias)
+      url: url(item, month.alias),
     } as Top10Item);
   }
 }
