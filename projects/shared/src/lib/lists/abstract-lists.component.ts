@@ -233,6 +233,13 @@ export abstract class AbstractListsComponent<S> {
     return lo;
   }
 
+  private getEndOfMonth(dateInMonth: Date): number {
+    const d = new Date(dateInMonth);
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    return new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
+  }
+  
   public getRankings<T extends StreakItem>(
     seen: T[],
     monthList: { alias: string; date: Date }[],
@@ -246,10 +253,8 @@ export abstract class AbstractListsComponent<S> {
         item.ranks.forEach((rank, idx) => {
           const diff = item.ranks[idx + 1] - rank;
           if (diff < 0) {
-            const count = this.countScrobblesUpTo(
-              item.scrobbles,
-              monthList[idx + 1].date.getTime(),
-            );
+            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
+            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
             if (count >= this.minimumForcedThreshold) {
               this.addGap(
                 climbers,
@@ -260,10 +265,8 @@ export abstract class AbstractListsComponent<S> {
               );
             }
           } else if (diff > 0) {
-            const count = this.countScrobblesUpTo(
-              item.scrobbles,
-              monthList[idx + 1].date.getTime(),
-            );
+            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
+            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
             if (count >= this.minimumForcedThreshold) {
               this.addGap(fallers, diff, item, monthList[idx + 1], url);
             }
