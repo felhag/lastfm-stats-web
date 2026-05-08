@@ -1,10 +1,10 @@
-import { OnInit, Directive } from "@angular/core";
-import { BehaviorSubject, debounce, debounceTime } from "rxjs";
-import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from "projects/shared/src/lib/app/model";
-import { SettingsService, Settings } from "projects/shared/src/lib/service/settings.service";
-import { StatsBuilderService } from "projects/shared/src/lib/service/stats-builder.service";
-import { AbstractUrlService } from "../service/abstract-url.service";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { OnInit, Directive } from '@angular/core';
+import { BehaviorSubject, debounce, debounceTime } from 'rxjs';
+import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
+import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
+import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
+import { AbstractUrlService } from '../service/abstract-url.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface Top10Item {
   name: string;
@@ -115,7 +115,7 @@ export abstract class AbstractListsComponent<S> {
     return a;
   }
 
-   protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
+  protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
     const endDate = stats.last?.date || new Date();
     const streak = this.currentStreak(stack, endDate);
     return this.getStreakTop10(streak, toString, s => this.urlService.range(s.start.date, s.end.date));
@@ -181,7 +181,7 @@ export abstract class AbstractListsComponent<S> {
   
   public getRankings<T extends StreakItem>(
     seen: T[],
-    monthList: { alias: string, date: Date }[],
+    monthList: {alias: string, date: Date}[],
     url: (item: T, month: string) => string,
   ): { climbers: Top10Item[]; fallers: Top10Item[] } {
     const climbers: Top10Item[] = [];
