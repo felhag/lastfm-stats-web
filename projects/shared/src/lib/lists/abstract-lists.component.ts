@@ -155,6 +155,30 @@ export abstract class AbstractListsComponent<S> {
     return 'Including ' + sorted.splice(0, 3).map(a => a.name).join(', ');
   }
 
+  private countScrobblesUpTo(
+    sortedTimestamps: number[],
+    cutoff: number,
+  ): number {
+    let lo = 0;
+    let hi = sortedTimestamps.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (sortedTimestamps[mid] <= cutoff) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
+  }
+
+  private getEndOfMonth(dateInMonth: Date): number {
+    const d = new Date(dateInMonth);
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    return new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
+  }
+  
   public getRankings<T extends StreakItem>(
     seen: T[],
     monthList: {alias: string, date: Date}[],
@@ -162,16 +186,24 @@ export abstract class AbstractListsComponent<S> {
   ): { climbers: Top10Item[]; fallers: Top10Item[] } {
     const climbers: Top10Item[] = [];
     const fallers: Top10Item[] = [];
-    seen.filter(c => c.ranks.length > 1).forEach(item => {
-      item.ranks.forEach((rank, idx) => {
-        const diff = item.ranks[idx + 1] - rank;
-        if (diff < 0) {
-          this.addGap(climbers, Math.abs(diff), item, monthList[idx + 1], url);
-        } else if (diff > 0) {
-          this.addGap(fallers, diff, item, monthList[idx + 1], url);
-        }
+    seen.filter((c) => c.ranks.length > 1).forEach((item) => {
+        item.ranks.forEach((rank, idx) => {
+          const diff = item.ranks[idx + 1] - rank;
+          if (diff < 0) {
+            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
+            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
+            if (count >= this.minimumForcedThreshold) {
+              this.addGap(climbers, Math.abs(diff), item, monthList[idx + 1], url,);
+            }
+          } else if (diff > 0) {
+            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
+            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
+            if (count >= this.minimumForcedThreshold) {
+              this.addGap(fallers, diff, item, monthList[idx + 1], url);
+            }
+          }
+        });
       });
-    });
     return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
   }
 
