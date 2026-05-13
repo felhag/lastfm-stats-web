@@ -93,7 +93,7 @@ export class ChartsComponent {
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
           stats => stats.days,
-          (stats, key) => Object.keys(stats.specificDays).filter(d => key === new Date(parseInt(d)).getDay()).length),
+          (stats, key) => Object.keys(stats.specificDays).filter(d => key === (new Date(parseInt(d)).getDay() + 6) % 7).length),
       new ScrobbleMomentChart(translate, 'months', Constants.MONTHS,
           stats => stats.months,
         (stats, key) => Object.keys(stats.monthList).filter(month => month.startsWith(key + '-')).length),

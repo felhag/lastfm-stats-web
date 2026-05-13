@@ -64,7 +64,7 @@ export class StatsBuilderService {
       next.scrobbleCount++;
       next.hours[scrobble.date.getHours()]++;
       next.months[scrobble.date.getMonth()]++;
-      next.days[scrobble.date.getDay()]++;
+      next.days[(scrobble.date.getDay() + 6) % 7]++;
       next.specificWeeks[weekYear] = (next.specificWeeks[weekYear] || 0) + 1;
 
       if (!next.years[year]) {

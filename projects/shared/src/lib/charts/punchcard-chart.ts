@@ -154,8 +154,9 @@ export class PunchcardChart extends AbstractChart {
         .map(([key, value]) => [+key.split('-')[0], +key.split('-')[1], value]);
     } else {
       const fdoy = new Date(this.year, 0, 1);
-      if (fdoy.getDay() !== 0) {
-        fdoy.setTime(fdoy.getTime() - (fdoy.getDay() * Constants.DAY));
+      const mondayOffset = (fdoy.getDay() + 6) % 7;
+      if (mondayOffset !== 0) {
+        fdoy.setTime(fdoy.getTime() - (mondayOffset * Constants.DAY));
       }
       const start = fdoy.getTime();
       return entries.map(e => {
@@ -166,7 +167,7 @@ export class PunchcardChart extends AbstractChart {
           return undefined;
         }
 
-        const dow = date.getDay();
+        const dow = (date.getDay() + 6) % 7;
         const since = Math.floor(Math.round((key - start) / Constants.DAY) / 7);
         return [since, dow, e[1].length];
       }).filter(r => r) as number[][];
@@ -174,8 +175,8 @@ export class PunchcardChart extends AbstractChart {
   }
 
   static parseWeek(x: number, y: number, year: number): Date {
-    const fdoy = new Date(year, 0, 1).getDay();
-    const days = (1 + (x - 1) * 7) + y + (7 - fdoy);
+    const mondayOffset = (new Date(year, 0, 1).getDay() + 6) % 7;
+    const days = 1 + (x * 7) + y - mondayOffset;
     return new Date(year, 0, days);
   }
 
