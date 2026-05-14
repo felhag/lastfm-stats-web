@@ -157,6 +157,6 @@ test.describe('General component', () => {
 
   test('three stats cards are visible', async () => {
     const cards = page.locator('app-general mat-card');
-    await expect(cards).toHaveCount(3);
+    await expect(cards).toHaveCount(4);
   });
 });

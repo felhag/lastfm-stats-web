@@ -42,6 +42,13 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.0 (14-05-2026)
+- added enrichment tab ([#43][i43])
+- added anniversaries
+- monday as first day of week ([#89][i89])
+- improved climbers/fallers list ([#103][i103], pr by [lj9116](https://github.com/lj9116)) 
+- improved spotify deployment
+
 6.12 (22-04-2026)
 - fixed virtual scroll dataset tab ([#101][i101])
 
@@ -330,6 +337,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i35]: https://github.com/felhag/lastfm-stats-web/issues/35
 [i36]: https://github.com/felhag/lastfm-stats-web/issues/36
 [i40]: https://github.com/felhag/lastfm-stats-web/issues/40
+[i43]: https://github.com/felhag/lastfm-stats-web/issues/43
 [i47]: https://github.com/felhag/lastfm-stats-web/issues/47
 [i48]: https://github.com/felhag/lastfm-stats-web/issues/48
 [i49]: https://github.com/felhag/lastfm-stats-web/issues/49
@@ -343,6 +351,8 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i81]: https://github.com/felhag/lastfm-stats-web/issues/81
 [i86]: https://github.com/felhag/lastfm-stats-web/issues/86
 [i87]: https://github.com/felhag/lastfm-stats-web/pull/87
+[i89]: https://github.com/felhag/lastfm-stats-web/issues/89
 [i94]: https://github.com/felhag/lastfm-stats-web/pull/94
 [i99]: https://github.com/felhag/lastfm-stats-web/issues/99
 [i101]: https://github.com/felhag/lastfm-stats-web/issues/101
+[i103]: https://github.com/felhag/lastfm-stats-web/pull/103
