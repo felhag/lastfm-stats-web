@@ -4,31 +4,34 @@ on:
   push:
     branches:
       - '**'
-  pull_request:
   workflow_call:
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [lastfm-stats, spotify-stats]
     steps:
     - name: Checkout
       uses: actions/checkout@v6
+    - uses: pnpm/action-setup@v6
+      with:
+        version: 11
     - uses: actions/setup-node@v6
       with:
         node-version: '24'
-    - uses: pnpm/action-setup@v5
-      with:
-        version: 10
+        cache: 'pnpm'
 
     - name: Install dependencies
       run: pnpm install
 
     - name: Build
-      run: pnpm run deploy
+      run: pnpm exec ng build --configuration production --project ${{ matrix.project }}
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v7
       with:
-        name: build-output
-        path: dist/lastfm-stats/browser
+        name: build-${{ matrix.project }}
+        path: dist/${{ matrix.project }}/browser
