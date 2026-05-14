@@ -8,11 +8,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { HttpClient } from '@angular/common/http';
 import * as Highcharts from 'highcharts';
 import 'highcharts/esm/modules/map';
+import 'highcharts/esm/modules/full-screen';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import { TempStats } from '../app/model';
 import { EnrichmentService, EnrichmentProgress } from '../service/enrichment.service';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { TranslatePipe } from '../service/translate.pipe';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 interface ArtistRow {
@@ -36,7 +38,8 @@ interface ArtistRow {
     MatIcon,
     MatProgressBarModule,
     MatTooltipModule,
-  ]
+  ],
+  providers: [TranslatePipe],
 })
 export class EnrichmentComponent {
   private readonly stats = inject(StatsBuilderService);
@@ -44,12 +47,25 @@ export class EnrichmentComponent {
   private readonly settings = inject(SettingsService);
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslatePipe);
 
   readonly mapChart = signal<Highcharts.Chart | undefined>(undefined);
   readonly genreChart = signal<Highcharts.Chart | undefined>(undefined);
 
   readonly progress = signal<EnrichmentProgress | undefined>(undefined);
   readonly running = signal(false);
+
+  readonly eta = computed<string | undefined>(() => {
+    const p = this.progress();
+    const remaining = (p?.total || 0) - (p?.done || 0);
+    if (!p || remaining <= 0) {
+      return undefined;
+    }
+    const seconds = Math.ceil((1100 * remaining) / 1000);
+    if (seconds < 60) return `~ ${seconds} seconds`;
+    return `~ ${Math.ceil(seconds / 60)} minutes`;
+  });
+
   readonly mapWeightBy = signal<'scrobbles' | 'artists'>('scrobbles');
   readonly genreWeightBy = signal<'scrobbles' | 'artists'>('scrobbles');
   readonly worldTopo = toSignal(this.http.get('https://code.highcharts.com/mapdata/custom/world.topo.json'));
@@ -119,18 +135,29 @@ export class EnrichmentComponent {
 
   readonly mapReady = computed(() => !!this.worldTopo());
 
-  readonly mapData = computed<[string, number][]>(() => {
+  readonly mapData = computed<{code: string; value: number; topArtists: ArtistRow[]}[]>(() => {
     const rows = this.artistRows();
     const infos = this.enrichment.info();
     const weight = this.mapWeightBy() === 'scrobbles' ? (row: ArtistRow) => row.scrobbles : () => 1;
     const counts = new Map<string, number>();
+    const topArtists = new Map<string, ArtistRow[]>();
     for (const row of rows) {
       const info = infos.get(row.artist);
       if (!info?.country) continue;
       const code = info.country.toLowerCase();
       counts.set(code, (counts.get(code) ?? 0) + weight(row));
+      const list = topArtists.get(code);
+      if (!list) {
+        topArtists.set(code, [row]);
+      } else if (list.length < 3) {
+        list.push(row);
+      }
     }
-    return Array.from(counts.entries());
+    return Array.from(counts.entries()).map(([code, value]) => ({
+      code,
+      value,
+      topArtists: topArtists.get(code) ?? [],
+    }));
   });
 
   readonly mapOptions = computed<Highcharts.Options>(() => {
@@ -140,15 +167,21 @@ export class EnrichmentComponent {
       chart: {map: topo as any, height: 480},
       title: {text: 'Regions'},
       legend: {enabled: false},
+      mapNavigation: {enabled: true},
       colorAxis: {min: 1, type: 'logarithmic', minColor: '#e6f4ff', maxColor: '#003366'},
       series: [{
         type: 'map',
         name: untracked(() => this.mapWeightLabel()),
-        joinBy: ['hc-key', 0],
+        joinBy: ['hc-key', 'code'],
         data: untracked(() => this.mapData()),
         states: {hover: {color: '#f7a35c'}},
         dataLabels: {enabled: false},
       } as any],
+      tooltip: {
+        useHTML: true,
+        headerFormat: '',
+        pointFormatter: this.tooltipFormatter(),
+      },
     };
   });
 
@@ -171,6 +204,21 @@ export class EnrichmentComponent {
         chart.series[0].update({ name: label, data } as any, true);
       }
     });
+  }
+
+  private tooltipFormatter(): (this: Highcharts.Point) => string {
+    const scrobblesLabel = this.translate.transform('translate.scrobbles');
+    return function(this: Highcharts.Point) {
+      const point = this as Highcharts.Point & {value?: number; topArtists?: ArtistRow[]};
+      const artists = point.topArtists ?? [];
+      const list = artists.length
+        ? '<ol style="margin: 4px 0 0; padding-left: 20px;">'
+          + artists.map(a => `<li>${a.artist} (${a.scrobbles.toLocaleString()} ${scrobblesLabel})</li>`).join('')
+          + '</ol>'
+        : '';
+      const bullet = `<span style="color:${point.color}">●</span> `;
+      return `${bullet}<b>${point.name}</b>: ${(point.value ?? 0).toLocaleString()} ${point.series.name}${list}`;
+    };
   }
 
   fetch(): void {

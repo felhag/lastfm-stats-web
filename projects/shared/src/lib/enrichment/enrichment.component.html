@@ -41,7 +41,9 @@
           <mat-progress-bar mode="determinate" [value]="p.total ? (p.done / p.total * 100) : 0"></mat-progress-bar>
           <div class="progress-text">
             {{p.done}} / {{p.total}}
-            @if (p.current && running()) { · {{p.current}} }
+            @if (p.current && running()) {
+              {{p.current}} {{eta()}}
+            }
           </div>
         </div>
       }
@@ -64,6 +66,11 @@
           <mat-icon>star</mat-icon>
         </button>
       </div>
+      <div class="button-toolbar">
+        <button (click)="mapChart()?.fullscreen?.toggle()" mat-icon-button matTooltip="Full screen">
+          <mat-icon>fullscreen</mat-icon>
+        </button>
+      </div>
       @if (mapReady()) {
         <highcharts-chart [options]="mapOptions()" [constructorType]="'mapChart'" (chartInstance)="mapChart.set($event)" style="width: 100%; height: 480px; display: block;"></highcharts-chart>
       } @else {
@@ -80,6 +87,11 @@
         </button>
         <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'artists' ? 'primary' : null" matTooltip="Artists" (click)="genreWeightBy.set('artists')">
           <mat-icon>star</mat-icon>
+        </button>
+      </div>
+      <div class="button-toolbar">
+        <button (click)="genreChart()?.fullscreen?.toggle()" mat-icon-button matTooltip="Full screen">
+          <mat-icon>fullscreen</mat-icon>
         </button>
       </div>
       <highcharts-chart [options]="genreOptions()" (chartInstance)="genreChart.set($event)" style="width: 100%; display: block;"></highcharts-chart>
