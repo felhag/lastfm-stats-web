@@ -18,7 +18,11 @@
 cdk-virtual-scroll-viewport {
   flex: 1;
   scrollbar-gutter: stable;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mat-table-row-item-label-text-color) var(--mat-table-background-color);
 }
+
 .mat-mdc-card {
   margin-bottom: 16px;
 

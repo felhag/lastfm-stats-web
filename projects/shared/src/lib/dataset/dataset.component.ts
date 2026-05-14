@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -81,15 +81,18 @@ export class DatasetComponent implements OnInit {
   filterName = new FormControl<string>('');
 
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
+  showViewport = true;
   private destroyRef = inject(DestroyRef);
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
               private translate: TranslatePipe,
-              private exportService: ExportService) {
+              private exportService: ExportService,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
+    this.configureDataSource(this.dataSource);
     combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
@@ -98,13 +101,15 @@ export class DatasetComponent implements OnInit {
       debounceTime(200),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(f => this.dataSource.filter = f.join());
+  }
 
+  private configureDataSource(ds: MatTableDataSource<DataSetEntry>): void {
     // @ts-ignore
-    this.dataSource.filterPredicate = (obj =>
+    ds.filterPredicate = (obj =>
       this.filterValue(this.filterArtist.value, this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
       this.filterValue(this.filterName.value, obj.name));
-    this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (track, id): string => {
+    ds.sort = this.sort;
+    ds.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
       const value = track[id];
       if (['artist', 'name', 'shortName'].indexOf(id) >= 0) {
@@ -140,9 +145,15 @@ export class DatasetComponent implements OnInit {
     this.months = tempStats.monthList;
   }
 
+  // a lot of crap to correctly handle dataset group switches with virtual scroll
   groupBy(change: MatRadioChange): void {
+    this.showViewport = false;
     this.groupedBy.next(change.value);
     this.filterName.setValue('');
+    setTimeout(() => {
+      this.showViewport = true;
+      this.cdr.detectChanges();
+    });
   }
 
   get columns(): DataSetKeys {
