@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 import { Observable, from, switchMap, tap, forkJoin, of, concatMap } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { App, Scrobble } from '../app/model';
+import { App, ArtistInfo, Scrobble } from '../app/model';
 
 export interface DbUser {
   id?: number;
@@ -14,9 +14,14 @@ export interface DbUserScrobble extends Scrobble {
   userId: number;
 }
 
+export interface DbArtistInfo extends ArtistInfo {
+  id?: number;
+}
+
 class AppDB extends Dexie {
   users!: Table<DbUser, number>;
   scrobbles!: Table<DbUserScrobble, number>;
+  artistInfo!: Table<DbArtistInfo, number>;
 
   constructor(databaseName: string) {
     super(databaseName);
@@ -35,6 +40,31 @@ export class DatabaseService {
       users: '++id,&username',
       scrobbles: '++id,userId,artist,album,track,date',
     });
+    this.db.version(2).stores({
+      users: '++id,&username',
+      scrobbles: '++id,userId,artist,album,track,date',
+      artistInfo: '++id,&artist,mbid',
+    });
+  }
+
+  getArtistInfo(): Observable<DbArtistInfo[]> {
+    return from(this.db.artistInfo.toArray());
+  }
+
+  upsertArtistInfo(infos: ArtistInfo[]): Observable<number> {
+    if (!infos.length) {
+      return of(0);
+    }
+    return from(this.db.transaction('rw', this.db.artistInfo, async () => {
+      const existing = await this.db.artistInfo.where('artist').anyOf(infos.map(i => i.artist)).toArray();
+      const byArtist = new Map(existing.map(e => [e.artist, e]));
+      const merged: DbArtistInfo[] = infos.map(info => {
+        const prev = byArtist.get(info.artist);
+        return prev ? {...prev, ...info} : info;
+      });
+      await this.db.artistInfo.bulkPut(merged);
+      return merged.length;
+    }));
   }
 
   private findOrCreateUser(input: string): Observable<number> {
@@ -89,7 +119,7 @@ export class DatabaseService {
 
         return from(chunks).pipe(
           concatMap(chunk => from(this.db.scrobbles.bulkAdd(chunk))),
-          map((added, index) => Math.min(((chunkSize * (index + 1)) / dbScrobbles.length), 1) * 100 )
+          map((_, index) => Math.min(((chunkSize * (index + 1)) / dbScrobbles.length), 1) * 100 )
         );
       })
     );

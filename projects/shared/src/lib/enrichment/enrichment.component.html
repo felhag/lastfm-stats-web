@@ -1,0 +1,88 @@
+<div class="enrichment-grid">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Artist enrichment</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (summary(); as stats) {
+        <div class="stat-row">
+          <div class="stat-cell">
+            <div class="stat-label">Artists</div>
+            <div class="stat-value">{{stats.artistsTotal | number}}</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label">Loaded</div>
+            <div class="stat-value">{{stats.loaded | number}} / {{stats.artistsTotal | number}} ({{stats.loadedPercent}}%)</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label">With MBID</div>
+            <div class="stat-value">{{stats.withMbid | number}}</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label">With region</div>
+            <div class="stat-value">{{stats.withRegion | number}}</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-label">With tags</div>
+            <div class="stat-value">{{stats.withTags | number}}</div>
+          </div>
+        </div>
+      }
+
+      <div class="actions">
+        <button mat-stroked-button [disabled]="running()" (click)="fetch()">
+          <mat-icon>download</mat-icon>
+          Load
+        </button>
+      </div>
+
+      @if (progress(); as p) {
+        <div class="progress">
+          <mat-progress-bar mode="determinate" [value]="p.total ? (p.done / p.total * 100) : 0"></mat-progress-bar>
+          <div class="progress-text">
+            {{p.done}} / {{p.total}}
+            @if (p.current && running()) { · {{p.current}} }
+          </div>
+        </div>
+      }
+
+      <p class="hint">
+        Artist enrichment uses <a target="_blank" href="https://musicbrainz.org/">MusicBrainz</a>, a community-run
+        open source service that rate-limits requests to roughly one artist per second. Enriching your full library
+        will therefore take a while.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div class="weight-toolbar">
+        <button class="toggle" mat-icon-button [color]="mapWeightBy() === 'scrobbles' ? 'primary' : null" matTooltip="Scrobbles" (click)="mapWeightBy.set('scrobbles')">
+          <mat-icon>music_note</mat-icon>
+        </button>
+        <button class="toggle" mat-icon-button [color]="mapWeightBy() === 'artists' ? 'primary' : null" matTooltip="Artists" (click)="mapWeightBy.set('artists')">
+          <mat-icon>star</mat-icon>
+        </button>
+      </div>
+      @if (mapReady()) {
+        <highcharts-chart [options]="mapOptions()" [constructorType]="'mapChart'" (chartInstance)="mapChart.set($event)" style="width: 100%; height: 480px; display: block;"></highcharts-chart>
+      } @else {
+        <div class="placeholder">Loading map…</div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <div class="weight-toolbar">
+        <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'scrobbles' ? 'primary' : null" matTooltip="Scrobbles" (click)="genreWeightBy.set('scrobbles')">
+          <mat-icon>music_note</mat-icon>
+        </button>
+        <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'artists' ? 'primary' : null" matTooltip="Artists" (click)="genreWeightBy.set('artists')">
+          <mat-icon>star</mat-icon>
+        </button>
+      </div>
+      <highcharts-chart [options]="genreOptions()" (chartInstance)="genreChart.set($event)" style="width: 100%; display: block;"></highcharts-chart>
+    </mat-card-content>
+  </mat-card>
+</div>

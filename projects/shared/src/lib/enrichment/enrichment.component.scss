@@ -1,0 +1,68 @@
+.mat-mdc-card {
+  margin: 16px;
+}
+
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.stat-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 12px;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.progress {
+  margin: 12px 0;
+}
+
+.progress-text {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.hint {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 8px;
+
+  a {
+    color: var(--primaryColor);
+  }
+}
+
+.weight-toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 10px 16px;
+  z-index: 1;
+}
+
+.placeholder {
+  opacity: 0.6;
+  text-align: center;
+  padding: 32px 0;
+}

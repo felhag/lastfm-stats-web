@@ -1,41 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Scrobble, Constants, User } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Observable, forkJoin, takeWhile, take } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { LastfmService, LfmRecentTracksResponse, LfmTrack } from '../../../shared/src/lib/service/lastfm.service';
 import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 import { UsernameService } from '../../../shared/src/lib/service/username.service';
-
-interface Response {
-  recenttracks: RecentTracks;
-}
-
-interface RecentTracks {
-  track: Track[];
-  '@attr': {
-    page: string;
-    total: string;
-    totalPages: string;
-  };
-}
-
-interface Track {
-  name: string;
-  artist: {
-    '#text': string;
-  };
-  album: {
-    '#text': string;
-    mbid: string;
-  };
-  date: {
-    uts: number;
-  };
-  '@attr'?: {
-    nowplaying: 'true' | 'false'
-  };
-}
 
 interface LoadingState {
   store: ScrobbleStore;
@@ -52,11 +22,9 @@ interface LoadingState {
   providedIn: 'root'
 })
 export class ScrobbleRetrieverService extends AbstractItemRetriever {
-  private readonly API = 'https://ws.audioscrobbler.com/2.0/';
-  private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
   artistSanitizer = new ArtistSanitizer();
 
-  constructor(private http: HttpClient, private username: UsernameService) {
+  constructor(private lfm: LastfmService, private username: UsernameService) {
     super();
   }
 
@@ -125,13 +93,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   }
 
   private retrieveUser(username: string): Observable<User> {
-    const params = new HttpParams()
-      .append('method', 'user.getinfo')
-      .append('api_key', this.KEY)
-      .append('user', username)
-      .append('format', 'json');
-
-    return this.http.get<{user: User}>(this.API, {params}).pipe(map(u => u.user));
+    return this.lfm.getUserInfo(username);
   }
 
   private iterate(loadingState: LoadingState, retry: number = Constants.RETRIES): void {
@@ -199,7 +161,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     });
   }
 
-  private updateTracks(loadingState: LoadingState, response: Track[]): void {
+  private updateTracks(loadingState: LoadingState, response: LfmTrack[]): void {
     const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
       track: t.name,
       artist: this.artistSanitizer.sanitize(t.artist['#text']),
@@ -212,18 +174,14 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     loadingState.store.page(tracks);
   }
 
-  private get(loadingState: LoadingState): Observable<Response> {
-    const params = new HttpParams()
-      .append('method', 'user.getrecenttracks')
-      .append('api_key', this.KEY)
-      .append('user', loadingState.username)
-      .append('format', 'json')
-      .append('to', loadingState.to)
-      .append('from', loadingState.from)
-      .append('limit', String(loadingState.pageSize))
-      .append('page', String(loadingState.page));
-
-    return this.http.get<Response>(this.API, {params});
+  private get(loadingState: LoadingState): Observable<LfmRecentTracksResponse> {
+    return this.lfm.getRecentTracks({
+      user: loadingState.username,
+      to: loadingState.to,
+      from: loadingState.from,
+      limit: loadingState.pageSize!,
+      page: loadingState.page!,
+    });
   }
 }
 

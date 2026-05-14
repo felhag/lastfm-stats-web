@@ -59,7 +59,7 @@ export class StatsComponent implements OnInit, OnDestroy {
               private dialog: MatDialog,
               private app: App,
               translate: TranslatePipe) {
-    this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset'];
+    this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset', 'enrichment'];
   }
 
   ngOnInit(): void {

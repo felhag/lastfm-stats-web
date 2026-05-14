@@ -78,6 +78,16 @@ export interface ZScoreEntry {
   historyCount: number;
 }
 
+export interface ArtistInfo {
+  artist: string;
+  mbid?: string;
+  country?: string;
+  area?: string;
+  tags: string[];
+  lfmFetched?: number;
+  mbFetched?: number;
+}
+
 export interface Export {
   username: string;
   scrobbles: { artist: string, album: string, albumId?: string, track: string, date: number }[];

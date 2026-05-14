@@ -8,6 +8,7 @@ import { ScrobbleListsComponent } from './lists/scrobble-lists.component';
 import { StatsComponent } from './stats/stats.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { GeneralComponent } from './general/general.component';
+import { EnrichmentComponent } from './enrichment/enrichment.component';
 import { NgCircleProgressModule } from "ng-circle-progress";
 import { provideHighcharts } from "highcharts-angular";
 import { Constants } from "./app/model";
@@ -53,6 +54,10 @@ export class Shared {
             path: 'dataset',
             pathMatch: 'full',
             component: DatasetComponent
+          }, {
+            path: 'enrichment',
+            pathMatch: 'full',
+            component: EnrichmentComponent
           }]
       },
     ]);

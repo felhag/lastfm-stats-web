@@ -2,7 +2,7 @@ import { enableProdMode } from '@angular/core';
 
 import { environment } from './environments/environment';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
-import { HttpClient } from '@angular/common/http';
+import { LastfmService } from '../../shared/src/lib/service/lastfm.service';
 import { UsernameService } from '../../shared/src/lib/service/username.service';
 import { ScrobbleRetrieverService } from 'projects/lastfm-stats/src/app/scrobble-retriever.service';
 import { MockRetrieverService } from './app/mock-retriever.service';
@@ -23,9 +23,9 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     {
-      provide: AbstractItemRetriever, useFactory: (http: HttpClient, username: UsernameService) => {
-        return environment.production ? new ScrobbleRetrieverService(http, username) : new MockRetrieverService(http, username);
-      }, deps: [HttpClient, UsernameService]
+      provide: AbstractItemRetriever, useFactory: (lfm: LastfmService, username: UsernameService) => {
+        return environment.production ? new ScrobbleRetrieverService(lfm, username) : new MockRetrieverService(lfm, username);
+      }, deps: [LastfmService, UsernameService]
     },
     {provide: AbstractUrlService, useExisting: LastfmUrlService},
     {provide: App, useValue: App.lastfm},
