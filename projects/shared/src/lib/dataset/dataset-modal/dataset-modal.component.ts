@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
@@ -41,14 +41,14 @@ interface OrbStat {
   ]
 })
 export class DatasetModalComponent implements OnInit {
+  data = inject<DatasetModalData>(MAT_DIALOG_DATA);
+  private translate = inject(TranslatePipe);
+  private mapper = inject(MapperService);
+
   stats: OrbStat[] = [];
   chartOptions: Highcharts.Options = {};
   url?: string;
   chart?: Highcharts.Chart;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: DatasetModalData,
-              private translate: TranslatePipe,
-              private mapper: MapperService) { }
 
   ngOnInit(): void {
     const scrobblesTitle = this.translate.capFirst('translate.scrobbles');

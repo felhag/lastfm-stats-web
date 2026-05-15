@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, inject } from '@angular/core';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
@@ -23,10 +23,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     encapsulation: ViewEncapsulation.None
 })
 export class DbLoadButtonComponent {
+  private database = inject(DatabaseService);
+  private router = inject(Router);
+
   userDeleted = new Subject<string>();
   dbUsers: Observable<DbUser[]>;
 
-  constructor(private database: DatabaseService, private router: Router) {
+  constructor() {
     this.dbUsers = this.userDeleted.pipe(startWith(undefined), switchMap(() => this.database.getUsers()));
   }
 

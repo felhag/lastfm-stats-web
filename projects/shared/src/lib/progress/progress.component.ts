@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {App, Constants, Export} from 'projects/shared/src/lib/app/model';
 import {combineLatest, map, Observable, Subject, switchMap, take} from 'rxjs';
 import {DatabaseService} from '../service/database.service';
@@ -29,13 +29,12 @@ import { ExportService } from "../service/export-service";
   ]
 })
 export class ProgressComponent {
-  saveInDb$ = new Subject<number>();
+  scrobbles = inject(ScrobbleStore);
+  private database = inject(DatabaseService);
+  private exportService = inject(ExportService);
+  private app = inject(App as any) as App;
 
-  constructor(public scrobbles: ScrobbleStore,
-              private database: DatabaseService,
-              private exportService: ExportService,
-              private app: App) {
-  }
+  saveInDb$ = new Subject<number>();
 
   get percentage(): Observable<number> {
     return this.scrobbles.state$.pipe(map(state => ((state.totalPages - state.currentPage) / state.totalPages) * 100));

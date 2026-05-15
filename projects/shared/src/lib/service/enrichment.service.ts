@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, concat, concatMap, defer, from, map, of, switchMap } from 'rxjs';
 import { ArtistInfo } from '../app/model';
 import { DatabaseService } from './database.service';
@@ -13,12 +13,14 @@ export interface EnrichmentProgress {
 
 @Injectable({providedIn: 'root'})
 export class EnrichmentService {
+  private lfm = inject(LastfmService);
+  private mb = inject(MusicBrainzClient);
+  private db = inject(DatabaseService);
+
   private readonly cache = new Map<string, ArtistInfo>();
   readonly info = signal(this.cache, {equal: () => false});
 
-  constructor(private lfm: LastfmService,
-              private mb: MusicBrainzClient,
-              private db: DatabaseService) {
+  constructor() {
     this.db.getArtistInfo().subscribe(rows => {
       // skip entries already populated while the DB read was in flight
       rows.forEach(r => { if (!this.cache.has(r.artist)) this.cache.set(r.artist, r); });

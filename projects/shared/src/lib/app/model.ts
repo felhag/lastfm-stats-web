@@ -248,6 +248,8 @@ export class Constants {
   static readonly SCROBBLE_ALBUM_THRESHOLD = 30;
   static readonly SCROBBLE_TRACK_THRESHOLD = 10;
   static readonly MIN_MS_PLAYED = 30000;
+  // MusicBrainz asks for 1 req/sec for anonymous clients; 1.05s gives a safety margin.
+  static readonly MB_SPACING_MS = 1050;
   static readonly DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   static readonly COLORS = [

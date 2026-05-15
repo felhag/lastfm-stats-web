@@ -1,7 +1,5 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Track, Constants, Month } from 'projects/shared/src/lib/app/model';
-import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
-import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -29,11 +27,8 @@ export interface TrackStats {
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
+  private url = inject(AbstractUrlService);
   protected forcedThreshold = Constants.SCROBBLE_TRACK_THRESHOLD;
-
-  constructor(builder: StatsBuilderService, settings: SettingsService, private url: AbstractUrlService) {
-    super(builder, settings, url);
-  }
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
     const seen = this.seenThreshold(stats.seenTracks);

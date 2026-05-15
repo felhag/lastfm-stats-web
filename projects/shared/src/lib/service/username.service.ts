@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router, ActivationEnd } from '@angular/router';
 import { map, filter } from 'rxjs/operators';
 
@@ -8,8 +8,8 @@ import { map, filter } from 'rxjs/operators';
 export class UsernameService {
   username?: string;
 
-  constructor(router: Router) {
-    router.events
+  constructor() {
+    inject(Router).events
       .pipe(
         filter(e => e instanceof ActivationEnd),
         map(e => (e as ActivationEnd).snapshot.params)

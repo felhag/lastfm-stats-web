@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, concatMap, from, lastValueFrom } from 'rxjs';
+import { Constants } from "../app/model";
 
 interface MbArtistResponse {
   id: string;
@@ -24,12 +25,12 @@ interface QueueItem {
 
 @Injectable({providedIn: 'root'})
 export class MusicBrainzClient {
+  private http = inject(HttpClient);
+
   private readonly API = 'https://musicbrainz.org/ws/2';
-  // MB asks for 1 req/sec for anonymous clients; 1.05s gives a safety margin.
-  private readonly SPACING_MS = 1050;
   private readonly queue = new Subject<QueueItem>();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.queue.pipe(
       concatMap(item => from(this.process(item)))
     ).subscribe();
@@ -60,7 +61,7 @@ export class MusicBrainzClient {
       item.reject(e);
     } finally {
       const elapsed = Date.now() - start;
-      const wait = this.SPACING_MS - elapsed;
+      const wait = Constants.MB_SPACING_MS - elapsed;
       if (wait > 0) {
         await new Promise(r => setTimeout(r, wait));
       }

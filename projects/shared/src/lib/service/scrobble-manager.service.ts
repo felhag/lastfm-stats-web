@@ -1,19 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { switchMap, of } from 'rxjs';
 import { AbstractItemRetriever } from './abstract-item-retriever.service';
 import { DatabaseService } from './database.service';
 import { ScrobbleImporter } from './scrobble-importer.service';
 import { ScrobbleStore } from './scrobble.store';
-import { StatsBuilderService } from './stats-builder.service';
 
 @Injectable()
 export class ScrobbleManager {
-  constructor(private importer: ScrobbleImporter,
-              private receiver: AbstractItemRetriever,
-              private builder: StatsBuilderService,
-              private store: ScrobbleStore,
-              private database: DatabaseService) {
-  }
+  private importer = inject(ScrobbleImporter);
+  private receiver = inject(AbstractItemRetriever);
+  private store = inject(ScrobbleStore);
+  private database = inject(DatabaseService);
 
   /**
    * Starts retrieving scrobbles but first checks if any scrobbles are present from import or db

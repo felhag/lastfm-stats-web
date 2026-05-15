@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Album, ItemType, Month, StreakItem, TempStats, Track, ZScoreEntry } from '../app/model';
+import { inject, Injectable } from '@angular/core';
+import { ItemType, TempStats, ZScoreEntry } from '../app/model';
 import { MapperService } from './mapper.service';
 
 interface WelfordState {
@@ -13,8 +13,7 @@ interface WelfordState {
   providedIn: 'root'
 })
 export class ZScoreService {
-  constructor(private mapper: MapperService) {
-  }
+  private mapper = inject(MapperService);
 
   compute(stats: TempStats, type: ItemType): Map<string, ZScoreEntry[]> {
     const result = new Map<string, ZScoreEntry[]>();

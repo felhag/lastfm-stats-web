@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from './abstract-url.service';
 
@@ -6,8 +6,7 @@ import { AbstractUrlService } from './abstract-url.service';
   providedIn: 'root'
 })
 export class MapperService {
-  constructor(private readonly urlService: AbstractUrlService) {
-  }
+  private readonly urlService = inject(AbstractUrlService);
 
   private mappers = {
     'artist': {

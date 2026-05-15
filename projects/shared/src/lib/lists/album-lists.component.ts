@@ -1,7 +1,5 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Album, Constants, Track, StreakItem, App } from 'projects/shared/src/lib/app/model';
-import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
-import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -29,15 +27,11 @@ export interface AlbumStats {
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
-  protected forcedThreshold = Constants.SCROBBLE_ALBUM_THRESHOLD;
+  private url = inject(AbstractUrlService);
+  private translate = inject(TranslatePipe);
+  private app = inject(App as any) as App;
 
-  constructor(builder: StatsBuilderService,
-              settings: SettingsService,
-              private url: AbstractUrlService,
-              private translate: TranslatePipe,
-              private app: App) {
-    super(builder, settings, url);
-  }
+  protected forcedThreshold = Constants.SCROBBLE_ALBUM_THRESHOLD;
 
   protected doUpdate(stats: TempStats, next: AlbumStats): void {
     const seen = this.seenThreshold(stats.seenAlbums);

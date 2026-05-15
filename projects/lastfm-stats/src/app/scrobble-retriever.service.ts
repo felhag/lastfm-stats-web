@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Scrobble, Constants, User } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Observable, forkJoin, takeWhile, take } from 'rxjs';
@@ -22,11 +22,10 @@ interface LoadingState {
   providedIn: 'root'
 })
 export class ScrobbleRetrieverService extends AbstractItemRetriever {
-  artistSanitizer = new ArtistSanitizer();
+  private lfm = inject(LastfmService);
+  private username = inject(UsernameService);
 
-  constructor(private lfm: LastfmService, private username: UsernameService) {
-    super();
-  }
+  artistSanitizer = new ArtistSanitizer();
 
   retrieveFor(username: string, imported: Scrobble[], store: ScrobbleStore): void {
     const to = new Date().toDateString();

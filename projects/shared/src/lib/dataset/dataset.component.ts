@@ -86,13 +86,11 @@ export class DatasetComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private readonly enrichment = inject(EnrichmentService);
   private readonly enrichmentInfo$ = toObservable(this.enrichment.info);
-
-  constructor(private builder: StatsBuilderService,
-              private dialog: MatDialog,
-              private translate: TranslatePipe,
-              private exportService: ExportService,
-              private cdr: ChangeDetectorRef) {
-  }
+  private builder = inject(StatsBuilderService);
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslatePipe);
+  private exportService = inject(ExportService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.configureDataSource(this.dataSource);

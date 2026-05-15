@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, RouterModule } from '@angular/router';
@@ -70,12 +70,16 @@ export class HomeComponent {
     'Spotify Extended Streaming History/Streaming_History_Audio_': json => this.parseEndSong(json),
     'StreamingHistory_music': json => this.parseStreamingHistory(json)
   };
+  private router = inject(Router);
+  private importer = inject(ScrobbleImporter);
+  private dialog = inject(MatDialog);
+
   username = new FormControl('', Validators.required);
   files = new BehaviorSubject<ParsedEntry[]>([]);
   deduplicated: Observable<number>;
   submitted = false;
 
-  constructor(private router: Router, private importer: ScrobbleImporter, private dialog: MatDialog) {
+  constructor() {
     this.deduplicated = this.files.pipe(
       throttleTime(0, asyncScheduler, { trailing: true }),
       map(files => files.flatMap(file => file.plays).map(p => JSON.stringify(p))),

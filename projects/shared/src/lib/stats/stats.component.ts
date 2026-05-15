@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
@@ -44,21 +44,23 @@ import { TranslatePipe } from '../service/translate.pipe';
     ]
 })
 export class StatsComponent implements OnInit, OnDestroy {
+  private builder = inject(StatsBuilderService);
+  private scrobbles = inject(ScrobbleStore);
+  private manager = inject(ScrobbleManager);
+  protected settings = inject(SettingsService);
+  private usernameService = inject(UsernameService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private app = inject(App as any) as App;
+
   readonly tabs: string[];
   private activeTab: string = 'general';
   private start?: [number, number, number];
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
 
-  constructor(private builder: StatsBuilderService,
-              private scrobbles: ScrobbleStore,
-              private manager: ScrobbleManager,
-              public settings: SettingsService,
-              private usernameService: UsernameService,
-              private router: Router,
-              private dialog: MatDialog,
-              private app: App,
-              translate: TranslatePipe) {
+  constructor() {
+    const translate = inject(TranslatePipe);
     this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset', 'enrichment'];
   }
 

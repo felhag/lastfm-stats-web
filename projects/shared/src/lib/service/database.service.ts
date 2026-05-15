@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 import { Observable, from, switchMap, tap, forkJoin, of, concatMap } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -34,7 +34,8 @@ class AppDB extends Dexie {
 export class DatabaseService {
   private db: AppDB;
 
-  constructor(app: App) {
+  constructor() {
+    const app = inject(App as any) as App;
     this.db = new AppDB(app === App.lastfm ? 'lastfmstats' : 'spotifystats');
     this.db.version(1).stores({
       users: '++id,&username',

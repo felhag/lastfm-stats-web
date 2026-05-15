@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Scrobble } from '../../../shared/src/lib/app/model';
@@ -8,10 +8,7 @@ import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
   providedIn: 'root'
 })
 export class SpotifyItemService extends AbstractItemRetriever {
-
-  constructor(private router: Router) {
-    super();
-  }
+  private router = inject(Router);
 
   retrieveFor(username: string, imported: Scrobble[], store: ScrobbleStore): void {
     if (imported.length === 0) {

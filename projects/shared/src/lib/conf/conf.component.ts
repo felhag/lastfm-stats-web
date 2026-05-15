@@ -1,4 +1,4 @@
-import { Component, computed, Inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
@@ -61,7 +61,9 @@ export class ConfComponent {
   startDate!: Date;
   endDate = new Date();
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: {scrobbles: Scrobble[], settings: Settings}) {
+  data = inject<{scrobbles: Scrobble[], settings: Settings}>(MAT_DIALOG_DATA);
+
+  constructor() {
     const search = computed(() => this.keyword().toLowerCase());
     const all = this.data.scrobbles
         .map(s => s.artist)

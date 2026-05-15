@@ -1,5 +1,5 @@
-import { OnInit, Directive } from '@angular/core';
-import { BehaviorSubject, debounce, debounceTime } from 'rxjs';
+import { Directive, inject } from '@angular/core';
+import { BehaviorSubject, debounceTime } from 'rxjs';
 import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
 import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
@@ -16,12 +16,14 @@ export interface Top10Item {
 
 @Directive()
 export abstract class AbstractListsComponent<S> {
+  private builder = inject(StatsBuilderService);
+  private settings = inject(SettingsService);
+  private urlService = inject(AbstractUrlService);
+
   stats = new BehaviorSubject<S>(this.emptyStats());
   settingsObj?: Settings;
 
-  protected constructor(private builder: StatsBuilderService,
-                        private settings: SettingsService,
-                        private urlService: AbstractUrlService) {
+  constructor() {
     this.settings.state$.pipe(takeUntilDestroyed()).subscribe(settings => this.settingsObj = settings);
     this.builder.tempStats.pipe(takeUntilDestroyed(), debounceTime(0)).subscribe(stats => this.update(stats));
   }
@@ -178,7 +180,7 @@ export abstract class AbstractListsComponent<S> {
     const month = d.getMonth();
     return new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
   }
-  
+
   public getRankings<T extends StreakItem>(
     seen: T[],
     monthList: {alias: string, date: Date}[],

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { combineLatest, filter, map, merge, Observable, scan, shareReplay, Subject, switchMap, take } from 'rxjs';
 import {
   AlbumStreakStack,
@@ -18,12 +18,14 @@ import { ScrobbleStore } from './scrobble.store';
 
 @Injectable()
 export class StatsBuilderService {
+  private settings = inject(SettingsService);
+  private mapper = inject(MapperService);
+  private scrobbles = inject(ScrobbleStore);
+
   tempStats: Observable<TempStats>;
   rebuild = new Subject<void>();
 
-  constructor(private settings: SettingsService,
-              private mapper: MapperService,
-              private scrobbles: ScrobbleStore) {
+  constructor() {
     const settings$ = this.settings.state$;
     const completed = combineLatest([
       this.scrobbles.state$.pipe(filter(s => s.state === 'COMPLETED')),

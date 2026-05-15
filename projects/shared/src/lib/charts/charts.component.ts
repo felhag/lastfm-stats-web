@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
 import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
@@ -68,15 +68,16 @@ if (darkMode.matches) {
   imports: [MatCard, ChartLoaderDirective, MatTooltip, MatIcon, MatCardContent, MatIconButton]
 })
 export class ChartsComponent {
+  private builder = inject(StatsBuilderService);
+
   charts: AbstractChart[];
 
-  constructor(
-    private builder: StatsBuilderService,
-    url: AbstractUrlService,
-    translate: TranslatePipe,
-    mapper: MapperService,
-    zscoreService: ZScoreService,
-    exportService: ExportService) {
+  constructor() {
+    const url = inject(AbstractUrlService);
+    const translate = inject(TranslatePipe);
+    const mapper = inject(MapperService);
+    const zscoreService = inject(ZScoreService);
+    const exportService = inject(ExportService);
 
     this.charts = [
       new TimelineChart(translate),

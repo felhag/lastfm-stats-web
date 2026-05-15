@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -14,5 +14,5 @@ import { A11yModule } from '@angular/cdk/a11y';
     styleUrls: ['./info-dialog.component.scss']
 })
 export class InfoDialogComponent {
-  constructor(public dialogRef: MatDialogRef<InfoDialogComponent>) { }
+  dialogRef = inject<MatDialogRef<InfoDialogComponent>>(MatDialogRef);
 }

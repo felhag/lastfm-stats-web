@@ -10,7 +10,7 @@ import * as Highcharts from 'highcharts';
 import 'highcharts/esm/modules/map';
 import 'highcharts/esm/modules/full-screen';
 import { HighchartsChartComponent } from 'highcharts-angular';
-import { TempStats } from '../app/model';
+import { Constants, TempStats } from '../app/model';
 import { EnrichmentService, EnrichmentProgress } from '../service/enrichment.service';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -61,7 +61,7 @@ export class EnrichmentComponent {
     if (!p || remaining <= 0) {
       return undefined;
     }
-    const seconds = Math.ceil((1100 * remaining) / 1000);
+    const seconds = Math.ceil((Constants.MB_SPACING_MS * remaining) / 1000);
     if (seconds < 60) return `~ ${seconds} seconds`;
     return `~ ${Math.ceil(seconds / 60)} minutes`;
   });

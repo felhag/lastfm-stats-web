@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgxCsvParser, NgxCsvParserModule } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
@@ -24,14 +24,13 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   ]
 })
 export class HomeComponent {
+  private router = inject(Router);
+  private ngxCsvParser = inject(NgxCsvParser);
+  private importer = inject(ScrobbleImporter);
+
   username?: string;
   valid = signal(true);
   importError = signal("");
-
-  constructor(private router: Router,
-              private ngxCsvParser: NgxCsvParser,
-              private importer: ScrobbleImporter) {
-  }
 
   update(ev: Event): void {
     this.username = (ev.target as HTMLInputElement).value;

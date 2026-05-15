@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { map, Observable } from 'rxjs';
 import { Constants } from 'projects/shared/src/lib/app/model';
@@ -29,9 +29,8 @@ export class Top10listComponent {
   @Input({required: false}) explanation?: string;
   @Input({required: true}) list!: Top10Item[];
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
-
-  constructor(private snackbar: MatSnackBar, private colors: DateColorsService) {
-  }
+  private snackbar = inject(MatSnackBar);
+  private colors = inject(DateColorsService);
 
   get isNumbered(): boolean {
     return this.list.length > 10;
