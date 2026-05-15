@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
@@ -8,6 +8,7 @@ import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
+import { EnrichmentService } from 'projects/shared/src/lib/service/enrichment.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable, MatTableDataSource } from '@angular/material/table';
@@ -61,7 +62,7 @@ export type DataSetKeys = (keyof DataSetEntry)[]
 export class DatasetComponent implements OnInit {
   private readonly groups = {
     artist: {
-      columns: ['name', 'tracks', 'scrobbles', 'rank'] as DataSetKeys,
+      columns: ['name', 'tracks', 'scrobbles', 'rank', 'region'] as DataSetKeys,
       data: (stats: TempStats) => stats.seenArtists
     },
     album: {
@@ -83,6 +84,8 @@ export class DatasetComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
   showViewport = true;
   private destroyRef = inject(DestroyRef);
+  private readonly enrichment = inject(EnrichmentService);
+  private readonly enrichmentInfo$ = toObservable(this.enrichment.info);
 
   constructor(private builder: StatsBuilderService,
               private dialog: MatDialog,
@@ -93,7 +96,7 @@ export class DatasetComponent implements OnInit {
 
   ngOnInit(): void {
     this.configureDataSource(this.dataSource);
-    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
+    combineLatest([this.builder.tempStats, this.groupedBy, this.enrichmentInfo$]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
     combineLatest([
       this.filterArtist.valueChanges.pipe(startWith('')),
       this.filterName.valueChanges.pipe(startWith('')),
@@ -130,6 +133,7 @@ export class DatasetComponent implements OnInit {
       [...data].sort((a, b) => b.scrobbles.length - a.scrobbles.length)
         .map((item, idx) => [item, idx + 1])
     );
+    const infos = this.enrichment.info();
     this.dataSource.data = data.map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
@@ -139,10 +143,20 @@ export class DatasetComponent implements OnInit {
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.size,
         scrobbles: item.scrobbles.length,
-        rank: rankMap.get(item)!
+        rank: rankMap.get(item)!,
+        region: albumOrTrack ? undefined : this.formatRegion(infos.get(item.name)?.country),
       } as DataSetEntry
     });
     this.months = tempStats.monthList;
+  }
+
+  private formatRegion(code: string | undefined): string {
+    if (code?.length !== 2) {
+      return '';
+    }
+    const upper = code.toUpperCase();
+    const flag = String.fromCodePoint(...[...upper].map(c => 127397 + c.charCodeAt(0)));
+    return `${flag} ${upper}`;
   }
 
   // a lot of crap to correctly handle dataset group switches with virtual scroll

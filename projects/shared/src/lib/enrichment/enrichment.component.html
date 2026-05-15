@@ -59,7 +59,7 @@
   <mat-card appearance="outlined">
     <mat-card-content>
       <div class="weight-toolbar">
-        <button class="toggle" mat-icon-button [color]="mapWeightBy() === 'scrobbles' ? 'primary' : null" matTooltip="Scrobbles" (click)="mapWeightBy.set('scrobbles')">
+        <button class="toggle" mat-icon-button [color]="mapWeightBy() === 'scrobbles' ? 'primary' : null" [matTooltip]="scrobblesLabel" (click)="mapWeightBy.set('scrobbles')">
           <mat-icon>music_note</mat-icon>
         </button>
         <button class="toggle" mat-icon-button [color]="mapWeightBy() === 'artists' ? 'primary' : null" matTooltip="Artists" (click)="mapWeightBy.set('artists')">
@@ -82,7 +82,7 @@
   <mat-card appearance="outlined">
     <mat-card-content>
       <div class="weight-toolbar">
-        <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'scrobbles' ? 'primary' : null" matTooltip="Scrobbles" (click)="genreWeightBy.set('scrobbles')">
+        <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'scrobbles' ? 'primary' : null" [matTooltip]="scrobblesLabel" (click)="genreWeightBy.set('scrobbles')">
           <mat-icon>music_note</mat-icon>
         </button>
         <button class="toggle" mat-icon-button [color]="genreWeightBy() === 'artists' ? 'primary' : null" matTooltip="Artists" (click)="genreWeightBy.set('artists')">

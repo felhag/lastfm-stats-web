@@ -42,6 +42,12 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.1 (15-05-2026)
+- added license ([#105][i105])
+- added region to dataset
+- fixed dataset modal orbs
+- improved region chart
+
 7.0 (14-05-2026)
 - added enrichment tab ([#43][i43])
 - added anniversaries
@@ -356,3 +362,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i99]: https://github.com/felhag/lastfm-stats-web/issues/99
 [i101]: https://github.com/felhag/lastfm-stats-web/issues/101
 [i103]: https://github.com/felhag/lastfm-stats-web/pull/103
+[i105]: https://github.com/felhag/lastfm-stats-web/issues/105

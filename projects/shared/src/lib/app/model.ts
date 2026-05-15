@@ -101,6 +101,7 @@ export interface DataSetEntry {
   tracks: number;
   scrobbles: number;
   rank: number;
+  region?: string;
 }
 
 export interface TempStats {

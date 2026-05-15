@@ -97,8 +97,9 @@ export class EnrichmentComponent {
     }
   });
 
-  readonly mapWeightLabel = computed(() => this.mapWeightBy() === 'scrobbles' ? 'Scrobbles' : 'Artists');
-  readonly genreWeightLabel = computed(() => this.genreWeightBy() === 'scrobbles' ? 'Scrobbles' : 'Artists');
+  readonly scrobblesLabel = this.translate.capFirst('translate.scrobbles');
+  readonly mapWeightLabel = computed(() => this.mapWeightBy() === 'scrobbles' ? this.scrobblesLabel : 'Artists');
+  readonly genreWeightLabel = computed(() => this.genreWeightBy() === 'scrobbles' ? this.scrobblesLabel : 'Artists');
 
   readonly genreData = computed<{categories: string[]; data: number[]}>(() => {
     const rows = this.artistRows();
@@ -176,7 +177,7 @@ export class EnrichmentComponent {
         data: untracked(() => this.mapData()),
         states: {hover: {color: '#f7a35c'}},
         dataLabels: {enabled: false},
-      } as any],
+      }],
       tooltip: {
         useHTML: true,
         headerFormat: '',
@@ -207,7 +208,7 @@ export class EnrichmentComponent {
   }
 
   private tooltipFormatter(): (this: Highcharts.Point) => string {
-    const scrobblesLabel = this.translate.transform('translate.scrobbles');
+    const scrobblesLabel = this.scrobblesLabel.toLowerCase();
     return function(this: Highcharts.Point) {
       const point = this as Highcharts.Point & {value?: number; topArtists?: ArtistRow[]};
       const artists = point.topArtists ?? [];
@@ -217,7 +218,7 @@ export class EnrichmentComponent {
           + '</ol>'
         : '';
       const bullet = `<span style="color:${point.color}">●</span> `;
-      return `${bullet}<b>${point.name}</b>: ${(point.value ?? 0).toLocaleString()} ${point.series.name}${list}`;
+      return `${bullet}<b>${point.name}</b>: ${(point.value ?? 0).toLocaleString()} ${point.series.name.toLowerCase()}${list}`;
     };
   }
 
