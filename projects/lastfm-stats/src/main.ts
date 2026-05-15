@@ -31,7 +31,6 @@ bootstrapApplication(AppComponent, {
     {provide: App, useValue: App.lastfm},
     Shared.translationsProvider('scrobble', 'scrobbles', 'scrobbled'),
     Shared.routerProvider(HomeComponent, 'scrobbles'),
-    Shared.ngCircleProvider(),
     Shared.highchartsProvider(),
   ],
 }).catch(err => console.error(err));

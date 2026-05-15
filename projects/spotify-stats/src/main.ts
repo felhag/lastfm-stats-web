@@ -23,7 +23,6 @@ bootstrapApplication(AppComponent, {
     {provide: App, useValue: App.spotify},
     Shared.translationsProvider('play', 'plays', 'played'),
     Shared.routerProvider(HomeComponent, 'plays'),
-    Shared.ngCircleProvider(),
     Shared.highchartsProvider(),
   ]
 }).catch(err => console.error(err));

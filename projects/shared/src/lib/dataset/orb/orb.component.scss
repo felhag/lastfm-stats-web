@@ -1,0 +1,46 @@
+.orb {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px;
+  animation: orb-appear 520ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--orb-delay, 0ms) both;
+}
+
+svg {
+  position: absolute;
+  inset: 0;
+}
+
+.orb-track {
+  stroke: var(--primaryColorContrast);
+  opacity: 0.25;
+}
+
+.orb-progress {
+  stroke: var(--primaryColor);
+  stroke-linecap: round;
+  stroke-dashoffset: 100;
+  animation: orb-draw 1400ms cubic-bezier(0.65, 0, 0.35, 1) var(--orb-delay, 0ms) forwards;
+}
+
+.orb-content {
+  text-align: center;
+}
+
+.orb-title {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  cursor: default;
+}
+
+@keyframes orb-appear {
+  from { opacity: 0; transform: scale(0.55); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes orb-draw {
+  to { stroke-dashoffset: 0; }
+}

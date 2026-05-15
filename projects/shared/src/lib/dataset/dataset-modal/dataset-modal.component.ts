@@ -11,13 +11,18 @@ import { MapperService } from '../../service/mapper.service';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatTooltip } from '@angular/material/tooltip';
-import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
+import { OrbComponent } from '../orb/orb.component';
 
 import { MatIcon } from '@angular/material/icon';
 
 interface DatasetModalData {
   entry: DataSetEntry;
   months: { [key: string]: Month };
+}
+
+interface OrbStat {
+  title: string;
+  value: number;
 }
 
 @Component({
@@ -30,13 +35,13 @@ interface DatasetModalData {
     MatCheckbox,
     MatIcon,
     MatTooltip,
-    NgCircleProgressModule,
+    OrbComponent,
     MatDialogContent,
     MatDialogTitle
   ]
 })
 export class DatasetModalComponent implements OnInit {
-  options: (Partial<CircleProgressOptions> | undefined)[] = [];
+  stats: OrbStat[] = [];
   chartOptions: Highcharts.Options = {};
   url?: string;
   chart?: Highcharts.Chart;
@@ -63,12 +68,12 @@ export class DatasetModalComponent implements OnInit {
     // add current month rank
     ranks.push(this.entry.rank);
 
-    this.options = [
-      this.circleOption(scrobblesTitle, this.entry.scrobbles),
-      this.entry.tracks ? this.circleOption('Tracks', this.entry.tracks) : undefined,
-      this.circleOption('Weeks', this.entry.item.weeks.size),
-      this.circleOption('Highest rank', Math.min(...ranks.filter(r => r).map(r => r!))),
-      this.circleOption('Highest monthly', highestMonthly)
+    this.stats = [
+      { title: scrobblesTitle, value: this.entry.scrobbles },
+      ...(this.entry.tracks ? [{ title: 'Tracks', value: this.entry.tracks }] : []),
+      { title: 'Weeks', value: this.entry.item.weeks.size },
+      { title: 'Highest rank', value: Math.min(...ranks.filter(r => r).map(r => r!)) },
+      { title: 'Highest monthly', value: highestMonthly }
     ];
 
     this.url = this.mapper.url(this.entry.type, this.entry.item);
@@ -143,13 +148,6 @@ export class DatasetModalComponent implements OnInit {
         }]
       }
     }
-  }
-
-  private circleOption(title: string, value: number): Partial<CircleProgressOptions> {
-    return {
-      subtitle: title,
-      titleFormat: (p: number) => Math.round((value / 100) * p)
-    };
   }
 
   private mostScrobbledDayAnnotation(scrobbles: number[]): Highcharts.AnnotationsOptions {
