@@ -1,15 +1,35 @@
 @if (stats | async; as s) {
   <div class="container">
     <div class="row">
-      <app-top10list [list]="s.scrobbleStreak" title="Listened streaks"></app-top10list>
-      <app-top10list [list]="s.notListenedStreak" title="Not listened streaks"></app-top10list>
+      @defer (on viewport) {
+        <app-top10list [list]="s.scrobbleStreak" title="Listened streaks"></app-top10list>
+      } @placeholder {
+        <div class="top10list-placeholder"></div>
+      }
+      @defer (on viewport) {
+        <app-top10list [list]="s.notListenedStreak" title="Not listened streaks"></app-top10list>
+      } @placeholder {
+        <div class="top10list-placeholder"></div>
+      }
     </div>
     <div class="row">
-      <app-top10list [list]="s.mostScrobblesPerDay" title="Most {{'translate.scrobbles' | translate}} per day"></app-top10list>
-      <app-top10list [list]="s.mostScrobblesPerWeek" title="Most {{'translate.scrobbles' | translate}} per week"></app-top10list>
+      @defer (on viewport) {
+        <app-top10list [list]="s.mostScrobblesPerDay" title="Most {{'translate.scrobbles' | translate}} per day"></app-top10list>
+      } @placeholder {
+        <div class="top10list-placeholder"></div>
+      }
+      @defer (on viewport) {
+        <app-top10list [list]="s.mostScrobblesPerWeek" title="Most {{'translate.scrobbles' | translate}} per week"></app-top10list>
+      } @placeholder {
+        <div class="top10list-placeholder"></div>
+      }
     </div>
     <div class="row">
-      <app-top10list [list]="s.mostScrobbledArtistPerDay" title="Most {{'translate.scrobbled' | translate}} artist on a single day"></app-top10list>
+      @defer (on viewport) {
+        <app-top10list [list]="s.mostScrobbledArtistPerDay" title="Most {{'translate.scrobbled' | translate}} artist on a single day"></app-top10list>
+      } @placeholder {
+        <div class="top10list-placeholder"></div>
+      }
     </div>
   </div>
 }

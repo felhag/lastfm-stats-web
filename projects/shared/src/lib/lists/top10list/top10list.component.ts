@@ -1,9 +1,11 @@
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, input, computed, ViewContainerRef } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSnackBar, MatSnackBarModule, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
-import { map, Observable } from 'rxjs';
-import { Constants } from 'projects/shared/src/lib/app/model';
-import { Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
-import { DateColorsService } from '../../service/date-colors.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
+import { DateColorPipe } from 'projects/shared/src/lib/service/date-color.pipe';
+import { Top10listDialogComponent, Top10listDialogData } from './top10list-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
@@ -21,28 +23,25 @@ import { MatCardModule } from '@angular/material/card';
         MatCardModule,
         MatIcon,
         MatListModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        DateColorPipe
     ]
 })
 export class Top10listComponent {
-  @Input({required: true}) title!: string;
-  @Input({required: false}) explanation?: string;
-  @Input({required: true}) list!: Top10Item[];
+  title = input.required<string>();
+  explanation = input<string>();
+  list = input.required<ListProvider>();
+
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
   private snackbar = inject(MatSnackBar);
-  private colors = inject(DateColorsService);
+  private dialog = inject(MatDialog);
+  private settings = inject(SettingsService);
+  private viewContainerRef = inject(ViewContainerRef);
 
-  get isNumbered(): boolean {
-    return this.list.length > 10;
-  }
+  private listSize = toSignal(this.settings.listSize, {initialValue: 10});
 
-  getColor(date: Date): Observable<string> {
-    const time = date.getTime();
-    return this.colors.gaps.pipe(
-      map(gaps => gaps.findIndex((gap, idx) => time >= gap && time <= gaps[idx + 1])),
-      map(idx => Constants.DATE_COLORS[idx])
-    );
-  }
+  displayed = computed(() => this.list().slice(this.listSize()));
+  hasMore = computed(() => this.list().count > this.displayed().length);
 
   explain(explanation: string): void {
     if (this.openSnackbar) {
@@ -53,5 +52,16 @@ export class Top10listComponent {
       });
       this.openSnackbar.afterDismissed().subscribe(() => this.openSnackbar = undefined);
     }
+  }
+
+  openFullscreen(): void {
+    const width = window.innerWidth;
+    const minWidth = width > 1200 ? 1000 : width - 48;
+    this.dialog.open<Top10listDialogComponent, Top10listDialogData>(Top10listDialogComponent, {
+      data: {title: this.title(), explanation: this.explanation(), list: this.list()},
+      minWidth,
+      autoFocus: false,
+      viewContainerRef: this.viewContainerRef
+    });
   }
 }

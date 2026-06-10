@@ -3,6 +3,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .actions {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
   }
 
   .mat-icon {

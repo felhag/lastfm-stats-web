@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Artist, Constants, MonthItem } from 'projects/shared/src/lib/app/model';
-import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
@@ -14,23 +14,23 @@ type MonthWithAvg = {
 };
 
 export interface ArtistStats {
-  betweenArtists: Top10Item[];
-  ongoingBetweenArtists: Top10Item[];
-  weeksPerArtist: Top10Item[];
-  tracksPerArtist: Top10Item[];
-  newArtistsPerMonth: Top10Item[];
-  mostListenedNewArtist: Top10Item[];
-  uniqueArtists: Top10Item[];
-  avgTrackPerArtist: Top10Item[];
-  oneHitWonders: Top10Item[];
-  scrobblesPerTrack: Top10Item[];
-  avgScrobbleDesc: Top10Item[];
-  avgScrobbleAsc: Top10Item[];
-  avgDelta: Top10Item[];
-  latestNew: Top10Item[];
-  artistStreak: Top10Item[];
-  climbers: Top10Item[];
-  fallers: Top10Item[];
+  betweenArtists: ListProvider;
+  ongoingBetweenArtists: ListProvider;
+  weeksPerArtist: ListProvider;
+  tracksPerArtist: ListProvider;
+  newArtistsPerMonth: ListProvider;
+  mostListenedNewArtist: ListProvider;
+  uniqueArtists: ListProvider;
+  avgTrackPerArtist: ListProvider;
+  oneHitWonders: ListProvider;
+  scrobblesPerTrack: ListProvider;
+  avgScrobbleDesc: ListProvider;
+  avgScrobbleAsc: ListProvider;
+  avgDelta: ListProvider;
+  latestNew: ListProvider;
+  artistStreak: ListProvider;
+  climbers: ListProvider;
+  fallers: ListProvider;
 }
 
 @Component({
@@ -115,15 +115,15 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
                         getValue: (k: MonthWithAvg) => number,
                         getItem: (k: string) => MonthWithAvg,
                         buildName: (item: MonthWithAvg, value: number) => string,
-                        buildDescription: (item: MonthWithAvg, value: number) => string): Top10Item[] {
-    return this.getTop10<MonthWithAvg>(countMap, getValue, getItem, buildName, buildDescription, item => this.url.month(item.alias), item => item.date).filter(m => m.amount > 0);
+                        buildDescription: (item: MonthWithAvg, value: number) => string): ListProvider {
+    return this.getTop10<MonthWithAvg>(countMap, getValue, getItem, buildName, buildDescription, item => this.url.month(item.alias), item => item.date, v => v > 0);
   }
 
   private getArtistTop10(countMap: { [key: string]: any },
                          getValue: (k: Artist) => number,
                          getItem: (k: string) => Artist,
                          buildName: (item: Artist, value: number) => string,
-                         buildDescription: (item: Artist, value: number) => string): Top10Item[] {
+                         buildDescription: (item: Artist, value: number) => string): ListProvider {
     return this.getTop10<Artist>(countMap, getValue, getItem, buildName, buildDescription, item => this.url.artist(item.name), item => new Date(item.avgScrobble));
   }
 
@@ -138,23 +138,23 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
 
   protected emptyStats(): ArtistStats {
     return {
-      betweenArtists: [],
-      ongoingBetweenArtists: [],
-      weeksPerArtist: [],
-      tracksPerArtist: [],
-      newArtistsPerMonth: [],
-      mostListenedNewArtist: [],
-      uniqueArtists: [],
-      avgTrackPerArtist: [],
-      oneHitWonders: [],
-      scrobblesPerTrack: [],
-      avgScrobbleDesc: [],
-      avgScrobbleAsc: [],
-      avgDelta: [],
-      latestNew: [],
-      artistStreak: [],
-      climbers: [],
-      fallers: [],
+      betweenArtists: ListProvider.eager([]),
+      ongoingBetweenArtists: ListProvider.eager([]),
+      weeksPerArtist: ListProvider.eager([]),
+      tracksPerArtist: ListProvider.eager([]),
+      newArtistsPerMonth: ListProvider.eager([]),
+      mostListenedNewArtist: ListProvider.eager([]),
+      uniqueArtists: ListProvider.eager([]),
+      avgTrackPerArtist: ListProvider.eager([]),
+      oneHitWonders: ListProvider.eager([]),
+      scrobblesPerTrack: ListProvider.eager([]),
+      avgScrobbleDesc: ListProvider.eager([]),
+      avgScrobbleAsc: ListProvider.eager([]),
+      avgDelta: ListProvider.eager([]),
+      latestNew: ListProvider.eager([]),
+      artistStreak: ListProvider.eager([]),
+      climbers: ListProvider.eager([]),
+      fallers: ListProvider.eager([]),
     };
   }
 }

@@ -1,35 +1,38 @@
 <mat-card appearance="outlined" class="top10list">
   <mat-card-header>
-    <mat-card-title>{{title}}
-      <button mat-icon-button [style.visibility]="explanation ? 'visible' : 'hidden'" (click)="explain(explanation!)">
-        <mat-icon>info_outline</mat-icon>
-      </button>
+    <mat-card-title>{{title()}}
+      <span class="actions">
+        <button mat-icon-button [style.display]="hasMore() ? 'block' : 'none'" (click)="openFullscreen()" title="Open full list">
+          <mat-icon>fullscreen</mat-icon>
+        </button>
+        <button mat-icon-button [style.display]="explanation() ? 'block' : 'none'" (click)="explain(explanation()!)">
+          <mat-icon>info_outline</mat-icon>
+        </button>
+      </span>
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <mat-list role="list">
-      @for (top10item of list; track top10item; let idx = $index) {
+      @for (top10item of displayed(); track top10item; let idx = $index) {
         <mat-list-item role="listitem" [title]="top10item.name">
           @if (top10item.date) {
-            <mat-icon matListItemIcon [style.color]="getColor(top10item.date) | async">blur_on</mat-icon>
+            <mat-icon matListItemIcon [style.color]="top10item.date | dateColor | async">blur_on</mat-icon>
           }
           @if (top10item.url) {
             <a matListItemTitle [href]="top10item.url" target="_blank" class="regular-text">
-              @if (isNumbered) {
-                <span>{{idx + 1}}.&nbsp;</span>
-                }{{top10item.name}}
-              </a>
-            }
-            @if (!top10item.url) {
-              <div matListItemTitle>{{top10item.name}}</div>
-            }
-            <div matListItemLine class="item-description">{{top10item.description}}</div>
-          </mat-list-item>
-        }
-        @if (!list.length) {
-          <mat-list-item>No results</mat-list-item>
-        }
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
-  
+              <span>{{idx + 1}}.&nbsp;</span>
+              {{top10item.name}}
+            </a>
+          }
+          @if (!top10item.url) {
+            <div matListItemTitle>{{top10item.name}}</div>
+          }
+          <div matListItemLine class="item-description">{{top10item.description}}</div>
+        </mat-list-item>
+      }
+      @if (!displayed().length) {
+        <mat-list-item>No results</mat-list-item>
+      }
+    </mat-list>
+  </mat-card-content>
+</mat-card>

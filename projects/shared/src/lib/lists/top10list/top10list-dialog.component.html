@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{data.title}}</h2>
+<mat-dialog-content>
+  @if (data.explanation) {
+    <p class="explanation">{{data.explanation}}</p>
+  }
+  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+    <mat-label>Search</mat-label>
+    <input matInput placeholder="Search..." [formControl]="filter">
+    <mat-icon matPrefix>search</mat-icon>
+    @if (filter.value) {
+      <button mat-icon-button matSuffix (click)="filter.setValue('')">
+        <mat-icon matSuffix>clear</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+  <cdk-virtual-scroll-viewport itemSize="64" class="viewport">
+    <div class="list-item" *cdkVirtualFor="let entry of filtered()" [title]="entry.item.name">
+      @if (entry.item.date) {
+        <mat-icon class="dot" [style.color]="entry.item.date | dateColor | async">blur_on</mat-icon>
+      } @else {
+        <span class="dot"></span>
+      }
+      <div class="text">
+        <div class="title">
+          @if (entry.item.url) {
+            <a [href]="entry.item.url" target="_blank" class="regular-text">{{entry.rank}}.&nbsp;{{entry.item.name}}</a>
+          } @else {
+            <span>{{entry.rank}}.&nbsp;{{entry.item.name}}</span>
+          }
+        </div>
+        <div class="item-description">{{entry.item.description}}</div>
+      </div>
+    </div>
+    @if (!filtered().length) {
+      <div class="list-item">No results</div>
+    }
+  </cdk-virtual-scroll-viewport>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

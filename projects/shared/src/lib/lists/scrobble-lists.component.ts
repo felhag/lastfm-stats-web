@@ -1,17 +1,17 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Streak } from 'projects/shared/src/lib/app/model';
-import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
 
 export interface ScrobbleStats {
-  scrobbleStreak: Top10Item[];
-  notListenedStreak: Top10Item[];
-  mostScrobblesPerDay: Top10Item[];
-  mostScrobblesPerWeek: Top10Item[];
-  mostScrobbledArtistPerDay: Top10Item[];
+  scrobbleStreak: ListProvider;
+  notListenedStreak: ListProvider;
+  mostScrobblesPerDay: ListProvider;
+  mostScrobblesPerWeek: ListProvider;
+  mostScrobbledArtistPerDay: ListProvider;
 }
 
 @Component({
@@ -51,11 +51,11 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
 
   protected emptyStats(): ScrobbleStats {
     return {
-      scrobbleStreak: [],
-      notListenedStreak: [],
-      mostScrobblesPerDay: [],
-      mostScrobblesPerWeek: [],
-      mostScrobbledArtistPerDay: []
+      scrobbleStreak: ListProvider.eager([]),
+      notListenedStreak: ListProvider.eager([]),
+      mostScrobblesPerDay: ListProvider.eager([]),
+      mostScrobblesPerWeek: ListProvider.eager([]),
+      mostScrobbledArtistPerDay: ListProvider.eager([])
     };
   }
 }

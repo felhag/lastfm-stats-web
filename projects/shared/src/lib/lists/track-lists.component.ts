@@ -1,22 +1,22 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Track, Constants, Month } from 'projects/shared/src/lib/app/model';
-import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
 
 export interface TrackStats {
-  betweenTracks: Top10Item[];
-  ongoingBetweenTracks: Top10Item[];
-  weeksPerTrack: Top10Item[];
-  uniquePerMonth: Top10Item[];
-  newPerMonth: Top10Item[];
-  avgScrobbleDesc: Top10Item [];
-  avgScrobbleAsc: Top10Item[];
-  trackStreak: Top10Item[];
-  climbers: Top10Item[];
-  fallers: Top10Item[];
+  betweenTracks: ListProvider;
+  ongoingBetweenTracks: ListProvider;
+  weeksPerTrack: ListProvider;
+  uniquePerMonth: ListProvider;
+  newPerMonth: ListProvider;
+  avgScrobbleDesc: ListProvider;
+  avgScrobbleAsc: ListProvider;
+  trackStreak: ListProvider;
+  climbers: ListProvider;
+  fallers: ListProvider;
 }
 
 @Component({
@@ -59,15 +59,15 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
   private getMonthTop10(countMap: { [key: string]: any },
                         getValue: (k: Month) => number,
                         buildName: (item: Month, value: number) => string,
-                        buildDescription: (item: Month, value: number) => string): Top10Item[] {
-    return this.getTop10<Month>(countMap, getValue, k => countMap[k], buildName, buildDescription, item => this.url.month(item.alias), item => item.date).filter(m => m.amount > 0);
+                        buildDescription: (item: Month, value: number) => string): ListProvider {
+    return this.getTop10<Month>(countMap, getValue, k => countMap[k], buildName, buildDescription, item => this.url.month(item.alias), item => item.date, v => v > 0);
   }
 
   private getTrackTop10(countMap: { [key: string]: any },
                         getValue: (k: Track) => number,
                         getItem: (k: string) => Track,
                         buildName: (item: Track, value: number) => string,
-                        buildDescription: (item: Track, value: number) => string): Top10Item[] {
+                        buildDescription: (item: Track, value: number) => string): ListProvider {
     const trackUrl = (item: Track) => this.url.track(item.artist, item.shortName);
     const trackDate = (item: Track) => new Date(item.avgScrobble);
     return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
@@ -75,16 +75,16 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
 
   protected emptyStats(): TrackStats {
     return {
-      betweenTracks: [],
-      ongoingBetweenTracks: [],
-      weeksPerTrack: [],
-      uniquePerMonth: [],
-      newPerMonth: [],
-      avgScrobbleDesc: [],
-      avgScrobbleAsc: [],
-      trackStreak: [],
-      climbers: [],
-      fallers: [],
+      betweenTracks: ListProvider.eager([]),
+      ongoingBetweenTracks: ListProvider.eager([]),
+      weeksPerTrack: ListProvider.eager([]),
+      uniquePerMonth: ListProvider.eager([]),
+      newPerMonth: ListProvider.eager([]),
+      avgScrobbleDesc: ListProvider.eager([]),
+      avgScrobbleAsc: ListProvider.eager([]),
+      trackStreak: ListProvider.eager([]),
+      climbers: ListProvider.eager([]),
+      fallers: ListProvider.eager([]),
     };
   }
 }

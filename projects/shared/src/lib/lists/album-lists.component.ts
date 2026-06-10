@@ -1,22 +1,22 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TempStats, Album, Constants, Track, StreakItem, App } from 'projects/shared/src/lib/app/model';
-import { AbstractListsComponent, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
+import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
 
 export interface AlbumStats {
-  betweenAlbums: Top10Item[];
-  ongoingBetweenAlbums: Top10Item[];
-  weeksPerAlbum: Top10Item[];
-  albumStreak: Top10Item[];
-  avgScrobbleDesc: Top10Item [];
-  avgScrobbleAsc: Top10Item[];
-  climbers: Top10Item[];
-  fallers: Top10Item[];
-  differentArtists: Top10Item[];
-  withoutAlbum: Top10Item[];
+  betweenAlbums: ListProvider;
+  ongoingBetweenAlbums: ListProvider;
+  weeksPerAlbum: ListProvider;
+  albumStreak: ListProvider;
+  avgScrobbleDesc: ListProvider;
+  avgScrobbleAsc: ListProvider;
+  climbers: ListProvider;
+  fallers: ListProvider;
+  differentArtists: ListProvider;
+  withoutAlbum: ListProvider;
 }
 
 @Component({
@@ -53,10 +53,10 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.fallers = rankings.fallers;
 
     if (this.isLastFm) {
-      next.differentArtists = this.getTop10<Album>(seen, s => s.artists.length, k => seen[+k], a => `${a.shortName} (${a.scrobbles.length} ${scrobbles})`, (a, v) => `${v} artists`, this.albumUrlFnc, albumDate).filter(top => top.amount > 1);
+      next.differentArtists = this.getTop10<Album>(seen, s => s.artists.length, k => seen[+k], a => `${a.shortName} (${a.scrobbles.length} ${scrobbles})`, (a, v) => `${v} artists`, this.albumUrlFnc, albumDate, v => v > 1);
 
       const tracks = this.seenThreshold(stats.seenTracks);
-      next.withoutAlbum = this.getTop10<Track>(seen, s => s.scrobbles.length - s.withAlbum, k => tracks[+k], a => a.name, (_, v) => `${v} ${scrobbles}`, t => this.url.track(t.artist, t.shortName), albumDate).filter(top => top.amount > 0);
+      next.withoutAlbum = this.getTop10<Track>(seen, s => s.scrobbles.length - s.withAlbum, k => tracks[+k], a => a.name, (_, v) => `${v} ${scrobbles}`, t => this.url.track(t.artist, t.shortName), albumDate, v => v > 0);
     }
   }
 
@@ -64,7 +64,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
                         getValue: (k: Album) => number,
                         getItem: (k: string) => Album,
                         buildName: (item: Album, value: number) => string,
-                        buildDescription: (item: Album, value: number) => string): Top10Item[] {
+                        buildDescription: (item: Album, value: number) => string): ListProvider {
     const albumDate = (item: Album) => new Date(item.avgScrobble);
     return this.getTop10<Album>(countMap, getValue, getItem, buildName, buildDescription, this.albumUrlFnc, albumDate);
   }
@@ -75,16 +75,16 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
 
   protected emptyStats(): AlbumStats {
     return {
-      betweenAlbums: [],
-      ongoingBetweenAlbums: [],
-      weeksPerAlbum: [],
-      albumStreak: [],
-      avgScrobbleDesc: [],
-      avgScrobbleAsc: [],
-      climbers: [],
-      fallers: [],
-      differentArtists: [],
-      withoutAlbum: [],
+      betweenAlbums: ListProvider.eager([]),
+      ongoingBetweenAlbums: ListProvider.eager([]),
+      weeksPerAlbum: ListProvider.eager([]),
+      albumStreak: ListProvider.eager([]),
+      avgScrobbleDesc: ListProvider.eager([]),
+      avgScrobbleAsc: ListProvider.eager([]),
+      climbers: ListProvider.eager([]),
+      fallers: ListProvider.eager([]),
+      differentArtists: ListProvider.eager([]),
+      withoutAlbum: ListProvider.eager([]),
     };
   }
 

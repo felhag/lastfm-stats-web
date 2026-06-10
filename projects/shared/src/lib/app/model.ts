@@ -165,7 +165,7 @@ export class StreakStack {
 
   add(streak: Streak): void {
     this.calcLength(streak);
-    if (streak.length! > 1) {
+    if (streak.length! > 10) {
       this.streaks.push(streak);
     }
   }

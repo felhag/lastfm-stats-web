@@ -14,6 +14,33 @@ export interface Top10Item {
   url?: string;
 }
 
+export class ListProvider {
+  private sorted?: [string, number][];
+
+  private constructor(
+    private readonly entries: [string, number][],
+    private readonly mapper: (key: string, value: number) => Top10Item,
+  ) {
+  }
+
+  get count(): number {
+    return this.entries.length;
+  }
+
+  slice(limit: number): Top10Item[] {
+    this.sorted ??= [...this.entries].sort((a, b) => b[1] - a[1]);
+    return this.sorted.slice(0, limit).map(([key, value]) => this.mapper(key, value));
+  }
+
+  static build(entries: [string, number][], mapper: (key: string, value: number) => Top10Item): ListProvider {
+    return new ListProvider(entries, mapper);
+  }
+
+  static eager(items: Top10Item[]): ListProvider {
+    return new ListProvider(items.map((item, index) => [String(index), item.amount]), key => items[+key]);
+  }
+}
+
 @Directive()
 export abstract class AbstractListsComponent<S> {
   private builder = inject(StatsBuilderService);
@@ -41,10 +68,13 @@ export abstract class AbstractListsComponent<S> {
               buildDescription: (item: T, value: number) => string,
               buildUrl?: (t: T) => string,
               buildDate?: (t: T) => Date,
-  ): Top10Item[] {
-    const keys: [string, number][] = Object.keys(countMap).map(k => [k, getValue(getItem(k))]);
-    keys.sort((a, b) => b[1] - a[1]);
-    return keys.splice(0, this.listSize).map(([k, val]) => {
+              valueFilter?: (value: number) => boolean,
+  ): ListProvider {
+    let entries: [string, number][] = Object.keys(countMap).map(k => [k, getValue(getItem(k))]);
+    if (valueFilter) {
+      entries = entries.filter(([, value]) => valueFilter(value));
+    }
+    return ListProvider.build(entries, (k, val) => {
       const item = getItem(k);
       return {
         amount: val,
@@ -56,25 +86,20 @@ export abstract class AbstractListsComponent<S> {
     });
   }
 
-  getStreakTop10(streaks: Streak[], buildName: (s: Streak) => string, buildUrl?: (item: Streak) => string): Top10Item[] {
-    const keys = Object.keys(streaks);
-    keys.sort((a, b) => streaks[+b].length! - streaks[+a].length!);
-    return keys.splice(0, this.listSize).map(k => {
+  getStreakTop10(streaks: Streak[], buildName: (s: Streak) => string, buildUrl?: (item: Streak) => string): ListProvider {
+    const entries: [string, number][] = Object.keys(streaks).map(k => [k, streaks[+k].length!]);
+    return ListProvider.build(entries, (k, length) => {
       const streak = streaks[+k];
       const start = streak.start.date;
       const end = streak.end.date;
       return {
-        amount: streak.length!,
+        amount: length,
         name: buildName(streak),
         description: start.toLocaleDateString() + ' - ' + (streak.ongoing ? '?' : end.toLocaleDateString()),
         url: buildUrl ? buildUrl(streak) : undefined,
         date: new Date( start.getTime() + (end.getTime() - start.getTime()) / 2),
       };
     });
-  }
-
-  protected get listSize(): number {
-    return this.settingsObj?.listSize || 10;
   }
 
   protected dateString(date: number): string {
@@ -89,7 +114,7 @@ export abstract class AbstractListsComponent<S> {
                           seen: StreakItem[],
                           between: StreakStack,
                           include: 'album' | 'track' | undefined,
-                          url: (s: Streak) => string): [Top10Item[], Top10Item[]] {
+                          url: (s: Streak) => string): [ListProvider, ListProvider] {
     const threshold = this.threshold;
     const seenSet = new Set(seen.map(a => a.name));
     const toString = (s: Streak) => s.start.artist + (include ? ' - ' + s.start[include] : '');
@@ -117,7 +142,7 @@ export abstract class AbstractListsComponent<S> {
     return a;
   }
 
-  protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): Top10Item[] {
+  protected consecutiveStreak(stats: TempStats, stack: StreakStack, toString: (s: Streak) => string): ListProvider {
     const endDate = stats.last?.date || new Date();
     const streak = this.currentStreak(stack, endDate);
     return this.getStreakTop10(streak, toString, s => this.urlService.range(s.start.date, s.end.date));
@@ -185,45 +210,47 @@ export abstract class AbstractListsComponent<S> {
     seen: T[],
     monthList: {alias: string, date: Date}[],
     url: (item: T, month: string) => string,
-  ): { climbers: Top10Item[]; fallers: Top10Item[] } {
-    const climbers: Top10Item[] = [];
-    const fallers: Top10Item[] = [];
+  ): { climbers: ListProvider; fallers: ListProvider } {
+    // Collect lightweight descriptors only; building the name/url is deferred to the provider's
+    // mapper so we only pay for the items actually rendered (top N inline, all in the dialog).
+    const climbers: Gap<T>[] = [];
+    const fallers: Gap<T>[] = [];
     seen.filter((c) => c.ranks.length > 1).forEach((item) => {
-        item.ranks.forEach((rank, idx) => {
-          const diff = item.ranks[idx + 1] - rank;
-          if (diff < 0) {
-            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
-            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
-            if (count >= this.minimumForcedThreshold) {
-              this.addGap(climbers, Math.abs(diff), item, monthList[idx + 1], url,);
-            }
-          } else if (diff > 0) {
-            const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
-            const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
-            if (count >= this.minimumForcedThreshold) {
-              this.addGap(fallers, diff, item, monthList[idx + 1], url);
-            }
-          }
-        });
+      item.ranks.forEach((rank, idx) => {
+        const nextRank = item.ranks[idx + 1];
+        if (nextRank === undefined) {
+          return;
+        }
+        const diff = nextRank - rank;
+        if (diff === 0) {
+          return;
+        }
+        const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
+        const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
+        if (count >= this.minimumForcedThreshold) {
+          (diff < 0 ? climbers : fallers).push({diff: Math.abs(diff), item, month: monthList[idx + 1]});
+        }
       });
-    return { fallers: fallers.splice(0, this.listSize), climbers: climbers.splice(0, this.listSize) };
+    });
+    return {climbers: this.gapsProvider(climbers, url), fallers: this.gapsProvider(fallers, url)};
   }
 
-  private addGap<T extends StreakItem>(gaps: Top10Item[], diff: number, item: T, month: {alias: string, date: Date}, url: (item: T, month: string) => string): void {
-    let i = 0;
-    while (gaps[i]?.amount > diff && i < 10) {
-      i++;
-    }
-    if (i >= 10) {
-      return;
-    }
-
-    gaps.splice(i, 0, {
-      name: `${item.name} (${diff} places)`,
-      amount: Math.abs(diff),
-      description: month.alias,
-      date: month.date,
-      url: url(item, month.alias)
-    } as Top10Item);
+  private gapsProvider<T extends StreakItem>(gaps: Gap<T>[], url: (item: T, month: string) => string): ListProvider {
+    return ListProvider.build(gaps.map((g, i) => [String(i), g.diff]), key => {
+      const {diff, item, month} = gaps[+key];
+      return {
+        name: `${item.name} (${diff} places)`,
+        amount: diff,
+        description: month.alias,
+        date: month.date,
+        url: url(item, month.alias)
+      };
+    });
   }
+}
+
+interface Gap<T> {
+  diff: number;
+  item: T;
+  month: {alias: string, date: Date};
 }
