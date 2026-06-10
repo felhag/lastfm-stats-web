@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject } from '@angular/core';
+import { Component, ViewEncapsulation, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
@@ -21,6 +21,7 @@ import { MatTooltip } from '@angular/material/tooltip';
         MatSelect,
         MatTooltip
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     encapsulation: ViewEncapsulation.None
 })
 export class DbLoadButtonComponent {

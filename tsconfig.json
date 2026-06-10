@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -16,9 +15,12 @@
     "importHelpers": true,
     "resolveJsonModule": true,
     "paths": {
+      "projects/*": [
+        "./projects/*"
+      ],
       "shared": [
-        "dist/shared/shared",
-        "dist/shared"
+        "./dist/shared/shared",
+        "./dist/shared"
       ]
     },
     "target": "ES2022",

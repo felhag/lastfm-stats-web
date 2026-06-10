@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, Signal, ViewChild, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
@@ -47,6 +47,7 @@ import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate,
     ReactiveFormsModule,
     TranslatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideNativeDateAdapter()],
 })
 export class ConfComponent {

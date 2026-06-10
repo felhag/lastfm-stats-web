@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatButton } from '@angular/material/button';
 
@@ -11,6 +11,7 @@ import { MatButton } from '@angular/material/button';
         MatDialogContent,
         MatDialogTitle
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./info-dialog.component.scss']
 })
 export class InfoDialogComponent {
