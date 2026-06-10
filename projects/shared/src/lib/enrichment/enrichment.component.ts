@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, Signal, untracked } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIcon } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltip } from '@angular/material/tooltip';
 import { HttpClient } from '@angular/common/http';
 import * as Highcharts from 'highcharts';
 import 'highcharts/esm/modules/map';
@@ -30,14 +30,15 @@ interface ArtistRow {
   imports: [
     DecimalPipe,
     HighchartsChartComponent,
-    MatButtonModule,
+    MatButton,
     MatCard,
     MatCardContent,
     MatCardHeader,
     MatCardTitle,
     MatIcon,
-    MatProgressBarModule,
-    MatTooltipModule,
+    MatIconButton,
+    MatProgressBar,
+    MatTooltip,
   ],
   providers: [TranslatePipe],
 })

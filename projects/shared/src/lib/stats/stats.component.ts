@@ -10,14 +10,14 @@ import { combineLatest, Observable, take, switchMap, filter } from 'rxjs';
 import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatTabLink, MatTabNav, MatTabNavPanel } from '@angular/material/tabs';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatBadge } from '@angular/material/badge';
 import { ProgressComponent } from '../progress/progress.component';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { TitleCasePipe, CommonModule } from '@angular/common';
+import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { TitleCasePipe, AsyncPipe } from '@angular/common';
 import { ButtonsComponent } from '../buttons/buttons.component';
 import { TranslatePipe } from '../service/translate.pipe';
 
@@ -28,19 +28,26 @@ import { TranslatePipe } from '../service/translate.pipe';
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
     imports: [
-        CommonModule,
-        MatBadgeModule,
-        MatButtonModule,
-        MatCardModule,
+        AsyncPipe,
+        ButtonsComponent,
+        MatBadge,
+        MatButton,
+        MatCard,
+        MatCardActions,
+        MatCardContent,
+        MatCardHeader,
+        MatCardSubtitle,
+        MatCardTitle,
         MatIcon,
-        MatSlideToggleModule,
-        MatTabsModule,
+        MatSlideToggle,
+        MatTabLink,
+        MatTabNav,
+        MatTabNavPanel,
         ProgressComponent,
         RouterLink,
         RouterLinkActive,
         RouterOutlet,
         TitleCasePipe,
-        ButtonsComponent
     ]
 })
 export class StatsComponent implements OnInit, OnDestroy {

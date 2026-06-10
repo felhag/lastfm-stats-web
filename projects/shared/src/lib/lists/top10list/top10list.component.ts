@@ -1,16 +1,16 @@
 import { Component, ChangeDetectionStrategy, inject, input, computed, ViewContainerRef } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatSnackBar, MatSnackBarModule, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { DateColorPipe } from 'projects/shared/src/lib/service/date-color.pipe';
 import { Top10listDialogComponent, Top10listDialogData } from './top10list-dialog.component';
-import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
+import { AsyncPipe } from '@angular/common';
+import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitle } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatIconButton } from '@angular/material/button';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 
 @Component({
     selector: 'app-top10list',
@@ -18,13 +18,19 @@ import { MatCardModule } from '@angular/material/card';
     styleUrls: ['./top10list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        CommonModule,
-        MatButtonModule,
-        MatCardModule,
+        AsyncPipe,
+        DateColorPipe,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatCardTitle,
         MatIcon,
-        MatListModule,
-        MatSnackBarModule,
-        DateColorPipe
+        MatIconButton,
+        MatList,
+        MatListItem,
+        MatListItemIcon,
+        MatListItemLine,
+        MatListItemTitle,
     ]
 })
 export class Top10listComponent {

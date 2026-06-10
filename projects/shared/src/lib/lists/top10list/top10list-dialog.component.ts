@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { MatFormField, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatInput } from '@angular/material/input';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListProvider, Top10Item } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { DateColorPipe } from 'projects/shared/src/lib/service/date-color.pipe';
 
@@ -28,15 +28,24 @@ interface Row {
     styleUrls: ['./top10list-dialog.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        CommonModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatFormFieldModule,
+        AsyncPipe,
+        CdkFixedSizeVirtualScroll,
+        CdkVirtualForOf,
+        CdkVirtualScrollViewport,
+        DateColorPipe,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatFormField,
         MatIcon,
-        MatInputModule,
+        MatIconButton,
+        MatInput,
+        MatLabel,
+        MatPrefix,
+        MatSuffix,
         ReactiveFormsModule,
-        ScrollingModule,
-        DateColorPipe
     ]
 })
 export class Top10listDialogComponent {

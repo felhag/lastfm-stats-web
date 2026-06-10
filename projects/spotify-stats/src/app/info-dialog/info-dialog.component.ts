@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { A11yModule } from '@angular/cdk/a11y';
+import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-info-dialog',
     templateUrl: './info-dialog.component.html',
     imports: [
-        A11yModule,
-        MatButtonModule,
-        MatDialogModule
+        MatButton,
+        MatDialogActions,
+        MatDialogContent,
+        MatDialogTitle
     ],
     styleUrls: ['./info-dialog.component.scss']
 })

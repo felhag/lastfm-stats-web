@@ -12,7 +12,7 @@ import { EnrichmentService } from 'projects/shared/src/lib/service/enrichment.se
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable, MatTableDataSource } from '@angular/material/table';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput, MatLabel, MatSuffix } from '@angular/material/input';
@@ -31,6 +31,8 @@ export type DataSetKeys = (keyof DataSetEntry)[]
   providers: [TranslatePipe],
   imports: [
     AsyncPipe,
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualScrollViewport,
     MatCard,
     MatCardContent,
     MatCell,
@@ -55,7 +57,6 @@ export type DataSetKeys = (keyof DataSetEntry)[]
     MatTable,
     MatTooltip,
     ReactiveFormsModule,
-    ScrollingModule,
     TitleCasePipe,
   ]
 })

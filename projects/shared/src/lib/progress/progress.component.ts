@@ -4,11 +4,11 @@ import {combineLatest, map, Observable, Subject, switchMap, take} from 'rxjs';
 import {DatabaseService} from '../service/database.service';
 import {ScrobbleStore} from '../service/scrobble.store';
 import {TranslatePipe} from '../service/translate.pipe';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatButtonModule} from '@angular/material/button';
+import {MatTooltip} from '@angular/material/tooltip';
+import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBar} from '@angular/material/progress-bar';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {AsyncPipe, DecimalPipe} from '@angular/common';
 import { ExportService } from "../service/export-service";
 
@@ -19,13 +19,13 @@ import { ExportService } from "../service/export-service";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TranslatePipe],
   imports: [
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatIcon,
-    MatButtonModule,
-    MatTooltipModule,
     AsyncPipe,
     DecimalPipe,
+    MatButton,
+    MatIcon,
+    MatProgressBar,
+    MatProgressSpinner,
+    MatTooltip,
   ]
 })
 export class ProgressComponent {

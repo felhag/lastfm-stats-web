@@ -1,24 +1,25 @@
 import { Component, ViewEncapsulation, inject } from '@angular/core';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { Router, RouterModule } from '@angular/router';
+import { MatSelect, MatSelectChange } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { take, Subject, startWith, switchMap, Observable } from 'rxjs';
 import { DbUser, DatabaseService } from '../service/database.service';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button';
+import { AsyncPipe } from '@angular/common';
+import { MatOption } from '@angular/material/core';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-db-load-button',
     templateUrl: './db-load-button.component.html',
     styleUrls: ['./db-load-button.component.scss'],
     imports: [
-        CommonModule,
-        MatButtonModule,
+        AsyncPipe,
         MatIcon,
-        MatSelectModule,
-        RouterModule,
-        MatTooltipModule
+        MatIconButton,
+        MatOption,
+        MatSelect,
+        MatTooltip
     ],
     encapsulation: ViewEncapsulation.None
 })

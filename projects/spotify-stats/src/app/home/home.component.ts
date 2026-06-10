@@ -1,20 +1,22 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Router, RouterModule } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import JSZip from 'jszip';
 import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatInput } from '@angular/material/input';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
-import { MatListModule } from '@angular/material/list';
-import { CommonModule, DatePipe } from '@angular/common';
+import { MatListItem, MatListItemIcon, MatListItemLine, MatNavList } from '@angular/material/list';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
 import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
 
 interface StreamingHistoryEntry {
@@ -47,19 +49,25 @@ interface ParsedEntry {
     styleUrls: ['./home.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
+        AsyncPipe,
         ButtonsComponent,
-        CommonModule,
         DatePipe,
         DbLoadButtonComponent,
-        MatButtonModule,
-        MatCardModule,
-        MatDialogModule,
+        MatButton,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatFormField,
         MatIcon,
-        MatInputModule,
-        MatListModule,
+        MatInput,
+        MatLabel,
+        MatListItem,
+        MatListItemIcon,
+        MatListItemLine,
+        MatNavList,
+        MatTooltip,
         NgxDropzoneModule,
         ReactiveFormsModule,
-        RouterModule,
     ]
 })
 export class HomeComponent {

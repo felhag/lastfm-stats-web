@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgxCsvParser, NgxCsvParserModule } from 'ngx-csv-parser';
+import { NgxCsvParser } from 'ngx-csv-parser';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
@@ -16,7 +16,6 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   imports: [
     MatButton,
     MatCard,
-    NgxCsvParserModule,
     DbLoadButtonComponent,
     ButtonsComponent,
     MatCardHeader,
