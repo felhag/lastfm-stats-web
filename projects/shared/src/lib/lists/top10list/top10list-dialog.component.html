@@ -3,16 +3,7 @@
   @if (data.explanation) {
     <p class="explanation">{{data.explanation}}</p>
   }
-  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-label>Search</mat-label>
-    <input matInput placeholder="Search..." [formField]="filter">
-    <mat-icon matPrefix>search</mat-icon>
-    @if (filter().value()) {
-      <button mat-icon-button matSuffix (click)="filter().value.set('')">
-        <mat-icon matSuffix>clear</mat-icon>
-      </button>
-    }
-  </mat-form-field>
+  <app-search-field class="search" [(value)]="filter" />
   <cdk-virtual-scroll-viewport itemSize="64" class="viewport">
     <div class="list-item" *cdkVirtualFor="let entry of filtered()" [title]="entry.item.name">
       @if (entry.item.date) {

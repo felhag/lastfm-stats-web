@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { form, FormField } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
@@ -14,12 +13,11 @@ import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, Mat
 import { CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput, MatLabel, MatSuffix } from '@angular/material/input';
-import { MatFormField } from '@angular/material/form-field';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from "@angular/material/tooltip";
 import { ExportService } from "../service/export-service";
+import { matchesFilter, SearchFieldComponent } from 'projects/shared/src/lib/search-field/search-field.component';
 
 export type DataSetKeys = (keyof DataSetEntry)[]
 
@@ -37,25 +35,21 @@ export type DataSetKeys = (keyof DataSetEntry)[]
     MatCell,
     MatCellDef,
     MatColumnDef,
-    MatFormField,
     MatHeaderCell,
     MatHeaderCellDef,
     MatHeaderRow,
     MatHeaderRowDef,
     MatIcon,
     MatIconButton,
-    MatInput,
-    MatLabel,
     MatRadioButton,
     MatRadioGroup,
     MatRow,
     MatRowDef,
     MatSort,
     MatSortHeader,
-    MatSuffix,
     MatTable,
     MatTooltip,
-    FormField,
+    SearchFieldComponent,
     TitleCasePipe,
   ]
 })
@@ -78,9 +72,9 @@ export class DatasetComponent implements OnInit {
   dataSource = new MatTableDataSource<DataSetEntry>();
   months: { [p: string]: Month } = {};
 
-  filterArtist = form(signal(''));
-  filterName = form(signal(''));
-  private readonly filters$ = toObservable(computed(() => [this.filterArtist().value(), this.filterName().value()]));
+  filterArtist = signal('');
+  filterName = signal('');
+  private readonly filters$ = toObservable(computed(() => [this.filterArtist(), this.filterName()]));
 
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
   showViewport = true;
@@ -105,8 +99,8 @@ export class DatasetComponent implements OnInit {
   private configureDataSource(ds: MatTableDataSource<DataSetEntry>): void {
     // @ts-ignore
     ds.filterPredicate = (obj =>
-      this.filterValue(this.filterArtist().value(), this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
-      this.filterValue(this.filterName().value(), obj.name));
+      matchesFilter(this.filterArtist(), this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
+      matchesFilter(this.filterName(), obj.name));
     ds.sort = this.sort;
     ds.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
@@ -117,10 +111,6 @@ export class DatasetComponent implements OnInit {
         return value;
       }
     };
-  }
-
-  private filterValue(search: string | null, value: string): boolean {
-    return !search || value.toLowerCase().indexOf(search.toLowerCase()) >= 0;
   }
 
   private update(tempStats: TempStats): void {
@@ -159,7 +149,7 @@ export class DatasetComponent implements OnInit {
   groupBy(change: MatRadioChange): void {
     this.showViewport = false;
     this.groupedBy.next(change.value);
-    this.filterName().value.set('');
+    this.filterName.set('');
     setTimeout(() => {
       this.showViewport = true;
       this.cdr.detectChanges();

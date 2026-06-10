@@ -2,27 +2,9 @@
   <mat-card appearance="outlined">
     <mat-card-content>
       <div class="full-width search-fields">
-        <mat-form-field appearance="outline">
-          <mat-label>Search artist</mat-label>
-          <input matInput placeholder="Search artist..." [formField]="filterArtist" accesskey="s">
-          <mat-icon matPrefix>search</mat-icon>
-          @if (filterArtist().value()) {
-            <button mat-icon-button matSuffix (click)="filterArtist().value.set('')">
-              <mat-icon matSuffix>clear</mat-icon>
-            </button>
-          }
-        </mat-form-field>
+        <app-search-field label="Search artist" [(value)]="filterArtist" />
         @if ((groupedBy | async) !== 'artist') {
-          <mat-form-field appearance="outline">
-            <mat-label>Search {{groupedBy | async}}</mat-label>
-            <input matInput placeholder="Search {{groupedBy | async}}..." [formField]="filterName" accesskey="n">
-            <mat-icon matPrefix>search</mat-icon>
-            @if (filterName().value()) {
-              <button mat-icon-button matSuffix (click)="filterName().value.set('')">
-                <mat-icon matSuffix>clear</mat-icon>
-              </button>
-            }
-          </mat-form-field>
+          <app-search-field label="Search {{groupedBy | async}}" [(value)]="filterName" />
         }
       </div>
       <div class="button-bar">

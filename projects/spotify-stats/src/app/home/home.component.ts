@@ -141,7 +141,7 @@ export class HomeComponent {
 
   private parseEndSong(parsed: EndSongEntry[]): Scrobble[] {
     if (!this.username().value() && parsed.length > 0) {
-      this.username().value.set(parsed[0].username);
+      this.username().value.set(parsed[0].username || '');
     }
 
     return parsed

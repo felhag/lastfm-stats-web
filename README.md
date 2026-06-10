@@ -42,6 +42,11 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.2 (10-06-2026)
+- added full screen option for lists
+- starts/ends with search options
+- updated to angular 22
+
 7.1 (15-05-2026)
 - added license ([#105][i105])
 - added region to dataset

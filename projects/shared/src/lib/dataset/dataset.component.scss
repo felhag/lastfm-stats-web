@@ -47,7 +47,7 @@ cdk-virtual-scroll-viewport {
   justify-content: space-between;
   gap: 16px;
 
-  .mat-mdc-form-field {
+  app-search-field {
     flex-grow: 1;
   }
 }

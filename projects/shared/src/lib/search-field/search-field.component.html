@@ -1,0 +1,10 @@
+<mat-form-field appearance="outline">
+  <mat-label>{{label()}}</mat-label>
+  <input matInput placeholder="{{label()}}..." [formField]="filter">
+  @if (value()) {
+    <button mat-icon-button matSuffix (click)="value.set('')">
+      <mat-icon>clear</mat-icon>
+    </button>
+  }
+  <mat-hint>Use ^ for starts with and $ for ends with</mat-hint>
+</mat-form-field>
