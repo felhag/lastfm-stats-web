@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
 import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
@@ -63,7 +63,6 @@ if (darkMode.matches) {
   selector: 'app-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TranslatePipe],
   imports: [MatCard, ChartLoaderDirective, MatTooltip, MatIcon, MatCardContent, MatIconButton]
 })

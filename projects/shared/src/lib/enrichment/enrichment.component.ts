@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, Signal, untracked } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal, Signal, untracked } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
@@ -26,7 +26,6 @@ interface ArtistRow {
   selector: 'app-enrichment',
   templateUrl: './enrichment.component.html',
   styleUrls: ['./enrichment.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe,
     HighchartsChartComponent,

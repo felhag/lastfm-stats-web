@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
@@ -25,7 +25,6 @@ import { TranslatePipe } from '../service/translate.pipe';
     selector: 'app-stats',
     templateUrl: './stats.component.html',
     styleUrls: ['./stats.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
     imports: [
         AsyncPipe,

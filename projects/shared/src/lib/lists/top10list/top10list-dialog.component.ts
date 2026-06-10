@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +26,6 @@ interface Row {
     selector: 'app-top10list-dialog',
     templateUrl: './top10list-dialog.component.html',
     styleUrls: ['./top10list-dialog.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         AsyncPipe,
         CdkFixedSizeVirtualScroll,

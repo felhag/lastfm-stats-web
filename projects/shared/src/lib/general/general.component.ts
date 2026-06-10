@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, Signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, inject, Signal, TemplateRef, viewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
@@ -52,7 +52,6 @@ interface Anniversary {
   ],
   templateUrl: './general.component.html',
   styleUrl: './general.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeneralComponent {
   readonly everyYearArtistsDialog = viewChild<TemplateRef<Artist[]>>('everyYearArtists');

@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, input, signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
 
 @Component({
   selector: 'app-orb',
   templateUrl: './orb.component.html',
   styleUrls: ['./orb.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrbComponent {
   readonly value = input.required<number>();

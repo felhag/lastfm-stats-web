@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
@@ -30,7 +30,6 @@ interface OrbStat {
   templateUrl: './dataset-modal.component.html',
   styleUrls: ['./dataset-modal.component.scss'],
   providers: [TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HighchartsChartComponent,
     MatCheckbox,

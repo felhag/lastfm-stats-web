@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input, computed, ViewContainerRef } from '@angular/core';
+import { Component, inject, input, computed, ViewContainerRef } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,7 +16,6 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
     selector: 'app-top10list',
     templateUrl: './top10list.component.html',
     styleUrls: ['./top10list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         AsyncPipe,
         DateColorPipe,

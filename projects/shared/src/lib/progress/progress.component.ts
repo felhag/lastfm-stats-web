@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {App, Constants, Export} from 'projects/shared/src/lib/app/model';
 import {combineLatest, map, Observable, Subject, switchMap, take} from 'rxjs';
 import {DatabaseService} from '../service/database.service';
@@ -16,7 +16,6 @@ import { ExportService } from "../service/export-service";
   selector: 'app-progress',
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TranslatePipe],
   imports: [
     AsyncPipe,
@@ -36,32 +35,29 @@ export class ProgressComponent {
 
   saveInDb$ = new Subject<number>();
 
-  get percentage(): Observable<number> {
-    return this.scrobbles.state$.pipe(map(state => ((state.totalPages - state.currentPage) / state.totalPages) * 100));
-  }
+  // Stable observable instances: a getter returning a fresh pipe per change-detection pass
+  // makes the async pipe resubscribe each pass, which endlessly reschedules zoneless CD.
+  percentage: Observable<number> =
+    this.scrobbles.state$.pipe(map(state => ((state.totalPages - state.currentPage) / state.totalPages) * 100));
 
-  get currentPage(): Observable<number> {
-    return this.scrobbles.state$.pipe(map(state => state.totalPages - state.currentPage));
-  }
+  currentPage: Observable<number> =
+    this.scrobbles.state$.pipe(map(state => state.totalPages - state.currentPage));
 
-  get eta(): Observable<string> {
-    return this.scrobbles.state$.pipe(
-      map(state => (state.pageLoadTime || 3000) * state.currentPage / 1000),
-      map(timeInSeconds => `~ ${Math.ceil(timeInSeconds / 60)} minutes`)
-    );
-  }
+  eta: Observable<string> = this.scrobbles.state$.pipe(
+    map(state => (state.pageLoadTime || 3000) * state.currentPage / 1000),
+    map(timeInSeconds => `~ ${Math.ceil(timeInSeconds / 60)} minutes`)
+  );
 
-  get isLastfm(): boolean {
-    return this.app === App.lastfm;
-  }
-
-  get spotifySummary(): Observable<string> {
-    return combineLatest([this.scrobbles.state$, this.scrobbles.first, this.scrobbles.last]).pipe(map(([state, first ,last]) => {
+  spotifySummary: Observable<string> =
+    combineLatest([this.scrobbles.state$, this.scrobbles.first, this.scrobbles.last]).pipe(map(([state, first ,last]) => {
       const plays = state.importedScrobbles;
       const diff = last.date.getTime() - first.date.getTime();
       const days = Math.round(diff / Constants.DAY);
       return `<b>${plays}</b> plays in <b>${days}</b> days. That's an average of <b>${Math.round(plays / days)}</b> plays per day!`;
     }));
+
+  get isLastfm(): boolean {
+    return this.app === App.lastfm;
   }
 
   saveInDb(): void {

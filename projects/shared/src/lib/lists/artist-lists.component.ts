@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TempStats, Artist, Constants, MonthItem } from 'projects/shared/src/lib/app/model';
 import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
@@ -37,7 +37,6 @@ export interface ArtistStats {
     selector: 'app-lists',
     templateUrl: './artist-lists.component.html',
     styleUrls: ['./lists.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [Top10listComponent, AsyncPipe, TranslatePipe]
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {

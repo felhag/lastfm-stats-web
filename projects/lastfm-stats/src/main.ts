@@ -1,4 +1,4 @@
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 
 import { environment } from './environments/environment';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
@@ -19,6 +19,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideZonelessChangeDetection(),
     {provide: AbstractItemRetriever, useExisting: environment.production ? ScrobbleRetrieverService : MockRetrieverService},
     {provide: AbstractUrlService, useExisting: LastfmUrlService},
     {provide: App, useValue: App.lastfm},
