@@ -1,11 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class LastfmUrlService extends AbstractUrlService {
   private readonly usernameService = inject(UsernameService);
 

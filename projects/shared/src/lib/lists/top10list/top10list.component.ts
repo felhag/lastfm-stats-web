@@ -46,6 +46,7 @@ export class Top10listComponent {
   private listSize = toSignal(this.settings.listSize, {initialValue: 10});
 
   displayed = computed(() => this.list().slice(this.listSize()));
+  isNumbered = computed(() => this.displayed().length > 10);
   hasMore = computed(() => this.list().count > this.displayed().length);
 
   explain(explanation: string): void {

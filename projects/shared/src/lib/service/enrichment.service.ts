@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { Observable, catchError, concat, concatMap, defer, from, map, of, switchMap } from 'rxjs';
 import { ArtistInfo } from '../app/model';
 import { DatabaseService } from './database.service';
@@ -11,7 +11,7 @@ export interface EnrichmentProgress {
   current?: string;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class EnrichmentService {
   private lfm = inject(LastfmService);
   private mb = inject(MusicBrainzClient);

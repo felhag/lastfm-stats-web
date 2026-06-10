@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Scrobble, Constants, User } from 'projects/shared/src/lib/app/model';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Observable, forkJoin, takeWhile, take } from 'rxjs';
@@ -18,9 +18,7 @@ interface LoadingState {
   page?: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private lfm = inject(LastfmService);
   private username = inject(UsernameService);

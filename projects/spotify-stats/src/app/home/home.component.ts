@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import JSZip from 'jszip';
@@ -66,7 +66,7 @@ interface ParsedEntry {
         MatNavList,
         MatTooltip,
         NgxDropzoneModule,
-        ReactiveFormsModule,
+        FormField,
     ]
 })
 export class HomeComponent {
@@ -81,7 +81,7 @@ export class HomeComponent {
   private importer = inject(ScrobbleImporter);
   private dialog = inject(MatDialog);
 
-  username = new FormControl('', Validators.required);
+  username = form(signal(''), p => required(p));
   files = new BehaviorSubject<ParsedEntry[]>([]);
   deduplicated: Observable<number>;
   submitted = false;
@@ -140,8 +140,8 @@ export class HomeComponent {
   }
 
   private parseEndSong(parsed: EndSongEntry[]): Scrobble[] {
-    if (!this.username.value && parsed.length > 0) {
-      this.username.setValue(parsed[0].username);
+    if (!this.username().value() && parsed.length > 0) {
+      this.username().value.set(parsed[0].username);
     }
 
     return parsed
@@ -189,7 +189,7 @@ export class HomeComponent {
 
   go(): void {
     const plays = this.files.value.flatMap(f => f.plays).sort((a, b) => a.date.getTime() - b.date.getTime());
-    if (this.username.valid && plays.length) {
+    if (this.username().valid() && plays.length) {
       const handled = new Set();
       this.importer.import(plays.filter(p => {
         const json = JSON.stringify(p);
@@ -200,10 +200,10 @@ export class HomeComponent {
           return p;
         }
       }));
-      this.router.navigate([`/user/${this.username.value}`]);
+      this.router.navigate([`/user/${this.username().value()}`]);
     } else {
       this.submitted = true;
-      this.username.markAsTouched();
+      this.username().markAsTouched();
     }
   }
 

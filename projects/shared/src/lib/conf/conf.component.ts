@@ -1,10 +1,9 @@
-import { Component, computed, inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, effect, inject, signal, Signal, ViewChild, WritableSignal } from '@angular/core';
+import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
 import { Scrobble } from '../app/model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatOption, provideNativeDateAdapter } from '@angular/material/core';
 import { MatChipGrid, MatChipInput, MatChipListbox, MatChipOption, MatChipRow } from '@angular/material/chips';
@@ -44,7 +43,7 @@ import { MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker, MatEndDate,
     MatOption,
     MatSlider,
     MatSliderThumb,
-    ReactiveFormsModule,
+    FormField,
     TranslatePipe,
   ],
   providers: [provideNativeDateAdapter()],
@@ -56,8 +55,8 @@ export class ConfComponent {
   filteredArtists!: WritableSignal<string[]>;
   keyword = signal('');
 
-  startDateCtrl!: FormControl<Date | null>;
-  endDateCtrl!: FormControl<Date | null>;
+  startDateCtrl!: FieldTree<Date | null>;
+  endDateCtrl!: FieldTree<Date | null>;
   startDate!: Date;
   endDate = new Date();
 
@@ -87,14 +86,14 @@ export class ConfComponent {
 
   private dateControl(setting: keyof Settings, field: keyof ConfComponent): void {
     const settings = this.settings as any;
-    const ctrl = new FormControl<Date | null>(settings[setting]);
-    ctrl.valueChanges.pipe(takeUntilDestroyed()).subscribe(v => (settings)[setting] = v);
-    (this as any)[field] = ctrl;
+    const model = signal<Date | null>(settings[setting]);
+    effect(() => settings[setting] = model());
+    (this as any)[field] = form(model);
   }
 
   clearDate(): void {
-    this.startDateCtrl.setValue(null);
-    this.endDateCtrl.setValue(null);
+    this.startDateCtrl().value.set(null);
+    this.endDateCtrl().value.set(null);
   }
 
   remove(artist: string): void {

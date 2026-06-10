@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { User } from '../app/model';
 
@@ -43,7 +43,7 @@ export interface RecentTracksParams {
   limit: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LastfmService {
   private readonly API = 'https://ws.audioscrobbler.com/2.0/';
   private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';

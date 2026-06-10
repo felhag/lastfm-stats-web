@@ -1,12 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractItemRetriever } from 'projects/shared/src/lib/service/abstract-item-retriever.service';
 import { Scrobble } from '../../../shared/src/lib/app/model';
 import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SpotifyItemService extends AbstractItemRetriever {
   private router = inject(Router);
 

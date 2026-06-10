@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { ItemType, TempStats, ZScoreEntry } from '../app/model';
 import { MapperService } from './mapper.service';
 
@@ -9,9 +9,7 @@ interface WelfordState {
   firstMonthIndex: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ZScoreService {
   private mapper = inject(MapperService);
 

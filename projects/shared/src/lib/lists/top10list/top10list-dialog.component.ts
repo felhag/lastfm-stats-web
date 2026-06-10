@@ -1,7 +1,6 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatFormField, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -44,17 +43,16 @@ interface Row {
         MatLabel,
         MatPrefix,
         MatSuffix,
-        ReactiveFormsModule,
+        FormField,
     ]
 })
 export class Top10listDialogComponent {
   protected data = inject<Top10listDialogData>(MAT_DIALOG_DATA);
-  protected filter = new FormControl<string>('');
+  protected filter = form(signal(''));
   private items: Row[] = this.data.list.slice(this.data.list.count).map((item, idx) => ({item, rank: idx + 1}));
-  private search = toSignal(this.filter.valueChanges, {initialValue: ''});
 
   protected filtered = computed(() => {
-    const search = this.search()?.toLowerCase();
+    const search = this.filter().value().toLowerCase();
     return search ? this.items.filter(e => e.item.name.toLowerCase().includes(search)) : this.items;
   });
 }

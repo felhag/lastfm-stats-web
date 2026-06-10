@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 import { Observable, from, switchMap, tap, forkJoin, of, concatMap } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -28,9 +28,7 @@ class AppDB extends Dexie {
   }
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class DatabaseService {
   private db: AppDB;
 

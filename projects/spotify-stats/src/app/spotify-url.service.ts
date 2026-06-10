@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SpotifyUrlService extends AbstractUrlService {
   album(artist: string, album: string): string {
     return '';

@@ -20,8 +20,9 @@
           }
           @if (top10item.url) {
             <a matListItemTitle [href]="top10item.url" target="_blank" class="regular-text">
-              <span>{{idx + 1}}.&nbsp;</span>
-              {{top10item.name}}
+              @if (isNumbered()) {
+                <span>{{idx + 1}}.&nbsp;</span>
+              }{{top10item.name}}
             </a>
           }
           @if (!top10item.url) {

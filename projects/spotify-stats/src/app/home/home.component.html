@@ -12,7 +12,7 @@
       <div (click)="openInfoDialog()" class="open-dialog-button">Where do I get my data?</div>
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
-        <input matInput [formControl]="username">
+        <input matInput [formField]="username">
       </mat-form-field>
     </div>
     <div class="custom-dropzone" ngx-dropzone (change)="onSelect($event)" [class.invalid]="submitted && (files | async)?.length === 0">

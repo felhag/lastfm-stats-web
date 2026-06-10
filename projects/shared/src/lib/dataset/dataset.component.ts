@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
-import { startWith } from 'rxjs/operators';
 import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { EnrichmentService } from 'projects/shared/src/lib/service/enrichment.service';
@@ -56,7 +55,7 @@ export type DataSetKeys = (keyof DataSetEntry)[]
     MatSuffix,
     MatTable,
     MatTooltip,
-    ReactiveFormsModule,
+    FormField,
     TitleCasePipe,
   ]
 })
@@ -79,8 +78,9 @@ export class DatasetComponent implements OnInit {
   dataSource = new MatTableDataSource<DataSetEntry>();
   months: { [p: string]: Month } = {};
 
-  filterArtist = new FormControl<string>('');
-  filterName = new FormControl<string>('');
+  filterArtist = form(signal(''));
+  filterName = form(signal(''));
+  private readonly filters$ = toObservable(computed(() => [this.filterArtist().value(), this.filterName().value()]));
 
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
   showViewport = true;
@@ -96,10 +96,7 @@ export class DatasetComponent implements OnInit {
   ngOnInit(): void {
     this.configureDataSource(this.dataSource);
     combineLatest([this.builder.tempStats, this.groupedBy, this.enrichmentInfo$]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
-    combineLatest([
-      this.filterArtist.valueChanges.pipe(startWith('')),
-      this.filterName.valueChanges.pipe(startWith('')),
-    ]).pipe(
+    this.filters$.pipe(
       debounceTime(200),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(f => this.dataSource.filter = f.join());
@@ -108,8 +105,8 @@ export class DatasetComponent implements OnInit {
   private configureDataSource(ds: MatTableDataSource<DataSetEntry>): void {
     // @ts-ignore
     ds.filterPredicate = (obj =>
-      this.filterValue(this.filterArtist.value, this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
-      this.filterValue(this.filterName.value, obj.name));
+      this.filterValue(this.filterArtist().value(), this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
+      this.filterValue(this.filterName().value(), obj.name));
     ds.sort = this.sort;
     ds.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
@@ -162,7 +159,7 @@ export class DatasetComponent implements OnInit {
   groupBy(change: MatRadioChange): void {
     this.showViewport = false;
     this.groupedBy.next(change.value);
-    this.filterName.setValue('');
+    this.filterName().value.set('');
     setTimeout(() => {
       this.showViewport = true;
       this.cdr.detectChanges();

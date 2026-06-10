@@ -5,10 +5,10 @@
   }
   <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
     <mat-label>Search</mat-label>
-    <input matInput placeholder="Search..." [formControl]="filter">
+    <input matInput placeholder="Search..." [formField]="filter">
     <mat-icon matPrefix>search</mat-icon>
-    @if (filter.value) {
-      <button mat-icon-button matSuffix (click)="filter.setValue('')">
+    @if (filter().value()) {
+      <button mat-icon-button matSuffix (click)="filter().value.set('')">
         <mat-icon matSuffix>clear</mat-icon>
       </button>
     }

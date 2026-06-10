@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ExportService {
   exportJSON(json: {}, filename: string): void {
     this.downloadFile(new Blob([JSON.stringify(json)], {type: 'application/json;charset=utf-8;'}), filename);
