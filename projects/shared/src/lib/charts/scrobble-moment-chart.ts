@@ -47,7 +47,7 @@ export class ScrobbleMomentChart extends AbstractChart {
       },
       legend: {enabled: false},
       yAxis: {visible: false},
-      xAxis: {categories},
+      xAxis: {categories, labels: {overflow: 'allow', allowOverlap: true}},
       series: [{
         name: translate.capFirst('translate.scrobbles'),
         type: 'column',

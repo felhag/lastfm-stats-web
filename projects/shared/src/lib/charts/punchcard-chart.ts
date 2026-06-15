@@ -44,7 +44,7 @@ export class PunchcardChart extends AbstractChart {
       tooltip: {
         formatter(event): string {
           const selected = (event.chart.container.parentNode!.querySelector('.current') as HTMLElement).innerText;
-          const point = (this as any).point
+          const point = (this as any).point;
           const date = selected === 'all' ?
             `${Constants.MONTHS[point.y!]} ${point.x}` :
             PunchcardChart.parseWeek(point.x, point.y!, parseInt(selected)).toLocaleDateString();

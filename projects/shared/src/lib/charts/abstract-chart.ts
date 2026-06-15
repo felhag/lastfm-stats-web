@@ -1,4 +1,4 @@
-import { AlignValue, PointOptionsType, XAxisOptions } from 'highcharts';
+import { AlignValue, ColorType, PointOptionsType, XAxisOptions } from 'highcharts';
 import * as Highcharts from 'highcharts';
 import 'highcharts/modules/exporting';
 import 'highcharts/modules/offline-exporting';
@@ -17,7 +17,7 @@ export abstract class AbstractChart {
     return true;
   }
 
-  protected get textColor(): string | undefined {
+  protected get textColor(): ColorType | undefined {
     return Highcharts.getOptions()?.title?.style?.color || '#333';
   }
 
