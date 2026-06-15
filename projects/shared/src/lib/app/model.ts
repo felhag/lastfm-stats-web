@@ -118,10 +118,10 @@ export interface TempStats {
   seenAlbums: { [key: string]: Album };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
-  trackStreak: ItemStreakStack;
+  notListenedStreak: StreakStack;
   artistStreak: ItemStreakStack;
   albumStreak: ItemStreakStack;
-  notListenedStreak: StreakStack;
+  trackStreak: ItemStreakStack;
   betweenArtists: StreakStack;
   betweenAlbums: StreakStack;
   betweenTracks: StreakStack;
@@ -144,6 +144,8 @@ export class StreakStack {
   streaks: Streak[] = [];
   current?: Streak;
 
+  constructor(private readonly minLength = 10) {}
+
   calcLength(streak: Streak): Streak {
     streak.ongoing = false;
     streak.length = Math.floor((StreakStack.startOfDay(streak.end.date).getTime() - StreakStack.startOfDay(streak.start.date).getTime()) / Constants.DAY);
@@ -165,13 +167,17 @@ export class StreakStack {
 
   add(streak: Streak): void {
     this.calcLength(streak);
-    if (streak.length! > 10) {
+    if (streak.length! > this.minLength) {
       this.streaks.push(streak);
     }
   }
 }
 
 export class ScrobbleStreakStack extends StreakStack {
+  constructor() {
+    super(1);
+  }
+
   push(scrobble: Scrobble): void {
     if (!this.current) {
       this.create(scrobble);
@@ -192,7 +198,7 @@ export class ScrobbleStreakStack extends StreakStack {
 
 export class ItemStreakStack extends StreakStack {
   constructor(private compare: (a: Scrobble, b: Scrobble) => boolean) {
-    super();
+    super(2);
   }
 
   calcLength(streak: Streak): Streak {
@@ -214,18 +220,19 @@ export class ItemStreakStack extends StreakStack {
   }
 
   protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {
-    this.current!.length!++;
-    this.current!.end = scrobble;
+    this.current.length!++;
+    this.current.end = scrobble;
   }
 
   private hasCurrent(): this is { current: Streak } {
-    return this.current !== undefined && this.current !== null;
+    return this.current !== undefined;
   }
 }
 
 export class AlbumStreakStack extends ItemStreakStack {
   constructor() {
-    super((a, b) => (a.albumId && a.albumId === b.albumId) || a.albumId === b.albumId && a.artist === b.artist);
+    // same albumId; when neither has an albumId, fall back to matching on artist
+    super((a, b) => a.albumId === b.albumId && (!!a.albumId || a.artist === b.artist));
   }
 
   protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {

@@ -268,7 +268,7 @@ export class StatsBuilderService {
       artistStreak: new ItemStreakStack((a, b) => a.artist === b.artist),
       trackStreak: new ItemStreakStack((a, b) => a.track === b.track && a.artist === b.artist),
       albumStreak: new AlbumStreakStack(),
-      notListenedStreak: new StreakStack(),
+      notListenedStreak: new StreakStack(2),
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),
       betweenTracks: new StreakStack(),

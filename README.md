@@ -42,6 +42,9 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.3 (15-06-2026)
+- fixed min streak length ([#108][i108])
+
 7.2 (10-06-2026)
 - added full screen option for lists
 - starts/ends with search options
@@ -368,3 +371,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i101]: https://github.com/felhag/lastfm-stats-web/issues/101
 [i103]: https://github.com/felhag/lastfm-stats-web/pull/103
 [i105]: https://github.com/felhag/lastfm-stats-web/issues/105
+[i108]: https://github.com/felhag/lastfm-stats-web/issues/108
