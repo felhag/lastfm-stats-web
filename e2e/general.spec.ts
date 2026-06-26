@@ -125,13 +125,31 @@ test.describe('General component', () => {
     const dt = page.getByText('Every year artists');
     await expect(dt).toBeVisible();
 
-    // Click the view_list icon to open dialog
-    const icon = page.locator('.every-year-artist mat-icon');
+    // Click the view_list icon to open dialog (first row: "Every year artists")
+    const icon = page.locator('.every-year-artist mat-icon').first();
     await expect(icon).toBeVisible();
     await icon.click();
 
     // Dialog should open with title
     await expect(page.getByRole('heading', { name: 'Every year artist' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    // Close the dialog
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every completed year artists with dialog', async () => {
+    const dt = page.getByText('Every completed year artists');
+    await expect(dt).toBeVisible();
+
+    // Click the view_list icon to open dialog (second row: "Every completed year artists")
+    const icon = page.locator('.every-year-artist mat-icon').nth(1);
+    await expect(icon).toBeVisible();
+    await icon.click();
+
+    // Dialog should open with the completed-years title
+    await expect(page.getByRole('heading', { name: 'Every completed year artist' })).toBeVisible();
     await expect(page.getByText('Found')).toBeVisible();
 
     // Close the dialog
