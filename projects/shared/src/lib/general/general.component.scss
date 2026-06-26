@@ -39,6 +39,13 @@ dd {
     padding-left: 4px;
   }
 }
+.missing-chip {
+  // Shrink the default 32px/12px-padding chip so it sits inline without looking clunky.
+  --mat-chip-container-height: 20px;
+  --mat-chip-label-text-size: 11px;
+  vertical-align: middle;
+}
+
 .explain {
   --mat-icon-button-state-layer-size: 18px;
   padding: 0 !important;

@@ -42,6 +42,10 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.4 (26-06-2026)
+- fixed race chart ([#109][i109])
+- every completed year artist ([#111][i111])
+
 7.3 (15-06-2026)
 - fixed min streak length ([#108][i108])
 
@@ -372,3 +376,5 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i103]: https://github.com/felhag/lastfm-stats-web/pull/103
 [i105]: https://github.com/felhag/lastfm-stats-web/issues/105
 [i108]: https://github.com/felhag/lastfm-stats-web/issues/108
+[i109]: https://github.com/felhag/lastfm-stats-web/issues/109
+[i111]: https://github.com/felhag/lastfm-stats-web/issues/111

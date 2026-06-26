@@ -1,4 +1,4 @@
-import { Component, computed, inject, Signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, inject, Signal, signal, TemplateRef, viewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
@@ -11,7 +11,7 @@ import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialo
 import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatList, MatListItem } from "@angular/material/list";
 import { MatIcon } from "@angular/material/icon";
-import { MatChipListbox, MatChipOption } from "@angular/material/chips";
+import { MatChip, MatChipListbox, MatChipOption } from "@angular/material/chips";
 import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material/snack-bar";
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
@@ -31,6 +31,7 @@ interface Anniversary {
     MatButton,
     MatCard,
     MatCardContent,
+    MatChip,
     MatChipListbox,
     MatChipOption,
     MatDialogActions,
@@ -83,6 +84,9 @@ export class GeneralComponent {
       .map(i => i + first)
       .map(year => [year, new Date(year, 0, 1).getTime(), new Date(year, 11, 31).getTime(), true]);
   });
+
+  readonly completedYears$: Signal<[number, number, number, boolean][]> = computed(() => this.years$().slice(1, -1));
+  readonly dialogYears = signal<[number, number, number, boolean][]>([]);
 
   readonly anniversaries$: Signal<{ today: Anniversary[], upcoming: Anniversary[], past: Anniversary[] }> = computed(() => {
     const stats = this.tempStats$();
@@ -137,9 +141,10 @@ export class GeneralComponent {
 
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
 
-  openEveryYearArist(stats: TempStats) {
-    const data = {stats};
-    this.dialog.open(this.everyYearArtistsDialog()!, {data});
+  openEveryYearArist(onlyCompleted: boolean): void {
+    const source = onlyCompleted ? this.completedYears$() : this.years$();
+    this.dialogYears.set(source.map(year => [...year] as [number, number, number, boolean]));
+    this.dialog.open(this.everyYearArtistsDialog()!, {data: onlyCompleted});
   }
 
   oneHitWonders(stats: TempStats) {

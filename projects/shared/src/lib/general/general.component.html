@@ -41,8 +41,19 @@
           @if (values(stats.seenArtists) | filterByYear : years; as eya) {
             <dd class="every-year-artist">
               {{ eya.length }}
-              <mat-icon (click)="openEveryYearArist(stats)" inline="true">view_list</mat-icon>
+              <mat-icon (click)="openEveryYearArist(false)" inline="true">view_list</mat-icon>
             </dd>
+          }
+        }
+        @if (completedYears$(); as years) {
+          @if (years.length) {
+            <dt>Every completed year artists</dt>
+            @if (values(stats.seenArtists) | filterByYear : years; as eya) {
+              <dd class="every-year-artist">
+                {{ eya.length }}
+                <mat-icon (click)="openEveryYearArist(true)" inline="true">view_list</mat-icon>
+              </dd>
+            }
           }
         }
         <dt>Albums</dt>
@@ -124,22 +135,25 @@
   }
 }
 
-<ng-template #everyYearArtists>
-  <h2 mat-dialog-title> Every year artist </h2>
+<ng-template #everyYearArtists let-onlyCompleted>
+  <h2 mat-dialog-title> Every {{onlyCompleted ? 'completed ' : ''}}year artist </h2>
   <div mat-dialog-content>
-    @if (years$(); as years) {
+    @if (dialogYears(); as years) {
       <mat-chip-listbox multiple>
         @for (year of years; track year[0]) {
-          <mat-chip-option selected [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
+          <mat-chip-option [selected]="year[3]" [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
         }
       </mat-chip-listbox>
       @if (values((tempStats$())?.seenArtists || {}) | filterByYear: years; as artists) {
         Found {{ artists.length }} artists which you listened to in all selected years
         <mat-list>
           @for (artist of artists; track artist.name) {
+            @let missingYears = missing(artist, years);
             <mat-list-item>
-              {{ artist.name }} ({{ artist.scrobbles.length }}
-              {{ 'translate.scrobbles' | translate }}@if (missing(artist, years); as missing) {<i>, missing {{missing}}</i>})
+              {{ artist.name }} ({{ artist.scrobbles.length }} {{ 'translate.scrobbles' | translate }})
+              @if (missingYears) {
+                <mat-chip class="missing-chip" disableRipple>missing {{ missingYears }}</mat-chip>
+              }
             </mat-list-item>
           }
         </mat-list>
@@ -151,7 +165,7 @@
   </mat-dialog-actions>
 </ng-template>
 
-<ng-template #annivList let-items="items" let-withDate="withDate">
+<ng-template #annivList let-items="items">
   @if (items.length) {
     <div class="anniv-table">
       @for (a of items; track a.artist.name) {
