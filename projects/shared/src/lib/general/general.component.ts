@@ -2,8 +2,9 @@ import { Component, computed, inject, Signal, signal, TemplateRef, viewChild } f
 import { ScrobbleStore } from '../service/scrobble.store';
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
-import { Artist, Constants, TempStats } from '../app/model';
+import { Artist, Constants, ItemType, StreakItem, TempStats } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
+import { MapperService } from '../service/mapper.service';
 import { EddingtonUtil } from '../service/eddington.util';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -55,14 +56,15 @@ interface Anniversary {
   styleUrl: './general.component.scss',
 })
 export class GeneralComponent {
-  readonly everyYearArtistsDialog = viewChild<TemplateRef<Artist[]>>('everyYearArtists');
-  readonly values: (seen: { [key: string]: Artist }) => Artist[] = Object.values;
+  readonly everyYearArtistsDialog = viewChild<TemplateRef<StreakItem[]>>('everyYearArtists');
+  readonly values: <T extends StreakItem>(seen: { [key: string]: T }) => T[] = Object.values;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
 
   private readonly scrobbles = inject(ScrobbleStore);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
   private readonly stats = inject(StatsBuilderService);
+  private readonly mapper = inject(MapperService);
 
   readonly user$ = toSignal(this.scrobbles.user);
   readonly tempStats$ = toSignal(this.stats.tempStats, {equal: () => false});
@@ -87,6 +89,11 @@ export class GeneralComponent {
 
   readonly completedYears$: Signal<[number, number, number, boolean][]> = computed(() => this.years$().slice(1, -1));
   readonly dialogYears = signal<[number, number, number, boolean][]>([]);
+  readonly dialogType = signal<ItemType>('artist');
+  readonly dialogSeen$: Signal<{ [key: string]: StreakItem }> = computed(() => {
+    const stats = this.tempStats$();
+    return stats ? this.mapper.seen(this.dialogType(), stats) : {};
+  });
 
   readonly anniversaries$: Signal<{ today: Anniversary[], upcoming: Anniversary[], past: Anniversary[] }> = computed(() => {
     const stats = this.tempStats$();
@@ -141,9 +148,10 @@ export class GeneralComponent {
 
   private openSnackbar?: MatSnackBarRef<TextOnlySnackBar>;
 
-  openEveryYearArist(onlyCompleted: boolean): void {
+  openEveryYear(type: ItemType, onlyCompleted: boolean): void {
     const source = onlyCompleted ? this.completedYears$() : this.years$();
     this.dialogYears.set(source.map(year => [...year] as [number, number, number, boolean]));
+    this.dialogType.set(type);
     this.dialog.open(this.everyYearArtistsDialog()!, {data: onlyCompleted});
   }
 
@@ -199,13 +207,13 @@ export class GeneralComponent {
 
   protected readonly open = open;
 
-  missing(artist: Artist, years: [number, number, number, boolean][]) {
+  missing(item: StreakItem, years: [number, number, number, boolean][]) {
     const deselected = years.filter(year => !year[3])
     if (!deselected.length) {
       return undefined;
     }
     return deselected
-      .filter(year => !artist.scrobbles.some(s => s >= year[1] && s < year[2]))
+      .filter(year => !item.scrobbles.some(s => s >= year[1] && s < year[2]))
       .map(year => year[0])
       .join(', ');
   }

@@ -36,26 +36,6 @@
           <dt>One hit wonders</dt>
           <dd>{{ owh }}  ({{ owh / (count(stats.seenArtists)) * 100 | number:'1.0-2' }} %)
         }
-        <dt>Every year artists</dt>
-        @if (years$(); as years) {
-          @if (values(stats.seenArtists) | filterByYear : years; as eya) {
-            <dd class="every-year-artist">
-              {{ eya.length }}
-              <mat-icon (click)="openEveryYearArist(false)" inline="true">view_list</mat-icon>
-            </dd>
-          }
-        }
-        @if (completedYears$(); as years) {
-          @if (years.length) {
-            <dt>Every completed year artists</dt>
-            @if (values(stats.seenArtists) | filterByYear : years; as eya) {
-              <dd class="every-year-artist">
-                {{ eya.length }}
-                <mat-icon (click)="openEveryYearArist(true)" inline="true">view_list</mat-icon>
-              </dd>
-            }
-          }
-        }
         <dt>Albums</dt>
         <dd>{{ count(stats.seenAlbums) }}</dd>
         <dt>Albums per artist</dt>
@@ -70,6 +50,15 @@
           <dt>Scrobbles without album</dt>
           <dd>{{ swa }}  ({{ swa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
         }
+      </dl>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenArtists), type: 'artist' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenAlbums), type: 'album' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenTracks), type: 'track' }"></ng-container>
       </dl>
     </mat-card-content>
   </mat-card>
@@ -135,8 +124,31 @@
   }
 }
 
+<ng-template #everyYearStats let-items="items" let-type="type">
+  <dt>Every year {{ type }}s</dt>
+  @if (years$(); as years) {
+    @if (items | filterByYear : years; as eya) {
+      <dd class="every-year-artist">
+        {{ eya.length }}
+        <mat-icon (click)="openEveryYear(type, false)" inline="true">view_list</mat-icon>
+      </dd>
+    }
+  }
+  @if (completedYears$(); as years) {
+    @if (years.length) {
+      <dt>Every completed year {{ type }}s</dt>
+      @if (items | filterByYear : years; as eya) {
+        <dd class="every-year-artist">
+          {{ eya.length }}
+          <mat-icon (click)="openEveryYear(type, true)" inline="true">view_list</mat-icon>
+        </dd>
+      }
+    }
+  }
+</ng-template>
+
 <ng-template #everyYearArtists let-onlyCompleted>
-  <h2 mat-dialog-title> Every {{onlyCompleted ? 'completed ' : ''}}year artist </h2>
+  <h2 mat-dialog-title> Every {{onlyCompleted ? 'completed ' : ''}}year {{ dialogType() }} </h2>
   <div mat-dialog-content>
     @if (dialogYears(); as years) {
       <mat-chip-listbox multiple>
@@ -144,13 +156,13 @@
           <mat-chip-option [selected]="year[3]" [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
         }
       </mat-chip-listbox>
-      @if (values((tempStats$())?.seenArtists || {}) | filterByYear: years; as artists) {
-        Found {{ artists.length }} artists which you listened to in all selected years
+      @if (values(dialogSeen$()) | filterByYear: years; as items) {
+        Found {{ items.length }} {{ dialogType() }}s which you listened to in all selected years
         <mat-list>
-          @for (artist of artists; track artist.name) {
-            @let missingYears = missing(artist, years);
+          @for (item of items; track item.name) {
+            @let missingYears = missing(item, years);
             <mat-list-item>
-              {{ artist.name }} ({{ artist.scrobbles.length }} {{ 'translate.scrobbles' | translate }})
+              {{ item.name }} ({{ item.scrobbles.length }} {{ 'translate.scrobbles' | translate }})
               @if (missingYears) {
                 <mat-chip class="missing-chip" disableRipple>missing {{ missingYears }}</mat-chip>
               }
