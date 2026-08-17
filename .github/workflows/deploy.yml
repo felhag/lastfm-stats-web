@@ -27,7 +27,7 @@ jobs:
       run: cp dist/lastfm-stats/browser/index.html dist/lastfm-stats/browser/404.html
 
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@v4.8.0
+      uses: JamesIves/github-pages-deploy-action@v4.9.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: gh-pages
@@ -53,7 +53,7 @@ jobs:
       run: cp dist/spotify-stats/browser/index.html dist/spotify-stats/browser/404.html
 
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@v4.8.0
+      uses: JamesIves/github-pages-deploy-action@v4.9.0
       with:
         repository-name: felhag/spotify-stats-web
         token: ${{ secrets.SPOTIFY_DEPLOY_PAT }}
