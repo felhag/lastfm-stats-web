@@ -26,6 +26,8 @@ import { LetterChart } from './letter-chart';
 import { ExportService } from "../service/export-service";
 import { ZScoreChart } from './zscore-chart';
 import { ZScoreService } from '../service/zscore.service';
+import { DiversityChart } from './diversity-chart';
+import { DiscoveryChart } from './discovery-chart';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -84,6 +86,8 @@ export class ChartsComponent {
       new ArtistTimelineChart(translate, url, mapper),
       new ZScoreChart(translate, url, zscoreService),
       new CumulativeItemsChart(translate, mapper),
+      new DiversityChart(mapper),
+      new DiscoveryChart(translate, mapper),
       new WordcloudChart(mapper),
       new LetterChart(translate, mapper),
       new PunchcardChart(translate, url),
