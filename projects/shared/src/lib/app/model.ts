@@ -125,6 +125,7 @@ export interface TempStats {
   betweenArtists: StreakStack;
   betweenAlbums: StreakStack;
   betweenTracks: StreakStack;
+  sessions: SessionStack;
   scrobbleMilestones: Scrobble[];
   albumMilestones: Scrobble[];
   trackMilestones: Scrobble[];
@@ -244,9 +245,35 @@ export class AlbumStreakStack extends ItemStreakStack {
   }
 }
 
+export class SessionStack extends StreakStack {
+  constructor() {
+    // only keep sessions with more than 5 scrobbles, shorter ones are never interesting
+    super(5);
+  }
+
+  calcLength(streak: Streak): Streak {
+    // length is the amount of scrobbles, counted on the fly
+    streak.ongoing = false;
+    return streak;
+  }
+
+  push(scrobble: Scrobble): void {
+    if (!this.current) {
+      this.create(scrobble);
+    } else if (scrobble.date.getTime() - this.current.end.date.getTime() <= Constants.SESSION_GAP) {
+      this.current.length!++;
+      this.current.end = scrobble;
+    } else {
+      this.finish(scrobble);
+    }
+  }
+}
+
 export class Constants {
   static readonly DAY = 24 * 60 * 60 * 1000;
   static readonly TWO_DAYS = 2 * Constants.DAY;
+  // A new listening session starts after this much silence
+  static readonly SESSION_GAP = 30 * 60 * 1000;
   static readonly ANNIVERSARY_WINDOW_DAYS = 14;
   static readonly API_PAGE_SIZE = 1000;
   static readonly API_PAGE_SIZE_REDUCED = 500;

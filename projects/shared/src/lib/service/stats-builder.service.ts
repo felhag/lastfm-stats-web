@@ -7,6 +7,7 @@ import {
   MonthItem,
   Scrobble,
   ScrobbleStreakStack,
+  SessionStack,
   StreakItem,
   StreakStack,
   TempStats,
@@ -89,6 +90,7 @@ export class StatsBuilderService {
       next.albumStreak.push(scrobble);
 
       next.scrobbleStreak.push(scrobble);
+      next.sessions.push(scrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
       if (lastDate && sod.getTime() - lastDate.getTime() > Constants.DAY) {
         next.notListenedStreak.add({start: next.last!, end: scrobble});
@@ -272,6 +274,7 @@ export class StatsBuilderService {
       betweenArtists: new StreakStack(),
       betweenAlbums: new StreakStack(),
       betweenTracks: new StreakStack(),
+      sessions: new SessionStack(),
       seenArtists: {},
       seenAlbums: {},
       seenTracks: {},

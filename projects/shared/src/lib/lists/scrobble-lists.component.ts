@@ -12,7 +12,9 @@ export interface ScrobbleStats {
   mostScrobblesPerDay: ListProvider;
   mostScrobblesPerWeek: ListProvider;
   mostScrobbledArtistPerDay: ListProvider;
+  longestSessions: ListProvider;
 }
+
 
 @Component({
     selector: 'app-scrobble-lists',
@@ -22,7 +24,9 @@ export interface ScrobbleStats {
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> {
   private url = inject(AbstractUrlService);
+  private translate = inject(TranslatePipe);
   protected forcedThreshold = -1;
+  private readonly dateTimeFormat: Intl.DateTimeFormatOptions = {dateStyle: 'short', timeStyle: 'short'};
 
   protected doUpdate(stats: TempStats, next: ScrobbleStats): void {
     next.scrobbleStreak = this.consecutiveStreak(stats, stats.scrobbleStreak, s => `${s.length! + 1} days`);
@@ -46,6 +50,33 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
       const obj = artistPerDay[key];
       return `${obj.name} (${obj.count} times)`;
     }, i => this.dateString(parseInt(i)), k => this.url.dayArtist(parseInt(k), artistPerDay[k].name), k => new Date(parseInt(k)));
+
+    next.longestSessions = this.longestSessions(stats);
+  }
+
+  private longestSessions(stats: TempStats): ListProvider {
+    const current = stats.sessions.current;
+    // the ongoing session hasn't been added to the stack yet
+    const sessions = current && current.length! > 1 ? [...stats.sessions.streaks, current] : stats.sessions.streaks;
+    const scrobbles = this.translate.transform('translate.scrobbles');
+    return ListProvider.build(sessions.map((s, idx) => [String(idx), s.length!]), (k, count) => {
+      const session = sessions[+k];
+      const start = session.start.date;
+      const end = session.end.date;
+      return {
+        amount: count,
+        name: `${count} ${scrobbles} (${this.duration(end.getTime() - start.getTime())})`,
+        description: `${start.toLocaleString([], this.dateTimeFormat)} - ${end.toLocaleString([], this.dateTimeFormat)}`,
+        url: this.url.range(start, end),
+        date: new Date(start.getTime() + (end.getTime() - start.getTime()) / 2),
+      };
+    });
+  }
+
+  private duration(ms: number): string {
+    const minutes = Math.round(ms / 60000);
+    const hours = Math.floor(minutes / 60);
+    return hours ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
   }
 
   protected emptyStats(): ScrobbleStats {
@@ -54,7 +85,8 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
       notListenedStreak: ListProvider.eager([]),
       mostScrobblesPerDay: ListProvider.eager([]),
       mostScrobblesPerWeek: ListProvider.eager([]),
-      mostScrobbledArtistPerDay: ListProvider.eager([])
+      mostScrobbledArtistPerDay: ListProvider.eager([]),
+      longestSessions: ListProvider.eager([])
     };
   }
 }
