@@ -42,6 +42,12 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+7.5 (30-09-2026)
+- added sessions list
+- added discovery chart
+- added diversity chart
+- every (completed) year albums and tracks
+
 7.4 (26-06-2026)
 - fixed race chart ([#109][i109])
 - every completed year artist ([#111][i111])
