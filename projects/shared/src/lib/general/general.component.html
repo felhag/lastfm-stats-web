@@ -22,6 +22,10 @@
         <dt>Last {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ last.date | date }} ({{ last.artist }} - {{ last.track }})</dd>
       }
+      @if (tempStats$()?.withoutDate; as withoutDate) {
+        <dt>Without date</dt>
+        <dd>{{ withoutDate }}</dd>
+      }
     </dl>
   </mat-card-content>
 </mat-card>
@@ -48,7 +52,7 @@
         }
         @if (scrobblesWithoutAlbum(stats); as swa) {
           <dt>Scrobbles without album</dt>
-          <dd>{{ swa }}  ({{ swa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
+          <dd>{{ swa }}  ({{ swa / (stats.scrobbleCount + stats.withoutDate) * 100 | number:'1.0-2' }} %)
         }
       </dl>
     </mat-card-content>
@@ -162,7 +166,7 @@
           @for (item of items; track item.name) {
             @let missingYears = missing(item, years);
             <mat-list-item>
-              {{ item.name }} ({{ item.scrobbles.length }} {{ 'translate.scrobbles' | translate }})
+              {{ item.name }} ({{ scrobbleCount(item) }} {{ 'translate.scrobbles' | translate }})
               @if (missingYears) {
                 <mat-chip class="missing-chip" disableRipple>missing {{ missingYears }}</mat-chip>
               }
@@ -184,7 +188,7 @@
         <span class="name">{{ a.artist.name }}</span>
         <span class="meta">
           <span class="years">{{ a.years }} year{{ a.years === 1 ? '' : 's' }}</span>
-          <span class="scrobbles">{{ a.artist.scrobbles.length | number }} {{ 'translate.scrobbles' | translate }}</span>
+          <span class="scrobbles">{{ scrobbleCount(a.artist) | number }} {{ 'translate.scrobbles' | translate }}</span>
           <span class="date">{{ a.date | date:'MMM d' }}</span>
         </span>
       }

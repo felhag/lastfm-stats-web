@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TempStats, Album, Constants, Track, StreakItem, App } from 'projects/shared/src/lib/app/model';
+import { TempStats, Album, Constants, Track, StreakItem, App, scrobbleCount } from 'projects/shared/src/lib/app/model';
 import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -35,7 +35,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
   protected doUpdate(stats: TempStats, next: AlbumStats): void {
     const seen = this.seenThreshold(stats.seenAlbums);
     const gaps = this.calculateGaps(stats, seen, stats.betweenAlbums, 'album', s => this.url.album(s.start.artist, s.start.album));
-    const albumDate = (item: StreakItem) => new Date(item.avgScrobble);
+    const albumDate = (item: StreakItem) => this.itemDate(item);
     const scrobbles = this.translate.transform('translate.scrobbles');
 
     next.betweenAlbums = gaps[0];
@@ -44,18 +44,19 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
     next.albumStreak = this.consecutiveStreak(stats, stats.albumStreak, s => `${s.start.artist} - ${s.start.album} (${s.length} times)`);
 
     const seenThreshold = this.forceThreshold(seen);
-    next.avgScrobbleDesc = this.getAlbumTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} ${scrobbles})`, (i, v) => new Date(v).toLocaleDateString());
-    next.avgScrobbleAsc = this.getAlbumTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} ${scrobbles})`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+    const datedThreshold = this.dated(seenThreshold);
+    next.avgScrobbleDesc = this.getAlbumTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => new Date(v).toLocaleDateString());
+    next.avgScrobbleAsc = this.getAlbumTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
 
     const rankings = this.getRankings(seenThreshold, Object.values(stats.monthList), (i, m) => this.url.albumMonth(i.artists[0], i.shortName, m));
     next.climbers = rankings.climbers;
     next.fallers = rankings.fallers;
 
     if (this.isLastFm) {
-      next.differentArtists = this.getTop10<Album>(seen, s => s.artists.length, k => seen[+k], a => `${a.shortName} (${a.scrobbles.length} ${scrobbles})`, (a, v) => `${v} artists`, this.albumUrlFnc, albumDate, v => v > 1);
+      next.differentArtists = this.getTop10<Album>(seen, s => s.artists.length, k => seen[+k], a => `${a.shortName} (${scrobbleCount(a)} ${scrobbles})`, (a, v) => `${v} artists`, this.albumUrlFnc, albumDate, v => v > 1);
 
       const tracks = this.seenThreshold(stats.seenTracks);
-      next.withoutAlbum = this.getTop10<Track>(seen, s => s.scrobbles.length - s.withAlbum, k => tracks[+k], a => a.name, (_, v) => `${v} ${scrobbles}`, t => this.url.track(t.artist, t.shortName), albumDate, v => v > 0);
+      next.withoutAlbum = this.getTop10<Track>(tracks, s => scrobbleCount(s) - s.withAlbum, k => tracks[+k], a => a.name, (_, v) => `${v} ${scrobbles}`, t => this.url.track(t.artist, t.shortName), albumDate, v => v > 0);
     }
   }
 
@@ -64,7 +65,7 @@ export class AlbumListsComponent extends AbstractListsComponent<AlbumStats> {
                         getItem: (k: string) => Album,
                         buildName: (item: Album, value: number) => string,
                         buildDescription: (item: Album, value: number) => string): ListProvider {
-    const albumDate = (item: Album) => new Date(item.avgScrobble);
+    const albumDate = (item: Album) => this.itemDate(item);
     return this.getTop10<Album>(countMap, getValue, getItem, buildName, buildDescription, this.albumUrlFnc, albumDate);
   }
 

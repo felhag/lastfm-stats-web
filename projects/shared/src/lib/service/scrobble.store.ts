@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { Observable, map, distinctUntilChanged, pairwise, filter, merge } from 'rxjs';
-import { Scrobble, State, User, ErrorState, CompleteState } from '../app/model';
+import { hasDate, Scrobble, State, User, ErrorState, CompleteState } from '../app/model';
 
 export interface ScrobbleState {
   scrobbles: Scrobble[];
@@ -71,7 +71,7 @@ export class ScrobbleStore extends ComponentStore<ScrobbleState> {
   });
 
   readonly scrobbles: Observable<Scrobble[]> = this.select(state => state.scrobbles);
-  readonly first = this.scrobbles.pipe(map(scrobbles => scrobbles[0]), distinctUntilChanged());
+  readonly first = this.scrobbles.pipe(map(scrobbles => scrobbles.find(hasDate)!), distinctUntilChanged());
   readonly last = this.scrobbles.pipe(map(scrobbles => scrobbles[scrobbles.length - 1]), distinctUntilChanged());
   readonly loadingState = this.select(state => state.state);
   readonly user = this.select(state => state.user);

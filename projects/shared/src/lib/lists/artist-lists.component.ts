@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TempStats, Artist, Constants, MonthItem } from 'projects/shared/src/lib/app/model';
+import { TempStats, Artist, Constants, MonthItem, scrobbleCount } from 'projects/shared/src/lib/app/model';
 import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -70,22 +70,24 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     next.tracksPerArtist = this.getArtistTop10(seen, s => s.tracks.size, k => seen[+k], a => a.name, (i, v) => `${v} tracks`);
 
     const seenThreshold = this.forceThreshold(seen);
+    const datedThreshold = this.dated(seenThreshold);
     const spt = seenThreshold.filter(s => s.tracks.size > 1);
     const ohw = seen.filter(a => a.tracks.size === 1);
     const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.size} track${a.tracks.size > 1 ? 's' : ''})`;
-    next.oneHitWonders = this.getArtistTop10(ohw, s => s.scrobbles.length, k => ohw[+k], a => a.name + ' - ' + a.tracks.values().next().value, xTimes);
-    next.scrobblesPerTrack = this.getArtistTop10(spt, s => s.scrobbles.length / s.tracks.size, k => spt[+k], a => a.name, sptDescription);
+    next.oneHitWonders = this.getArtistTop10(ohw, s => scrobbleCount(s), k => ohw[+k], a => a.name + ' - ' + a.tracks.values().next().value, xTimes);
+    next.scrobblesPerTrack = this.getArtistTop10(spt, s => scrobbleCount(s) / s.tracks.size, k => spt[+k], a => a.name, sptDescription);
 
-    next.avgScrobbleDesc = this.getArtistTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
-    next.avgScrobbleAsc = this.getArtistTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(Math.abs(v)));
+    next.avgScrobbleDesc = this.getArtistTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(v));
+    next.avgScrobbleAsc = this.getArtistTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(Math.abs(v)));
 
-    const std = seenThreshold.map(a => ({
+    const std = datedThreshold.map(a => ({
       ...a,
       deltas: this.calcDeltas(a.scrobbles),
     }));
     next.avgDelta = this.getArtistTop10(std, s => (s as any).deltas, k => std[+k], a => `${a.name} (${Math.round((a as any).deltas / Constants.DAY)} days)`,
       i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`);
-    next.latestNew = this.getArtistTop10(seen, s => s.scrobbles[0], k => seen[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => this.dateString(v));
+    const dated = this.dated(seen);
+    next.latestNew = this.getArtistTop10(dated, s => s.scrobbles[0], k => dated[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(v));
     next.artistStreak = this.consecutiveStreak(stats, stats.artistStreak, s => `${s.start.artist} (${s.length} times)`);
 
     const rankings = this.getRankings(seenThreshold, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
@@ -123,7 +125,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
                          getItem: (k: string) => Artist,
                          buildName: (item: Artist, value: number) => string,
                          buildDescription: (item: Artist, value: number) => string): ListProvider {
-    return this.getTop10<Artist>(countMap, getValue, getItem, buildName, buildDescription, item => this.url.artist(item.name), item => new Date(item.avgScrobble));
+    return this.getTop10<Artist>(countMap, getValue, getItem, buildName, buildDescription, item => this.url.artist(item.name), item => this.itemDate(item));
   }
 
   private calcDeltas(arr: number[]): number {

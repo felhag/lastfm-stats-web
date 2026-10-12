@@ -3,9 +3,11 @@ import { combineLatest, filter, map, merge, Observable, scan, shareReplay, Subje
 import {
   AlbumStreakStack,
   Constants,
+  hasDate,
   ItemStreakStack,
   MonthItem,
   Scrobble,
+  scrobbleCount,
   ScrobbleStreakStack,
   SessionStack,
   StreakItem,
@@ -54,10 +56,13 @@ export class StatsBuilderService {
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
     for (const scrobble of this.filterWith(scrobbles, settings)) {
-      const year = scrobble.date.getFullYear();
-      if (year === 1970) {
+      if (!hasDate(scrobble)) {
+        next.withoutDate++;
+        this.handleUndated(next, scrobble);
         continue;
       }
+
+      const year = scrobble.date.getFullYear();
 
       const monthYear = this.mapper.getMonthYear(scrobble.date);
       const weekYear = this.mapper.getWeekYear(scrobble.date);
@@ -146,7 +151,7 @@ export class StatsBuilderService {
     if (!monthItem) {
       map.set(key, {
         name,
-        new: seen[key] ? undefined : scrobble,
+        new: seen[key]?.scrobbles.length ? undefined : scrobble,
         count: 1,
       });
     } else {
@@ -154,50 +159,43 @@ export class StatsBuilderService {
     }
   }
 
-  private handleArtist(next: TempStats, scrobble: Scrobble, weekYear: string): void {
-    const seen = next.seenArtists;
-    const seenArtist = seen[scrobble.artist];
-    if (seenArtist) {
-      this.handleStreakItem(seenArtist, next.betweenArtists, scrobble, weekYear);
-      if (!seenArtist.tracks.has(scrobble.track)) {
-        seenArtist.tracks.add(scrobble.track);
-        this.uniqueTrackAdded(next, scrobble);
-      }
-    } else {
-      seen[scrobble.artist] = {
-        weeks: new Set([weekYear]),
-        name: scrobble.artist,
-        betweenStreak: {start: scrobble, end: scrobble},
-        avgScrobble: scrobble.date.getTime(),
-        scrobbles: [scrobble.date.getTime()],
-        tracks: new Set([scrobble.track]),
-        ranks: []
-      };
-
-      this.uniqueTrackAdded(next, scrobble);
-    }
+  private handleUndated(next: TempStats, scrobble: Scrobble): void {
+    this.handleArtist(next, scrobble);
+    this.handleAlbum(next, scrobble);
+    this.handleTrack(next, scrobble);
   }
 
-  private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear: string): void {
+  /** Without weekYear the scrobble has no date: it only counts towards the item, not its date based stats. */
+  private handleArtist(next: TempStats, scrobble: Scrobble, weekYear?: string): void {
+    const artist = next.seenArtists[scrobble.artist] ??= {
+      ...this.createStreakItem(scrobble.artist),
+      tracks: new Set(),
+    };
+    artist.tracks.add(scrobble.track);
+    this.handleStreakItem(artist, next.betweenArtists, scrobble, weekYear);
+  }
+
+  private handleAlbum(next: TempStats, scrobble: Scrobble, weekYear?: string): void {
     if (scrobble.album) {
-      const fullName = scrobble.artist + ' - ' + scrobble.album;
+      const fullName = `${scrobble.artist} - ${scrobble.album}`;
       const id = scrobble.albumId || fullName;
-      const seenItem = next.seenAlbums[id];
-      if (seenItem) {
-        const handled = this.handleStreakItem(seenItem, next.betweenAlbums, scrobble, weekYear);
-        if (!handled.artists.includes(scrobble.artist)) {
-          handled.artists.push(scrobble.artist);
-          if (handled.artists.length === 2) {
-            handled.name = handled.name.replace(handled.artists[0] + ' - ', 'Various artists - ');
-          }
-        }
-      } else {
-        next.seenAlbums[id] = {
-          ...this.createStreakItem(fullName, weekYear, scrobble),
+      let album = next.seenAlbums[id];
+      if (!album) {
+        album = next.seenAlbums[id] = {
+          ...this.createStreakItem(fullName),
           id,
           artists: [scrobble.artist],
           shortName: scrobble.album,
         };
+      } else if (!album.artists.includes(scrobble.artist)) {
+        album.artists.push(scrobble.artist);
+        if (album.artists.length === 2) {
+          album.name = album.name.replace(`${album.artists[0]} - `, 'Various artists - ');
+        }
+      }
+      this.handleStreakItem(album, next.betweenAlbums, scrobble, weekYear);
+
+      if (weekYear && album.scrobbles.length === 1) {
         next.albumCount++;
         if (next.albumCount % 1000 === 0) {
           next.albumMilestones.push(scrobble);
@@ -206,51 +204,52 @@ export class StatsBuilderService {
     }
   }
 
-  private handleTrack(next: TempStats, scrobble: Scrobble, weekYear: string): Track {
+  private handleTrack(next: TempStats, scrobble: Scrobble, weekYear?: string): Track {
     const fullName = scrobble.artist + ' - ' + scrobble.track;
-    const seenItem = next.seenTracks[fullName];
-    if (seenItem) {
-      const handled = this.handleStreakItem(seenItem, next.betweenTracks, scrobble, weekYear);
-      handled.withAlbum = handled.withAlbum + (scrobble.album ? 1 : 0);
-      return handled;
-    } else {
-      const result: Track = {
-        ...this.createStreakItem(fullName, weekYear, scrobble),
-        artist: scrobble.artist,
-        shortName: scrobble.track,
-        withAlbum: scrobble.album ? 1 : 0
-      };
-      next.seenTracks[fullName] = result;
-      return result;
+    const track = next.seenTracks[fullName] ??= {
+      ...this.createStreakItem(fullName),
+      artist: scrobble.artist,
+      shortName: scrobble.track,
+      withAlbum: 0
+    };
+    if (scrobble.album) {
+      track.withAlbum++;
     }
+    this.handleStreakItem(track, next.betweenTracks, scrobble, weekYear);
+
+    if (weekYear && track.scrobbles.length === 1) {
+      next.trackCount++;
+      if (next.trackCount % 1000 === 0) {
+        next.trackMilestones.push(scrobble);
+      }
+    }
+    return track;
   }
 
-  private createStreakItem(name: string, weekYear: string, scrobble: Scrobble): StreakItem {
+  private createStreakItem(name: string): StreakItem {
     return {
       name,
-      weeks: new Set([weekYear]),
-      betweenStreak: {start: scrobble, end: scrobble},
-      avgScrobble: scrobble.date.getTime(),
-      scrobbles: [scrobble.date.getTime()],
+      weeks: new Set(),
+      avgScrobble: 0,
+      scrobbles: [],
+      undated: 0,
       ranks: []
     };
   }
 
-  private handleStreakItem<T extends StreakItem>(seen: T, stack: StreakStack, scrobble: Scrobble, weekYear: string): T {
-    seen.betweenStreak.end = scrobble;
-    stack.add(seen.betweenStreak);
+  private handleStreakItem(seen: StreakItem, stack: StreakStack, scrobble: Scrobble, weekYear?: string): void {
+    if (!weekYear) {
+      seen.undated++;
+      return;
+    }
+    if (seen.betweenStreak) {
+      seen.betweenStreak.end = scrobble;
+      stack.add(seen.betweenStreak);
+    }
     seen.betweenStreak = {start: scrobble, end: scrobble};
     seen.avgScrobble = ((seen.avgScrobble * seen.scrobbles.length) + scrobble.date.getTime()) / (seen.scrobbles.length + 1);
     seen.scrobbles.push(scrobble.date.getTime());
     seen.weeks.add(weekYear);
-    return seen;
-  }
-
-  private uniqueTrackAdded(next: TempStats, scrobble: Scrobble): void {
-    next.trackCount++;
-    if (next.trackCount % 1000 === 0) {
-      next.trackMilestones.push(scrobble);
-    }
   }
 
   private monthYearDisplay(date: Date): string {
@@ -284,6 +283,7 @@ export class StatsBuilderService {
       trackMilestones: [],
       albumCount: 0,
       trackCount: 0,
+      withoutDate: 0,
     };
   }
 
@@ -313,7 +313,7 @@ export class StatsBuilderService {
 
   private populateRank(data: { [p: string]: StreakItem }, handled: number) {
     Object.values(data)
-      .sort((a, b) => b.scrobbles.length - a.scrobbles.length)
+      .sort((a, b) => scrobbleCount(b) - scrobbleCount(a))
       .forEach((artist, idx) => artist.ranks[handled] = idx + 1);
   }
 }

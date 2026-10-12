@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { StreakItem } from "../app/model";
+import { scrobbleCount, StreakItem } from "../app/model";
 
 @Pipe({
     name: 'filterByYear',
@@ -12,6 +12,6 @@ export class FilterByYearPipe implements PipeTransform {
     }
     return items
       .filter(item => selected.every(year => item.scrobbles.some(s => s >= year[1] && s < year[2])))
-      .sort((a, b) => b.scrobbles.length - a.scrobbles.length);
+      .sort((a, b) => scrobbleCount(b) - scrobbleCount(a));
   }
 }

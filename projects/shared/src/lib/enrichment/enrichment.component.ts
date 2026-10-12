@@ -10,7 +10,7 @@ import * as Highcharts from 'highcharts';
 import 'highcharts/esm/modules/map';
 import 'highcharts/esm/modules/full-screen';
 import { HighchartsChartComponent } from 'highcharts-angular';
-import { Constants, TempStats } from '../app/model';
+import { Constants, scrobbleCount, TempStats } from '../app/model';
 import { EnrichmentService, EnrichmentProgress } from '../service/enrichment.service';
 import { SettingsService } from '../service/settings.service';
 import { StatsBuilderService } from '../service/stats-builder.service';
@@ -78,8 +78,8 @@ export class EnrichmentComponent {
     if (!stats) return [];
     const min = this.minScrobbles();
     return Object.values(stats.seenArtists)
-      .filter(a => a.scrobbles.length >= min)
-      .map(a => ({artist: a.name, scrobbles: a.scrobbles.length}))
+      .filter(a => scrobbleCount(a) >= min)
+      .map(a => ({artist: a.name, scrobbles: scrobbleCount(a)}))
       .sort((a, b) => b.scrobbles - a.scrobbles);
   });
 

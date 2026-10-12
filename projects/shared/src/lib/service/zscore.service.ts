@@ -18,7 +18,7 @@ export class ZScoreService {
 
     const months = Object.values(stats.monthList);
     const seen = this.mapper.seen(type, stats);
-    const seenEntries = Object.entries(seen);
+    const seenEntries = Object.entries(seen).filter(([, item]) => item.scrobbles.length);
 
     // Initialize Welford state per item
     const states = new Map<string, WelfordState>();

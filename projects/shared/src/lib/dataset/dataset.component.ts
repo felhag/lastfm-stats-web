@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
-import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
+import { Album, Artist, DataSetEntry, ItemType, Month, scrobbleCount, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
 import { EnrichmentService } from 'projects/shared/src/lib/service/enrichment.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
@@ -116,7 +116,7 @@ export class DatasetComponent implements OnInit {
   private update(tempStats: TempStats): void {
     const data = Object.values(this.groupedByObj.data(tempStats));
     const rankMap = new Map(
-      [...data].sort((a, b) => b.scrobbles.length - a.scrobbles.length)
+      [...data].sort((a, b) => scrobbleCount(b) - scrobbleCount(a))
         .map((item, idx) => [item, idx + 1])
     );
     const infos = this.enrichment.info();
@@ -128,7 +128,7 @@ export class DatasetComponent implements OnInit {
         artist: this.getArtistName(item),
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
         tracks: albumOrTrack ? undefined : (item as Artist).tracks.size,
-        scrobbles: item.scrobbles.length,
+        scrobbles: scrobbleCount(item),
         rank: rankMap.get(item)!,
         region: albumOrTrack ? undefined : this.formatRegion(infos.get(item.name)?.country),
       } as DataSetEntry

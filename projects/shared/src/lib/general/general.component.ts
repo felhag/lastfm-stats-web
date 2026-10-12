@@ -2,7 +2,7 @@ import { Component, computed, inject, Signal, signal, TemplateRef, viewChild } f
 import { ScrobbleStore } from '../service/scrobble.store';
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
-import { Artist, Constants, ItemType, StreakItem, TempStats } from '../app/model';
+import { Artist, Constants, ItemType, scrobbleCount, StreakItem, TempStats } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { MapperService } from '../service/mapper.service';
 import { EddingtonUtil } from '../service/eddington.util';
@@ -59,6 +59,7 @@ export class GeneralComponent {
   readonly everyYearArtistsDialog = viewChild<TemplateRef<StreakItem[]>>('everyYearArtists');
   readonly values: <T extends StreakItem>(seen: { [key: string]: T }) => T[] = Object.values;
   readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
+  readonly scrobbleCount = scrobbleCount;
 
   private readonly scrobbles = inject(ScrobbleStore);
   private readonly dialog = inject(MatDialog);
@@ -141,7 +142,7 @@ export class GeneralComponent {
     }
 
     const top3 = (arr: Anniversary[]) => arr
-      .sort((a, b) => b.artist.scrobbles.length - a.artist.scrobbles.length)
+      .sort((a, b) => scrobbleCount(b.artist) - scrobbleCount(a.artist))
       .slice(0, 3);
     return { today: top3(buckets.today), upcoming: top3(buckets.upcoming), past: top3(buckets.past) };
   });
@@ -161,13 +162,13 @@ export class GeneralComponent {
 
   tracksWithoutAlbum(stats: TempStats) {
     return Object.values(stats.seenTracks)
-      .filter(t => t.withAlbum < t.scrobbles.length)
+      .filter(t => t.withAlbum < scrobbleCount(t))
       .length;
   }
 
   scrobblesWithoutAlbum(stats: TempStats) {
     return Object.values(stats.seenTracks)
-      .map(t => t.scrobbles.length - t.withAlbum)
+      .map(t => scrobbleCount(t) - t.withAlbum)
       .reduce((a, b) => a + b, 0);
   }
 
@@ -182,7 +183,7 @@ export class GeneralComponent {
   }
 
   cutOver(stats: TempStats) {
-    const counts = Object.values(stats.seenArtists).map(a => a.scrobbles.length).sort((a, b) => b - a);
+    const counts = Object.values(stats.seenArtists).map(a => scrobbleCount(a)).sort((a, b) => b - a);
     for (let i = 0; i < counts.length; i++) {
       if (i >= counts[i]) {
         return i

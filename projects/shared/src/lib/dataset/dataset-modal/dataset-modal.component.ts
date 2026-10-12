@@ -73,8 +73,9 @@ export class DatasetModalComponent implements OnInit {
       ...(this.entry.tracks ? [{ title: 'Tracks', value: this.entry.tracks }] : []),
       { title: 'Weeks', value: this.entry.item.weeks.size },
       { title: 'Highest rank', value: Math.min(...ranks.filter(r => r).map(r => r!)) },
-      { title: 'Highest monthly', value: highestMonthly }
+      ...(isFinite(highestMonthly) ? [{ title: 'Highest monthly', value: highestMonthly }] : []),
     ];
+    const dated = this.entry.item.scrobbles.length > 0;
 
     this.url = this.mapper.url(this.entry.type, this.entry.item);
 
@@ -139,11 +140,11 @@ export class DatasetModalComponent implements OnInit {
         rules: [{
           condition: { minWidth: 769 },
           chartOptions: {
-            annotations: [
+            annotations: dated ? [
               this.annotationOptions(first, scrobbles[first]!, `First ${this.translate.transform('translate.scrobble')}: ${this.first.toLocaleString()}`, 'right'),
               this.annotationOptions(last, scrobbles[last]!, `Last ${this.translate.transform('translate.scrobble')}: ${this.last.toLocaleString()}`, 'left'),
               this.mostScrobbledDayAnnotation(scrobbles),
-            ]
+            ] : []
           }
         }]
       }

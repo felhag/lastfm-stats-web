@@ -10,7 +10,7 @@ import { UsernameService } from '../../../shared/src/lib/service/username.servic
 interface LoadingState {
   store: ScrobbleStore;
   username: string;
-  from: string;
+  from?: string;
   to: string;
   pageLoadTime?: number;
   totalPages?: number;
@@ -34,7 +34,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
         store.updateUser(user);
         this.username.username = user.name;
 
-        const from = String(this.determineFrom(imported));
+        const from = this.determineFrom(imported);
         this.start({
           username: user.name,
           pageSize: Constants.API_PAGE_SIZE,
@@ -45,13 +45,9 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     });
   }
 
-  private determineFrom(scrobbles: Scrobble[]): number {
-    if (scrobbles.length) {
-      return scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1;
-    } else {
-      // 1 jan 2000. Kinda arbitrary but some user have scrobbles registered before their account creation date.
-      return 946681200;
-    }
+  private determineFrom(scrobbles: Scrobble[]): string | undefined {
+    // Without a lower bound, so scrobbles without a date (timestamp 0) are retrieved as well.
+    return scrobbles.length ? String(scrobbles[scrobbles.length - 1].date.getTime() / 1000 + 1) : undefined;
   }
 
   private start(loadingState: LoadingState): void {
@@ -132,7 +128,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
     loadingState.store.state$.pipe(
       take(1),
       switchMap(state => {
-        const newFrom = String(this.determineFrom(state.scrobbles));
+        const newFrom = this.determineFrom(state.scrobbles);
         const tempPageSize = loadingState.pageSize === 1000 ? 200 : 125;
         const tempState: LoadingState = {...loadingState, from: newFrom, page: 1, pageSize: tempPageSize};
 

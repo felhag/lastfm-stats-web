@@ -27,12 +27,22 @@ export interface Scrobble {
   date: Date;
 }
 
+export function hasDate(scrobble: Scrobble): boolean {
+  return scrobble.date.getTime() >= Constants.UNDATED_BEFORE;
+}
+
+export function scrobbleCount(item: StreakItem): number {
+  return item.scrobbles.length + item.undated;
+}
+
 export interface StreakItem {
   weeks: Set<string>;
   name: string;
-  betweenStreak: Streak;
+  betweenStreak?: Streak;
   avgScrobble: number;
+  /** Timestamps of the dated scrobbles only, see {@link scrobbleCount} for the total. */
   scrobbles: number[];
+  undated: number;
   ranks: number[];
 }
 
@@ -132,6 +142,7 @@ export interface TempStats {
   scrobbleCount: number;
   albumCount: number;
   trackCount: number;
+  withoutDate: number;
 }
 
 export interface Streak {
@@ -270,6 +281,7 @@ export class SessionStack extends StreakStack {
 }
 
 export class Constants {
+  static readonly UNDATED_BEFORE = Date.UTC(1971, 0, 1);
   static readonly DAY = 24 * 60 * 60 * 1000;
   static readonly TWO_DAYS = 2 * Constants.DAY;
   // A new listening session starts after this much silence

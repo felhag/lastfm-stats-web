@@ -3,7 +3,7 @@ import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
 import { Settings } from 'projects/shared/src/lib/service/settings.service';
-import { Scrobble } from '../app/model';
+import { hasDate, Scrobble } from '../app/model';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { MatOption, provideNativeDateAdapter } from '@angular/material/core';
 import { MatChipGrid, MatChipInput, MatChipListbox, MatChipOption, MatChipRow } from '@angular/material/chips';
@@ -70,7 +70,7 @@ export class ConfComponent {
 
     this.filteredArtists = signal(this.settings.artists);
     this.allArtists = computed(() => this.filterArtists(all, search(), this.filteredArtists()));
-    this.startDate = this.data.scrobbles[0].date;
+    this.startDate = this.data.scrobbles.find(hasDate)!.date;
     this.dateControl('dateRangeStart', 'startDateCtrl');
     this.dateControl('dateRangeEnd', 'endDateCtrl');
   }

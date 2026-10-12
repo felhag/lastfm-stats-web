@@ -1,6 +1,6 @@
 import { Directive, inject } from '@angular/core';
 import { BehaviorSubject, debounceTime } from 'rxjs';
-import { TempStats, Streak, StreakStack, StreakItem, MonthItem } from 'projects/shared/src/lib/app/model';
+import { TempStats, Streak, StreakStack, StreakItem, MonthItem, scrobbleCount } from 'projects/shared/src/lib/app/model';
 import { SettingsService, Settings } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { AbstractUrlService } from '../service/abstract-url.service';
@@ -67,7 +67,7 @@ export abstract class AbstractListsComponent<S> {
               buildName: (item: T, value: number) => string,
               buildDescription: (item: T, value: number) => string,
               buildUrl?: (t: T) => string,
-              buildDate?: (t: T) => Date,
+              buildDate?: (t: T) => Date | undefined,
               valueFilter?: (value: number) => boolean,
   ): ListProvider {
     let entries: [string, number][] = Object.keys(countMap).map(k => [k, getValue(getItem(k))]);
@@ -124,6 +124,7 @@ export abstract class AbstractListsComponent<S> {
     const ongoingResult = this.getStreakTop10(
       seen
         .map(a => a.betweenStreak)
+        .filter(a => !!a)
         .map(a => ({start: a.start, end: {
           artist: a.start.artist,
           album: include === 'album' ? a.start.album : '?',
@@ -160,11 +161,20 @@ export abstract class AbstractListsComponent<S> {
 
   protected seenThreshold<T extends StreakItem>(seenThingies: { [key: string]: T }): T[] {
     const threshold = this.threshold;
-    return Object.values(seenThingies).filter(a => a.scrobbles.length >= threshold);
+    return Object.values(seenThingies).filter(a => scrobbleCount(a) >= threshold);
   }
 
   protected forceThreshold<T extends StreakItem>(seen: T[]): T[] {
-    return this.threshold > 0 ? seen : seen.filter(s => s.scrobbles.length >= this.forcedThreshold);
+    return this.threshold > 0 ? seen : seen.filter(s => scrobbleCount(s) >= this.forcedThreshold);
+  }
+
+  /** Items with at least one dated scrobble, required for any date based list. */
+  protected dated<T extends StreakItem>(seen: T[]): T[] {
+    return seen.filter(s => s.scrobbles.length);
+  }
+
+  protected itemDate(item: StreakItem): Date | undefined {
+    return item.scrobbles.length ? new Date(item.avgScrobble) : undefined;
   }
 
   protected get threshold(): number {
@@ -226,7 +236,8 @@ export abstract class AbstractListsComponent<S> {
           return;
         }
         const cutoff = this.getEndOfMonth(monthList[idx + 1].date);
-        const count = this.countScrobblesUpTo(item.scrobbles, cutoff);
+        // undated scrobbles precede all dated ones
+        const count = this.countScrobblesUpTo(item.scrobbles, cutoff) + item.undated;
         if (count >= this.minimumForcedThreshold) {
           (diff < 0 ? climbers : fallers).push({diff: Math.abs(diff), item, month: monthList[idx + 1]});
         }

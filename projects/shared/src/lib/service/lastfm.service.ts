@@ -37,7 +37,7 @@ export interface LfmTrack {
 
 export interface RecentTracksParams {
   user: string;
-  from: string;
+  from?: string;
   to: string;
   page: number;
   limit: number;
@@ -55,7 +55,7 @@ export class LastfmService {
       .append('method', 'user.getrecenttracks')
       .append('user', params.user)
       .append('to', params.to)
-      .append('from', params.from)
+      .appendAll(params.from ? {from: params.from} : {})
       .append('limit', String(params.limit))
       .append('page', String(params.page));
     return this.http.get<LfmRecentTracksResponse>(this.API, {params: httpParams});

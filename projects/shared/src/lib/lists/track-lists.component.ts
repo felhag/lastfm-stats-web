@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TempStats, Track, Constants, Month } from 'projects/shared/src/lib/app/model';
+import { TempStats, Track, Constants, Month, scrobbleCount } from 'projects/shared/src/lib/app/model';
 import { AbstractListsComponent, ListProvider } from 'projects/shared/src/lib/lists/abstract-lists.component';
 import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
@@ -46,8 +46,9 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
     });
 
     const seenThreshold = this.forceThreshold(seen);
-    next.avgScrobbleDesc = this.getTrackTop10(seenThreshold, s => s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
-    next.avgScrobbleAsc = this.getTrackTop10(seenThreshold, s => -s.avgScrobble, k => seenThreshold[+k], a => `${a.name} (${a.scrobbles.length} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+    const datedThreshold = this.dated(seenThreshold);
+    next.avgScrobbleDesc = this.getTrackTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
+    next.avgScrobbleAsc = this.getTrackTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
 
     const rankings = this.getRankings(seenThreshold, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));
@@ -68,7 +69,7 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
                         buildName: (item: Track, value: number) => string,
                         buildDescription: (item: Track, value: number) => string): ListProvider {
     const trackUrl = (item: Track) => this.url.track(item.artist, item.shortName);
-    const trackDate = (item: Track) => new Date(item.avgScrobble);
+    const trackDate = (item: Track) => this.itemDate(item);
     return this.getTop10<Track>(countMap, getValue, getItem, buildName, buildDescription, trackUrl, trackDate);
   }
 

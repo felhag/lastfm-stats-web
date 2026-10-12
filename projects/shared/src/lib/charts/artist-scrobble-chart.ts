@@ -1,4 +1,4 @@
-import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
+import { Constants, scrobbleCount, TempStats } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractUrlService } from '../service/abstract-url.service';
@@ -78,8 +78,8 @@ export class ArtistScrobbleChart extends AbstractChart {
   }
 
   update(stats: TempStats): void {
-    let data: PointOptionsObject[] = Object.values(stats.seenArtists).filter(a => a.scrobbles.length >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
-      x: artist.scrobbles.length,
+    let data: PointOptionsObject[] = Object.values(stats.seenArtists).filter(a => scrobbleCount(a) >= Constants.SCROBBLE_ARTIST_THRESHOLD).map(artist => ({
+      x: scrobbleCount(artist),
       y: artist.tracks.size,
       name: artist.name
     }));
