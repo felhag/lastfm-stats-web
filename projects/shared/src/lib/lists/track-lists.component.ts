@@ -27,6 +27,7 @@ export interface TrackStats {
 })
 export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
   private url = inject(AbstractUrlService);
+  private translate = inject(TranslatePipe);
   protected forcedThreshold = Constants.SCROBBLE_TRACK_THRESHOLD;
 
   protected doUpdate(stats: TempStats, next: TrackStats): void {
@@ -47,8 +48,9 @@ export class TrackListsComponent extends AbstractListsComponent<TrackStats> {
 
     const seenThreshold = this.forceThreshold(seen);
     const datedThreshold = this.dated(seenThreshold);
-    next.avgScrobbleDesc = this.getTrackTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => new Date(v).toLocaleDateString());
-    next.avgScrobbleAsc = this.getTrackTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
+    const scrobbles = this.translate.transform('translate.scrobbles');
+    next.avgScrobbleDesc = this.getTrackTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => new Date(v).toLocaleDateString());
+    next.avgScrobbleAsc = this.getTrackTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => new Date(Math.abs(v)).toLocaleDateString());
     next.trackStreak = this.consecutiveStreak(stats, stats.trackStreak, s => `${s.start.artist} - ${s.start.track} (${s.length} times)`);
 
     const rankings = this.getRankings(seenThreshold, monthsValues, (i, m) => this.url.trackMonth(i.artist, i.shortName, m));

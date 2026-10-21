@@ -211,5 +211,6 @@ class ArtistSanitizer {
 
   clear() {
     this.sanitized.clear();
+    this.target.clear();
   }
 }

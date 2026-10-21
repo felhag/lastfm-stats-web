@@ -55,7 +55,7 @@
         <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event.option.value)" (closed)="onClose()">
           @for (option of allArtists(); track option) {
             <mat-option [value]="option[0]">
-              {{option[0]}} ({{option[1]}} scrobbles)
+              {{option[0]}} ({{option[1]}} {{ 'translate.scrobbles' | translate }})
             </mat-option>
           }
         </mat-autocomplete>

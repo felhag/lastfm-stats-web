@@ -8,9 +8,9 @@
         <dt>Days since first {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ days }}</dd>
       }
-      @if (tempStats$(); as stats) {
+      @if (overview$(); as overview) {
         <dt>Days {{ 'translate.scrobbled' | translate }}</dt>
-        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$())!) * 100 | number:'1.0-2' }}
+        <dd>{{ overview.daysListened }} ({{ overview.daysListened / ((days$())!) * 100 | number:'1.0-2' }}
           %)
         </dd>
       }
@@ -30,29 +30,29 @@
   </mat-card-content>
 </mat-card>
 
-@if (tempStats$(); as stats) {
+@if (overview$(); as overview) {
   <mat-card>
     <mat-card-content>
       <dl>
         <dt>Artists</dt>
-        <dd>{{ count(stats.seenArtists) }}</dd>
-        @if (oneHitWonders(stats); as owh) {
+        <dd>{{ overview.artists }}</dd>
+        @if (overview.oneHitWonders; as owh) {
           <dt>One hit wonders</dt>
-          <dd>{{ owh }}  ({{ owh / (count(stats.seenArtists)) * 100 | number:'1.0-2' }} %)
+          <dd>{{ owh }}  ({{ owh / overview.artists * 100 | number:'1.0-2' }} %)
         }
         <dt>Albums</dt>
-        <dd>{{ count(stats.seenAlbums) }}</dd>
+        <dd>{{ overview.albums }}</dd>
         <dt>Albums per artist</dt>
-        <dd>{{ count(stats.seenAlbums) / count(stats.seenArtists) | number:'1.0-2' }}</dd>
+        <dd>{{ overview.albums / overview.artists | number:'1.0-2' }}</dd>
         <dt>Tracks</dt>
-        <dd>{{ count(stats.seenTracks) }}</dd>
-        @if (tracksWithoutAlbum(stats); as twa) {
+        <dd>{{ overview.tracks }}</dd>
+        @if (overview.tracksWithoutAlbum; as twa) {
           <dt>Tracks without album</dt>
-          <dd>{{ twa }}  ({{ twa / count(stats.seenTracks) * 100 | number:'1.0-2' }} %)
+          <dd>{{ twa }}  ({{ twa / overview.tracks * 100 | number:'1.0-2' }} %)
         }
-        @if (scrobblesWithoutAlbum(stats); as swa) {
-          <dt>Scrobbles without album</dt>
-          <dd>{{ swa }}  ({{ swa / (stats.scrobbleCount + stats.withoutDate) * 100 | number:'1.0-2' }} %)
+        @if (overview.scrobblesWithoutAlbum; as swa) {
+          <dt>{{ 'translate.scrobbles' | translate | titlecase }} without album</dt>
+          <dd>{{ swa }}  ({{ swa / overview.total * 100 | number:'1.0-2' }} %)
         }
       </dl>
     </mat-card-content>
@@ -60,25 +60,25 @@
   <mat-card>
     <mat-card-content>
       <dl>
-        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenArtists), type: 'artist' }"></ng-container>
-        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenAlbums), type: 'album' }"></ng-container>
-        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: values(stats.seenTracks), type: 'track' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenArtists$(), type: 'artist' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenAlbums$(), type: 'album' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenTracks$(), type: 'track' }"></ng-container>
       </dl>
     </mat-card-content>
   </mat-card>
   <mat-card>
     <mat-card-content>
       <dl>
-        @let eddington = getEddington(stats);
+        @let eddington = overview.eddington;
         <dt>Eddington number</dt>
         <dd>
           {{ eddington }}
           <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
         </dd>
         <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
-        <dd>{{ nextEddington(stats) }}</dd>
+        <dd>{{ overview.nextEddington }}</dd>
 
-        @let cutOverPoint = cutOver(stats);
+        @let cutOverPoint = overview.cutOver;
         <dt>Artist cut over point</dt>
         <dd>
           {{ cutOverPoint }}
@@ -86,13 +86,13 @@
         </dd>
 
         <dt>Most popular year</dt>
-        @if (max(stats.years); as max) {
-          <dd>{{ max }} ({{ stats.years[max] }} {{ 'translate.scrobbles' | translate }})</dd>
+        @if (overview.popularYear; as year) {
+          <dd>{{ year.year }} ({{ year.count }} {{ 'translate.scrobbles' | translate }})</dd>
         } @else {
           <dd>-</dd>
         }
         <dt>Most popular month</dt>
-        @if (mostPopularMonth(stats); as month) {
+        @if (overview.popularMonth; as month) {
           <dd>{{ month.alias }} ({{ month.count }} {{ 'translate.scrobbles' | translate }})</dd>
         } @else {
           <dd>-</dd>
@@ -104,7 +104,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Anniversaries 🎂</mat-card-title>
-        <mat-card-subtitle>Since first scrobble</mat-card-subtitle>
+        <mat-card-subtitle>Since first {{ 'translate.scrobble' | translate }}</mat-card-subtitle>
       </mat-card-header>
       <mat-expansion-panel class="anniversaries">
         <mat-expansion-panel-header>
@@ -157,10 +157,10 @@
     @if (dialogYears(); as years) {
       <mat-chip-listbox multiple>
         @for (year of years; track year[0]) {
-          <mat-chip-option [selected]="year[3]" [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
+          <mat-chip-option [selected]="year[3]" [value]="year[0]" (selectionChange)="toggleYear(year[0], $event.selected)">{{ year[0] }}</mat-chip-option>
         }
       </mat-chip-listbox>
-      @if (values(dialogSeen$()) | filterByYear: years; as items) {
+      @if (dialogItems$() | filterByYear: years; as items) {
         Found {{ items.length }} {{ dialogType() }}s which you listened to in all selected years
         <mat-list>
           @for (item of items; track item.name) {

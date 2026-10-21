@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { combineLatest, filter, map, merge, Observable, scan, shareReplay, Subject, switchMap, take } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, map, merge, Observable, scan, shareReplay, Subject, withLatestFrom } from 'rxjs';
 import {
   AlbumStreakStack,
   Constants,
@@ -19,6 +20,21 @@ import { Settings, SettingsService } from 'projects/shared/src/lib/service/setti
 import { MapperService } from './mapper.service';
 import { ScrobbleStore } from './scrobble.store';
 
+/**
+ * The values of seenArtists/seenAlbums/seenTracks in insertion order. Enumerating those objects is slow once
+ * they hold tens of thousands of keys, and ranks need all of them at every month boundary.
+ */
+interface SeenLists {
+  artists: StreakItem[];
+  albums: StreakItem[];
+  tracks: StreakItem[];
+}
+
+/** Either start over from every scrobble in the store or add a chunk of newly loaded ones to the accumulator. */
+type BuildEvent =
+  | { kind: 'rebuild' }
+  | { kind: 'chunk', scrobbles: Scrobble[], cumulative: boolean };
+
 @Injectable()
 export class StatsBuilderService {
   private settings = inject(SettingsService);
@@ -27,31 +43,35 @@ export class StatsBuilderService {
 
   tempStats: Observable<TempStats>;
   rebuild = new Subject<void>();
+  private seenLists = new WeakMap<TempStats, SeenLists>();
 
   constructor() {
     const settings$ = this.settings.state$;
-    const completed = combineLatest([
-      this.scrobbles.state$.pipe(filter(s => s.state === 'COMPLETED')),
-      settings$.pipe(filter(settings => !settings.autoUpdate))
-    ]);
-    const rebuild = merge(this.rebuild, completed, settings$).pipe(
-      switchMap(() => combineLatest([
-        this.scrobbles.scrobbles.pipe(take(1)),
-        settings$
-      ])),
-      map(([scrobbles, settings]) => this.update(scrobbles, settings, this.emptyStats()))
+    // Nothing was accumulated while auto update was off, so build everything once loading is done.
+    const completed = this.scrobbles.loadingState.pipe(
+      filter(state => state === 'COMPLETED'),
+      withLatestFrom(settings$),
+      filter(([, settings]) => !settings.autoUpdate)
     );
-    const chunk = combineLatest([
-      this.scrobbles.chunk,
-      settings$.pipe(take(1))
-    ]).pipe(
-      filter(([, settings]) => settings.autoUpdate),
-      scan((acc, [[scrobbles, cumulative], settings]) => this.update(scrobbles, settings, cumulative ? acc : this.emptyStats()), this.emptyStats()),
-    );
-    this.tempStats = merge(rebuild, chunk).pipe(shareReplay(1));
+    const rebuild$ = merge(this.rebuild, settings$, completed).pipe(map((): BuildEvent => ({kind: 'rebuild'})));
+    const chunk$ = this.scrobbles.chunk.pipe(map(([scrobbles, cumulative]): BuildEvent => ({kind: 'chunk', scrobbles, cumulative})));
 
-    // TODO: If no scrobbles need to be loaded the tempStats subscriptions are registered after emitting data
-    this.tempStats.pipe(take(1)).subscribe(/* force execution of tempstats observable... */);
+    // A single accumulator for both modes: a rebuild replaces it, a chunk extends it. Settings are read when
+    // the event is handled, so chunks arriving after a settings change build on the rebuilt stats with the
+    // current settings instead of continuing an accumulator made with the old ones.
+    this.tempStats = merge(rebuild$, chunk$).pipe(
+      withLatestFrom(settings$, this.scrobbles.scrobbles),
+      filter(([event, settings]) => event.kind === 'rebuild' || settings.autoUpdate),
+      scan((acc, [event, settings, all]) => event.kind === 'rebuild'
+        ? this.update(all, settings, this.emptyStats())
+        : this.update(event.scrobbles, settings, event.cumulative ? acc : this.emptyStats()),
+        this.emptyStats()),
+      shareReplay(1)
+    );
+
+    // Chunks are emitted as pages arrive and shareReplay only keeps the latest result, so the pipeline has to
+    // run from the start rather than from the moment the first tab subscribes.
+    this.tempStats.pipe(takeUntilDestroyed()).subscribe();
   }
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
@@ -140,9 +160,10 @@ export class StatsBuilderService {
     const prev = next.last ? next.monthList[this.mapper.getMonthYear(next.last.date)] : undefined;
     if (prev) {
       const handled = Object.keys(next.monthList).length - 1;
-      this.populateRank(next.seenArtists, handled);
-      this.populateRank(next.seenAlbums, handled);
-      this.populateRank(next.seenTracks, handled);
+      const lists = this.seen(next);
+      this.populateRank(lists.artists, handled);
+      this.populateRank(lists.albums, handled);
+      this.populateRank(lists.tracks, handled);
     }
   }
 
@@ -167,10 +188,14 @@ export class StatsBuilderService {
 
   /** Without weekYear the scrobble has no date: it only counts towards the item, not its date based stats. */
   private handleArtist(next: TempStats, scrobble: Scrobble, weekYear?: string): void {
-    const artist = next.seenArtists[scrobble.artist] ??= {
-      ...this.createStreakItem(scrobble.artist),
-      tracks: new Set(),
-    };
+    let artist = next.seenArtists[scrobble.artist];
+    if (!artist) {
+      artist = next.seenArtists[scrobble.artist] = {
+        ...this.createStreakItem(scrobble.artist),
+        tracks: new Set(),
+      };
+      this.seen(next).artists.push(artist);
+    }
     artist.tracks.add(scrobble.track);
     this.handleStreakItem(artist, next.betweenArtists, scrobble, weekYear);
   }
@@ -187,6 +212,7 @@ export class StatsBuilderService {
           artists: [scrobble.artist],
           shortName: scrobble.album,
         };
+        this.seen(next).albums.push(album);
       } else if (!album.artists.includes(scrobble.artist)) {
         album.artists.push(scrobble.artist);
         if (album.artists.length === 2) {
@@ -206,12 +232,16 @@ export class StatsBuilderService {
 
   private handleTrack(next: TempStats, scrobble: Scrobble, weekYear?: string): Track {
     const fullName = scrobble.artist + ' - ' + scrobble.track;
-    const track = next.seenTracks[fullName] ??= {
-      ...this.createStreakItem(fullName),
-      artist: scrobble.artist,
-      shortName: scrobble.track,
-      withAlbum: 0
-    };
+    let track = next.seenTracks[fullName];
+    if (!track) {
+      track = next.seenTracks[fullName] = {
+        ...this.createStreakItem(fullName),
+        artist: scrobble.artist,
+        shortName: scrobble.track,
+        withAlbum: 0
+      };
+      this.seen(next).tracks.push(track);
+    }
     if (scrobble.album) {
       track.withAlbum++;
     }
@@ -224,6 +254,15 @@ export class StatsBuilderService {
       }
     }
     return track;
+  }
+
+  private seen(stats: TempStats): SeenLists {
+    let lists = this.seenLists.get(stats);
+    if (!lists) {
+      lists = {artists: [], albums: [], tracks: []};
+      this.seenLists.set(stats, lists);
+    }
+    return lists;
   }
 
   private createStreakItem(name: string): StreakItem {
@@ -311,9 +350,32 @@ export class StatsBuilderService {
     });
   }
 
-  private populateRank(data: { [p: string]: StreakItem }, handled: number) {
-    Object.values(data)
-      .sort((a, b) => scrobbleCount(b) - scrobbleCount(a))
-      .forEach((artist, idx) => artist.ranks[handled] = idx + 1);
+  /**
+   * Counting sort instead of Array.sort: this runs for every seen item at every month boundary, which
+   * dominated large imports. Same result as a stable sort on count desc: ties keep insertion order.
+   */
+  private populateRank(items: StreakItem[], handled: number) {
+    const counts = new Uint32Array(items.length);
+    let max = 0;
+    for (let i = 0; i < items.length; i++) {
+      const count = counts[i] = scrobbleCount(items[i]);
+      if (count > max) {
+        max = count;
+      }
+    }
+    // offsets[c] becomes the amount of items with a count higher than c
+    const offsets = new Uint32Array(max + 2);
+    for (let i = 0; i < counts.length; i++) {
+      offsets[counts[i]]++;
+    }
+    let higher = 0;
+    for (let c = max; c >= 0; c--) {
+      const same = offsets[c];
+      offsets[c] = higher;
+      higher += same;
+    }
+    for (let i = 0; i < items.length; i++) {
+      items[i].ranks[handled] = ++offsets[counts[i]];
+    }
   }
 }

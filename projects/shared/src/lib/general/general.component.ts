@@ -1,8 +1,8 @@
 import { Component, computed, inject, Signal, signal, TemplateRef, viewChild } from '@angular/core';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet, TitleCasePipe } from '@angular/common';
 import { TranslatePipe } from '../service/translate.pipe';
-import { Artist, Constants, ItemType, scrobbleCount, StreakItem, TempStats } from '../app/model';
+import { Artist, Constants, ItemType, Month, scrobbleCount, StreakItem } from '../app/model';
 import { StatsBuilderService } from '../service/stats-builder.service';
 import { MapperService } from '../service/mapper.service';
 import { EddingtonUtil } from '../service/eddington.util';
@@ -21,6 +21,23 @@ interface Anniversary {
   artist: Artist;
   years: number;
   date: Date;
+}
+
+/** The numbers shown on the overview cards, derived once per stats emission. */
+interface Overview {
+  daysListened: number;
+  total: number;
+  artists: number;
+  albums: number;
+  tracks: number;
+  oneHitWonders: number;
+  tracksWithoutAlbum: number;
+  scrobblesWithoutAlbum: number;
+  eddington: number;
+  nextEddington: number;
+  cutOver: number;
+  popularYear?: { year: string, count: number };
+  popularMonth?: Month;
 }
 
 @Component({
@@ -47,6 +64,7 @@ interface Anniversary {
     MatList,
     MatListItem,
     NgTemplateOutlet,
+    TitleCasePipe,
     TranslatePipe,
     MatCardTitle,
     MatCardHeader,
@@ -57,8 +75,6 @@ interface Anniversary {
 })
 export class GeneralComponent {
   readonly everyYearArtistsDialog = viewChild<TemplateRef<StreakItem[]>>('everyYearArtists');
-  readonly values: <T extends StreakItem>(seen: { [key: string]: T }) => T[] = Object.values;
-  readonly count: (seen: {}) => number = seen => Object.keys(seen).length;
   readonly scrobbleCount = scrobbleCount;
 
   private readonly scrobbles = inject(ScrobbleStore);
@@ -71,6 +87,67 @@ export class GeneralComponent {
   readonly tempStats$ = toSignal(this.stats.tempStats, {equal: () => false});
   readonly first = computed(() => this.tempStats$()?.first);
   readonly last = computed(() => this.tempStats$()?.last);
+  readonly seenArtists$ = computed(() => this.valuesOf(this.tempStats$()?.seenArtists));
+  readonly seenAlbums$ = computed(() => this.valuesOf(this.tempStats$()?.seenAlbums));
+  readonly seenTracks$ = computed(() => this.valuesOf(this.tempStats$()?.seenTracks));
+
+  readonly overview$: Signal<Overview | undefined> = computed(() => {
+    const stats = this.tempStats$();
+    if (!stats) {
+      return undefined;
+    }
+    const artists = this.seenArtists$();
+    const tracks = this.seenTracks$();
+
+    let oneHitWonders = 0;
+    for (const artist of artists) {
+      if (artist.tracks.size === 1) {
+        oneHitWonders++;
+      }
+    }
+
+    let tracksWithoutAlbum = 0;
+    let scrobblesWithoutAlbum = 0;
+    for (const track of tracks) {
+      const without = scrobbleCount(track) - track.withAlbum;
+      if (without > 0) {
+        tracksWithoutAlbum++;
+        scrobblesWithoutAlbum += without;
+      }
+    }
+
+    const counts = EddingtonUtil.counts(stats);
+    const eddington = EddingtonUtil.calcEddington(counts);
+
+    let popularYear: Overview['popularYear'];
+    for (const [year, count] of Object.entries(stats.years)) {
+      if (!popularYear || count > popularYear.count) {
+        popularYear = {year, count};
+      }
+    }
+    let popularMonth: Month | undefined;
+    for (const month of Object.values(stats.monthList)) {
+      if (!popularMonth || month.count > popularMonth.count) {
+        popularMonth = month;
+      }
+    }
+
+    return {
+      daysListened: Object.keys(stats.specificDays).length,
+      total: stats.scrobbleCount + stats.withoutDate,
+      artists: artists.length,
+      albums: this.seenAlbums$().length,
+      tracks: tracks.length,
+      oneHitWonders,
+      tracksWithoutAlbum,
+      scrobblesWithoutAlbum,
+      eddington,
+      nextEddington: (counts[eddington] || 0) + 1,
+      cutOver: this.cutOver(artists),
+      popularYear,
+      popularMonth,
+    };
+  });
   readonly days$ = computed(() => {
     const first = this.first();
     return first ? Math.ceil((new Date().setHours(23,59,59,59) - first.date.getTime()) / Constants.DAY) : 0;
@@ -95,6 +172,7 @@ export class GeneralComponent {
     const stats = this.tempStats$();
     return stats ? this.mapper.seen(this.dialogType(), stats) : {};
   });
+  readonly dialogItems$ = computed(() => Object.values(this.dialogSeen$()));
 
   readonly anniversaries$: Signal<{ today: Anniversary[], upcoming: Anniversary[], past: Anniversary[] }> = computed(() => {
     const stats = this.tempStats$();
@@ -156,57 +234,27 @@ export class GeneralComponent {
     this.dialog.open(this.everyYearArtistsDialog()!, {data: onlyCompleted});
   }
 
-  oneHitWonders(stats: TempStats) {
-    return Object.values(stats.seenArtists).filter(a => a.tracks.size === 1).length;
+  /** Replaces the years array so the pure filterByYear pipe sees a new reference and re-runs. */
+  toggleYear(year: number, selected: boolean): void {
+    this.dialogYears.update(years => years.map(y => y[0] === year ? [y[0], y[1], y[2], selected] : y));
   }
 
-  tracksWithoutAlbum(stats: TempStats) {
-    return Object.values(stats.seenTracks)
-      .filter(t => t.withAlbum < scrobbleCount(t))
-      .length;
-  }
+  protected readonly open = open;
 
-  scrobblesWithoutAlbum(stats: TempStats) {
-    return Object.values(stats.seenTracks)
-      .map(t => scrobbleCount(t) - t.withAlbum)
-      .reduce((a, b) => a + b, 0);
-  }
-
-  getEddington(stats: TempStats) {
-    return EddingtonUtil.calcEddington(EddingtonUtil.counts(stats));
-  }
-
-  nextEddington(stats: TempStats) {
-    const counts = EddingtonUtil.counts(stats);
-    const eddington = EddingtonUtil.calcEddington(counts);
-    return (counts[eddington] || 0) + 1;
-  }
-
-  cutOver(stats: TempStats) {
-    const counts = Object.values(stats.seenArtists).map(a => scrobbleCount(a)).sort((a, b) => b - a);
+  /** The amount of artists with at least that many scrobbles. */
+  private cutOver(artists: Artist[]): number {
+    const counts = artists.map(a => scrobbleCount(a)).sort((a, b) => b - a);
     for (let i = 0; i < counts.length; i++) {
       if (i >= counts[i]) {
-        return i
+        return i;
       }
     }
     return 0;
   }
 
-  mostPopularMonth(stats: TempStats) {
-    return Object.values(stats.monthList).sort(((a, b) => b.count - a.count))[0];
+  private valuesOf<T>(seen?: { [key: string]: T }): T[] {
+    return seen ? Object.values(seen) : [];
   }
-
-  max(counts: { [key: number]: number }): number {
-    const keys = Object.keys(counts);
-    return keys.length ? keys.reduce((a: any, b: any) => counts[a] > counts[b] ? a : b) as any as number : 0;
-  }
-
-  min(counts: { [key: number]: number }): number {
-    const keys = Object.keys(counts);
-    return keys.length ? keys.reduce((a: any, b: any) => counts[a] < counts[b] ? a : b) as any as number : 0;
-  }
-
-  protected readonly open = open;
 
   missing(item: StreakItem, years: [number, number, number, boolean][]) {
     const deselected = years.filter(year => !year[3])

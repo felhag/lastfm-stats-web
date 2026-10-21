@@ -120,7 +120,7 @@ export class DatasetModalComponent implements OnInit {
             '<span style="font-weight: bold; color: gray; margin: 0 4px;">=</span>' :
             `<span style="font-weight: bold; transform: rotate(${diff > 0 ? 135 : 45}deg); color: ${diff > 0 ? 'red' : 'green'}; margin: 0 4px;">↑</span>`;
           const rank = currRank ? `<div style="display: inline-flex;">Rank: ${arrow}<strong>${currRank}</strong></div>` : '';
-          return `<strong>${this.key}</strong><br>Scrobbles: <strong>${scrobbles}</strong><br>${rank}`;
+          return `<strong>${this.key}</strong><br>${scrobblesTitle}: <strong>${scrobbles}</strong><br>${rank}`;
         },
         useHTML: true
       },

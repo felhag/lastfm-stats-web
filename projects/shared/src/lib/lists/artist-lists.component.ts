@@ -41,6 +41,7 @@ export interface ArtistStats {
 })
 export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
   private url = inject(AbstractUrlService);
+  private translate = inject(TranslatePipe);
   protected forcedThreshold = Constants.SCROBBLE_ARTIST_THRESHOLD;
 
   protected doUpdate(stats: TempStats, next: ArtistStats): void {
@@ -50,6 +51,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     next.ongoingBetweenArtists = gaps[1];
 
     const months = this.getMonths(stats);
+    const scrobbles = this.translate.transform('translate.scrobbles');
 
     next.newArtistsPerMonth = this.getMonthTop10(months, m => m.artists.filter(a => a.new).length, k => months[k], (m, k) => `${m.alias} (${k} artists)`, m => {
       // only show new artists in Including... text
@@ -63,7 +65,7 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
       .flat();
     const xTimes = (item: any, v: number) => `${v} times`;
 
-    next.avgTrackPerArtist = this.getMonthTop10(months, m => m.avg!, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} scrobbles per artist)`, v => this.including(v.artists));
+    next.avgTrackPerArtist = this.getMonthTop10(months, m => m.avg!, k => months[k], (m, v) => `${m.alias} (${Math.round(v)} ${scrobbles} per artist)`, v => this.including(v.artists));
     next.mostListenedNewArtist = this.getTop10(arr, a => a.amount, k => arr[+k], a => `${a.artist} (${a.month})`, xTimes, a => this.url.artistMonth(a.artist, a.month), i => i.date);
 
     next.weeksPerArtist = this.getArtistTop10(seen, s => s.weeks.size, k => seen[+k], a => a.name, (i, v) => `${v} weeks`);
@@ -73,21 +75,21 @@ export class ArtistListsComponent extends AbstractListsComponent<ArtistStats> {
     const datedThreshold = this.dated(seenThreshold);
     const spt = seenThreshold.filter(s => s.tracks.size > 1);
     const ohw = seen.filter(a => a.tracks.size === 1);
-    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} scrobbles per track (${a.tracks.size} track${a.tracks.size > 1 ? 's' : ''})`;
+    const sptDescription = (a: Artist, v: number) => `${Math.round(v)} ${scrobbles} per track (${a.tracks.size} track${a.tracks.size > 1 ? 's' : ''})`;
     next.oneHitWonders = this.getArtistTop10(ohw, s => scrobbleCount(s), k => ohw[+k], a => a.name + ' - ' + a.tracks.values().next().value, xTimes);
     next.scrobblesPerTrack = this.getArtistTop10(spt, s => scrobbleCount(s) / s.tracks.size, k => spt[+k], a => a.name, sptDescription);
 
-    next.avgScrobbleDesc = this.getArtistTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(v));
-    next.avgScrobbleAsc = this.getArtistTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(Math.abs(v)));
+    next.avgScrobbleDesc = this.getArtistTop10(datedThreshold, s => s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => this.dateString(v));
+    next.avgScrobbleAsc = this.getArtistTop10(datedThreshold, s => -s.avgScrobble, k => datedThreshold[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => this.dateString(Math.abs(v)));
 
     const std = datedThreshold.map(a => ({
       ...a,
       deltas: this.calcDeltas(a.scrobbles),
     }));
     next.avgDelta = this.getArtistTop10(std, s => (s as any).deltas, k => std[+k], a => `${a.name} (${Math.round((a as any).deltas / Constants.DAY)} days)`,
-      i => `${i.scrobbles.length} scrobbles between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`);
+      i => `${i.scrobbles.length} ${scrobbles} between ${this.dateString(i.scrobbles[0])} and ${this.dateString(i.scrobbles[i.scrobbles.length - 1])}`);
     const dated = this.dated(seen);
-    next.latestNew = this.getArtistTop10(dated, s => s.scrobbles[0], k => dated[+k], a => `${a.name} (${scrobbleCount(a)} scrobbles)`, (i, v) => this.dateString(v));
+    next.latestNew = this.getArtistTop10(dated, s => s.scrobbles[0], k => dated[+k], a => `${a.name} (${scrobbleCount(a)} ${scrobbles})`, (i, v) => this.dateString(v));
     next.artistStreak = this.consecutiveStreak(stats, stats.artistStreak, s => `${s.start.artist} (${s.length} times)`);
 
     const rankings = this.getRankings(seenThreshold, Object.values(months), (i, m) => this.url.artistMonth(i.name, m));
