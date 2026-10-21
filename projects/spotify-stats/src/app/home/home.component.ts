@@ -135,7 +135,8 @@ export class HomeComponent {
         artist: s.artistName,
         track: s.trackName,
         album: '',
-        date: new Date(s.endTime + ' UTC')
+        date: new Date(s.endTime + ' UTC'),
+        msPlayed: s.msPlayed,
       }));
   }
 
@@ -151,7 +152,8 @@ export class HomeComponent {
         artist: s.master_metadata_album_artist_name,
         track: s.master_metadata_track_name,
         album: s.master_metadata_album_album_name,
-        date: new Date(s.ts)
+        date: new Date(s.ts),
+        msPlayed: s.ms_played,
       }));
   }
 

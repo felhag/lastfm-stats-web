@@ -13,6 +13,12 @@
         <dd>{{ overview.daysListened }} ({{ overview.daysListened / ((days$())!) * 100 | number:'1.0-2' }}
           %)
         </dd>
+        @if (overview.playtime) {
+          <dt>Total playtime</dt>
+          <dd>{{ overview.playtime | playtime }}</dd>
+          <dt>Playtime per {{ 'translate.scrobbled' | translate }} day</dt>
+          <dd>{{ overview.playtime / overview.daysListened | playtime }}</dd>
+        }
       }
       @if (first(); as first) {
         <dt>First {{ 'translate.scrobble' | translate }}</dt>
@@ -100,6 +106,21 @@
       </dl>
     </mat-card-content>
   </mat-card>
+  @if (overview.playtimePerYear.length) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Playtime per year</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <dl>
+          @for (year of overview.playtimePerYear; track year.year) {
+            <dt>{{ year.year }}</dt>
+            <dd>{{ year.ms | playtime }} ({{ year.ms / overview.playtime * 100 | number:'1.0-1' }} %)</dd>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
   @if (anniversaries$(); as anniv) {
     <mat-card>
       <mat-card-header>

@@ -5,6 +5,7 @@ import { AbstractUrlService } from '../service/abstract-url.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { Top10listComponent } from './top10list/top10list.component';
 import { AsyncPipe } from '@angular/common';
+import { PlaytimePipe } from '../pipe/playtime.pipe';
 
 export interface ScrobbleStats {
   scrobbleStreak: ListProvider;
@@ -20,11 +21,13 @@ export interface ScrobbleStats {
     selector: 'app-scrobble-lists',
     templateUrl: './scrobble-lists.component.html',
     styleUrls: ['./lists.component.scss'],
-    imports: [Top10listComponent, AsyncPipe, TranslatePipe]
+    imports: [Top10listComponent, AsyncPipe, TranslatePipe],
+    providers: [PlaytimePipe]
 })
 export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats> {
   private url = inject(AbstractUrlService);
   private translate = inject(TranslatePipe);
+  private playtime = inject(PlaytimePipe);
   protected forcedThreshold = -1;
   private readonly dateTimeFormat: Intl.DateTimeFormatOptions = {dateStyle: 'short', timeStyle: 'short'};
 
@@ -65,18 +68,12 @@ export class ScrobbleListsComponent extends AbstractListsComponent<ScrobbleStats
       const end = session.end.date;
       return {
         amount: count,
-        name: `${count} ${scrobbles} (${this.duration(end.getTime() - start.getTime())})`,
+        name: `${count} ${scrobbles} (${this.playtime.transform(end.getTime() - start.getTime())})`,
         description: `${start.toLocaleString([], this.dateTimeFormat)} - ${end.toLocaleString([], this.dateTimeFormat)}`,
         url: this.url.range(start, end),
         date: new Date(start.getTime() + (end.getTime() - start.getTime()) / 2),
       };
     });
-  }
-
-  private duration(ms: number): string {
-    const minutes = Math.round(ms / 60000);
-    const hours = Math.floor(minutes / 60);
-    return hours ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
   }
 
   protected emptyStats(): ScrobbleStats {

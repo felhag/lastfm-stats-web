@@ -30,7 +30,7 @@ export class EddingtonUtil {
   }
 
   public static eddingtonDataPoint(counts: {[key: number]: number}, eddington: number): number {
-    while (!counts[eddington]) {
+    while (eddington > 0 && !counts[eddington]) {
       eddington--;
     }
     return eddington;

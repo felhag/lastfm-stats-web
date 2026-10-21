@@ -14,6 +14,7 @@ import { MatList, MatListItem } from "@angular/material/list";
 import { MatIcon } from "@angular/material/icon";
 import { MatChip, MatChipListbox, MatChipOption } from "@angular/material/chips";
 import { FilterByYearPipe } from "../pipe/filter-by-year.pipe";
+import { PlaytimePipe } from "../pipe/playtime.pipe";
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from "@angular/material/snack-bar";
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
 
@@ -38,6 +39,9 @@ interface Overview {
   cutOver: number;
   popularYear?: { year: string, count: number };
   popularMonth?: Month;
+  /** Listening time in milliseconds, 0 when unknown (last.fm). */
+  playtime: number;
+  playtimePerYear: { year: string, ms: number }[];
 }
 
 @Component({
@@ -64,6 +68,7 @@ interface Overview {
     MatList,
     MatListItem,
     NgTemplateOutlet,
+    PlaytimePipe,
     TitleCasePipe,
     TranslatePipe,
     MatCardTitle,
@@ -146,6 +151,8 @@ export class GeneralComponent {
       cutOver: this.cutOver(artists),
       popularYear,
       popularMonth,
+      playtime: stats.playtime,
+      playtimePerYear: Object.entries(stats.playtimePerYear).map(([year, ms]) => ({year, ms})),
     };
   });
   readonly days$ = computed(() => {

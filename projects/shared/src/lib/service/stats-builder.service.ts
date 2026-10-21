@@ -76,6 +76,9 @@ export class StatsBuilderService {
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
     for (const scrobble of this.filterWith(scrobbles, settings)) {
+      if (scrobble.msPlayed) {
+        next.playtime += scrobble.msPlayed;
+      }
       if (!hasDate(scrobble)) {
         next.withoutDate++;
         this.handleUndated(next, scrobble);
@@ -99,6 +102,9 @@ export class StatsBuilderService {
         next.years[year] = 0;
       }
       next.years[year]++;
+      if (scrobble.msPlayed) {
+        next.playtimePerYear[year] = (next.playtimePerYear[year] || 0) + scrobble.msPlayed;
+      }
 
       this.handleMonth(next, monthYear, scrobble);
       this.handleArtist(next, scrobble, weekYear);
@@ -323,6 +329,8 @@ export class StatsBuilderService {
       albumCount: 0,
       trackCount: 0,
       withoutDate: 0,
+      playtime: 0,
+      playtimePerYear: {},
     };
   }
 

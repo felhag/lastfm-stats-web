@@ -25,6 +25,7 @@ export interface Scrobble {
   albumId?: string;
   track: string;
   date: Date;
+  msPlayed?: number; // Only for spotify
 }
 
 export function hasDate(scrobble: Scrobble): boolean {
@@ -143,6 +144,9 @@ export interface TempStats {
   albumCount: number;
   trackCount: number;
   withoutDate: number;
+  /** Total listening time in milliseconds, 0 when the source does not provide it. */
+  playtime: number;
+  playtimePerYear: { [key: number]: number };
 }
 
 export interface Streak {

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
-import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
+import { App, Constants, TempStats } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
@@ -28,6 +28,8 @@ import { ZScoreChart } from './zscore-chart';
 import { ZScoreService } from '../service/zscore.service';
 import { DiversityChart } from './diversity-chart';
 import { DiscoveryChart } from './discovery-chart';
+import { PlaytimeChart } from './playtime-chart';
+import { PlaytimePipe } from '../pipe/playtime.pipe';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -65,7 +67,7 @@ if (darkMode.matches) {
   selector: 'app-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
-  providers: [TranslatePipe],
+  providers: [TranslatePipe, PlaytimePipe],
   imports: [MatCard, ChartLoaderDirective, MatTooltip, MatIcon, MatCardContent, MatIconButton]
 })
 export class ChartsComponent {
@@ -79,6 +81,7 @@ export class ChartsComponent {
     const mapper = inject(MapperService);
     const zscoreService = inject(ZScoreService);
     const exportService = inject(ExportService);
+    const app = inject(App as any) as App;
 
     this.charts = [
       new TimelineChart(translate),
@@ -102,6 +105,10 @@ export class ChartsComponent {
           stats => stats.months,
         (stats, key) => Object.keys(stats.monthList).filter(month => month.startsWith(key + '-')).length),
     ];
+    if (app === App.spotify) {
+      // only spotify exports contain the duration of each play
+      this.charts.push(new PlaytimeChart(inject(PlaytimePipe)));
+    }
 
     this.builder.tempStats.pipe(takeUntilDestroyed()).subscribe(stats => this.updateStats(stats));
   }
