@@ -26,9 +26,7 @@
                   </a>
                 }
               </mat-card-title>
-              @if (recapAvailable) {
               <a mat-button class="recap-link" [routerLink]="['/user', username, 'recap', recapYear]">View your {{ recapYear }} recap</a>
-            }
             <app-buttons/>
             </mat-card-header>
             <mat-card-content>

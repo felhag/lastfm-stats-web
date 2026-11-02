@@ -42,6 +42,12 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+8.0 (02-11-2026)
+- added recap
+- added playtime stats for spotify
+- added dateless scrobbles ([#116][i116])
+- performance improvement initial load
+
 7.5 (30-09-2026)
 - added sessions list
 - added discovery chart
@@ -384,3 +390,4 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i108]: https://github.com/felhag/lastfm-stats-web/issues/108
 [i109]: https://github.com/felhag/lastfm-stats-web/issues/109
 [i111]: https://github.com/felhag/lastfm-stats-web/issues/111
+[i116]: https://github.com/felhag/lastfm-stats-web/issues/116

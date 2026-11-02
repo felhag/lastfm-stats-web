@@ -63,9 +63,8 @@ export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
   private activeTab: string = 'general';
   private start?: [number, number, number];
-  readonly recapYear = new Date().getFullYear();
-  /** Only promote the recap near the end of the year, when there's enough data to make it interesting. */
-  readonly recapAvailable = new Date().getMonth() >= 9;
+  /** Early in the year there's too little data for an interesting recap, so January and February link to the previous year. */
+  readonly recapYear = new Date().getFullYear() - (new Date().getMonth() < 2 ? 1 : 0);
   /** The recap takes over the whole screen, so the header and tabs are hidden while it is open. */
   readonly fullscreen = toSignal(this.router.events.pipe(
     filter(e => e instanceof NavigationEnd),
