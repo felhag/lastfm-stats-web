@@ -1,7 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import * as Papa from 'papaparse';
-import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
+import { App, APP_DOMAINS, Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
@@ -22,6 +22,7 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   ]
 })
 export class HomeComponent {
+  readonly domain = APP_DOMAINS[App.lastfm];
   private router = inject(Router);
   private importer = inject(ScrobbleImporter);
 

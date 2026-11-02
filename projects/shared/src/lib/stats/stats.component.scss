@@ -22,6 +22,16 @@ app-buttons {
   margin-left: auto;
 }
 
+.recap-link {
+  margin-left: auto;
+  align-self: center;
+  text-decoration: underline;
+
+  + app-buttons {
+    margin-left: 0;
+  }
+}
+
 .mat-mdc-card {
   margin: 16px;
   flex: 1 1 0;
@@ -57,5 +67,10 @@ app-buttons {
 @media screen and (max-width: 575px) {
   .mat-mdc-card-header {
     flex-direction: column;
+  }
+
+  .recap-link {
+    margin-left: 0;
+    align-self: flex-start;
   }
 }

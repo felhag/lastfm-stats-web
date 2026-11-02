@@ -1,5 +1,11 @@
 export enum App { 'lastfm', 'spotify'}
 
+/** Where each app is hosted. */
+export const APP_DOMAINS: Record<App, string> = {
+  [App.lastfm]: 'lastfmstats.com',
+  [App.spotify]: 'spotifystats.app',
+};
+
 export type ItemType = 'artist' | 'album' | 'track';
 
 export type ProgressState = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING';

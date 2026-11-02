@@ -9,9 +9,9 @@ import { StatsComponent } from './stats/stats.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { GeneralComponent } from './general/general.component';
 import { EnrichmentComponent } from './enrichment/enrichment.component';
+import { RecapComponent } from './recap/recap.component';
 import { provideHighcharts } from "highcharts-angular";
 import { Constants } from "./app/model";
-import * as Highcharts from "highcharts";
 
 export class Shared {
   public static routerProvider(home: Type<any>, scrobblesRoute: string): EnvironmentProviders {
@@ -57,6 +57,10 @@ export class Shared {
             path: 'enrichment',
             pathMatch: 'full',
             component: EnrichmentComponent
+          }, {
+            path: 'recap/:year',
+            pathMatch: 'full',
+            component: RecapComponent
           }]
       },
     ]);

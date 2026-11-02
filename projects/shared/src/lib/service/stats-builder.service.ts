@@ -338,7 +338,7 @@ export class StatsBuilderService {
     return Object.fromEntries([...Array(keys).keys()].map(k => [k, 0] ));
   }
 
-  private filterWith(scrobbles: Scrobble[], settings: Settings): Scrobble[] {
+  filterWith(scrobbles: Scrobble[], settings: Settings): Scrobble[] {
     const start = settings.dateRangeStart;
     const end = settings.dateRangeEnd;
     const hasDateFilter = start || end;

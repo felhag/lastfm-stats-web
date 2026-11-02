@@ -14,49 +14,56 @@
       </mat-card>
     }
     @if (showContent(state)) {
-      <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title>
-            @if ((user$ | async); as user) {
-              <a [href]="user.url" target="_blank" class="user-link regular-text">
-                @if (user.image.length) {
-                  <img [src]="user.image[0]['#text']">
-                  }Statistics for {{user.name}}
+      @if (!fullscreen()) {
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>
+              @if ((user$ | async); as user) {
+                <a [href]="user.url" target="_blank" class="user-link regular-text">
+                  @if (user.image.length) {
+                    <img [src]="user.image[0]['#text']">
+                    }Statistics for {{user.name}}
+                  </a>
+                }
+              </mat-card-title>
+              @if (recapAvailable) {
+              <a mat-button class="recap-link" [routerLink]="['/user', username, 'recap', recapYear]">View your {{ recapYear }} recap</a>
+            }
+            <app-buttons/>
+            </mat-card-header>
+            <mat-card-content>
+              @if (isLastfm) {
+                <mat-card-subtitle>Progress</mat-card-subtitle>
+              }
+              <app-progress/>
+              <div class="conf-row">
+                <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
+                  <mat-icon class="material-icons-outlined">settings</mat-icon>
+                  Filter data
+                </button>
+                @if (isLastfm) {
+                  <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
+                  <mat-slide-toggle (change)="settings.update({autoUpdate: $event.checked})" [checked]="settings.autoUpdate | async" color="primary"></mat-slide-toggle>
+                  <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
+                    <mat-icon>update</mat-icon>
+                    Update
+                  </button>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+        <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
+          @if (!fullscreen()) {
+            <nav mat-tab-nav-bar mat-stretch-tabs [tabPanel]="tabPanel">
+              @for (tab of tabs; track tab) {
+                <a mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
+                  routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
+                  {{tab | titlecase}}
                 </a>
               }
-            </mat-card-title>
-            <app-buttons/>
-          </mat-card-header>
-          <mat-card-content>
-            @if (isLastfm) {
-              <mat-card-subtitle>Progress</mat-card-subtitle>
-            }
-            <app-progress/>
-            <div class="conf-row">
-              <button type="button" mat-stroked-button (click)="openSettings()" [matBadge]="settings.count | async" [matBadgeHidden]="(settings.count | async) === 0">
-                <mat-icon class="material-icons-outlined">settings</mat-icon>
-                Filter data
-              </button>
-              @if (isLastfm) {
-                <span class="auto-update" matBadge="!" [matBadgeHidden]="settings.autoUpdate | async">Auto update:</span>
-                <mat-slide-toggle (change)="settings.update({autoUpdate: $event.checked})" [checked]="settings.autoUpdate | async" color="primary"></mat-slide-toggle>
-                <button [class.hide]="settings.autoUpdate | async" mat-flat-button (click)="rebuild()">
-                  <mat-icon>update</mat-icon>
-                  Update
-                </button>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <div (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)">
-          <nav mat-tab-nav-bar mat-stretch-tabs [tabPanel]="tabPanel">
-            @for (tab of tabs; track tab) {
-              <a mat-tab-link [routerLink]="'/user/' + username + '/' + tab"
-                routerLinkActive #link="routerLinkActive" [active]="link.isActive" (isActiveChange)="activeChange($event, tab)">
-                {{tab | titlecase}}
-              </a>
-            }
-          </nav>
+            </nav>
+          }
           <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
           <router-outlet/>
         </div>

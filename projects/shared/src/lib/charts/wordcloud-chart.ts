@@ -9,7 +9,7 @@ export class WordcloudChart extends AbstractChart {
     super();
   }
 
-  private readonly EXCLUDE = ['the', 'and', 'for', 'you', 'your', 'mix', 'remix', 'remaster', 'remastered', 'version', 'edition', 'feat', '-'];
+  static readonly EXCLUDE = ['the', 'and', 'for', 'you', 'your', 'mix', 'remix', 'remaster', 'remastered', 'version', 'edition', 'feat', '-'];
 
   toolbar?: HTMLElement;
   stats?: TempStats;
@@ -65,7 +65,7 @@ export class WordcloudChart extends AbstractChart {
       .forEach(w => words[w] = (words[w] || 0) + 1);
 
     const data = Object.keys(words)
-      .filter(k => this.EXCLUDE.indexOf(k) < 0)
+      .filter(k => WordcloudChart.EXCLUDE.indexOf(k) < 0)
       .sort((a, b) => words[b] - words[a])
       .slice(0, 100);
 

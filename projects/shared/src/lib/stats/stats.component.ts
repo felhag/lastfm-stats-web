@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { combineLatest, Observable, take, switchMap, filter } from 'rxjs';
+import { combineLatest, Observable, take, switchMap, filter, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
@@ -62,6 +63,14 @@ export class StatsComponent implements OnInit, OnDestroy {
   readonly tabs: string[];
   private activeTab: string = 'general';
   private start?: [number, number, number];
+  readonly recapYear = new Date().getFullYear();
+  /** Only promote the recap near the end of the year, when there's enough data to make it interesting. */
+  readonly recapAvailable = new Date().getMonth() >= 9;
+  /** The recap takes over the whole screen, so the header and tabs are hidden while it is open. */
+  readonly fullscreen = toSignal(this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd),
+    map(e => this.isRecap((e as NavigationEnd).urlAfterRedirects))
+  ), {initialValue: this.isRecap(this.router.url)});
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
 
@@ -114,7 +123,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   swipeEnd(ev: TouchEvent): void {
-    if (!this.start) {
+    if (!this.start || this.fullscreen()) {
       return;
     }
     const swipe = this.getSwipeEventData(ev);
@@ -130,6 +139,10 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.router.navigate(['user', this.username, next]);
       }
     }
+  }
+
+  private isRecap(url: string): boolean {
+    return /^\/user\/[^/]+\/recap(\/|$)/.test(url);
   }
 
   private getSwipeEventData(ev: TouchEvent): [number, number, number] {

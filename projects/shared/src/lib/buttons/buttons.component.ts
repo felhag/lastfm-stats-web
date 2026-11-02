@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { MatIcon, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { App } from '../app/model';
+import { App, APP_DOMAINS } from '../app/model';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -40,6 +40,11 @@ export class ButtonsComponent {
 
   get isLastFm(): boolean {
     return this.app === App.lastfm;
+  }
+
+  /** The other app, to link to. */
+  get otherDomain(): string {
+    return APP_DOMAINS[this.isLastFm ? App.spotify : App.lastfm];
   }
 
   open(url: string) {

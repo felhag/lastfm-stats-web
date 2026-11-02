@@ -1,0 +1,10 @@
+// Background per slide: a fixed, vivid palette regardless of light/dark mode, like the downloadable card.
+.slide-intro, .slide-share { background: linear-gradient(135deg, #1a237e, #6a1b9a 55%, #d81b60); }
+.slide-total { background: linear-gradient(135deg, #004d40, #00897b 60%, #c0ca33); }
+.slide-favourites { background: linear-gradient(135deg, #b71c1c, #e64a19 60%, #ffa000); }
+.slide-changes { background: linear-gradient(135deg, #311b92, #5e35b1 60%, #26a69a); }
+.slide-discoveries { background: linear-gradient(135deg, #1b5e20, #43a047 60%, #9ccc65); }
+.slide-rhythm { background: linear-gradient(135deg, #263238, #455a64 60%, #00838f); }
+.slide-clock { background: linear-gradient(135deg, #0f2027, #203a43 50%, #2c5364); }
+.slide-sessions { background: linear-gradient(135deg, #880e4f, #c2185b 60%, #ff7043); }
+.slide-words { background: linear-gradient(135deg, #01579b, #0277bd 55%, #7e57c2); }

@@ -3,21 +3,21 @@ import { form, FormField, required } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import JSZip from 'jszip';
-import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
+import { App, APP_DOMAINS, Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
-import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
+import { ScrobbleImporter } from 'projects/shared/src/lib/service/scrobble-importer.service';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { NgxDropzoneModule } from 'ngx-dropzone';
-import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
+import { DbLoadButtonComponent } from 'projects/shared/src/lib/db-load-button/db-load-button.component';
 import { MatListItem, MatListItemIcon, MatListItemLine, MatNavList } from '@angular/material/list';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
-import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
+import { ButtonsComponent } from 'projects/shared/src/lib/buttons/buttons.component';
 
 interface StreamingHistoryEntry {
   endTime: string;
@@ -70,6 +70,7 @@ interface ParsedEntry {
     ]
 })
 export class HomeComponent {
+  readonly domain = APP_DOMAINS[App.spotify];
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {
     'MyData/StreamingHistory': json => this.parseStreamingHistory(json),
     'MyData/Streaming_History_Audio': json => this.parseEndSong(json),

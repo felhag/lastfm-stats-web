@@ -1,0 +1,306 @@
+:host {
+  position: fixed;
+  inset: 0;
+  // slides are sized by the host instead of the screen, so they can be narrowed to a story while capturing
+  container-type: size;
+  z-index: 10;
+  display: block;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  background: #12122a;
+  outline: none;
+}
+
+// While capturing all slides: a 9:16 frame in the middle of the screen, without the controls around the slides.
+:host(.capturing) {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: min(100vw, 100dvh * 9 / 16);
+  height: min(100dvh, 100vw * 16 / 9);
+  overflow: hidden;
+  box-shadow: 0 0 0 100vmax #000;
+
+  .topbar, app-recap-nav {
+    display: none;
+  }
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 0; // overlays the first slide instead of pushing it down
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0 8px;
+  color: #fff;
+
+  > * {
+    margin-top: 8px;
+  }
+
+  .years {
+    flex: 1;
+    min-width: 0;
+
+    ::ng-deep .mdc-evolution-chip-set__chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    mat-chip {
+      cursor: pointer;
+      --mat-chip-elevated-container-color: rgba(255, 255, 255, 0.15);
+      --mat-chip-label-text-color: #fff;
+
+      &.active {
+        --mat-chip-elevated-container-color: #fff;
+        --mat-chip-label-text-color: #4a148c;
+      }
+    }
+  }
+}
+
+.progress {
+  margin-top: 24px;
+  max-width: 640px;
+}
+
+// Fixed, vivid palette regardless of light/dark mode, like the downloadable card.
+.slide {
+  position: relative;
+  min-height: 100cqh;
+  box-sizing: border-box;
+  // Leave room for the top bar, keep content in a readable column on wide screens.
+  padding: 72px max(24px, calc((100% - 960px) / 2)) 48px;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 60cqmin;
+    height: 60cqmin;
+    right: -15cqmin;
+    top: -15cqmin;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &[href]:hover {
+      text-decoration: underline;
+    }
+  }
+
+  h1 {
+    font-size: clamp(36px, 7cqw, 72px);
+    font-weight: 500;
+    line-height: 1.1;
+    margin: 0 0 16px;
+    overflow-wrap: anywhere;
+
+    &.huge {
+      font-size: clamp(72px, 18cqw, 180px);
+    }
+  }
+
+  p {
+    font-size: clamp(18px, 2.4cqw, 24px);
+    line-height: 1.4;
+    margin: 0 0 8px;
+    max-width: 720px;
+
+    &.small {
+      font-size: 16px;
+      opacity: 0.8;
+      margin-top: 16px;
+    }
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+}
+
+.slide-share { align-items: center; text-align: center; }
+
+.slide > .scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  animation: nudge 2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes nudge {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 8px; }
+}
+
+ol {
+  list-style: none;
+  counter-reset: rank;
+  padding: 0;
+  margin: 24px 0 0;
+  max-width: 640px;
+
+  li {
+    counter-increment: rank;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 0;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    &::before {
+      content: counter(rank);
+      font-weight: 500;
+      opacity: 0.6;
+      width: 24px;
+    }
+
+    .name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      small {
+        display: block;
+        font-size: 14px;
+        opacity: 0.7;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .count {
+      font-variant-numeric: tabular-nums;
+      opacity: 0.8;
+    }
+  }
+}
+
+// The rank doubles as the streamgraph's legend.
+.artists li::before {
+  color: var(--band);
+  opacity: 1;
+}
+
+// Ordered by rank change instead of rank, so an icon replaces the rank number.
+.changes li::before {
+  content: none;
+}
+
+.tops {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px 40px;
+  margin-top: 24px;
+
+  h2 {
+    margin: 0;
+  }
+
+  ol {
+    margin-top: 8px;
+  }
+}
+
+// Artists have no subline, reserve its space so their rows line up with the albums and tracks next to them.
+.slide-favourites .name:not(:has(small))::after {
+  content: '\00a0';
+  display: block;
+  font-size: 14px;
+}
+
+.chart {
+  width: 100%;
+  max-width: 960px;
+  margin: 24px 0;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 24px;
+  font-size: 18px;
+  margin: 16px 0 0;
+
+  dt {
+    opacity: 0.8;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.card {
+  width: min(100%, 360px, calc(60cqh * 9 / 16));
+  aspect-ratio: 9 / 16;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  margin: 16px 0 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+
+  button {
+    --mat-button-filled-container-color: #fff;
+    --mat-button-filled-label-text-color: #4a148c;
+    --mat-button-outlined-label-text-color: #fff;
+    --mat-button-outlined-outline-color: #fff;
+  }
+}
+
+@container (max-width: 575px) {
+  dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+
+    dd {
+      margin-bottom: 8px;
+    }
+  }
+
+  // Three stacked top 5s don't fit on a phone screen, top 3s do.
+  .tops li:nth-child(n + 4), .tops .small {
+    display: none;
+  }
+}
