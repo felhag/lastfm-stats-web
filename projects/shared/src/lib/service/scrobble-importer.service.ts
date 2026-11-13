@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { Scrobble } from '../app/model';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ScrobbleImporter {
   private imported?: Scrobble[];
 

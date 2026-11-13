@@ -3,12 +3,18 @@
   flex-wrap: wrap;
 }
 
-app-top10list {
+app-top10list,
+.top10list-placeholder {
   margin: 16px;
   flex: 1;
   box-sizing: border-box;
   min-width: 1px;
   max-width: calc(100% - 32px);
+}
+
+.top10list-placeholder {
+  // Reserve roughly a card's worth of height so deferred lists don't cause large layout shifts.
+  min-height: 480px;
 }
 
 @media (max-width: 767px) {

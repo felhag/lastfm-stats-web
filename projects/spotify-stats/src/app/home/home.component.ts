@@ -1,21 +1,23 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Router, RouterModule } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import JSZip from 'jszip';
-import { Scrobble, Constants } from 'projects/shared/src/lib/app/model';
+import { App, APP_DOMAINS, Scrobble, Constants } from 'projects/shared/src/lib/app/model';
 import { InfoDialogComponent } from 'projects/spotify-stats/src/app/info-dialog/info-dialog.component';
 import { BehaviorSubject, map, shareReplay, Observable, throttleTime, asyncScheduler } from 'rxjs';
-import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
+import { ScrobbleImporter } from 'projects/shared/src/lib/service/scrobble-importer.service';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatInput } from '@angular/material/input';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { NgxDropzoneModule } from 'ngx-dropzone';
-import { DbLoadButtonComponent } from '../../../../shared/src/lib/db-load-button/db-load-button.component';
-import { MatListModule } from '@angular/material/list';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DbLoadButtonComponent } from 'projects/shared/src/lib/db-load-button/db-load-button.component';
+import { MatListItem, MatListItemIcon, MatListItemLine, MatNavList } from '@angular/material/list';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.component';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ButtonsComponent } from 'projects/shared/src/lib/buttons/buttons.component';
 
 interface StreamingHistoryEntry {
   endTime: string;
@@ -45,24 +47,30 @@ interface ParsedEntry {
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
+        AsyncPipe,
         ButtonsComponent,
-        CommonModule,
         DatePipe,
         DbLoadButtonComponent,
-        MatButtonModule,
-        MatCardModule,
-        MatDialogModule,
+        MatButton,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatFormField,
         MatIcon,
-        MatInputModule,
-        MatListModule,
+        MatInput,
+        MatLabel,
+        MatListItem,
+        MatListItemIcon,
+        MatListItemLine,
+        MatNavList,
+        MatTooltip,
         NgxDropzoneModule,
-        ReactiveFormsModule,
-        RouterModule,
+        FormField,
     ]
 })
 export class HomeComponent {
+  readonly domain = APP_DOMAINS[App.spotify];
   private readonly fileHandler: {[key: string]: (json: any[]) => Scrobble[]} = {
     'MyData/StreamingHistory': json => this.parseStreamingHistory(json),
     'MyData/Streaming_History_Audio': json => this.parseEndSong(json),
@@ -70,12 +78,16 @@ export class HomeComponent {
     'Spotify Extended Streaming History/Streaming_History_Audio_': json => this.parseEndSong(json),
     'StreamingHistory_music': json => this.parseStreamingHistory(json)
   };
-  username = new FormControl('', Validators.required);
+  private router = inject(Router);
+  private importer = inject(ScrobbleImporter);
+  private dialog = inject(MatDialog);
+
+  username = form(signal(''), p => required(p));
   files = new BehaviorSubject<ParsedEntry[]>([]);
   deduplicated: Observable<number>;
   submitted = false;
 
-  constructor(private router: Router, private importer: ScrobbleImporter, private dialog: MatDialog) {
+  constructor() {
     this.deduplicated = this.files.pipe(
       throttleTime(0, asyncScheduler, { trailing: true }),
       map(files => files.flatMap(file => file.plays).map(p => JSON.stringify(p))),
@@ -124,13 +136,14 @@ export class HomeComponent {
         artist: s.artistName,
         track: s.trackName,
         album: '',
-        date: new Date(s.endTime + ' UTC')
+        date: new Date(s.endTime + ' UTC'),
+        msPlayed: s.msPlayed,
       }));
   }
 
   private parseEndSong(parsed: EndSongEntry[]): Scrobble[] {
-    if (!this.username.value && parsed.length > 0) {
-      this.username.setValue(parsed[0].username);
+    if (!this.username().value() && parsed.length > 0) {
+      this.username().value.set(parsed[0].username || '');
     }
 
     return parsed
@@ -140,7 +153,8 @@ export class HomeComponent {
         artist: s.master_metadata_album_artist_name,
         track: s.master_metadata_track_name,
         album: s.master_metadata_album_album_name,
-        date: new Date(s.ts)
+        date: new Date(s.ts),
+        msPlayed: s.ms_played,
       }));
   }
 
@@ -178,7 +192,7 @@ export class HomeComponent {
 
   go(): void {
     const plays = this.files.value.flatMap(f => f.plays).sort((a, b) => a.date.getTime() - b.date.getTime());
-    if (this.username.valid && plays.length) {
+    if (this.username().valid() && plays.length) {
       const handled = new Set();
       this.importer.import(plays.filter(p => {
         const json = JSON.stringify(p);
@@ -189,10 +203,10 @@ export class HomeComponent {
           return p;
         }
       }));
-      this.router.navigate([`/user/${this.username.value}`]);
+      this.router.navigate([`/user/${this.username().value()}`]);
     } else {
       this.submitted = true;
-      this.username.markAsTouched();
+      this.username().markAsTouched();
     }
   }
 

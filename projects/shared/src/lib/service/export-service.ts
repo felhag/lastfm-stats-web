@@ -1,19 +1,15 @@
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
+import * as Papa from "papaparse";
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ExportService {
   exportJSON(json: {}, filename: string): void {
     this.downloadFile(new Blob([JSON.stringify(json)], {type: 'application/json;charset=utf-8;'}), filename);
   }
 
   exportCSV(headers: string[], data: (string | undefined)[][], filename: string): void {
-    const header = `${headers.join(';')}\n`;
-    const csvData = data.map(row => row.map(col => this.csvEntry(col || '')).join(';')).join('\n');
-    this.downloadFile(new Blob(['\ufeff' + header + csvData], {type: 'text/csv;charset=utf-8;'}), filename);
-  }
-
-  private csvEntry(input: string): string {
-    return `"${input.replaceAll('"', '""')}"`;
+    const csv = Papa.unparse({fields: headers, data}, {delimiter: ';'});
+    this.downloadFile(new Blob(['\ufeff' + csv], {type: 'text/csv;charset=utf-8;'}), filename);
   }
 
   downloadFile(blob: Blob, filename: string): void {

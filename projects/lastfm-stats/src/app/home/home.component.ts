@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgxCsvParser, NgxCsvParserModule } from 'ngx-csv-parser';
-import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
+import * as Papa from 'papaparse';
+import { App, APP_DOMAINS, Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { ScrobbleImporter } from '../../../../shared/src/lib/service/scrobble-importer.service';
 import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
@@ -12,11 +12,9 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButton,
     MatCard,
-    NgxCsvParserModule,
     DbLoadButtonComponent,
     ButtonsComponent,
     MatCardHeader,
@@ -24,14 +22,13 @@ import { ButtonsComponent } from '../../../../shared/src/lib/buttons/buttons.com
   ]
 })
 export class HomeComponent {
+  readonly domain = APP_DOMAINS[App.lastfm];
+  private router = inject(Router);
+  private importer = inject(ScrobbleImporter);
+
   username?: string;
   valid = signal(true);
   importError = signal("");
-
-  constructor(private router: Router,
-              private ngxCsvParser: NgxCsvParser,
-              private importer: ScrobbleImporter) {
-  }
 
   update(ev: Event): void {
     this.username = (ev.target as HTMLInputElement).value;
@@ -51,11 +48,14 @@ export class HomeComponent {
     const filename: string = file.name;
     const ext = filename.toLowerCase().substring(filename.lastIndexOf('.') + 1);
     if (ext === 'csv') {
-      // Parse the file you want to select for the operation along with the configuration
-      this.ngxCsvParser.parse(file, {header: false, delimiter: ';'}).subscribe({
-        next: (csvArray: any) => {
+      Papa.parse<string[]>(file, {
+        header: false,
+        delimiter: ';',
+        skipEmptyLines: true,
+        complete: (result) => {
+          const csvArray = result.data;
           const headers = csvArray.splice(0, 1)[0];
-          const length = headers.length;
+          const length = headers ? headers.length : 0;
           if (!headers || length < 4 || length > 5) {
             this.importError.set(`Expected 4 or 5 columns but found ${length}.
             Only csv's which are exported from this site are allowed.`);
@@ -64,7 +64,7 @@ export class HomeComponent {
 
           const hasAlbumId = headers.includes('AlbumId');
           const username = headers[length - 1].substr(headers[length - 1].indexOf('#') + 1);
-          const scrobbles = (csvArray as any[]).map(arr => ({
+          const scrobbles = csvArray.map(arr => ({
             artist: arr[0],
             album: arr[1],
             albumId: hasAlbumId ? arr[2] : undefined,
@@ -73,7 +73,7 @@ export class HomeComponent {
           }));
           this.start(username, scrobbles);
         },
-        error: (error: any) => this.importError.set('Can\t parse csv: ' + error.message)
+        error: (error) => this.importError.set('Can\t parse csv: ' + error.message)
       });
     } else if (ext === 'json') {
       const reader = new FileReader();

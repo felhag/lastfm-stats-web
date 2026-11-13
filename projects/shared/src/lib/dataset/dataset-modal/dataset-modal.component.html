@@ -13,12 +13,8 @@
 </h2>
 <div mat-dialog-content>
   <div class="orb-wrapper">
-    @for (opt of options; track opt) {
-      <div>
-        @if (opt) {
-          <circle-progress [options]="$any(opt)"></circle-progress>
-        }
-      </div>
+    @for (stat of stats; track stat.title; let i = $index) {
+      <app-orb [value]="stat.value" [title]="stat.title" [delay]="i * 90"></app-orb>
     }
     <div class="annotation-toolbar" matTooltip="Show labels">
       <mat-checkbox [checked]="true" (change)="showLabels($event.checked)"></mat-checkbox>

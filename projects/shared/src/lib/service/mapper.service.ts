@@ -1,13 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Month, StreakItem, Track, ItemType, TempStats, Album, MonthItem } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from './abstract-url.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MapperService {
-  constructor(private readonly urlService: AbstractUrlService) {
-  }
+  private readonly urlService = inject(AbstractUrlService);
 
   private mappers = {
     'artist': {
@@ -64,18 +61,15 @@ export class MapperService {
   }
 
   public getWeekYear(date: Date) {
-    return `W${this.getWeekNumber(date)} ${date.getFullYear()}`;
-  }
-
-  public getMonthYear(date: Date) {
-    return `${date.getMonth()}-${date.getFullYear()}`;
-  }
-
-  private getWeekNumber(date: Date): number {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)).getTime();
-    return Math.ceil((((d.getTime() - yearStart) / 86400000) + 1) / 7);
+    const week = Math.ceil((((d.getTime() - yearStart) / 86400000) + 1) / 7);
+    return `W${week} ${d.getUTCFullYear()}`;
+  }
+
+  public getMonthYear(date: Date) {
+    return `${date.getMonth()}-${date.getFullYear()}`;
   }
 }

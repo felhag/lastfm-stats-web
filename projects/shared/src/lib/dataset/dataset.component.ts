@@ -1,26 +1,23 @@
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
-import { startWith } from 'rxjs/operators';
-import { TableVirtualScrollDataSource, TableVirtualScrollModule } from 'ng-table-virtual-scroll';
-import { Album, Artist, DataSetEntry, ItemType, Month, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
+import { Album, Artist, DataSetEntry, ItemType, Month, scrobbleCount, StreakItem, TempStats, Track } from 'projects/shared/src/lib/app/model';
 import { DatasetModalComponent } from 'projects/shared/src/lib/dataset/dataset-modal/dataset-modal.component';
+import { EnrichmentService } from 'projects/shared/src/lib/service/enrichment.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
-import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable } from '@angular/material/table';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable, MatTableDataSource } from '@angular/material/table';
+import { CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { MatInput, MatLabel, MatSuffix } from '@angular/material/input';
-import { MatFormField } from '@angular/material/form-field';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from "@angular/material/tooltip";
 import { ExportService } from "../service/export-service";
+import { matchesFilter, SearchFieldComponent } from 'projects/shared/src/lib/search-field/search-field.component';
 
 export type DataSetKeys = (keyof DataSetEntry)[]
 
@@ -31,39 +28,35 @@ export type DataSetKeys = (keyof DataSetEntry)[]
   providers: [TranslatePipe],
   imports: [
     AsyncPipe,
+    CdkFixedSizeVirtualScroll,
     CdkVirtualScrollViewport,
     MatCard,
     MatCardContent,
     MatCell,
     MatCellDef,
     MatColumnDef,
-    MatFormField,
     MatHeaderCell,
     MatHeaderCellDef,
     MatHeaderRow,
     MatHeaderRowDef,
     MatIcon,
     MatIconButton,
-    MatInput,
-    MatLabel,
     MatRadioButton,
     MatRadioGroup,
     MatRow,
     MatRowDef,
     MatSort,
     MatSortHeader,
-    MatSuffix,
     MatTable,
     MatTooltip,
-    ReactiveFormsModule,
-    TableVirtualScrollModule,
+    SearchFieldComponent,
     TitleCasePipe,
   ]
 })
 export class DatasetComponent implements OnInit {
   private readonly groups = {
     artist: {
-      columns: ['name', 'tracks', 'scrobbles', 'rank'] as DataSetKeys,
+      columns: ['name', 'tracks', 'scrobbles', 'rank', 'region'] as DataSetKeys,
       data: (stats: TempStats) => stats.seenArtists
     },
     album: {
@@ -76,39 +69,40 @@ export class DatasetComponent implements OnInit {
     },
   };
   groupedBy = new BehaviorSubject<ItemType>('artist');
-  height!: number;
-  dataSource = new TableVirtualScrollDataSource<DataSetEntry>();
+  dataSource = new MatTableDataSource<DataSetEntry>();
   months: { [p: string]: Month } = {};
 
-  filterArtist = new FormControl<string>('');
-  filterName = new FormControl<string>('');
+  filterArtist = signal('');
+  filterName = signal('');
+  private readonly filters$ = toObservable(computed(() => [this.filterArtist(), this.filterName()]));
 
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
+  showViewport = true;
   private destroyRef = inject(DestroyRef);
-
-  constructor(private builder: StatsBuilderService,
-              private dialog: MatDialog,
-              private translate: TranslatePipe,
-              private exportService: ExportService) {
-  }
+  private readonly enrichment = inject(EnrichmentService);
+  private readonly enrichmentInfo$ = toObservable(this.enrichment.info);
+  private builder = inject(StatsBuilderService);
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslatePipe);
+  private exportService = inject(ExportService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.height = window.innerHeight - 32;
-    combineLatest([this.builder.tempStats, this.groupedBy]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
-    combineLatest([
-      this.filterArtist.valueChanges.pipe(startWith('')),
-      this.filterName.valueChanges.pipe(startWith('')),
-    ]).pipe(
+    this.configureDataSource(this.dataSource);
+    combineLatest([this.builder.tempStats, this.groupedBy, this.enrichmentInfo$]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([stats]) => this.update(stats));
+    this.filters$.pipe(
       debounceTime(200),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(f => this.dataSource.filter = f.join());
+  }
 
+  private configureDataSource(ds: MatTableDataSource<DataSetEntry>): void {
     // @ts-ignore
-    this.dataSource.filterPredicate = (obj =>
-      this.filterValue(this.filterArtist.value, this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
-      this.filterValue(this.filterName.value, obj.name));
-    this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (track, id): string => {
+    ds.filterPredicate = (obj =>
+      matchesFilter(this.filterArtist(), this.groupedBy.value === 'artist' ? obj.name : obj.artist) &&
+      matchesFilter(this.filterName(), obj.name));
+    ds.sort = this.sort;
+    ds.sortingDataAccessor = (track, id): string => {
       // @ts-ignore
       const value = track[id];
       if (['artist', 'name', 'shortName'].indexOf(id) >= 0) {
@@ -119,13 +113,13 @@ export class DatasetComponent implements OnInit {
     };
   }
 
-  private filterValue(search: string | null, value: string): boolean {
-    return !search || value.toLowerCase().indexOf(search.toLowerCase()) >= 0;
-  }
-
   private update(tempStats: TempStats): void {
     const data = Object.values(this.groupedByObj.data(tempStats));
-    const ranks = [...data].sort((a, b) => b.scrobbles.length - a.scrobbles.length);
+    const rankMap = new Map(
+      [...data].sort((a, b) => scrobbleCount(b) - scrobbleCount(a))
+        .map((item, idx) => [item, idx + 1])
+    );
+    const infos = this.enrichment.info();
     this.dataSource.data = data.map(item => {
       const albumOrTrack = 'shortName' in item;
       return {
@@ -133,17 +127,33 @@ export class DatasetComponent implements OnInit {
         type: this.groupedBy.value,
         artist: this.getArtistName(item),
         name: albumOrTrack ? (item as Album | Track).shortName : item.name,
-        tracks: albumOrTrack ? undefined : (item as Artist).tracks.length,
-        scrobbles: item.scrobbles.length,
-        rank: ranks.indexOf(item) + 1
+        tracks: albumOrTrack ? undefined : (item as Artist).tracks.size,
+        scrobbles: scrobbleCount(item),
+        rank: rankMap.get(item)!,
+        region: albumOrTrack ? undefined : this.formatRegion(infos.get(item.name)?.country),
       } as DataSetEntry
     });
     this.months = tempStats.monthList;
   }
 
+  private formatRegion(code: string | undefined): string {
+    if (code?.length !== 2) {
+      return '';
+    }
+    const upper = code.toUpperCase();
+    const flag = String.fromCodePoint(...[...upper].map(c => 127397 + c.charCodeAt(0)));
+    return `${flag} ${upper}`;
+  }
+
+  // a lot of crap to correctly handle dataset group switches with virtual scroll
   groupBy(change: MatRadioChange): void {
+    this.showViewport = false;
     this.groupedBy.next(change.value);
-    this.filterName.setValue('');
+    this.filterName.set('');
+    setTimeout(() => {
+      this.showViewport = true;
+      this.cdr.detectChanges();
+    });
   }
 
   get columns(): DataSetKeys {
@@ -159,6 +169,10 @@ export class DatasetComponent implements OnInit {
     const minWidth = width > 1200 ? 1000 : width - 48;
     const data = {entry, months: this.months};
     this.dialog.open(DatasetModalComponent, {minWidth, data});
+  }
+
+  trackBy(_index: number, entry: DataSetEntry): string {
+    return `${entry.type}-${entry.artist}-${entry.name}`;
   }
 
   getHeader(col: string) {

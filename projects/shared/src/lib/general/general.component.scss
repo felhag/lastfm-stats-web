@@ -2,6 +2,26 @@
   margin: 16px;
 }
 
+.anniv-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.empty {
+  opacity: 0.6;
+  font-style: italic;
+}
+
 dl {
   display: grid;
   grid-gap: 4px 16px;
@@ -19,6 +39,13 @@ dd {
     padding-left: 4px;
   }
 }
+.missing-chip {
+  // Shrink the default 32px/12px-padding chip so it sits inline without looking clunky.
+  --mat-chip-container-height: 20px;
+  --mat-chip-label-text-size: 11px;
+  vertical-align: middle;
+}
+
 .explain {
   --mat-icon-button-state-layer-size: 18px;
   padding: 0 !important;

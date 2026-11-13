@@ -6,15 +6,14 @@ test.describe('Scrobbles tab', () => {
     await expect(page.locator('app-top10list').first()).toBeVisible();
   });
 
-  test('displays 5 top 10 list cards', async ({ page }) => {
-    const cards = page.locator('app-top10list');
-    await expect(cards).toHaveCount(5);
+  test('displays 6 top 10 list cards', async ({ page }) => {
+    // lists outside the viewport are deferred, count their placeholders as well
+    const cards = page.locator('app-top10list, .top10list-placeholder');
+    await expect(cards).toHaveCount(6);
   });
 
   test('list cards contain list items', async ({ page }) => {
     const firstCard = page.locator('app-top10list').first();
-    const items = firstCard.locator('mat-list-item');
-    const count = await items.count();
-    expect(count).toBeGreaterThan(0);
+    await expect(firstCard.locator('mat-list-item').first()).toBeVisible();
   });
 });

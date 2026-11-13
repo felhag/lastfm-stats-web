@@ -2,6 +2,7 @@ import { TempStats, Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { EddingtonUtil } from '../service/eddington.util';
+import { CSSObject, SeriesTooltipOptionsObject } from "highcharts";
 
 export class ScrobblePerDayChart extends AbstractChart {
   constructor(translate: TranslatePipe) {
@@ -56,14 +57,14 @@ export class ScrobblePerDayChart extends AbstractChart {
           format: '{point.name}',
           style: {
             color: this.textColor,
-            textOutline: 0
-          } as any
+            textOutline: '0'
+          } as CSSObject
         },
         tooltip: {
           useHTML: true,
           headerFormat: '',
           pointFormat: `{point.name}<br>Average ${translate.capFirst('translate.scrobbles')} per day: <b>{point.avg}</b><br>Days ${translate.capFirst('translate.scrobbled')}:<b style="text-align: right;">{point.y}</b>`
-        } as any
+        } as SeriesTooltipOptionsObject
       }],
       responsive: this.responsive(['left', 'right'])
     };

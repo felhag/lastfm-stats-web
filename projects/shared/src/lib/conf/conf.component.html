@@ -4,6 +4,11 @@
   <mat-slider min="1" max="100" color="primary" discrete #ngSlider>
     <input matSliderThumb [value]="settings.listSize" (change)="settings.listSize = {source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}.value || 10" #ngSliderThumb="matSliderThumb" />
   </mat-slider>
+  <div class="setting-row filter-remasters">
+    <mat-slide-toggle labelPosition="before" [checked]="settings.filterRemasters" (change)="settings.filterRemasters = $event.checked" color="primary">
+      Filter remasters:
+    </mat-slide-toggle>
+  </div>
   <div class="setting-row">
     <mat-form-field>
       <mat-label>Min {{'translate.scrobbles' | translate}}</mat-label>
@@ -11,13 +16,8 @@
     </mat-form-field>
   </div>
   <div class="setting-row">
-    <mat-slide-toggle [checked]="settings.filterRemasters" (change)="settings.filterRemasters = $event.checked" color="primary">
-      Filter remasters
-    </mat-slide-toggle>
-  </div>
-  <div class="setting-row">
     <h3>Filter dates</h3>
-    <button mat-button (click)="clearDate()" [disabled]="!startDateCtrl.value && !endDateCtrl.value">
+    <button mat-button (click)="clearDate()" [disabled]="!startDateCtrl().value() && !endDateCtrl().value()">
       <mat-icon class="material-icons-outlined">delete</mat-icon>Clear date filter
     </button>
   </div>
@@ -25,8 +25,8 @@
     <mat-form-field (focusin)="picker.open()">
       <mat-label>Date range</mat-label>
       <mat-date-range-input [rangePicker]="picker" [min]="startDate" [max]="endDate" >
-        <input matStartDate placeholder="Start date" [formControl]="startDateCtrl">
-        <input matEndDate placeholder="End date" [formControl]="endDateCtrl">
+        <input matStartDate placeholder="Start date" [formField]="startDateCtrl">
+        <input matEndDate placeholder="End date" [formField]="endDateCtrl">
       </mat-date-range-input>
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker startView="multi-year" [startAt]="startDate"></mat-date-range-picker>
@@ -60,7 +60,7 @@
         <mat-autocomplete #auto="matAutocomplete" matAutoCompleteTrigger (optionSelected)="add($event.option.value)" (closed)="onClose()">
           @for (option of allArtists(); track option) {
             <mat-option [value]="option[0]">
-              {{option[0]}} ({{option[1]}} scrobbles)
+              {{option[0]}} ({{option[1]}} {{ 'translate.scrobbles' | translate }})
             </mat-option>
           }
         </mat-autocomplete>

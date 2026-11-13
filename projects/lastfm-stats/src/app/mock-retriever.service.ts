@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { Export, Scrobble } from 'projects/shared/src/lib/app/model';
 import { ScrobbleStore } from '../../../shared/src/lib/service/scrobble.store';
 
 import * as scrobbles from '../../../../projects/lastfmstats-TestUser.json';
 import { ScrobbleRetrieverService } from './scrobble-retriever.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MockRetrieverService extends ScrobbleRetrieverService {
   data: Export = scrobbles;
 

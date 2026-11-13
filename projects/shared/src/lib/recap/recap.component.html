@@ -1,0 +1,234 @@
+<header class="topbar">
+  <button mat-icon-button matTooltip="Back to statistics" aria-label="Back to statistics" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+  @if (years().length > 1) {
+    <mat-chip-set class="years" aria-label="Year">
+      @for (y of years(); track y) {
+        <mat-chip [class.active]="y === year()" [attr.aria-current]="y === year() ? 'page' : null" [routerLink]="['/user', username, 'recap', y]" replaceUrl>{{ y }}</mat-chip>
+      }
+    </mat-chip-set>
+  }
+</header>
+
+@if (recap(); as recap) {
+  @if (!recap.total) {
+    <div class="slide slide-intro">
+      <h1>Nothing {{ 'translate.scrobbled' | translate }} in {{ recap.year }}</h1>
+      @if (years().length) {
+        <p>Pick another year above.</p>
+      }
+    </div>
+  } @else {
+    <section #slide class="slide slide-intro">
+      <p class="eyebrow">{{ username }}'s</p>
+      <h1 class="huge">{{ recap.year }}</h1>
+      <p>Let's look back at your year in music{{ recap.ongoing ? ' so far' : '' }}.</p>
+      <button mat-icon-button class="scroll-hint" aria-label="Next step" (click)="next()"><mat-icon>keyboard_arrow_down</mat-icon></button>
+    </section>
+
+    <section #slide class="slide slide-total">
+      <p class="eyebrow">You {{ 'translate.scrobbled' | translate }}</p>
+      <h1 class="huge" [appCountUp]="recap.total"></h1>
+      <p>{{ 'translate.scrobbles' | translate }} on <span [appCountUp]="recap.daysListened"></span> of {{ recap.daysElapsed }} days{{ recap.ongoing ? ' so far' : '' }}.</p>
+      @let diff = difference(recap);
+      @if (diff !== undefined) {
+        @let period = (recap.ongoing ? 'the same period of ' : '') + (recap.year - 1);
+        @if (diff > -0.5 && diff < 0.5) {
+          <p>That's about as many as in {{ period }}.</p>
+        } @else {
+          <p>That's {{ (diff < 0 ? -diff : diff) | number:'1.0-0' }}% {{ diff < 0 ? 'less' : 'more' }} than in {{ period }}.</p>
+        }
+      }
+      @if (recap.firstScrobble; as first) {
+        <p class="small">It all started on {{ first.date | date:'MMMM d' }} with {{ first.track }} by {{ first.artist }}.</p>
+      }
+      <div class="chart" [appRecapChart]="charts()!.cumulative"></div>
+    </section>
+
+    <section #slide class="slide slide-favourites">
+      <p class="eyebrow">Your favourites</p>
+      <h1><a [attr.href]="artistUrl(recap.topArtists[0].name)" target="_blank" rel="noopener">{{ recap.topArtists[0].name }}</a></h1>
+      <p>was your top artist with <span [appCountUp]="recap.topArtists[0].count"></span> {{ 'translate.scrobbles' | translate }}@if (recap.topArtistTrack; as track) {, mostly <a [attr.href]="trackUrl(track)" target="_blank" rel="noopener">{{ track.name }}</a> ({{ track.count }}×)}.</p>
+      <div class="chart" [appRecapChart]="charts()!.artists"></div>
+      <div class="tops">
+        <div>
+          <h2 class="eyebrow">Artists</h2>
+          <ol class="artists">
+            @for (item of recap.topArtists; track item.name) {
+              <li [style.--band]="artistColors[$index]"><a class="name" [attr.href]="artistUrl(item.name)" target="_blank" rel="noopener">{{ item.name }}</a><span class="count">{{ item.count | number }}</span></li>
+            }
+          </ol>
+          <p class="small">{{ recap.uniqueArtists | number }} artists</p>
+        </div>
+        @if (recap.topAlbums.length) {
+          <div>
+            <h2 class="eyebrow">Albums</h2>
+            <ol>
+              @for (item of recap.topAlbums; track $index) {
+                <li><a class="name" [attr.href]="albumUrl(item)" target="_blank" rel="noopener">{{ item.name }}<small>{{ item.sub }}</small></a><span class="count">{{ item.count | number }}</span></li>
+              }
+            </ol>
+            <p class="small">{{ recap.uniqueAlbums | number }} albums</p>
+          </div>
+        }
+        <div>
+          <h2 class="eyebrow">Tracks</h2>
+          <ol>
+            @for (item of recap.topTracks; track $index) {
+              <li><a class="name" [attr.href]="trackUrl(item)" target="_blank" rel="noopener">{{ item.name }}<small>{{ item.sub }}</small></a><span class="count">{{ item.count | number }}</span></li>
+            }
+          </ol>
+          <p class="small">{{ recap.uniqueTracks | number }} tracks</p>
+        </div>
+      </div>
+    </section>
+
+    @if (recap.climbers.length || recap.fallers.length) {
+      <section #slide class="slide slide-changes">
+        <p class="eyebrow">Biggest moves</p>
+        @if (recap.climbers[0]; as climber) {
+          <h1><a [attr.href]="artistUrl(climber.name)" target="_blank" rel="noopener">{{ climber.name }}</a></h1>
+          <p>climbed from #{{ climber.previousRank }} to #{{ climber.rank }} in your all-time artists, compared to the end of {{ recap.year - 1 }}.</p>
+        } @else if (recap.fallers[0]; as faller) {
+          <h1><a [attr.href]="artistUrl(faller.name)" target="_blank" rel="noopener">{{ faller.name }}</a></h1>
+          <p>dropped from #{{ faller.previousRank }} to #{{ faller.rank }} in your all-time artists, compared to the end of {{ recap.year - 1 }}.</p>
+        }
+        <div class="tops">
+          @if (recap.climbers.length) {
+            <div>
+              <h2 class="eyebrow">Rising</h2>
+              <ol class="changes">
+                @for (item of recap.climbers; track item.name) {
+                  <li><mat-icon inline>trending_up</mat-icon><a class="name" [attr.href]="artistUrl(item.name)" target="_blank" rel="noopener">{{ item.name }}</a><span class="count">#{{ item.previousRank }} → #{{ item.rank }}</span></li>
+                }
+              </ol>
+            </div>
+          }
+          @if (recap.fallers.length) {
+            <div>
+              <h2 class="eyebrow">Falling</h2>
+              <ol class="changes">
+                @for (item of recap.fallers; track item.name) {
+                  <li><mat-icon inline>trending_down</mat-icon><a class="name" [attr.href]="artistUrl(item.name)" target="_blank" rel="noopener">{{ item.name }}</a><span class="count">#{{ item.previousRank }} → #{{ item.rank }}</span></li>
+                }
+              </ol>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <section #slide class="slide slide-discoveries">
+      <p class="eyebrow">You discovered</p>
+      <h1 class="huge" [appCountUp]="recap.newArtists"></h1>
+      <p>new artists ({{ recap.newArtists / recap.uniqueArtists * 100 | number:'1.0-0' }}% of everything you listened to).</p>
+      @if (charts()!.discoveries; as discoveries) {
+        <div class="chart" [appRecapChart]="discoveries"></div>
+      }
+      @if (recap.topNewArtists.length) {
+        <p class="small">Most listened</p>
+        <ol>
+          @for (item of recap.topNewArtists; track item.name) {
+            <li><a class="name" [attr.href]="artistUrl(item.name)" target="_blank" rel="noopener">{{ item.name }}</a><span class="count">{{ item.count | number }}</span></li>
+          }
+        </ol>
+      }
+    </section>
+
+    <section #slide class="slide slide-rhythm">
+      <p class="eyebrow">Day by day</p>
+      <h1><a [attr.href]="monthUrl(recap, recap.busiestMonth)" target="_blank" rel="noopener">{{ monthNames[recap.busiestMonth] }}</a></h1>
+      <p>was your busiest month with <span [appCountUp]="recap.months[recap.busiestMonth]"></span> {{ 'translate.scrobbles' | translate }}.</p>
+      <div class="chart" [appRecapChart]="charts()!.calendar"></div>
+      <dl>
+        @if (recap.busiestDay; as day) {
+          <dt>Busiest day</dt>
+          <dd><a [attr.href]="dayUrl(day.date)" target="_blank" rel="noopener">{{ day.date | date:'EEEE, MMMM d' }}</a> ({{ day.count | number }} {{ 'translate.scrobbles' | translate }})</dd>
+        }
+        @if (recap.longestStreak; as streak) {
+          <dt>Longest streak</dt>
+          <dd>{{ streak.length }} {{ streak.length === 1 ? 'day' : 'days' }} in a row (<a [attr.href]="rangeUrl(streak.start, streak.end)" target="_blank" rel="noopener">{{ streak.start | date:'MMM d' }} – {{ streak.end | date:'MMM d' }}</a>)</dd>
+        }
+        @if (recap.longestBreak; as gap) {
+          <dt>Longest break</dt>
+          <dd>{{ gap.length }} {{ gap.length === 1 ? 'day' : 'days' }} of silence ({{ gap.start | date:'MMM d' }} – {{ gap.end | date:'MMM d' }})</dd>
+        }
+      </dl>
+    </section>
+
+    <section #slide class="slide slide-clock">
+      <p class="eyebrow">Around the clock</p>
+      <h1>{{ listenerType(recap.topHour) }}</h1>
+      <p>You listened most on {{ weekdayNames[recap.topWeekday] }}s, between {{ hour(recap.topHour) }}.</p>
+      <div class="chart" [appRecapChart]="charts()!.clock"></div>
+    </section>
+
+    <section #slide class="slide slide-sessions">
+      <p class="eyebrow">In the zone</p>
+      @if (recap.sessions.longest; as session) {
+        <h1><span [appCountUp]="session.count"></span> {{ 'translate.scrobbles' | translate }} in a row</h1>
+        <p>Your longest session was on {{ session.start | date:'EEEE, MMMM d' }}, from {{ session.start | date:'HH:mm' }} to {{ session.end | date:'HH:mm' }} ({{ duration(session) }}).</p>
+      }
+      <div class="chart" [appRecapChart]="charts()!.sessions"></div>
+      <dl>
+        <dt>Sessions</dt>
+        <dd>{{ recap.sessions.count | number }}, {{ recap.sessions.average | number:'1.0-1' }} {{ 'translate.scrobbles' | translate }} on average</dd>
+        @if (recap.artistRun; as run) {
+          <dt>Artist streak</dt>
+          <dd>{{ run.count }} {{ 'translate.scrobbles' | translate }} of {{ run.name }} in a row ({{ run.start | date:'MMM d' }})</dd>
+        }
+        @if (recap.albumRun; as run) {
+          <dt>Album streak</dt>
+          <dd>{{ run.count }} tracks of {{ run.name }} by {{ run.sub }} in a row ({{ run.start | date:'MMM d' }})</dd>
+        }
+        @if (recap.trackRun; as run) {
+          <dt>On repeat</dt>
+          <dd>{{ run.name }} by {{ run.sub }}, {{ run.count }} times in a row ({{ run.start | date:'MMM d' }})</dd>
+        }
+      </dl>
+    </section>
+
+    @if (charts()!.words; as words) {
+      <section #slide class="slide slide-words">
+        <p class="eyebrow">Your year in words</p>
+        <h1>{{ recap.words[0].name }}</h1>
+        <p>was in {{ recap.words[0].tracks | number }} of your track titles.</p>
+        <div class="chart" [appRecapChart]="words"></div>
+      </section>
+    }
+
+    <section #slide class="slide slide-share">
+      <h1>Share your {{ recap.year }}</h1>
+      @if (cardUrl(); as url) {
+        <img class="card" [src]="url" [alt]="username + '\'s ' + recap.year + ' recap'">
+        <div class="actions">
+          <button mat-flat-button (click)="download()">
+            <mat-icon>download</mat-icon>
+            Download
+          </button>
+          @if (canShare()) {
+            <button mat-stroked-button (click)="share()">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+          }
+          @if (canCapture) {
+            <button mat-stroked-button [disabled]="downloadingAll()" (click)="downloadAll()">
+              <mat-icon>photo_library</mat-icon>
+              {{ downloadingAll() ? 'Capturing…' : 'Download all' }}
+            </button>
+          }
+        </div>
+      } @else {
+        <p>Rendering…</p>
+      }
+    </section>    <app-recap-nav [slides]="slideElements()" [root]="element"/>
+  }
+} @else if (year()) {
+  <div class="slide slide-intro">
+    <h1>Hold on…</h1>
+    <p>Your recap will show up once all {{ 'translate.scrobbles' | translate }} are loaded.</p>
+    <app-progress class="progress"/>
+  </div>
+}

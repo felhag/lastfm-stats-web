@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Highcharts from 'highcharts';
-import { Constants, TempStats } from 'projects/shared/src/lib/app/model';
+import { App, Constants, TempStats } from 'projects/shared/src/lib/app/model';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { TranslatePipe } from 'projects/shared/src/lib/service/translate.pipe';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
@@ -24,6 +24,12 @@ import { ChartLoaderDirective } from '../directive/chart-loader.directive';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { LetterChart } from './letter-chart';
 import { ExportService } from "../service/export-service";
+import { ZScoreChart } from './zscore-chart';
+import { ZScoreService } from '../service/zscore.service';
+import { DiversityChart } from './diversity-chart';
+import { DiscoveryChart } from './discovery-chart';
+import { PlaytimeChart } from './playtime-chart';
+import { PlaytimePipe } from '../pipe/playtime.pipe';
 
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -61,25 +67,30 @@ if (darkMode.matches) {
   selector: 'app-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [TranslatePipe],
+  providers: [TranslatePipe, PlaytimePipe],
   imports: [MatCard, ChartLoaderDirective, MatTooltip, MatIcon, MatCardContent, MatIconButton]
 })
 export class ChartsComponent {
+  private builder = inject(StatsBuilderService);
+
   charts: AbstractChart[];
 
-  constructor(
-    private builder: StatsBuilderService,
-    url: AbstractUrlService,
-    translate: TranslatePipe,
-    mapper: MapperService,
-    exportService: ExportService) {
+  constructor() {
+    const url = inject(AbstractUrlService);
+    const translate = inject(TranslatePipe);
+    const mapper = inject(MapperService);
+    const zscoreService = inject(ZScoreService);
+    const exportService = inject(ExportService);
+    const app = inject(App as any) as App;
 
     this.charts = [
       new TimelineChart(translate),
       new ArtistScrobbleChart(translate, url),
       new ArtistTimelineChart(translate, url, mapper),
+      new ZScoreChart(translate, url, zscoreService),
       new CumulativeItemsChart(translate, mapper),
+      new DiversityChart(mapper),
+      new DiscoveryChart(translate, mapper),
       new WordcloudChart(mapper),
       new LetterChart(translate, mapper),
       new PunchcardChart(translate, url),
@@ -89,11 +100,15 @@ export class ChartsComponent {
       new ScrobbleMomentChart(translate, 'hours', Array.from(Array(24).keys()).map(k => `${k}h`), s => s.hours),
       new ScrobbleMomentChart(translate, 'days', Constants.DAYS,
           stats => stats.days,
-          (stats, key) => Object.keys(stats.specificDays).filter(d => key === new Date(parseInt(d)).getDay()).length),
+          (stats, key) => Object.keys(stats.specificDays).filter(d => key === (new Date(parseInt(d)).getDay() + 6) % 7).length),
       new ScrobbleMomentChart(translate, 'months', Constants.MONTHS,
           stats => stats.months,
         (stats, key) => Object.keys(stats.monthList).filter(month => month.startsWith(key + '-')).length),
     ];
+    if (app === App.spotify) {
+      // only spotify exports contain the duration of each play
+      this.charts.push(new PlaytimeChart(inject(PlaytimePipe)));
+    }
 
     this.builder.tempStats.pipe(takeUntilDestroyed()).subscribe(stats => this.updateStats(stats));
   }

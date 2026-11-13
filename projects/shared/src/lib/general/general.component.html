@@ -8,11 +8,17 @@
         <dt>Days since first {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ days }}</dd>
       }
-      @if (tempStats$(); as stats) {
+      @if (overview$(); as overview) {
         <dt>Days {{ 'translate.scrobbled' | translate }}</dt>
-        <dd>{{ count(stats.specificDays) }} ({{ count(stats.specificDays) / ((days$())!) * 100 | number:'1.0-2' }}
+        <dd>{{ overview.daysListened }} ({{ overview.daysListened / ((days$())!) * 100 | number:'1.0-2' }}
           %)
         </dd>
+        @if (overview.playtime) {
+          <dt>Total playtime</dt>
+          <dd>{{ overview.playtime | playtime }}</dd>
+          <dt>Playtime per {{ 'translate.scrobbled' | translate }} day</dt>
+          <dd>{{ overview.playtime / overview.daysListened | playtime }}</dd>
+        }
       }
       @if (first(); as first) {
         <dt>First {{ 'translate.scrobble' | translate }}</dt>
@@ -22,42 +28,37 @@
         <dt>Last {{ 'translate.scrobble' | translate }}</dt>
         <dd>{{ last.date | date }} ({{ last.artist }} - {{ last.track }})</dd>
       }
+      @if (tempStats$()?.withoutDate; as withoutDate) {
+        <dt>Without date</dt>
+        <dd>{{ withoutDate }}</dd>
+      }
     </dl>
   </mat-card-content>
 </mat-card>
 
-@if (tempStats$(); as stats) {
+@if (overview$(); as overview) {
   <mat-card>
     <mat-card-content>
       <dl>
         <dt>Artists</dt>
-        <dd>{{ count(stats.seenArtists) }}</dd>
-        @if (oneHitWonders(stats); as owh) {
+        <dd>{{ overview.artists }}</dd>
+        @if (overview.oneHitWonders; as owh) {
           <dt>One hit wonders</dt>
-          <dd>{{ owh }}  ({{ owh / (count(stats.seenArtists)) * 100 | number:'1.0-2' }} %)
-        }
-        <dt>Every year artists</dt>
-        @if (years$(); as years) {
-          @if (values(stats.seenArtists) | filterByYear : years; as eya) {
-            <dd class="every-year-artist">
-              {{ eya.length }}
-              <mat-icon (click)="openEveryYearArist(stats)" inline="true">view_list</mat-icon>
-            </dd>
-          }
+          <dd>{{ owh }}  ({{ owh / overview.artists * 100 | number:'1.0-2' }} %)
         }
         <dt>Albums</dt>
-        <dd>{{ count(stats.seenAlbums) }}</dd>
+        <dd>{{ overview.albums }}</dd>
         <dt>Albums per artist</dt>
-        <dd>{{ count(stats.seenAlbums) / count(stats.seenArtists) | number:'1.0-2' }}</dd>
+        <dd>{{ overview.albums / overview.artists | number:'1.0-2' }}</dd>
         <dt>Tracks</dt>
-        <dd>{{ count(stats.seenTracks) }}</dd>
-        @if (tracksWithoutAlbum(stats); as twa) {
+        <dd>{{ overview.tracks }}</dd>
+        @if (overview.tracksWithoutAlbum; as twa) {
           <dt>Tracks without album</dt>
-          <dd>{{ twa }}  ({{ twa / count(stats.seenTracks) * 100 | number:'1.0-2' }} %)
+          <dd>{{ twa }}  ({{ twa / overview.tracks * 100 | number:'1.0-2' }} %)
         }
-        @if (scrobblesWithoutAlbum(stats); as swa) {
-          <dt>Scrobbles without album</dt>
-          <dd>{{ swa }}  ({{ swa / stats.scrobbleCount * 100 | number:'1.0-2' }} %)
+        @if (overview.scrobblesWithoutAlbum; as swa) {
+          <dt>{{ 'translate.scrobbles' | translate | titlecase }} without album</dt>
+          <dd>{{ swa }}  ({{ swa / overview.total * 100 | number:'1.0-2' }} %)
         }
       </dl>
     </mat-card-content>
@@ -65,53 +66,131 @@
   <mat-card>
     <mat-card-content>
       <dl>
-        @if (getEddington(stats); as eddington) {
-          <dt>Eddington number</dt>
-          <dd>
-            {{ eddington }}
-            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
-          </dd>
-          <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
-          <dd>{{ nextEddington(stats) }}</dd>
-        }
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenArtists$(), type: 'artist' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenAlbums$(), type: 'album' }"></ng-container>
+        <ng-container *ngTemplateOutlet="everyYearStats; context: { items: seenTracks$(), type: 'track' }"></ng-container>
+      </dl>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <dl>
+        @let eddington = overview.eddington;
+        <dt>Eddington number</dt>
+        <dd>
+          {{ eddington }}
+          <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + eddington + ' days with at least ' + eddington + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+        </dd>
+        <dt>Days needed for next Eddington ({{ eddington + 1 }})</dt>
+        <dd>{{ overview.nextEddington }}</dd>
 
-        @if (cutOver(stats); as cutOver) {
-          <dt>Artist cut over point</dt>
-          <dd>
-            {{ cutOver }}
-            <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + cutOver + ' artists with at least ' + cutOver + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
-          </dd>
-        }
+        @let cutOverPoint = overview.cutOver;
+        <dt>Artist cut over point</dt>
+        <dd>
+          {{ cutOverPoint }}
+          <ng-container *ngTemplateOutlet="explain; context:{ explanation: 'This means you have ' + cutOverPoint + ' artists with at least ' + cutOverPoint + ' ' + ('translate.scrobbles' | translate) } "></ng-container>
+        </dd>
 
         <dt>Most popular year</dt>
-        @if (max(stats.years); as max) {
-          <dd>{{ max }} ({{ stats.years[max] }} {{ 'translate.scrobbles' | translate }})</dd>
+        @if (overview.popularYear; as year) {
+          <dd>{{ year.year }} ({{ year.count }} {{ 'translate.scrobbles' | translate }})</dd>
+        } @else {
+          <dd>-</dd>
         }
         <dt>Most popular month</dt>
-        @if (mostPopularMonth(stats); as month) {
+        @if (overview.popularMonth; as month) {
           <dd>{{ month.alias }} ({{ month.count }} {{ 'translate.scrobbles' | translate }})</dd>
+        } @else {
+          <dd>-</dd>
         }
       </dl>
     </mat-card-content>
   </mat-card>
+  @if (overview.playtimePerYear.length) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Playtime per year</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <dl>
+          @for (year of overview.playtimePerYear; track year.year) {
+            <dt>{{ year.year }}</dt>
+            <dd>{{ year.ms | playtime }} ({{ year.ms / overview.playtime * 100 | number:'1.0-1' }} %)</dd>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
+  @if (anniversaries$(); as anniv) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Anniversaries 🎂</mat-card-title>
+        <mat-card-subtitle>Since first {{ 'translate.scrobble' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Past</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.past, withDate: true }"></ng-container>
+      </mat-expansion-panel>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Today</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.today, withDate: false }"></ng-container>
+      </mat-expansion-panel>
+      <mat-expansion-panel class="anniversaries">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Upcoming</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container *ngTemplateOutlet="annivList; context:{ items: anniv.upcoming, withDate: true }"></ng-container>
+      </mat-expansion-panel>
+    </mat-card>
+  }
 }
 
-<ng-template #everyYearArtists>
-  <h2 mat-dialog-title> Every year artist </h2>
+<ng-template #everyYearStats let-items="items" let-type="type">
+  <dt>Every year {{ type }}s</dt>
+  @if (years$(); as years) {
+    @if (items | filterByYear : years; as eya) {
+      <dd class="every-year-artist">
+        {{ eya.length }}
+        <mat-icon (click)="openEveryYear(type, false)" inline="true">view_list</mat-icon>
+      </dd>
+    }
+  }
+  @if (completedYears$(); as years) {
+    @if (years.length) {
+      <dt>Every completed year {{ type }}s</dt>
+      @if (items | filterByYear : years; as eya) {
+        <dd class="every-year-artist">
+          {{ eya.length }}
+          <mat-icon (click)="openEveryYear(type, true)" inline="true">view_list</mat-icon>
+        </dd>
+      }
+    }
+  }
+</ng-template>
+
+<ng-template #everyYearArtists let-onlyCompleted>
+  <h2 mat-dialog-title> Every {{onlyCompleted ? 'completed ' : ''}}year {{ dialogType() }} </h2>
   <div mat-dialog-content>
-    @if (years$(); as years) {
+    @if (dialogYears(); as years) {
       <mat-chip-listbox multiple>
         @for (year of years; track year[0]) {
-          <mat-chip-option selected [value]="year[0]" (selectionChange)="year[3] = $event.selected">{{ year[0] }}</mat-chip-option>
+          <mat-chip-option [selected]="year[3]" [value]="year[0]" (selectionChange)="toggleYear(year[0], $event.selected)">{{ year[0] }}</mat-chip-option>
         }
       </mat-chip-listbox>
-      @if (values((tempStats$())?.seenArtists || {}) | filterByYear: years; as artists) {
-        Found {{ artists.length }} artists which you listened to in all selected years
+      @if (dialogItems$() | filterByYear: years; as items) {
+        Found {{ items.length }} {{ dialogType() }}s which you listened to in all selected years
         <mat-list>
-          @for (artist of artists; track artist.name) {
+          @for (item of items; track item.name) {
+            @let missingYears = missing(item, years);
             <mat-list-item>
-              {{ artist.name }} ({{ artist.scrobbles.length }}
-              {{ 'translate.scrobbles' | translate }}@if (missing(artist, years); as missing) {<i>, missing {{missing}}</i>})
+              {{ item.name }} ({{ scrobbleCount(item) }} {{ 'translate.scrobbles' | translate }})
+              @if (missingYears) {
+                <mat-chip class="missing-chip" disableRipple>missing {{ missingYears }}</mat-chip>
+              }
             </mat-list-item>
           }
         </mat-list>
@@ -121,6 +200,23 @@
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Close</button>
   </mat-dialog-actions>
+</ng-template>
+
+<ng-template #annivList let-items="items">
+  @if (items.length) {
+    <div class="anniv-table">
+      @for (a of items; track a.artist.name) {
+        <span class="name">{{ a.artist.name }}</span>
+        <span class="meta">
+          <span class="years">{{ a.years }} year{{ a.years === 1 ? '' : 's' }}</span>
+          <span class="scrobbles">{{ scrobbleCount(a.artist) | number }} {{ 'translate.scrobbles' | translate }}</span>
+          <span class="date">{{ a.date | date:'MMM d' }}</span>
+        </span>
+      }
+    </div>
+  } @else {
+    <span class="empty">None</span>
+  }
 </ng-template>
 
 <ng-template #explain let-explanation="explanation">

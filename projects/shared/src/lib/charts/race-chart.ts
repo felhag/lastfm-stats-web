@@ -1,5 +1,6 @@
 import * as Highcharts from 'highcharts';
-import { PointOptionsObject, SeriesOptionsType } from 'highcharts';
+import 'highcharts/modules/data-sorting';
+import { PointOptionsObject } from 'highcharts';
 import { TempStats, Month, ItemType, StreakItem } from 'projects/shared/src/lib/app/model';
 import { AbstractChart } from 'projects/shared/src/lib/charts/abstract-chart';
 import { AbstractUrlService } from '../service/abstract-url.service';
@@ -16,6 +17,11 @@ export class RaceChart extends AbstractChart {
   months: Month[] = [];
   items: { [p: string]: StreakItem } = {};
   current = -1;
+  currentOrder: string[] = [];
+  stepTimeouts: number[] = [];
+  rafCounters: number[] = [];
+  rafArtists = new Set<string>(); // artists whose counts are animated via RAF
+  currentStepDuration = 0;        // label position animation duration during step redraws
   timer?: number;
   toolbar?: HTMLElement;
   button?: HTMLElement;
@@ -112,31 +118,32 @@ export class RaceChart extends AbstractChart {
         } as any
       },
       title: {text: 'Race chart'},
+      subtitle: {
+        text: '',
+        floating: true,
+        align: 'right',
+        verticalAlign: 'bottom',
+        style: {
+          fontWeight: 'bold',
+          fontSize: '50px',
+        },
+      },
       xAxis: {type: 'category'},
       yAxis: [{
         opposite: true,
         title: {
           text: undefined
         },
-        tickAmount: 5
+        tickAmount: 5,
+        max: undefined,
       }],
-      legend: {
-        floating: true,
-        align: 'right',
-        verticalAlign: 'bottom',
-        itemStyle: {
-          fontWeight: 'bold',
-          fontSize: '50px',
-        },
-        symbolHeight: 0.001,
-        symbolWidth: 0.001,
-        symbolRadius: 0.001,
-      },
+      legend: {enabled: false},
       series: [{
         colorByPoint: true,
         dataSorting: {
           enabled: true,
-          matchByName: true
+          matchByName: false,
+          sortKey: 'sortIndex'
         },
         type: 'bar',
         dataLabels: [{
@@ -158,8 +165,8 @@ export class RaceChart extends AbstractChart {
             maxWidth: 768
           },
           chartOptions: {
-            legend: {
-              itemStyle: {
+            subtitle: {
+              style: {
                 fontSize: '24px',
               }
             }
@@ -176,6 +183,25 @@ export class RaceChart extends AbstractChart {
     this.months = Object.values(this.stats!.monthList);
     this.items = this.mapper.seen(this.type, this.stats!);
     this.updateSlider();
+    this.updateAxisMax();
+  }
+
+  private updateAxisMax(): void {
+    if (!this.months.length) return;
+    // Use the final month to find the highest possible cumulative count
+    const lastMonth = this.months[this.months.length - 1];
+    const topCount = (this.getData(lastMonth)[0]?.y as number) || 0;
+    const axisMax = this.xMax(topCount);
+    if (this.chart) {
+      this.chart.update({yAxis: [{max: axisMax}]}, false);
+    } else {
+      // Chart not rendered yet — patch the initial options
+      (this.options.yAxis as any)[0].max = axisMax;
+    }
+  }
+
+  private xMax(value: number): number {
+    return Math.ceil(value / 1000) * 1000 || 1000;
   }
 
   private updateSlider(): void {
@@ -217,10 +243,17 @@ export class RaceChart extends AbstractChart {
    * Update the chart. This happens either on updating (moving) the range input,
    * or from a timer when the timeline is playing.
    */
-  tick(target: number, force = false): void {
+  tick(target: number, force = false, instant = false): void {
+    this.stepTimeouts.forEach(t => clearTimeout(t));
+    this.stepTimeouts = [];
+    this.rafCounters.forEach(id => cancelAnimationFrame(id));
+    this.rafCounters = [];
+    this.rafArtists.clear();
+    this.currentStepDuration = 0;
+
     const maxIdx = this.months.length - 1;
     const next = Math.min(target, maxIdx);
-    if (next === this.current && !force) {
+    if (next === this.current && !force && !instant) {
       return;
     }
     this.current = next;
@@ -234,13 +267,115 @@ export class RaceChart extends AbstractChart {
     }
 
     const month = this.months[this.current];
-    const data = this.getData(month);
-    const serieData: SeriesOptionsType = {
-      type: 'bar',
-      name: month.alias,
-      data
+    const newData = this.getData(month);
+    this.chart?.setTitle(undefined, {text: month.alias}, false);
+
+    const newOrder = newData.map(p => p.name as string);
+
+    if (force || instant || !this.chart || this.currentOrder.length === 0) {
+      (this.chart?.series[0] as any)?.update({
+        type: 'bar',
+        name: month.alias,
+        data: this.withSortIndices(newData, newOrder)
+      }, true, false);
+      this.currentOrder = newOrder;
+      return;
+    }
+
+    // Read the current counts from the series so every artist animates from
+    // its previous displayed value (new artists start from 0)
+    const oldCounts = new Map<string, number>();
+    for (const p of (this.chart.series[0] as any).points || []) {
+      oldCounts.set(p.name as string, (p.y as number) || 0);
+    }
+
+    // Start RAF counters for ALL artists so labels count up continuously
+    newData.forEach(p => {
+      const oldCount = oldCounts.get(p.name as string) || 0;
+      this.startRafCounter(p.name as string, p.y as number, oldCount);
+    });
+
+    this.playSwapAnimation(month.alias, newData, newOrder, oldCounts);
+  }
+
+  private withSortIndices(data: PointOptionsObject[], order: string[]): PointOptionsObject[] {
+    const n = order.length;
+    const indexMap = new Map(order.map((name, i) => [name, n - i]));
+    return data.map(p => ({...p, sortIndex: indexMap.get(p.name as string) ?? 0}));
+  }
+
+  /**
+   * Animate a month transition using count-based keyframes. A bar swaps rank
+   * when its interpolated count overtakes a neighbour (the natural race-chart
+   * effect) and, crucially, each keyframe also carries an interpolated `y` so
+   * the bar *length* grows continuously across the whole transition instead of
+   * snapping to its final value up front.
+   */
+  private playSwapAnimation(
+    monthAlias: string,
+    newData: PointOptionsObject[],
+    newOrder: string[],
+    oldCounts: Map<string, number>,
+  ): void {
+    this.currentOrder = newOrder;
+    if (!this.chart) return;
+    const easeInOutSine = (p: number) => 0.5 - Math.cos(p * Math.PI) / 2;
+    const dataMap = new Map(newData.map(p => [p.name as string, p]));
+    const n = newOrder.length;
+
+    const valueAt = (name: string, eased: number): number => {
+      const from = oldCounts.get(name) || 0;
+      const to = (dataMap.get(name)?.y as number) || 0;
+      return from + (to - from) * eased;
     };
-    this.chart?.series[0].update(serieData);
+    const orderAt = (eased: number): string[] =>
+      newOrder.slice().sort((a, b) => valueAt(b, eased) - valueAt(a, eased));
+
+    // Build keyframes at evenly-spaced time slices. The first keyframe is the
+    // OLD order; a new keyframe is recorded whenever the order changes, and the
+    // final slice (eased === 1, the real new order/counts) is always included.
+    const SLICES = 10;
+    const keyframes: { time: number; order: string[]; eased: number }[] = [];
+    const oldOrder = orderAt(0);
+    keyframes.push({ time: 0, order: oldOrder, eased: 0 });
+
+    let prevOrder = oldOrder;
+    for (let slice = 1; slice <= SLICES; slice++) {
+      const eased = easeInOutSine(slice / SLICES);
+      const order = orderAt(eased);
+      if (slice === SLICES || JSON.stringify(order) !== JSON.stringify(prevOrder)) {
+        keyframes.push({ time: Math.floor(this.speed * slice / SLICES), order, eased });
+        prevOrder = order;
+      }
+    }
+
+    // Establish the new point set at their OLD lengths/positions (new artists
+    // enter at 0), so growth starts from where last month ended.
+    const baseData = oldOrder
+      .filter(name => dataMap.has(name))
+      .map((name, i) => ({...dataMap.get(name)!, y: oldCounts.get(name) || 0, sortIndex: n - i}));
+    (this.chart.series[0] as any).setData(baseData, true, {duration: 200});
+
+    // Each timeout fires at the START of a segment and animates toward the next
+    // keyframe over exactly the segment's wall-clock duration, so motion is
+    // continuous and the bars reach full length precisely at month-end.
+    for (let j = 1; j < keyframes.length; j++) {
+      const fromTime = keyframes[j - 1].time;
+      const kf = keyframes[j];
+      const duration = Math.max(kf.time - fromTime, 1);
+      const t = window.setTimeout(() => {
+        if (!this.chart) return;
+        const series = this.chart.series[0] as any;
+        const byName = new Map<string, any>(series.points.map((p: any) => [p.name, p]));
+        kf.order.forEach((name, i) => {
+          byName.get(name)?.update({y: valueAt(name, kf.eased), sortIndex: n - i, x: i}, false, false);
+        });
+        this.currentStepDuration = duration;
+        this.chart.redraw({duration} as any);
+        this.currentStepDuration = 0;
+      }, fromTime);
+      this.stepTimeouts.push(t);
+    }
   }
 
   toggle(): void {
@@ -263,6 +398,7 @@ export class RaceChart extends AbstractChart {
 
   changeType(type: ItemType): void {
     this.type = type;
+    this.currentOrder = [];
     this.update(this.stats!);
     this.tick(this.current, true);
   }
@@ -270,6 +406,7 @@ export class RaceChart extends AbstractChart {
   changeWindowMode(mode: 'cumulative' | 'rolling'): void {
     this.windowMode = mode;
     this.updateTitle();
+    this.updateAxisMax();
     this.tick(this.current, true);
   }
 
@@ -277,6 +414,7 @@ export class RaceChart extends AbstractChart {
     this.windowSize = Math.max(1, Math.min(size, 120));
     this.updateTitle();
     if (this.windowMode === 'rolling') {
+      this.updateAxisMax();
       this.tick(this.current, true);
     }
   }
@@ -290,7 +428,7 @@ export class RaceChart extends AbstractChart {
 
   changeRange(value: number): void {
     this.tooltip!.style.display = 'none';
-    this.tick(value);
+    this.tick(value, false, true);
   }
 
   showTooltip(value: number): void {
@@ -320,56 +458,65 @@ export class RaceChart extends AbstractChart {
     this.timer = undefined;
   }
 
-  private animateDataLabels() {
-    const FLOAT = /^-?\d+\.?\d*$/;
-    const outer = this;
+  private startRafCounter(name: string, target: number, from = 0): void {
+    this.rafArtists.add(name);
+    const start = performance.now();
+    const duration = this.speed;
+    const easeInOutSine = (p: number) => 0.5 - Math.cos(p * Math.PI) / 2;
 
-    // Add animated textSetter, just like fill/strokeSetters
-    (Highcharts as any).Fx.prototype.textSetter = function () {
-      let startValue = this.start.replace(/ /g, ''),
-          endValue = this.end.replace(/ /g, ''),
-          currentValue = this.end.replace(/ /g, '');
+    const frame = (now: number) => {
+      const elapsed = now - start;
+      const pos = Math.min(1, elapsed / duration);
+      const current = Math.round(from + (target - from) * easeInOutSine(pos));
+      const text = Highcharts.numberFormat(current, 0);
 
-      if ((startValue || '').match(FLOAT)) {
-        startValue = parseInt(startValue, 10);
-        endValue = parseInt(endValue, 10);
-
-        // No support for float
-        currentValue = Highcharts.numberFormat(
-            Math.round(startValue + (endValue - startValue) * this.pos),
-            0
-        );
+      // Re-query the point each frame — safe even if element is recreated
+      if (this.chart?.series[0]) {
+        for (const p of (this.chart.series[0] as any).points || []) {
+          if (p.name === name && p.dataLabels?.[0]?.text?.element) {
+            p.dataLabels[0].text.element.textContent = text;
+            break;
+          }
+        }
       }
 
-      this.elem.endText = this.end;
-      this.elem.attr(this.prop, currentValue, null, true);
+      if (elapsed < duration && this.chart) {
+        this.rafCounters.push(requestAnimationFrame(frame));
+      } else {
+        this.rafArtists.delete(name);
+      }
     };
+    this.rafCounters.push(requestAnimationFrame(frame));
+  }
 
-    // Add textGetter, not supported at all at this moment:
-    (Highcharts as any).SVGElement.prototype.textGetter = function () {
-      const ct = this.text.element.textContent || '';
-      return this.endText ? this.endText : ct.substring(0, ct.length / 2);
-    };
+  private animateDataLabels() {
+    const outer = this;
 
-    // Temporary change label.attr() with label.animate():
-    // In core it's simple change attr(...) => animate(...) for text prop
+    // Prevent Highcharts from overwriting text that the RAF counters are animating.
+    // All artists are in rafArtists during a tick transition, so label text is
+    // exclusively managed by the RAF; Highcharts only updates position/style.
     (Highcharts as any).wrap(Highcharts.Series.prototype, 'drawDataLabels', function (this: any, proceed: Highcharts.WrapProceedFunction) {
       const attr = Highcharts.SVGElement.prototype.attr;
 
       if (this.chart === outer.chart) {
-        this.points.forEach((point: any) =>
-            (point.dataLabels || []).forEach(
-                (label: any) =>
-                    (label.attr = function (hash: any) {
-                      if (hash && hash.text !== undefined && (outer.chart as any).isResizing === 0) {
-                        const text = hash.text;
-                        hash.text = undefined;
-                        return this.attr(hash).animate({text});
-                      }
-                      return attr.apply(this, [hash]);
-                    })
-            )
-        );
+        this.points.forEach((point: any) => {
+          const pointName = point.name as string;
+          (point.dataLabels || []).forEach((label: any) => {
+            label.attr = function (hash: any) {
+              if (hash && typeof hash === 'object') {
+                // RAF owns text — clear it so Highcharts doesn't override
+                if (hash.text !== undefined && outer.rafArtists.has(pointName)) {
+                  hash.text = undefined;
+                }
+                // Animate label position in sync with the bar during step redraws
+                if (outer.currentStepDuration > 0 && !('text' in hash)) {
+                  return this.animate(hash, {duration: outer.currentStepDuration});
+                }
+              }
+              return attr.apply(this, [hash]);
+            };
+          });
+        });
       }
 
       const ret = proceed.apply(this, []);

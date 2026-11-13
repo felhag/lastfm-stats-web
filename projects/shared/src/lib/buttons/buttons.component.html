@@ -12,6 +12,6 @@
 <button mat-icon-button matTooltip="Buy me a coffee" (click)="open('https://ko-fi.com/felhag')">
   <mat-icon svgIcon="ko-fi"></mat-icon>
 </button>
-<button mat-icon-button [matTooltip]="isLastFm ? 'Spotify stats' : 'Last.fm stats'" (click)="open(isLastFm ? 'https://spotifystats.app' : 'https://lastfmstats.com')">
+<button mat-icon-button [matTooltip]="isLastFm ? 'Spotify stats' : 'Last.fm stats'" (click)="open('https://' + otherDomain)">
   <img width="24" height="24" src="assets/stats.png" alt="">
 </button>

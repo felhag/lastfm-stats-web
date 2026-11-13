@@ -42,6 +42,51 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+8.0 (02-11-2026)
+- added recap
+- added playtime stats for spotify
+- added dateless scrobbles ([#116][i116])
+- performance improvement initial load
+
+7.5 (30-09-2026)
+- added sessions list
+- added discovery chart
+- added diversity chart
+- every (completed) year albums and tracks
+
+7.4 (26-06-2026)
+- fixed race chart ([#109][i109])
+- every completed year artist ([#111][i111])
+
+7.3 (15-06-2026)
+- fixed min streak length ([#108][i108])
+
+7.2 (10-06-2026)
+- added full screen option for lists
+- starts/ends with search options
+- updated to angular 22
+
+7.1 (15-05-2026)
+- added license ([#105][i105])
+- added region to dataset
+- fixed dataset modal orbs
+- improved region chart
+
+7.0 (14-05-2026)
+- added enrichment tab ([#43][i43])
+- added anniversaries
+- monday as first day of week ([#89][i89])
+- improved climbers/fallers list ([#103][i103], pr by [lj9116](https://github.com/lj9116)) 
+- improved spotify deployment
+
+6.12 (22-04-2026)
+- fixed virtual scroll dataset tab ([#101][i101])
+
+6.11 (25-03-2026)
+- added most unlikely chart ([#94][i94], pr by [donovanrichardson](https://github.com/donovanrichardson))
+- minor performance improvements
+- fixed highest month calculation ([#99][i99])
+
 6.10 (11-01-2026)
 - added rolling window for race chart ([#87][i87], pr by [skywinder](https://github.com/skywinder))
 - improved tooltip artist-timeline chart ([#86][i86])
@@ -322,6 +367,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i35]: https://github.com/felhag/lastfm-stats-web/issues/35
 [i36]: https://github.com/felhag/lastfm-stats-web/issues/36
 [i40]: https://github.com/felhag/lastfm-stats-web/issues/40
+[i43]: https://github.com/felhag/lastfm-stats-web/issues/43
 [i47]: https://github.com/felhag/lastfm-stats-web/issues/47
 [i48]: https://github.com/felhag/lastfm-stats-web/issues/48
 [i49]: https://github.com/felhag/lastfm-stats-web/issues/49
@@ -334,4 +380,14 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i76]: https://github.com/felhag/lastfm-stats-web/issues/76
 [i81]: https://github.com/felhag/lastfm-stats-web/issues/81
 [i86]: https://github.com/felhag/lastfm-stats-web/issues/86
-[i87]: https://github.com/felhag/lastfm-stats-web/pulls/87
+[i87]: https://github.com/felhag/lastfm-stats-web/pull/87
+[i89]: https://github.com/felhag/lastfm-stats-web/issues/89
+[i94]: https://github.com/felhag/lastfm-stats-web/pull/94
+[i99]: https://github.com/felhag/lastfm-stats-web/issues/99
+[i101]: https://github.com/felhag/lastfm-stats-web/issues/101
+[i103]: https://github.com/felhag/lastfm-stats-web/pull/103
+[i105]: https://github.com/felhag/lastfm-stats-web/issues/105
+[i108]: https://github.com/felhag/lastfm-stats-web/issues/108
+[i109]: https://github.com/felhag/lastfm-stats-web/issues/109
+[i111]: https://github.com/felhag/lastfm-stats-web/issues/111
+[i116]: https://github.com/felhag/lastfm-stats-web/issues/116

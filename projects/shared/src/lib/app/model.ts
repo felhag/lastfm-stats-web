@@ -1,5 +1,11 @@
 export enum App { 'lastfm', 'spotify'}
 
+/** Where each app is hosted. */
+export const APP_DOMAINS: Record<App, string> = {
+  [App.lastfm]: 'lastfmstats.com',
+  [App.spotify]: 'spotifystats.app',
+};
+
 export type ItemType = 'artist' | 'album' | 'track';
 
 export type ProgressState = 'LOADINGUSER' | 'CALCULATINGPAGES' | 'RETRIEVING';
@@ -25,19 +31,30 @@ export interface Scrobble {
   albumId?: string;
   track: string;
   date: Date;
+  msPlayed?: number; // Only for spotify
+}
+
+export function hasDate(scrobble: Scrobble): boolean {
+  return scrobble.date.getTime() >= Constants.UNDATED_BEFORE;
+}
+
+export function scrobbleCount(item: StreakItem): number {
+  return item.scrobbles.length + item.undated;
 }
 
 export interface StreakItem {
-  weeks: string[];
+  weeks: Set<string>;
   name: string;
-  betweenStreak: Streak;
+  betweenStreak?: Streak;
   avgScrobble: number;
+  /** Timestamps of the dated scrobbles only, see {@link scrobbleCount} for the total. */
   scrobbles: number[];
+  undated: number;
   ranks: number[];
 }
 
 export interface Artist extends StreakItem {
-  tracks: string[];
+  tracks: Set<string>;
 }
 
 export interface Album extends StreakItem {
@@ -67,6 +84,27 @@ export interface MonthItem {
   new?: Scrobble;
 }
 
+export interface ZScoreEntry {
+  key: string;
+  artist: string;
+  name: string;
+  plays: number;
+  mean: number;
+  std: number;
+  z: number;
+  historyCount: number;
+}
+
+export interface ArtistInfo {
+  artist: string;
+  mbid?: string;
+  country?: string;
+  area?: string;
+  tags: string[];
+  lfmFetched?: number;
+  mbFetched?: number;
+}
+
 export interface Export {
   username: string;
   scrobbles: { artist: string, album: string, albumId?: string, track: string, date: number }[];
@@ -80,6 +118,7 @@ export interface DataSetEntry {
   tracks: number;
   scrobbles: number;
   rank: number;
+  region?: string;
 }
 
 export interface TempStats {
@@ -96,19 +135,24 @@ export interface TempStats {
   seenAlbums: { [key: string]: Album };
   seenTracks: { [key: string]: Track };
   scrobbleStreak: ScrobbleStreakStack;
-  trackStreak: ItemStreakStack;
+  notListenedStreak: StreakStack;
   artistStreak: ItemStreakStack;
   albumStreak: ItemStreakStack;
-  notListenedStreak: StreakStack;
+  trackStreak: ItemStreakStack;
   betweenArtists: StreakStack;
   betweenAlbums: StreakStack;
   betweenTracks: StreakStack;
+  sessions: SessionStack;
   scrobbleMilestones: Scrobble[];
   albumMilestones: Scrobble[];
   trackMilestones: Scrobble[];
   scrobbleCount: number;
   albumCount: number;
   trackCount: number;
+  withoutDate: number;
+  /** Total listening time in milliseconds, 0 when the source does not provide it. */
+  playtime: number;
+  playtimePerYear: { [key: number]: number };
 }
 
 export interface Streak {
@@ -121,6 +165,8 @@ export interface Streak {
 export class StreakStack {
   streaks: Streak[] = [];
   current?: Streak;
+
+  constructor(private readonly minLength = 10) {}
 
   calcLength(streak: Streak): Streak {
     streak.ongoing = false;
@@ -143,13 +189,17 @@ export class StreakStack {
 
   add(streak: Streak): void {
     this.calcLength(streak);
-    if (streak.length! > 1) {
+    if (streak.length! > this.minLength) {
       this.streaks.push(streak);
     }
   }
 }
 
 export class ScrobbleStreakStack extends StreakStack {
+  constructor() {
+    super(1);
+  }
+
   push(scrobble: Scrobble): void {
     if (!this.current) {
       this.create(scrobble);
@@ -170,7 +220,7 @@ export class ScrobbleStreakStack extends StreakStack {
 
 export class ItemStreakStack extends StreakStack {
   constructor(private compare: (a: Scrobble, b: Scrobble) => boolean) {
-    super();
+    super(2);
   }
 
   calcLength(streak: Streak): Streak {
@@ -192,18 +242,19 @@ export class ItemStreakStack extends StreakStack {
   }
 
   protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {
-    this.current!.length!++;
-    this.current!.end = scrobble;
+    this.current.length!++;
+    this.current.end = scrobble;
   }
 
   private hasCurrent(): this is { current: Streak } {
-    return this.current !== undefined && this.current !== null;
+    return this.current !== undefined;
   }
 }
 
 export class AlbumStreakStack extends ItemStreakStack {
   constructor() {
-    super((a, b) => (a.albumId && a.albumId === b.albumId) || a.albumId === b.albumId && a.artist === b.artist);
+    // same albumId; when neither has an albumId, fall back to matching on artist
+    super((a, b) => a.albumId === b.albumId && (!!a.albumId || a.artist === b.artist));
   }
 
   protected extendStreak(this: { current: Streak }, scrobble: Scrobble) {
@@ -215,9 +266,37 @@ export class AlbumStreakStack extends ItemStreakStack {
   }
 }
 
+export class SessionStack extends StreakStack {
+  constructor() {
+    // only keep sessions with more than 5 scrobbles, shorter ones are never interesting
+    super(5);
+  }
+
+  calcLength(streak: Streak): Streak {
+    // length is the amount of scrobbles, counted on the fly
+    streak.ongoing = false;
+    return streak;
+  }
+
+  push(scrobble: Scrobble): void {
+    if (!this.current) {
+      this.create(scrobble);
+    } else if (scrobble.date.getTime() - this.current.end.date.getTime() <= Constants.SESSION_GAP) {
+      this.current.length!++;
+      this.current.end = scrobble;
+    } else {
+      this.finish(scrobble);
+    }
+  }
+}
+
 export class Constants {
+  static readonly UNDATED_BEFORE = Date.UTC(1971, 0, 1);
   static readonly DAY = 24 * 60 * 60 * 1000;
   static readonly TWO_DAYS = 2 * Constants.DAY;
+  // A new listening session starts after this much silence
+  static readonly SESSION_GAP = 30 * 60 * 1000;
+  static readonly ANNIVERSARY_WINDOW_DAYS = 14;
   static readonly API_PAGE_SIZE = 1000;
   static readonly API_PAGE_SIZE_REDUCED = 500;
   static readonly RETRIES = 2;
@@ -225,7 +304,9 @@ export class Constants {
   static readonly SCROBBLE_ALBUM_THRESHOLD = 30;
   static readonly SCROBBLE_TRACK_THRESHOLD = 10;
   static readonly MIN_MS_PLAYED = 30000;
-  static readonly DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  // MusicBrainz asks for 1 req/sec for anonymous clients; 1.05s gives a safety margin.
+  static readonly MB_SPACING_MS = 1050;
+  static readonly DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   static readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   static readonly COLORS = [
     // highcharts colors

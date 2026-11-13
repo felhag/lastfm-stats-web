@@ -1,15 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Constants } from 'projects/shared/src/lib/app/model';
 import { AbstractUrlService } from '../../../shared/src/lib/service/abstract-url.service';
 import { UsernameService } from '../../../shared/src/lib/service/username.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class LastfmUrlService extends AbstractUrlService {
-  constructor(private readonly usernameService: UsernameService) {
-    super();
-  }
+  private readonly usernameService = inject(UsernameService);
 
   artist(artist: string): string {
     return `${this.base}/music/${encodeURIComponent(artist)}`;

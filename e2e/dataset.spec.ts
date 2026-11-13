@@ -18,9 +18,7 @@ test.describe('Dataset tab', () => {
   });
 
   test('displays data table with data rows', async ({ page }) => {
-    const rows = page.locator('tr.mat-mdc-row');
-    const count = await rows.count();
-    expect(count).toBeGreaterThan(0);
+    await expect(page.locator('tr.mat-mdc-row').first()).toBeVisible();
   });
 
   test('table has sortable column headers', async ({ page }) => {
@@ -48,13 +46,43 @@ test.describe('Dataset tab', () => {
   });
 
   test('search filters the table', async ({ page }) => {
-    const rowsBefore = await page.locator('tr.mat-mdc-row').count();
+    const rows = page.locator('tr.mat-mdc-row');
+    await expect(rows.first()).toBeVisible();
+    const rowsBefore = await rows.count();
     const searchInput = page.getByPlaceholder('Search artist...');
     await searchInput.fill('Clannad');
     // Wait for filter to apply
-    await page.waitForTimeout(500);
-    const rowsAfter = await page.locator('tr.mat-mdc-row').count();
+    await expect(rows.first()).toContainText('Clannad');
+    const rowsAfter = await rows.count();
     expect(rowsAfter).toBeLessThanOrEqual(rowsBefore);
     expect(rowsAfter).toBeGreaterThan(0);
+  });
+
+  test('search supports ^ and $ anchors', async ({ page }) => {
+    const rows = page.locator('tr.mat-mdc-row');
+    const searchInput = page.getByPlaceholder('Search artist...');
+
+    // substring match: "air" matches both "Air" and "Fairweather"
+    await searchInput.fill('air');
+    await expect(rows).toHaveCount(2);
+
+    // ^ anchors to the start: only "Air"
+    await searchInput.fill('^air');
+    await expect(rows).toHaveCount(1);
+    await expect(rows.first()).toContainText('Air');
+
+    // $ anchors to the end: only "Fairweather"
+    await searchInput.fill('weather$');
+    await expect(rows).toHaveCount(1);
+    await expect(rows.first()).toContainText('Fairweather');
+
+    // ^...$ is an exact match
+    await searchInput.fill('^fairweather$');
+    await expect(rows).toHaveCount(1);
+    await expect(rows.first()).toContainText('Fairweather');
+  });
+
+  test('search field shows anchor hint', async ({ page }) => {
+    await expect(page.getByText('Use ^ for starts with and $ for ends with').first()).toBeVisible();
   });
 });

@@ -1,23 +1,24 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { State, App, User } from 'projects/shared/src/lib/app/model';
 import { ConfComponent } from 'projects/shared/src/lib/conf/conf.component';
 import { SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { StatsBuilderService } from 'projects/shared/src/lib/service/stats-builder.service';
 import { UsernameService } from 'projects/shared/src/lib/service/username.service';
-import { combineLatest, Observable, take, switchMap, filter } from 'rxjs';
+import { combineLatest, Observable, take, switchMap, filter, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DateColorsService } from '../service/date-colors.service';
 import { ScrobbleManager } from '../service/scrobble-manager.service';
 import { ScrobbleStore } from '../service/scrobble.store';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatTabLink, MatTabNav, MatTabNavPanel } from '@angular/material/tabs';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatBadge } from '@angular/material/badge';
 import { ProgressComponent } from '../progress/progress.component';
 import { MatIcon } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { TitleCasePipe, CommonModule } from '@angular/common';
+import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { TitleCasePipe, AsyncPipe } from '@angular/common';
 import { ButtonsComponent } from '../buttons/buttons.component';
 import { TranslatePipe } from '../service/translate.pipe';
 
@@ -25,41 +26,56 @@ import { TranslatePipe } from '../service/translate.pipe';
     selector: 'app-stats',
     templateUrl: './stats.component.html',
     styleUrls: ['./stats.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [ScrobbleManager, ScrobbleStore, DateColorsService, StatsBuilderService, TranslatePipe],
     imports: [
-        CommonModule,
-        MatBadgeModule,
-        MatButtonModule,
-        MatCardModule,
+        AsyncPipe,
+        ButtonsComponent,
+        MatBadge,
+        MatButton,
+        MatCard,
+        MatCardActions,
+        MatCardContent,
+        MatCardHeader,
+        MatCardSubtitle,
+        MatCardTitle,
         MatIcon,
-        MatSlideToggleModule,
-        MatTabsModule,
+        MatSlideToggle,
+        MatTabLink,
+        MatTabNav,
+        MatTabNavPanel,
         ProgressComponent,
         RouterLink,
         RouterLinkActive,
         RouterOutlet,
         TitleCasePipe,
-        ButtonsComponent
     ]
 })
 export class StatsComponent implements OnInit, OnDestroy {
+  private builder = inject(StatsBuilderService);
+  private scrobbles = inject(ScrobbleStore);
+  private manager = inject(ScrobbleManager);
+  protected settings = inject(SettingsService);
+  private usernameService = inject(UsernameService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private app = inject(App as any) as App;
+
   readonly tabs: string[];
   private activeTab: string = 'general';
   private start?: [number, number, number];
+  /** Early in the year there's too little data for an interesting recap, so January and February link to the previous year. */
+  readonly recapYear = new Date().getFullYear() - (new Date().getMonth() < 2 ? 1 : 0);
+  /** The recap takes over the whole screen, so the header and tabs are hidden while it is open. */
+  readonly fullscreen = toSignal(this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd),
+    map(e => this.isRecap((e as NavigationEnd).urlAfterRedirects))
+  ), {initialValue: this.isRecap(this.router.url)});
   state$!: Observable<State>;
   user$!: Observable<User | undefined>;
 
-  constructor(private builder: StatsBuilderService,
-              private scrobbles: ScrobbleStore,
-              private manager: ScrobbleManager,
-              public settings: SettingsService,
-              private usernameService: UsernameService,
-              private router: Router,
-              private dialog: MatDialog,
-              private app: App,
-              translate: TranslatePipe) {
-    this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset'];
+  constructor() {
+    const translate = inject(TranslatePipe);
+    this.tabs = ['general', 'artists', 'albums', 'tracks', translate.transform('translate.scrobbles'), 'charts', 'dataset', 'enrichment'];
   }
 
   ngOnInit(): void {
@@ -106,7 +122,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   swipeEnd(ev: TouchEvent): void {
-    if (!this.start) {
+    if (!this.start || this.fullscreen()) {
       return;
     }
     const swipe = this.getSwipeEventData(ev);
@@ -122,6 +138,10 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.router.navigate(['user', this.username, next]);
       }
     }
+  }
+
+  private isRecap(url: string): boolean {
+    return /^\/user\/[^/]+\/recap(\/|$)/.test(url);
   }
 
   private getSwipeEventData(ev: TouchEvent): [number, number, number] {

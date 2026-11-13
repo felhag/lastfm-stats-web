@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 
 type Setting = keyof Settings;
@@ -14,9 +14,7 @@ export interface Settings {
   filterRemasters: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SettingsService extends ComponentStore<Settings> {
   private static readonly parsers: { [key in Setting]: SettingParser } = {
     autoUpdate: {key: 'auto-update', default: true, parse: v => v === 'true'},

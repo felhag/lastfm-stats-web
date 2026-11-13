@@ -1,4 +1,4 @@
-import { EnvironmentProviders, importProvidersFrom, Provider, Type } from '@angular/core';
+import { EnvironmentProviders, Provider, Type } from '@angular/core';
 import { provideRouter, Routes } from '@angular/router';
 import { AlbumListsComponent } from './lists/album-lists.component';
 import { ArtistListsComponent } from './lists/artist-lists.component';
@@ -8,10 +8,10 @@ import { ScrobbleListsComponent } from './lists/scrobble-lists.component';
 import { StatsComponent } from './stats/stats.component';
 import { TrackListsComponent } from './lists/track-lists.component';
 import { GeneralComponent } from './general/general.component';
-import { NgCircleProgressModule } from "ng-circle-progress";
+import { EnrichmentComponent } from './enrichment/enrichment.component';
+import { RecapComponent } from './recap/recap.component';
 import { provideHighcharts } from "highcharts-angular";
 import { Constants } from "./app/model";
-import * as Highcharts from "highcharts";
 
 export class Shared {
   public static routerProvider(home: Type<any>, scrobblesRoute: string): EnvironmentProviders {
@@ -53,26 +53,17 @@ export class Shared {
             path: 'dataset',
             pathMatch: 'full',
             component: DatasetComponent
+          }, {
+            path: 'enrichment',
+            pathMatch: 'full',
+            component: EnrichmentComponent
+          }, {
+            path: 'recap/:year',
+            pathMatch: 'full',
+            component: RecapComponent
           }]
       },
     ]);
-  }
-
-  public static ngCircleProvider() {
-    return importProvidersFrom(
-      NgCircleProgressModule.forRoot({
-        animationDuration: 1000,
-        percent: 100,
-        maxPercent: 100,
-        radius: 60,
-        renderOnClick: false,
-        showUnits: false,
-        startFromZero: true,
-        titleColor: 'currentColor',
-        outerStrokeColor: 'var(--primaryColor)',
-        innerStrokeColor: 'var(--primaryColorContrast)'
-      })
-    );
   }
 
   public static highchartsProvider() {

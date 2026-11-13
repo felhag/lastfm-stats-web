@@ -1,0 +1,12 @@
+<div class="orb" [style.--orb-delay.ms]="delay()">
+  <svg width="136" height="136" viewBox="0 0 136 136" aria-hidden="true">
+    <circle class="orb-track" cx="68" cy="68" r="60" stroke-width="4" fill="none"/>
+    <circle class="orb-progress" cx="68" cy="68" r="60" stroke-width="8"
+            pathLength="100" stroke-dasharray="100"
+            transform="rotate(-90 68 68)" fill="none"/>
+  </svg>
+  <div class="orb-content">
+    <div>{{ display() }}</div>
+    <div class="orb-title">{{ title() }}</div>
+  </div>
+</div>

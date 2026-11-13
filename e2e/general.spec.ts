@@ -125,8 +125,8 @@ test.describe('General component', () => {
     const dt = page.getByText('Every year artists');
     await expect(dt).toBeVisible();
 
-    // Click the view_list icon to open dialog
-    const icon = page.locator('.every-year-artist mat-icon');
+    // Click the view_list icon to open dialog (first row: "Every year artists")
+    const icon = page.locator('.every-year-artist mat-icon').first();
     await expect(icon).toBeVisible();
     await icon.click();
 
@@ -135,6 +135,103 @@ test.describe('General component', () => {
     await expect(page.getByText('Found')).toBeVisible();
 
     // Close the dialog
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every completed year artists with dialog', async () => {
+    const dt = page.getByText('Every completed year artists');
+    await expect(dt).toBeVisible();
+
+    // Click the view_list icon to open dialog (second row: "Every completed year artists")
+    const icon = page.locator('.every-year-artist mat-icon').nth(1);
+    await expect(icon).toBeVisible();
+    await icon.click();
+
+    // Dialog should open with the completed-years title
+    await expect(page.getByRole('heading', { name: 'Every completed year artist' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    // Close the dialog
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every year albums with dialog', async () => {
+    const dt = page.locator('dt', { hasText: /^Every year albums$/ });
+    await expect(dt).toBeVisible();
+
+    // Click the view_list icon in the dd immediately following the dt
+    await dt.locator('+ dd mat-icon').click();
+
+    await expect(page.getByRole('heading', { name: 'Every year album' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every completed year albums with dialog', async () => {
+    const dt = page.locator('dt', { hasText: /^Every completed year albums$/ });
+    await expect(dt).toBeVisible();
+
+    await dt.locator('+ dd mat-icon').click();
+
+    await expect(page.getByRole('heading', { name: 'Every completed year album' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every year tracks with dialog', async () => {
+    const dt = page.locator('dt', { hasText: /^Every year tracks$/ });
+    await expect(dt).toBeVisible();
+
+    await dt.locator('+ dd mat-icon').click();
+
+    await expect(page.getByRole('heading', { name: 'Every year track' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('displays every completed year tracks with dialog', async () => {
+    const dt = page.locator('dt', { hasText: /^Every completed year tracks$/ });
+    await expect(dt).toBeVisible();
+
+    await dt.locator('+ dd mat-icon').click();
+
+    await expect(page.getByRole('heading', { name: 'Every completed year track' })).toBeVisible();
+    await expect(page.getByText('Found')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+  });
+
+  test('toggling a year chip updates the list', async () => {
+    await page.locator('.every-year-artist mat-icon').first().click();
+    await expect(page.getByRole('heading', { name: 'Every year artist' })).toBeVisible();
+
+    const content = page.locator('mat-dialog-container');
+    await expect(page.getByText('Found')).toBeVisible();
+    const before = parseInt((await content.textContent())!.match(/Found (\d+)/)![1]);
+
+    // Deselect every year except the first. Relaxing the "listened to in all selected years"
+    // constraint must grow the count once the (pure) filter pipe re-runs — if it doesn't
+    // re-run, the number stays put and this fails (the regression we're guarding against).
+    const chips = page.locator('mat-chip-option');
+    const count = await chips.count();
+    for (let i = 1; i < count; i++) {
+      await chips.nth(i).click();
+    }
+
+    await expect(async () => {
+      const after = parseInt((await content.textContent())!.match(/Found (\d+)/)![1]);
+      expect(after).toBeGreaterThan(before);
+    }).toPass();
+
     await page.getByRole('button', { name: 'Close' }).click();
     await expect(page.locator('mat-dialog-container')).not.toBeVisible();
   });
@@ -155,8 +252,8 @@ test.describe('General component', () => {
     await expect(page.locator('mat-snack-bar-container')).not.toBeVisible();
   });
 
-  test('three stats cards are visible', async () => {
+  test('stats cards are visible', async () => {
     const cards = page.locator('app-general mat-card');
-    await expect(cards).toHaveCount(3);
+    await expect(cards).toHaveCount(5);
   });
 });

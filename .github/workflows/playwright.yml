@@ -3,23 +3,22 @@ on:
   push:
     branches:
       - "**"
-  pull_request:
-    branches: [ main, master ]
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
-    - uses: actions/setup-node@v6
+    - uses: pnpm/action-setup@v6
       with:
-        node-version: '22'
+        version: 11
 
-    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v7
       with:
-        version: 10
+        node-version: '24'
+        cache: 'pnpm'
 
     - name: Install dependencies
       run: pnpm install
@@ -30,7 +29,7 @@ jobs:
     - name: Run Playwright tests
       run: pnpm exec playwright test
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: ${{ !cancelled() }}
       with:
         name: playwright-report

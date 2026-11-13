@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 
 import * as Highcharts from 'highcharts';
@@ -11,13 +11,18 @@ import { MapperService } from '../../service/mapper.service';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatTooltip } from '@angular/material/tooltip';
-import { CircleProgressOptions, NgCircleProgressModule } from 'ng-circle-progress';
+import { OrbComponent } from '../orb/orb.component';
 
 import { MatIcon } from '@angular/material/icon';
 
 interface DatasetModalData {
   entry: DataSetEntry;
   months: { [key: string]: Month };
+}
+
+interface OrbStat {
+  title: string;
+  value: number;
 }
 
 @Component({
@@ -30,30 +35,30 @@ interface DatasetModalData {
     MatCheckbox,
     MatIcon,
     MatTooltip,
-    NgCircleProgressModule,
+    OrbComponent,
     MatDialogContent,
     MatDialogTitle
   ]
 })
 export class DatasetModalComponent implements OnInit {
-  options: (Partial<CircleProgressOptions> | undefined)[] = [];
+  data = inject<DatasetModalData>(MAT_DIALOG_DATA);
+  private translate = inject(TranslatePipe);
+  private mapper = inject(MapperService);
+
+  stats: OrbStat[] = [];
   chartOptions: Highcharts.Options = {};
   url?: string;
   chart?: Highcharts.Chart;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: DatasetModalData,
-              private translate: TranslatePipe,
-              private mapper: MapperService) { }
 
   ngOnInit(): void {
     const scrobblesTitle = this.translate.capFirst('translate.scrobbles');
     const months = this.data.months;
     const highestMonthly = Math.min(
       ...Object.values(months)
-        .map(m => this.mapper
-          .monthItems(this.entry.type, m)
-          .sort((a, b) => a.count > b.count ? -1 : 1)
-          .findIndex(m => m.name === this.data.entry.item.name) + 1)
+        .map(m =>
+          this.mapper.monthItems(this.entry.type, m)
+            .sort((a, b) => a.count > b.count ? -1 : 1)
+            .indexOf(this.mapper.monthItem(this.entry.type, m, this.entry.item)) + 1)
         .filter(idx => idx > 0)
     )
     const ranks: (number | null)[] = [];
@@ -63,13 +68,14 @@ export class DatasetModalComponent implements OnInit {
     // add current month rank
     ranks.push(this.entry.rank);
 
-    this.options = [
-      this.circleOption(scrobblesTitle, this.entry.scrobbles),
-      this.entry.tracks ? this.circleOption('Tracks', this.entry.tracks) : undefined,
-      this.circleOption('Weeks', this.entry.item.weeks.length),
-      this.circleOption('Highest rank', Math.min(...ranks.filter(r => r).map(r => r!))),
-      this.circleOption('Highest monthly', highestMonthly)
+    this.stats = [
+      { title: scrobblesTitle, value: this.entry.scrobbles },
+      ...(this.entry.tracks ? [{ title: 'Tracks', value: this.entry.tracks }] : []),
+      { title: 'Weeks', value: this.entry.item.weeks.size },
+      { title: 'Highest rank', value: Math.min(...ranks.filter(r => r).map(r => r!)) },
+      ...(isFinite(highestMonthly) ? [{ title: 'Highest monthly', value: highestMonthly }] : []),
     ];
+    const dated = this.entry.item.scrobbles.length > 0;
 
     this.url = this.mapper.url(this.entry.type, this.entry.item);
 
@@ -114,7 +120,7 @@ export class DatasetModalComponent implements OnInit {
             '<span style="font-weight: bold; color: gray; margin: 0 4px;">=</span>' :
             `<span style="font-weight: bold; transform: rotate(${diff > 0 ? 135 : 45}deg); color: ${diff > 0 ? 'red' : 'green'}; margin: 0 4px;">↑</span>`;
           const rank = currRank ? `<div style="display: inline-flex;">Rank: ${arrow}<strong>${currRank}</strong></div>` : '';
-          return `<strong>${this.key}</strong><br>Scrobbles: <strong>${scrobbles}</strong><br>${rank}`;
+          return `<strong>${this.key}</strong><br>${scrobblesTitle}: <strong>${scrobbles}</strong><br>${rank}`;
         },
         useHTML: true
       },
@@ -134,22 +140,15 @@ export class DatasetModalComponent implements OnInit {
         rules: [{
           condition: { minWidth: 769 },
           chartOptions: {
-            annotations: [
+            annotations: dated ? [
               this.annotationOptions(first, scrobbles[first]!, `First ${this.translate.transform('translate.scrobble')}: ${this.first.toLocaleString()}`, 'right'),
               this.annotationOptions(last, scrobbles[last]!, `Last ${this.translate.transform('translate.scrobble')}: ${this.last.toLocaleString()}`, 'left'),
               this.mostScrobbledDayAnnotation(scrobbles),
-            ]
+            ] : []
           }
         }]
       }
     }
-  }
-
-  private circleOption(title: string, value: number): Partial<CircleProgressOptions> {
-    return {
-      subtitle: title,
-      titleFormat: (p: number) => Math.round((value / 100) * p)
-    };
   }
 
   private mostScrobbledDayAnnotation(scrobbles: number[]): Highcharts.AnnotationsOptions {
