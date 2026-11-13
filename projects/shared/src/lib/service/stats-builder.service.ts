@@ -19,6 +19,14 @@ import {
 import { Settings, SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { MapperService } from './mapper.service';
 import { ScrobbleStore } from './scrobble.store';
+import { sanitizeName } from './sanitize-name';
+
+/** Canonical display casing per lowercase key, scoped to a single TempStats accumulator. */
+interface CanonicalNames {
+  artists: Map<string, string>;
+  albums: Map<string, string>;
+  tracks: Map<string, string>;
+}
 
 /**
  * The values of seenArtists/seenAlbums/seenTracks in insertion order. Enumerating those objects is slow once
@@ -28,6 +36,7 @@ interface SeenLists {
   artists: StreakItem[];
   albums: StreakItem[];
   tracks: StreakItem[];
+  canonical?: CanonicalNames;
 }
 
 /** Either start over from every scrobble in the store or add a chunk of newly loaded ones to the accumulator. */
@@ -75,67 +84,118 @@ export class StatsBuilderService {
   }
 
   update(scrobbles: Scrobble[], settings: Settings, next: TempStats): TempStats {
+    const canonical = settings.filterRemasters ? this.canonical(next) : undefined;
     for (const scrobble of this.filterWith(scrobbles, settings)) {
-      if (scrobble.msPlayed) {
-        next.playtime += scrobble.msPlayed;
+      const sanitizedScrobble: Scrobble = canonical ? this.sanitizeScrobble(scrobble, canonical) : scrobble;
+
+      if (sanitizedScrobble.msPlayed) {
+        next.playtime += sanitizedScrobble.msPlayed;
       }
-      if (!hasDate(scrobble)) {
+      if (!hasDate(sanitizedScrobble)) {
         next.withoutDate++;
-        this.handleUndated(next, scrobble);
+        this.handleUndated(next, sanitizedScrobble);
         continue;
       }
 
-      const year = scrobble.date.getFullYear();
+      const year = sanitizedScrobble.date.getFullYear();
 
-      const monthYear = this.mapper.getMonthYear(scrobble.date);
-      const weekYear = this.mapper.getWeekYear(scrobble.date);
-      const sod = StreakStack.startOfDay(scrobble.date);
+      const monthYear = this.mapper.getMonthYear(sanitizedScrobble.date);
+      const weekYear = this.mapper.getWeekYear(sanitizedScrobble.date);
+      const sod = StreakStack.startOfDay(sanitizedScrobble.date);
       const dayOfYear = sod.getTime();
 
       next.scrobbleCount++;
-      next.hours[scrobble.date.getHours()]++;
-      next.months[scrobble.date.getMonth()]++;
-      next.days[(scrobble.date.getDay() + 6) % 7]++;
+      next.hours[sanitizedScrobble.date.getHours()]++;
+      next.months[sanitizedScrobble.date.getMonth()]++;
+      next.days[(sanitizedScrobble.date.getDay() + 6) % 7]++;
       next.specificWeeks[weekYear] = (next.specificWeeks[weekYear] || 0) + 1;
 
       if (!next.years[year]) {
         next.years[year] = 0;
       }
       next.years[year]++;
-      if (scrobble.msPlayed) {
-        next.playtimePerYear[year] = (next.playtimePerYear[year] || 0) + scrobble.msPlayed;
+      if (sanitizedScrobble.msPlayed) {
+        next.playtimePerYear[year] = (next.playtimePerYear[year] || 0) + sanitizedScrobble.msPlayed;
       }
 
-      this.handleMonth(next, monthYear, scrobble);
-      this.handleArtist(next, scrobble, weekYear);
-      this.handleAlbum(next, scrobble, weekYear);
-      const track = this.handleTrack(next, scrobble, weekYear);
+      this.handleMonth(next, monthYear, sanitizedScrobble);
+      this.handleArtist(next, sanitizedScrobble, weekYear);
+      this.handleAlbum(next, sanitizedScrobble, weekYear);
+      const track = this.handleTrack(next, sanitizedScrobble, weekYear);
 
       if (!next.specificDays[dayOfYear]) {
         next.specificDays[dayOfYear] = [] as Track[];
       }
       next.specificDays[dayOfYear].push(track);
 
-      next.trackStreak.push(scrobble);
-      next.artistStreak.push(scrobble);
-      next.albumStreak.push(scrobble);
+      next.trackStreak.push(sanitizedScrobble);
+      next.artistStreak.push(sanitizedScrobble);
+      next.albumStreak.push(sanitizedScrobble);
 
-      next.scrobbleStreak.push(scrobble);
-      next.sessions.push(scrobble);
+      next.scrobbleStreak.push(sanitizedScrobble);
+      next.sessions.push(sanitizedScrobble);
       const lastDate = next.last ? StreakStack.startOfDay(next.last.date) : undefined;
       if (lastDate && sod.getTime() - lastDate.getTime() > Constants.DAY) {
-        next.notListenedStreak.add({start: next.last!, end: scrobble});
+        next.notListenedStreak.add({start: next.last!, end: sanitizedScrobble});
       }
 
       if (next.scrobbleCount % 1000 === 0) {
-        next.scrobbleMilestones.push(scrobble);
+        next.scrobbleMilestones.push(sanitizedScrobble);
       }
       if (!next.first) {
-        next.first = scrobble;
+        next.first = sanitizedScrobble;
       }
-      next.last = scrobble;
+      next.last = sanitizedScrobble;
     }
     return next;
+  }
+
+  /**
+   * Strips remaster/edition suffixes and canonicalizes casing once per scrobble so downstream maps,
+   * MapperService lookups, list components, and StreakStacks stay consistent.
+   */
+  private sanitizeScrobble(scrobble: Scrobble, canonical: CanonicalNames): Scrobble {
+    const artistLower = scrobble.artist.toLowerCase();
+    const artist = this.canonicalize(canonical.artists, artistLower, scrobble.artist);
+
+    const sanitizedTrack = (scrobble.track && sanitizeName(scrobble.track)) || scrobble.track;
+    const track = sanitizedTrack
+      ? this.canonicalize(canonical.tracks, `${artistLower}\0${sanitizedTrack.toLowerCase()}`, sanitizedTrack)
+      : sanitizedTrack;
+
+    const sanitizedAlbum = scrobble.album ? sanitizeName(scrobble.album) : scrobble.album;
+    const album = sanitizedAlbum
+      ? this.canonicalize(canonical.albums, `${scrobble.albumId || artistLower}\0${sanitizedAlbum.toLowerCase()}`, sanitizedAlbum)
+      : sanitizedAlbum;
+
+    if (artist === scrobble.artist && album === scrobble.album && track === scrobble.track) {
+      return scrobble;
+    }
+    return {
+      ...scrobble,
+      artist,
+      album,
+      track,
+    };
+  }
+
+  private canonicalize(map: Map<string, string>, key: string, value: string): string {
+    const existing = map.get(key);
+    if (existing !== undefined) {
+      return existing;
+    }
+    map.set(key, value);
+    return value;
+  }
+
+  private canonical(stats: TempStats): CanonicalNames {
+    const lists = this.seen(stats);
+    lists.canonical ??= {
+      artists: new Map(),
+      albums: new Map(),
+      tracks: new Map(),
+    };
+    return lists.canonical;
   }
 
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {

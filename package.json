@@ -6,6 +6,7 @@
     "start": "ng serve",
     "both": "concurrently --kill-others \"ng serve spotify-stats --port 4201\" \"ng serve lastfm-stats --port 4200\"",
     "build": "ng build",
+    "test": "vitest",
     "deploy": "ng build --configuration production --project \"lastfm-stats\""
   },
   "private": true,
@@ -40,6 +41,7 @@
     "concurrently": "^10.0.5",
     "playwright": "^1.63.0",
     "ts-node": "~10.9.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^4.0.18"
   }
 }

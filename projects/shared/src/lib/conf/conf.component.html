@@ -4,6 +4,11 @@
   <mat-slider min="1" max="100" color="primary" discrete #ngSlider>
     <input matSliderThumb [value]="settings.listSize" (change)="settings.listSize = {source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}.value || 10" #ngSliderThumb="matSliderThumb" />
   </mat-slider>
+  <div class="setting-row filter-remasters">
+    <mat-slide-toggle labelPosition="before" [checked]="settings.filterRemasters" (change)="settings.filterRemasters = $event.checked" color="primary">
+      Filter remasters:
+    </mat-slide-toggle>
+  </div>
   <div class="setting-row">
     <mat-form-field>
       <mat-label>Min {{'translate.scrobbles' | translate}}</mat-label>
