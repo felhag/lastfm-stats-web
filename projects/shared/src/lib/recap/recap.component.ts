@@ -75,7 +75,7 @@ export class RecapComponent {
 
   /**
    * Recap is only built once loading is done, rebuilding it on every page would be wasteful.
-   * The artist filter applies, but the date range doesn't: new artists, rank changes and the comparison with the
+   * The artist filter and the merging of versions apply, but the date range doesn't: new artists, rank changes and the comparison with the
    * previous year need the history before the recap year, and a recap that silently stops halfway is misleading.
    */
   private readonly scrobbles = toSignal(combineLatest([
@@ -83,10 +83,10 @@ export class RecapComponent {
     this.settings.state$.pipe(
       map(s => ({...s, dateRangeStart: null, dateRangeEnd: null})),
       // other settings don't affect the recap, so don't rebuild it for them
-      distinctUntilChanged((a, b) => a.artistsInclude === b.artistsInclude
+      distinctUntilChanged((a, b) => a.artistsInclude === b.artistsInclude && a.filterRemasters === b.filterRemasters
         && a.artists.length === b.artists.length && a.artists.every((artist, i) => artist === b.artists[i])),
     )
-  ]).pipe(map(([state, settings]) => this.builder.filterWith(state.scrobbles, settings))));
+  ]).pipe(map(([state, settings]) => this.builder.select(state.scrobbles, settings))));
 
   private readonly yearParam = toSignal(this.route.paramMap.pipe(map(p => p.get('year'))));
 

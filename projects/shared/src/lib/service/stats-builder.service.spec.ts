@@ -305,6 +305,22 @@ describe('StatsBuilderService (filterRemasters)', () => {
     ]);
   });
 
+  it('selects the scrobbles for the recap the way the stats count them', () => {
+    const { builder } = createHarness();
+    const scrobbles = [
+      makeScrobble({ artist: 'blink-182', album: 'Enema of the State', albumId: 'mbid-enema', track: 'Adam\'s Song', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Blink 182', album: 'Enema Of The State (Remastered)', albumId: '', track: 'Adam\'s Song - Remastered', date: new Date(2024, 0, 2) }),
+      makeScrobble({ artist: 'Weezer', album: 'Weezer', albumId: '', track: 'Buddy Holly', date: new Date(2024, 0, 3) }),
+    ];
+
+    const merged = builder.select(scrobbles, makeSettings({ filterRemasters: true, artists: ['Weezer'], artistsInclude: false }));
+    expect(merged).toHaveLength(2);
+    expect(merged[1]).toEqual({ ...merged[0], date: scrobbles[1].date });
+    expect(merged[0]).toMatchObject({ artist: 'blink-182', album: 'Enema of the State', albumId: 'mbid-enema', track: 'Adam\'s Song' });
+
+    expect(builder.select(scrobbles, makeSettings({ filterRemasters: false }))).toBe(scrobbles);
+  });
+
   it('rebuilds tempStats cleanly when filterRemasters setting is toggled', () => {
     const { builder, store, state$ } = createHarness(makeSettings({ filterRemasters: false }));
     let latest!: TempStats;

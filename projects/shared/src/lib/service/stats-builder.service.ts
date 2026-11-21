@@ -164,6 +164,19 @@ export class StatsBuilderService {
   }
 
   /**
+   * The scrobbles the settings select, named and grouped the way the stats count them. For views that aggregate
+   * scrobbles themselves (recap), so they agree with the lists when versions and spellings are merged.
+   */
+  select(scrobbles: Scrobble[], settings: Settings): Scrobble[] {
+    const filtered = this.filterWith(scrobbles, settings);
+    if (!settings.filterRemasters) {
+      return filtered;
+    }
+    const canonical = this.emptyCanonical();
+    return filtered.map(scrobble => this.sanitizeScrobble(scrobble, canonical));
+  }
+
+  /**
    * Strips remaster/edition suffixes and canonicalizes artist spelling and casing once per scrobble so downstream maps,
    * MapperService lookups, list components, and StreakStacks stay consistent.
    */
@@ -243,7 +256,12 @@ export class StatsBuilderService {
 
   private canonical(stats: TempStats): CanonicalNames {
     const lists = this.seen(stats);
-    lists.canonical ??= {
+    lists.canonical ??= this.emptyCanonical();
+    return lists.canonical;
+  }
+
+  private emptyCanonical(): CanonicalNames {
+    return {
       artistKeys: new Map(),
       albumGroups: new Map(),
       albumIds: new Map(),
@@ -251,7 +269,6 @@ export class StatsBuilderService {
       albums: new Map(),
       tracks: new Map(),
     };
-    return lists.canonical;
   }
 
   private handleMonth(next: TempStats, monthYear: string, scrobble: Scrobble): void {
