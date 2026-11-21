@@ -19,10 +19,12 @@ import {
 import { Settings, SettingsService } from 'projects/shared/src/lib/service/settings.service';
 import { MapperService } from './mapper.service';
 import { ScrobbleStore } from './scrobble.store';
-import { sanitizeName } from './sanitize-name';
+import { artistKey, sanitizeName } from './sanitize-name';
 
-/** Canonical display casing per lowercase key, scoped to a single TempStats accumulator. */
+/** First seen spelling per normalized key, scoped to a single TempStats accumulator. */
 interface CanonicalNames {
+  /** Raw artist name to its {@link artistKey}: far fewer artists than scrobbles, so normalize each only once. */
+  artistKeys: Map<string, string>;
   artists: Map<string, string>;
   albums: Map<string, string>;
   tracks: Map<string, string>;
@@ -151,21 +153,25 @@ export class StatsBuilderService {
   }
 
   /**
-   * Strips remaster/edition suffixes and canonicalizes casing once per scrobble so downstream maps,
+   * Strips remaster/edition suffixes and canonicalizes artist spelling and casing once per scrobble so downstream maps,
    * MapperService lookups, list components, and StreakStacks stay consistent.
    */
   private sanitizeScrobble(scrobble: Scrobble, canonical: CanonicalNames): Scrobble {
-    const artistLower = scrobble.artist.toLowerCase();
-    const artist = this.canonicalize(canonical.artists, artistLower, scrobble.artist);
+    let key = canonical.artistKeys.get(scrobble.artist);
+    if (key === undefined) {
+      key = artistKey(scrobble.artist);
+      canonical.artistKeys.set(scrobble.artist, key);
+    }
+    const artist = this.canonicalize(canonical.artists, key, scrobble.artist);
 
     const sanitizedTrack = (scrobble.track && sanitizeName(scrobble.track)) || scrobble.track;
     const track = sanitizedTrack
-      ? this.canonicalize(canonical.tracks, `${artistLower}\0${sanitizedTrack.toLowerCase()}`, sanitizedTrack)
+      ? this.canonicalize(canonical.tracks, `${key}\0${sanitizedTrack.toLowerCase()}`, sanitizedTrack)
       : sanitizedTrack;
 
     const sanitizedAlbum = scrobble.album ? sanitizeName(scrobble.album) : scrobble.album;
     const album = sanitizedAlbum
-      ? this.canonicalize(canonical.albums, `${scrobble.albumId || artistLower}\0${sanitizedAlbum.toLowerCase()}`, sanitizedAlbum)
+      ? this.canonicalize(canonical.albums, `${scrobble.albumId || key}\0${sanitizedAlbum.toLowerCase()}`, sanitizedAlbum)
       : sanitizedAlbum;
 
     if (artist === scrobble.artist && album === scrobble.album && track === scrobble.track) {
@@ -191,6 +197,7 @@ export class StatsBuilderService {
   private canonical(stats: TempStats): CanonicalNames {
     const lists = this.seen(stats);
     lists.canonical ??= {
+      artistKeys: new Map(),
       artists: new Map(),
       albums: new Map(),
       tracks: new Map(),

@@ -202,6 +202,34 @@ describe('StatsBuilderService (filterRemasters)', () => {
     expect(stats.seenTracks['Radiohead - Karma Police'].scrobbles).toHaveLength(2);
   });
 
+  it('groups artist spellings that differ in hyphens, accents and dots under the first seen spelling', () => {
+    const { build } = createHarness();
+    const settings = makeSettings({ filterRemasters: true });
+
+    const stats = build([
+      makeScrobble({ artist: 'blink-182', album: 'Enema of the State', track: 'All the Small Things', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Blink 182', album: 'Enema Of The State', track: 'All The Small Things', date: new Date(2024, 0, 2) }),
+      makeScrobble({ artist: 'Beyoncé', album: 'Lemonade', track: 'Formation', date: new Date(2024, 0, 3) }),
+      makeScrobble({ artist: 'Beyonce', album: 'Lemonade', track: 'Formation', date: new Date(2024, 0, 4) }),
+    ], settings);
+
+    expect(Object.keys(stats.seenArtists)).toEqual(['blink-182', 'Beyoncé']);
+    expect(Object.keys(stats.seenTracks)).toEqual(['blink-182 - All the Small Things', 'Beyoncé - Formation']);
+    expect(Object.keys(stats.seenAlbums)).toEqual(['blink-182 - Enema of the State', 'Beyoncé - Lemonade']);
+    expect(stats.seenArtists['blink-182'].scrobbles).toHaveLength(2);
+  });
+
+  it('keeps artist spellings separate when filterRemasters is false', () => {
+    const { build } = createHarness();
+
+    const stats = build([
+      makeScrobble({ artist: 'blink-182', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Blink 182', date: new Date(2024, 0, 2) }),
+    ], makeSettings({ filterRemasters: false }));
+
+    expect(Object.keys(stats.seenArtists)).toEqual(['blink-182', 'Blink 182']);
+  });
+
   it('keeps different artists with the same album title separate when albumId is missing', () => {
     const { build } = createHarness();
     const settings = makeSettings({ filterRemasters: true });

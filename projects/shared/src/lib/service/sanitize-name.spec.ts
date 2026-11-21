@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeName } from './sanitize-name';
+import { artistKey, sanitizeName } from './sanitize-name';
 
 describe('sanitizeName', () => {
 
@@ -839,5 +839,65 @@ describe('sanitizeName', () => {
     it('track with (w/ Artist)', () => {
       expect(sanitizeName('Song (w/ Someone)')).toBe('Song');
     });
+  });
+
+  // ── Punctuation, padding and extra word forms ──────────────────────
+
+  describe('punctuation and padding inside the suffix', () => {
+    it.each([
+      ['Your Life (Jones & B-Front Remix)', 'Your Life'],
+      ['Crystal Clear (Ran-D Remix)', 'Crystal Clear'],
+      ["Bromance (Avicii's Arena Mix)", 'Bromance'],
+      ['Inth-e-nd (Hip-Hop Version)', 'Inth-e-nd'],
+      ["Love Story (Taylor's Version)", 'Love Story'],
+      ['Song (Tiësto Remix)', 'Song'],
+      ['Walk Like A Panther - 7" Version', 'Walk Like A Panther'],
+      ['Getting Better (The Cat In The Hat/Soundtrack Version)', 'Getting Better'],
+      ['Do It Again (Me, Myself & Irene / Soundtrack Version)', 'Do It Again'],
+      ['Pjanoo ( Original Mix )', 'Pjanoo'],
+      ['Even Flow (remixed)', 'Even Flow'],
+      ['No Apologies (Bonus Track!)', 'No Apologies'],
+      ['Loser (Live On Rock 104)', 'Loser'],
+      ["Song (Live at Wembley '86)", 'Song'],
+      ['Anthem Part Two (Live in Chicago - Bonus Track)', 'Anthem Part Two'],
+    ])('strips %s', (name, expected) => {
+      expect(sanitizeName(name)).toBe(expected);
+    });
+
+    it('only strips the last dash segment', () => {
+      expect(sanitizeName('Stop - Look - Listen Remix')).toBe('Stop - Look');
+    });
+
+    it('keeps a slash separated title', () => {
+      expect(sanitizeName('Song / Other Song - Radio Edit')).toBe('Song / Other Song');
+    });
+  });
+});
+
+describe('artistKey', () => {
+  it.each([
+    ['blink 182', 'blink-182'],
+    ['Blink_182', 'blink-182'],
+    ['Beyoncé', 'beyonce'],
+    ['Sigur Rós', 'sigur ros'],
+    ['Motörhead', 'Motorhead'],
+    ['Mötley Crüe', 'Motley Crue'],
+    ['Röyksopp', 'Royksopp'],
+    ['Måneskin', 'Maneskin'],
+    ['Françoise Hardy', 'Francoise Hardy'],
+    ['Señor Coconut', 'Senor Coconut'],
+    ['AC/DC', 'ACDC'],
+    ['R.E.M.', 'REM'],
+    ['MGMT', 'mgmt'],
+  ])('groups %s with %s', (a, b) => {
+    expect(artistKey(a)).toBe(artistKey(b));
+  });
+
+  it('keeps different artists apart', () => {
+    expect(artistKey('Blur')).not.toBe(artistKey('Blue'));
+  });
+
+  it('keeps names that are only punctuation apart', () => {
+    expect(artistKey('...')).not.toBe(artistKey('-'));
   });
 });

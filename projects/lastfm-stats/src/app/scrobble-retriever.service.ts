@@ -23,12 +23,9 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private lfm = inject(LastfmService);
   private username = inject(UsernameService);
 
-  artistSanitizer = new ArtistSanitizer();
-
   retrieveFor(username: string, imported: Scrobble[], store: ScrobbleStore): void {
     const to = new Date().toDateString();
 
-    this.artistSanitizer.clear();
     this.retrieveUser(username).subscribe({
       next: user => {
         store.updateUser(user);
@@ -157,7 +154,7 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
   private updateTracks(loadingState: LoadingState, response: LfmTrack[]): void {
     const tracks: Scrobble[] = response.filter(t => t.date && !(t['@attr']?.nowplaying === 'true')).map(t => ({
       track: t.name,
-      artist: this.artistSanitizer.sanitize(t.artist['#text']),
+      artist: t.artist['#text'],
       album: t.album['#text'],
       albumId: t.album.mbid,
       date: new Date(t.date?.uts * 1000)
@@ -175,42 +172,5 @@ export class ScrobbleRetrieverService extends AbstractItemRetriever {
       limit: loadingState.pageSize!,
       page: loadingState.page!,
     });
-  }
-}
-
-class ArtistSanitizer {
-  private readonly sanitized = new Map<string,string>();
-  private readonly target = new Map<string,string>();
-
-  sanitize(artist: string): string {
-    const existing = this.sanitized.get(artist);
-    if (existing) {
-      return this.target.get(existing)!;
-    }
-    const sanitized = artist.toLowerCase()
-      .replaceAll(/[à-å]/gi, 'a')
-      .replaceAll(/[è-ë]/gi, 'e')
-      .replaceAll(/[ì-ï]/gi, 'i')
-      .replaceAll(/[ò-öø]/gi, 'o')
-      .replaceAll(/[ù-ü]/gi, 'u')
-      .replaceAll(/[ýÿ]/gi, 'y')
-      .replaceAll(/ç/gi, 'c')
-      .replaceAll(/ñ/gi, 'n')
-      .replaceAll(/[_-]/g, ' ')
-      .replaceAll(/[\/.]/g, '');
-
-    this.sanitized.set(artist, sanitized);
-    const tar = this.target.get(sanitized);
-    if (tar) {
-      return tar;
-    }
-
-    this.target.set(sanitized, artist);
-    return artist;
-  }
-
-  clear() {
-    this.sanitized.clear();
-    this.target.clear();
   }
 }
