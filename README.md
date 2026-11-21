@@ -42,6 +42,10 @@ pnpm run both
 This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http://localhost:4201/
 
 ## 🐛 Changelog
+8.1 (21-11-2026)
+- added toggle for sanitization ([#92][i92], pr by [digernes](https://github.com/digernes), [husubtw](https://github.com/husubtw))
+- added backend proxy 
+
 8.0 (02-11-2026)
 - added recap
 - added playtime stats for spotify
@@ -382,6 +386,7 @@ This will serve lastfm-stats on http://localhost:4200/ and spotify-stats on http
 [i86]: https://github.com/felhag/lastfm-stats-web/issues/86
 [i87]: https://github.com/felhag/lastfm-stats-web/pull/87
 [i89]: https://github.com/felhag/lastfm-stats-web/issues/89
+[i92]: https://github.com/felhag/lastfm-stats-web/pull/92
 [i94]: https://github.com/felhag/lastfm-stats-web/pull/94
 [i99]: https://github.com/felhag/lastfm-stats-web/issues/99
 [i101]: https://github.com/felhag/lastfm-stats-web/issues/101
