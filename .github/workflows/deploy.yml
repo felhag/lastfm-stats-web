@@ -10,8 +10,22 @@ jobs:
   build:
     uses: ./.github/workflows/main.yml
 
-  deploy-lastfm:
+  deploy-backend:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Deploy edge script
+      uses: BunnyWay/actions/deploy-script@main
+      with:
+        script_id: ${{ secrets.BUNNY_SCRIPT_ID }}
+        deploy_key: ${{ secrets.BUNNY_DEPLOY_KEY }}
+        file: backend/script.ts
+
+  deploy-lastfm:
+    needs: [build, deploy-backend]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -35,7 +49,7 @@ jobs:
         target-folder: docs
 
   deploy-spotify:
-    needs: build
+    needs: [build, deploy-backend]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

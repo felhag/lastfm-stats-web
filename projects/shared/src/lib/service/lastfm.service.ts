@@ -45,8 +45,7 @@ export interface RecentTracksParams {
 
 @Service()
 export class LastfmService {
-  private readonly API = 'https://ws.audioscrobbler.com/2.0/';
-  private readonly KEY = '2c223bda2fe846bd5c24f9a5d2da834e';
+  private readonly API = 'https://api.lastfmstats.com/2.0/';
 
   private readonly http = inject(HttpClient);
 
@@ -77,6 +76,6 @@ export class LastfmService {
   }
 
   private params() {
-    return new HttpParams().append('api_key', this.KEY).append('format', 'json');
+    return new HttpParams();
   }
 }

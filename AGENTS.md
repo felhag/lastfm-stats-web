@@ -28,6 +28,8 @@ projects/
       …
   lastfm-stats/   Thin wrapper: home page, ScrobbleRetrieverService (last.fm API), URL service
   spotify-stats/  Thin wrapper: home page (zip parsing), SpotifyItemService, URL service
+backend/
+  script.ts       Bunny edge script on api.lastfmstats.com: proxy for the last.fm API
 ```
 
 Each app is bootstrapped in `projects/<app>/src/main.ts`. The wiring there is what defines the differences between the apps — see "App differences" below.
@@ -74,6 +76,14 @@ Last.fm's API is slow for large profiles, so caching the data client-side is a f
 
 Spotify only uses the importer + IndexedDB; there is no incremental API fetch because Spotify provides all the data in the export zip up front. Both `StreamingHistoryEntry` (old format) and `EndSongEntry` (extended history) are parsed in the spotify home component.
 
+### last.fm API proxy
+
+The apps never call last.fm directly. `LastfmService` calls `https://api.lastfmstats.com/2.0/`, a Bunny standalone edge script (`backend/script.ts`) that adds the API key and forwards to `ws.audioscrobbler.com`. Requests keep the last.fm query shape (`?method=...&user=...`).
+
+- The API key is the `LASTFM_KEY` secret on the script in the Bunny dashboard. **Never** put it in the repo or the frontend.
+- The script only forwards an allowlist of methods and parameters, and only for an allowlist of origins (both production domains and `localhost:4200`/`4201`). A new last.fm call from the frontend needs its method and parameters added there.
+- The script is a single file without a build step (Deno-style `npm:` imports); keep it that way.
+
 When touching import/export, the `Export` shape in `model.ts` is the on-disk contract — changing it breaks users' saved files.
 
 ## Tooling
@@ -106,10 +116,11 @@ GitHub Actions:
 - `.github/workflows/deploy.yml` — runs on tag push. Reuses `main.yml` to produce both artifacts, then fans out into two deploy jobs:
   - `deploy-lastfm` → this repo's `gh-pages/docs/` (uses `GITHUB_TOKEN`).
   - `deploy-spotify` → `felhag/spotify-stats-web`'s `gh-pages/docs/` via `JamesIves/github-pages-deploy-action` with `repository-name` + `secrets.SPOTIFY_DEPLOY_PAT` (a fine-grained PAT with `contents: write` on the spotify repo). GitHub Pages on that repo picks up the commit and ships spotifystats.app.
+  - `deploy-backend` → publishes `backend/script.ts` to Bunny (`secrets.BUNNY_SCRIPT_ID` + `secrets.BUNNY_DEPLOY_KEY`). Both frontend deploy jobs wait for it, so a new frontend never calls a backend that isn't live yet.
   - The 404 page is just a copy of `index.html` so the SPA router handles deep links.
 - `.github/workflows/playwright.yml` — e2e on every push.
 
-One tag here deploys both apps; **do not** push commits to `felhag/spotify-stats-web`'s `master`. The matrix artifact names (`build-<project>`) and the `download-artifact` names in `deploy.yml` must stay in sync with the Angular project names in `angular.json`.
+One tag here deploys both apps and the backend; **do not** push commits to `felhag/spotify-stats-web`'s `master`. The matrix artifact names (`build-<project>`) and the `download-artifact` names in `deploy.yml` must stay in sync with the Angular project names in `angular.json`.
 
 ## Conventions
 

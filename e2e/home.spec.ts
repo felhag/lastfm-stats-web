@@ -118,7 +118,7 @@ test.describe('Navigation to main application', () => {
 
   test('shows user not found and can return home', async ({ page }) => {
     // Intercept the last.fm API to simulate a 404 for unknown users
-    await page.route('**/ws.audioscrobbler.com/**', route => {
+    await page.route('**/api.lastfmstats.com/**', route => {
       route.fulfill({ status: 404, body: '{"error":6,"message":"User not found"}' });
     });
 
