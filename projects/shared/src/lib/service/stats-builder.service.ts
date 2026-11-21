@@ -28,6 +28,17 @@ interface CanonicalNames {
   artists: Map<string, string>;
   albums: Map<string, string>;
   tracks: Map<string, string>;
+  /** Artist key + sanitized album name to the album that id-less scrobbles and other editions of it join. */
+  albumGroups: Map<string, AlbumGroup>;
+  /** The album every albumId seen so far counts towards. */
+  albumIds: Map<string, string>;
+}
+
+interface AlbumGroup {
+  /** Key in seenAlbums: an albumId, or the full name when the first scrobble had none. */
+  id: string;
+  /** Whether an albumId with exactly this title belongs to it, a second one is then a different album. */
+  claimed: boolean;
 }
 
 /**
@@ -170,19 +181,55 @@ export class StatsBuilderService {
       : sanitizedTrack;
 
     const sanitizedAlbum = scrobble.album ? sanitizeName(scrobble.album) : scrobble.album;
-    const album = sanitizedAlbum
-      ? this.canonicalize(canonical.albums, `${scrobble.albumId || key}\0${sanitizedAlbum.toLowerCase()}`, sanitizedAlbum)
-      : sanitizedAlbum;
+    let album = sanitizedAlbum;
+    let albumId = scrobble.albumId;
+    if (sanitizedAlbum) {
+      const lower = sanitizedAlbum.toLowerCase();
+      albumId = this.albumId(canonical, scrobble, `${key}\0${lower}`, `${artist} - ${sanitizedAlbum}`, sanitizedAlbum !== scrobble.album);
+      album = this.canonicalize(canonical.albums, `${albumId}\0${lower}`, sanitizedAlbum);
+    }
 
-    if (artist === scrobble.artist && album === scrobble.album && track === scrobble.track) {
+    if (artist === scrobble.artist && album === scrobble.album && track === scrobble.track && albumId === scrobble.albumId) {
       return scrobble;
     }
     return {
       ...scrobble,
       artist,
       album,
+      albumId,
       track,
     };
+  }
+
+  /**
+   * The album a scrobble counts towards. An albumId identifies one release, so the original and its remaster
+   * have different ones and many scrobbles have none: those would stay separate albums with the same name.
+   * Scrobbles without an id and editions of an album therefore join the album of that artist and title, while
+   * a second id with exactly the same title stays apart (an artist with several self-titled albums).
+   */
+  private albumId(canonical: CanonicalNames, scrobble: Scrobble, groupKey: string, fullName: string, edition: boolean): string {
+    const id = scrobble.albumId;
+    if (id) {
+      const known = canonical.albumIds.get(id);
+      if (known !== undefined) {
+        return known;
+      }
+    }
+    let group = canonical.albumGroups.get(groupKey);
+    if (!group) {
+      group = {id: id || fullName, claimed: !!id && !edition};
+      canonical.albumGroups.set(groupKey, group);
+    } else if (id && !edition) {
+      if (group.claimed) {
+        canonical.albumIds.set(id, id);
+        return id;
+      }
+      group.claimed = true;
+    }
+    if (id) {
+      canonical.albumIds.set(id, group.id);
+    }
+    return group.id;
   }
 
   private canonicalize(map: Map<string, string>, key: string, value: string): string {
@@ -198,6 +245,8 @@ export class StatsBuilderService {
     const lists = this.seen(stats);
     lists.canonical ??= {
       artistKeys: new Map(),
+      albumGroups: new Map(),
+      albumIds: new Map(),
       artists: new Map(),
       albums: new Map(),
       tracks: new Map(),

@@ -230,6 +230,66 @@ describe('StatsBuilderService (filterRemasters)', () => {
     expect(Object.keys(stats.seenArtists)).toEqual(['blink-182', 'Blink 182']);
   });
 
+  it('merges editions with another albumId or without one into the album with that title', () => {
+    const { build, mapper } = createHarness();
+    const settings = makeSettings({ filterRemasters: true });
+
+    const stats = build([
+      makeScrobble({ artist: 'Nirvana', album: 'Nevermind (Remastered)', albumId: '', track: 'Breed', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Nirvana', album: 'Nevermind (Deluxe Edition)', albumId: 'mbid-deluxe', track: 'Lithium', date: new Date(2024, 0, 2) }),
+      makeScrobble({ artist: 'Nirvana', album: 'Nevermind', albumId: 'mbid-original', track: 'Polly', date: new Date(2024, 0, 3) }),
+      makeScrobble({ artist: 'Nirvana', album: 'nevermind', albumId: '', track: 'Drain You', date: new Date(2024, 0, 4) }),
+    ], settings);
+
+    const albums = Object.values(stats.seenAlbums);
+    expect(albums).toHaveLength(1);
+    expect(albums[0].name).toBe('Nirvana - Nevermind');
+    expect(albums[0].scrobbles).toHaveLength(4);
+    expect(stats.albumStreak.current?.length).toBe(4);
+    expect(mapper.monthItem('album', Object.values(stats.monthList)[0], albums[0])?.count).toBe(4);
+  });
+
+  it('joins scrobbles without albumId to the album with an albumId, also when that comes later', () => {
+    const { build } = createHarness();
+    const settings = makeSettings({ filterRemasters: true });
+
+    const stats = build([
+      makeScrobble({ artist: 'Blur', album: 'Parklife', albumId: '', track: 'Tracy Jacks', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Blur', album: 'Parklife', albumId: 'mbid-parklife', track: 'End of a Century', date: new Date(2024, 0, 2) }),
+      makeScrobble({ artist: 'Blur', album: 'Parklife (Special Edition)', albumId: '', track: 'Badhead', date: new Date(2024, 0, 3) }),
+    ], settings);
+
+    expect(Object.keys(stats.seenAlbums)).toHaveLength(1);
+    expect(Object.values(stats.seenAlbums)[0].scrobbles).toHaveLength(3);
+  });
+
+  it('keeps a compilation together when its first scrobble has no albumId', () => {
+    const { build } = createHarness();
+    const settings = makeSettings({ filterRemasters: true });
+
+    const stats = build([
+      makeScrobble({ artist: 'Dick Dale', album: 'Pulp Fiction', albumId: '', track: 'Misirlou', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Dick Dale', album: 'Pulp Fiction', albumId: 'mbid-pulp', track: 'Misirlou', date: new Date(2024, 0, 2) }),
+      makeScrobble({ artist: 'Urge Overkill', album: 'Pulp Fiction', albumId: 'mbid-pulp', track: 'Girl', date: new Date(2024, 0, 3) }),
+    ], settings);
+
+    const albums = Object.values(stats.seenAlbums);
+    expect(albums).toHaveLength(1);
+    expect(albums[0].name).toBe('Various artists - Pulp Fiction');
+    expect(albums[0].artists).toEqual(['Dick Dale', 'Urge Overkill']);
+  });
+
+  it('keeps albums apart when filterRemasters is false', () => {
+    const { build } = createHarness();
+
+    const stats = build([
+      makeScrobble({ artist: 'Nirvana', album: 'Nevermind', albumId: 'mbid-original', date: new Date(2024, 0, 1) }),
+      makeScrobble({ artist: 'Nirvana', album: 'Nevermind', albumId: '', date: new Date(2024, 0, 2) }),
+    ], makeSettings({ filterRemasters: false }));
+
+    expect(Object.keys(stats.seenAlbums)).toHaveLength(2);
+  });
+
   it('keeps different artists with the same album title separate when albumId is missing', () => {
     const { build } = createHarness();
     const settings = makeSettings({ filterRemasters: true });
