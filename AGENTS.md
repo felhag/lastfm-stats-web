@@ -30,6 +30,8 @@ projects/
   spotify-stats/  Thin wrapper: home page (zip parsing), SpotifyItemService, URL service
 backend/
   script.ts       Bunny edge script on api.lastfmstats.com: proxy for the last.fm API
+docker/
+  server.mjs      Zero-dependency Node static server + same-origin /2.0/ proxy for self-hosting
 ```
 
 Each app is bootstrapped in `projects/<app>/src/main.ts`. The wiring there is what defines the differences between the apps — see "App differences" below.
@@ -83,6 +85,7 @@ The apps never call last.fm directly. `LastfmService` calls `https://api.lastfms
 - The API key is the `LASTFM_KEY` secret on the script in the Bunny dashboard. **Never** put it in the repo or the frontend.
 - The script only forwards an allowlist of methods and parameters, and only for an allowlist of origins (both production domains and `localhost:4200`/`4201`). A new last.fm call from the frontend needs its method and parameters added there.
 - The script is a single file without a build step (Deno-style `npm:` imports); keep it that way.
+- For self-hosted deployments, `LastfmService` reads an optional `<meta name="lastfm-api-url" content="...">` tag from the DOM (falling back to `https://api.lastfmstats.com/2.0/`). `docker/server.mjs` injects this tag from `API_URL` or `LASTFM_KEY` (activating a built-in same-origin `/2.0/` proxy).
 
 When touching import/export, the `Export` shape in `model.ts` is the on-disk contract — changing it breaks users' saved files.
 

@@ -1,8 +1,25 @@
-FROM node:22-alpine
-WORKDIR /usr/src/app
-COPY . /usr/src/app
+FROM node:24-alpine AS builder
+ARG PROJECT=lastfm-stats
+WORKDIR /app
 
-RUN npm install -g @angular/cli
-RUN npm install
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable && corepack prepare pnpm@11.28.13 --activate
 
-CMD ["ng", "serve", "--host", "0.0.0.0", "--project", "lastfm-stats"]
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY angular.json tsconfig.json tsconfig.app.json ./
+COPY projects ./projects
+RUN pnpm exec ng build --project "${PROJECT}" --configuration production
+
+FROM node:24-alpine
+ARG PROJECT=lastfm-stats
+WORKDIR /app
+
+COPY --from=builder /app/dist/${PROJECT}/browser ./public
+COPY docker/server.mjs ./server.mjs
+
+USER node
+EXPOSE 4200
+
+CMD ["node", "server.mjs"]

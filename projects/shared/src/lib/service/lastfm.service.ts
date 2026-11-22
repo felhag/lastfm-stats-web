@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Service, inject } from '@angular/core';
+import { DOCUMENT, Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { User } from '../app/model';
 
@@ -43,11 +43,13 @@ export interface RecentTracksParams {
   limit: number;
 }
 
+const DEFAULT_API = 'https://api.lastfmstats.com/2.0/';
+
 @Service()
 export class LastfmService {
-  private readonly API = 'https://api.lastfmstats.com/2.0/';
-
+  private readonly document = inject(DOCUMENT, { optional: true });
   private readonly http = inject(HttpClient);
+  private readonly API = this.resolveApiUrl();
 
   getRecentTracks(params: RecentTracksParams): Observable<LfmRecentTracksResponse> {
     const httpParams = this.params()
@@ -73,6 +75,17 @@ export class LastfmService {
       .append('method', 'user.getinfo')
       .append('user', username);
     return this.http.get<{user: User}>(this.API, {params: httpParams}).pipe(map(r => r.user));
+  }
+
+  private resolveApiUrl(): string {
+    const configured = this.document
+      ?.querySelector('meta[name="lastfm-api-url"]')
+      ?.getAttribute('content')
+      ?.trim();
+    if (!configured) {
+      return DEFAULT_API;
+    }
+    return configured.endsWith('/') ? configured : `${configured}/`;
   }
 
   private params() {
