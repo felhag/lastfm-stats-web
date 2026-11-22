@@ -17,6 +17,17 @@ docker run -p 4200:4200 lastfm-stats
 ```
 This will serve lastfm-stats on http://localhost:4200
 
+### Self-hosting
+When hosting on a custom domain, the public `api.lastfmstats.com` proxy rejects unknown origins. Provide your own [Last.fm API key](https://www.last.fm/api/account/create) to enable the built-in `/2.0/` proxy:
+```
+docker run -p 4200:4200 -e LASTFM_KEY=<your-api-key> lastfm-stats
+```
+Or point the app at an external proxy instead:
+```
+docker run -p 4200:4200 -e API_URL=https://your-proxy.example.com/2.0/ lastfm-stats
+```
+To build `spotify-stats` instead, pass `--build-arg PROJECT=spotify-stats` to `docker build`.
+
 ## 🔨 Development
 
 Setting up a local dev environment:
